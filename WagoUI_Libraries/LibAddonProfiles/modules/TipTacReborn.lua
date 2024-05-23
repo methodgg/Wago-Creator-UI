@@ -8,6 +8,11 @@ local isLoaded = function()
   return TipTac and true or false
 end
 
+---@return boolean
+local needsInitialization = function()
+  return false
+end
+
 ---@return nil
 local openConfig = function()
   SlashCmdList["TIPTAC"]("")
@@ -88,6 +93,7 @@ local m = {
   icon = 134331,
   slash = "/tiptac",
   needReloadOnImport = true, --optional
+  needsInitialization = needsInitialization,
   needProfileKey = false,    --optional
   preventRename = true,
   isLoaded = isLoaded,

@@ -9,6 +9,11 @@ local isLoaded = function()
   return loaded
 end
 
+---@return boolean
+local needsInitialization = function()
+  return false
+end
+
 ---@return nil
 local openConfig = function()
   SlashCmdList["ACECONSOLE_ECHORT"]()
@@ -136,6 +141,7 @@ local m = {
   icon = [[Interface\AddOns\EchoRaidTools\assets\textures\ELp3.tga]],
   slash = "/echort",
   needReloadOnImport = false,
+  needsInitialization = needsInitialization,
   needProfileKey = false,
   isLoaded = isLoaded,
   openConfig = openConfig,

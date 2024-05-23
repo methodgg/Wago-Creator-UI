@@ -8,6 +8,11 @@ local isLoaded = function()
   return SexyMap and true or false
 end
 
+---@return boolean
+local needsInitialization = function()
+  return false
+end
+
 ---@return nil
 local openConfig = function()
   SlashCmdList["SexyMap"]("")
@@ -103,6 +108,7 @@ local m = {
   icon = 237382,
   slash = "/sexymap",
   needReloadOnImport = true,
+  needsInitialization = needsInitialization,
   needProfileKey = false,
   isLoaded = isLoaded,
   openConfig = openConfig,

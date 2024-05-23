@@ -17,6 +17,11 @@ local isLoaded = function()
   return true
 end
 
+---@return boolean
+local needsInitialization = function()
+  return false
+end
+
 ---@return nil
 local openConfig = function()
   SlashCmdList["EDITMODE"]()
@@ -119,6 +124,7 @@ local m = {
   icon = 135724,
   slash = "/editmode",
   needReloadOnImport = true,
+  needsInitialization = needsInitialization,
   needProfileKey = true,
   isLoaded = isLoaded,
   openConfig = openConfig,

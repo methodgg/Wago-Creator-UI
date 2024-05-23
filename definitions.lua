@@ -18,7 +18,7 @@
 ---@field slash string
 ---@field icon number | string
 ---@field isLoaded fun() : boolean
----@field needsInitialization? fun() : boolean
+---@field needsInitialization fun() : boolean
 ---@field openConfig fun() : nil
 ---@field closeConfig fun() : nil
 ---@field preventRename boolean?

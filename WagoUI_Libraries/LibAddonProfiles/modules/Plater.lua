@@ -144,6 +144,11 @@ local isLoaded = function()
   return Plater and true or false
 end
 
+---@return boolean
+local needsInitialization = function()
+  return false
+end
+
 ---@return nil
 local openConfig = function()
   SlashCmdList["PLATER"]("")
@@ -255,6 +260,7 @@ local m = {
   icon = [[Interface\AddOns\Plater\images\cast_bar]],
   slash = "/plater",
   needReloadOnImport = true,
+  needsInitialization = needsInitialization,
   needProfileKey = true,
   isLoaded = isLoaded,
   openConfig = openConfig,

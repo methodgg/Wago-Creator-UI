@@ -8,6 +8,11 @@ local isLoaded = function()
   return TalentLoadoutsEx and true or false
 end
 
+---@return boolean
+local needsInitialization = function()
+  return false
+end
+
 ---@return nil
 local openConfig = function()
   --has nothing, it's the talent frame
@@ -137,6 +142,7 @@ local m = {
   icon = 134063,
   slash = "/run ToggleTalentFrame()",
   needReloadOnImport = false, --optional
+  needsInitialization = needsInitialization,
   needProfileKey = false,     --optional
   preventRename = true,
   isLoaded = isLoaded,

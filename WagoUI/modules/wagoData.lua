@@ -12,14 +12,13 @@ function addon:SetupWagoData()
       end
     end
   end
-  if not WagoUIData and not WagoUIData[db.selectedWagoData] then
+  if not WagoUIData or not WagoUIData[db.selectedWagoData] then
     db.selectedWagoData = nil
     addon.wagoData = nil
     return
   end
   local source = WagoUIData[db.selectedWagoData]
   addon.wagoData = {}
-
   for resolution, modules in pairs(source.profileKeys) do
     addon.wagoData[resolution] = {}
     for moduleName, moduleData in pairs(modules) do

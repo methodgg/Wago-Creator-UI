@@ -71,6 +71,11 @@ local isLoaded = function()
   return Details and true or false
 end
 
+---@return boolean
+local needsInitialization = function()
+  return false
+end
+
 ---@return nil
 local openConfig = function()
   SlashCmdList["DETAILS"]("options")
@@ -185,6 +190,7 @@ local m = {
   slash = "/details config",
   icon = [[Interface\AddOns\Details\images\minimap]],
   needReloadOnImport = false,
+  needsInitialization = needsInitialization,
   needProfileKey = true,
   isLoaded = isLoaded,
   openConfig = openConfig,

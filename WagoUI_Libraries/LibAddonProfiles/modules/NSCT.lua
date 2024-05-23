@@ -8,6 +8,11 @@ local isLoaded = function()
   return NameplateSCTDB and true or false
 end
 
+---@return boolean
+local needsInitialization = function()
+  return false
+end
+
 ---@return nil
 local openConfig = function()
   SlashCmdList["ACECONSOLE_NSCT"]()
@@ -88,6 +93,7 @@ local m = {
   icon = 4548873,
   slash = "/nsct",
   needReloadOnImport = true,
+  needsInitialization = needsInitialization,
   needProfileKey = false,
   isLoaded = isLoaded,
   openConfig = openConfig,

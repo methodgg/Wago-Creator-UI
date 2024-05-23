@@ -8,6 +8,11 @@ local isLoaded = function()
   return ShadowUF and true or false
 end
 
+---@return boolean
+local needsInitialization = function()
+  return false
+end
+
 ---@return nil
 local openConfig = function()
   SlashCmdList["SHADOWEDUF"]("")
@@ -94,6 +99,7 @@ local m = {
   icon = 136200,
   slash = "/suf",
   needReloadOnImport = false,
+  needsInitialization = needsInitialization,
   needProfileKey = false,
   isLoaded = isLoaded,
   openConfig = openConfig,

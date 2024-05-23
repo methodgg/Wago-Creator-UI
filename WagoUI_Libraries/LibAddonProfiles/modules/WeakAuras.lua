@@ -8,6 +8,11 @@ local isLoaded = function()
   return WeakAuras and true or false
 end
 
+---@return boolean
+local needsInitialization = function()
+  return false
+end
+
 ---@return nil
 local openConfig = function()
   SlashCmdList["WEAKAURAS"]("")
@@ -435,6 +440,7 @@ local m = {
   icon = [[Interface\AddOns\WeakAuras\Media\Textures\icon]],
   slash = "/wa",
   needReloadOnImport = false,
+  needsInitialization = needsInitialization,
   needProfileKey = false,
   isLoaded = isLoaded,
   openConfig = openConfig,
