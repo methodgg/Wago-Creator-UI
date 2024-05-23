@@ -37,7 +37,9 @@ local function exportFunc(moduleName, resolution, exportProfileFunc, timestamp)
   if areEqual then return false end
   --stuff changed, we need to handle it
   --set the profile, time of export
-  if moduleName == "WeakAuras" or "Echo Raid Tools" then
+  addon.db.creatorUI.profileMetadata[resolution][moduleName] = addon.db.creatorUI.profileMetadata[resolution]
+      [moduleName] or {}
+  if moduleName == "WeakAuras" or moduleName == "Echo Raid Tools" then
     addon.db.creatorUI.profileMetadata[resolution][moduleName].lastUpdatedAt = addon.db.creatorUI.profileMetadata
         [resolution][moduleName].lastUpdatedAt or {}
     if changedEntries then
@@ -47,8 +49,6 @@ local function exportFunc(moduleName, resolution, exportProfileFunc, timestamp)
     end
     addon.db.creatorUI.profiles[resolution][moduleName] = newExport
   else
-    addon.db.creatorUI.profileMetadata[resolution][moduleName] = addon.db.creatorUI.profileMetadata[resolution]
-        [moduleName] or {}
     addon.db.creatorUI.profileMetadata[resolution][moduleName].lastUpdatedAt = timestamp
     addon.db.creatorUI.profiles[resolution][moduleName] = newExport
   end
