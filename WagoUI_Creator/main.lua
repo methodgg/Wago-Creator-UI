@@ -226,7 +226,7 @@ function addon:ExportAllProfiles()
 end
 
 function addon:AddDataToDataAddon()
-  if not WagoUIData then return end
+  if not WagoUI_Data then return end
   local data = {
     name = "Local Test Data",
     profileMetadata = WagoUICreatorDB.creatorUI.profileMetadata,
@@ -235,7 +235,7 @@ function addon:AddDataToDataAddon()
     profileKeys = WagoUICreatorDB.creatorUI.profileKeys,
     profiles = WagoUICreatorDB.creatorUI.profiles,
   }
-  WagoUIData.LocalTestData = data
+  WagoUI_Data.LocalTestData = data
 end
 
 --needed if the profile data of the addons changes
