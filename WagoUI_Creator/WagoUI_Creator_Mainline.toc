@@ -1,5 +1,5 @@
-## Interface: 11403
-## Title: UIManager
+## Interface: 100207
+## Title: WagoUI Creator
 ## Author: The Wago Team
 ## Version: 1.0.0
 ## DefaultState: Enabled
@@ -7,4 +7,3 @@
 ## SavedVariables: UIManagerDB
 
 load.xml
-
