@@ -227,7 +227,7 @@ function addon:CreateProfileTable(f)
     contentScrollbox:Refresh()
   end
 
-  if db.selectedWagoDataResolution then
+  if db.selectedWagoDataResolution and addon.wagoData then
     addon:UpdateProfileTable(addon.wagoData[db.selectedWagoDataResolution])
   end
 
