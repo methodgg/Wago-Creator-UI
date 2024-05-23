@@ -116,9 +116,7 @@ do
       if WagoUICreatorDB.autoStart then
         addon:ShowFrame()
       end
-      if WagoUICreatorDB.testMode then
-        addon:AddDataToDataAddon()
-      end
+      addon:AddDataToDataAddon()
     elseif (event == "ADDON_LOADED") then
       local loadedAddonName = ...
       if (loadedAddonName == addonName) then
@@ -219,9 +217,7 @@ function addon:ExportAllProfiles()
     else
       addon.copyHelper:SmartFadeOut(2, L["No Changes detected"])
     end
-    if WagoUICreatorDB.testMode then
-      addon:AddDataToDataAddon()
-    end
+    addon:AddDataToDataAddon()
   end, "ExportAllProfiles")
 end
 
@@ -315,19 +311,6 @@ function addon:CreateFrames()
 
   local autoStartLabel = DF:CreateLabel(frame, "Startup", 16, "white")
   autoStartLabel:SetPoint("LEFT", autoStartCheckbox, "RIGHT", 0, 0)
-
-  local testModeCheckbox = DF:CreateSwitch(frame,
-    function(_, _, value)
-      WagoUICreatorDB.testMode = value
-    end,
-    false, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, DF:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
-  testModeCheckbox:SetSize(25, 25)
-  testModeCheckbox:SetAsCheckBox()
-  testModeCheckbox:SetPoint("TOPLEFT", frame, "TOPRIGHT", 5, -30)
-  testModeCheckbox:SetValue(WagoUICreatorDB.testMode)
-
-  local testModeLabel = DF:CreateLabel(frame, "Test Mode", 16, "white")
-  testModeLabel:SetPoint("LEFT", testModeCheckbox, "RIGHT", 0, 0)
 
   local resetButton = DF:CreateButton(frame, nil, 60, 40, "RESET", nil, nil, nil, nil, nil, nil,
     options_dropdown_template)
