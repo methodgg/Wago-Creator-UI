@@ -1,0 +1,9 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	<Include file="choicePanel.lua"/>
+	<Include file="promptPanel.lua"/>
+	<Include file="copyHelper.lua"/>
+	<Include file="genericTextFrame.lua"/>
+	<Include file="export.lua"/>
+	<Include file="import.lua"/>
+	<Include file="releaseNoteInput.lua"/>
+</Ui>

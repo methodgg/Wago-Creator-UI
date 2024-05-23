@@ -1,0 +1,30 @@
+---@format disable
+local addonName, addon = ...
+addon.L = {}
+local L = addon.L
+
+L["Open an issue on GitHub"] = "Open an issue on GitHub"
+L["Provide feedback in Discord"] = "Provide feedback in Discord"
+L["copiedToClipboard"] = "Copied!"
+L["copyInstruction"] = "Press CTRL + C to copy!"
+L["Addon Error"] = "WagoUI Error"
+L["Error Label 1"] = "WagoUI has encountered errors."
+L["Error Label 2"] = "Please update WagoUI to the latest version."
+L["Error Label 3"] = "Visit either GitHub or Discord and report the error message below."
+L["Copy"] = "Copy"
+L["Error Message"] = "Error Message"
+L["Copy error"] = "Copy Error"
+L["Open an issue on GitHub"] = "Open an issue on GitHub"
+L["Provide feedback in Discord"] = "Provide feedback in Discord"
+L["Update All"] = "Update All"
+L["This AddOn needs to be initialized. Click to initialize."] = "This AddOn needs to be initialized. Click to initialize."
+L["Click to open %s options"] = "Click to open %s options"
+L["Last Update"] = "Last Update"
+L["Action"] = "Action"
+L["Name"] = "Name"
+L["Options"] = "Options"
+L["Reset Options"] = "Reset Options"
+L["Show available slash commands"] = "Show available slash commands"
+L["Available slash commands"] = "Available slash commands"
+L["Import"] = "Import"
+L["Not loaded"] = "Not loaded"

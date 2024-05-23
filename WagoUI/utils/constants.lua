@@ -1,0 +1,30 @@
+local addonName, addon = ...;
+local L = addon.L
+
+addon.color = "FFE2CB00";
+addon.dbKey = "WagoUIDB"
+addon.slashPrefixes = {
+  "/wui", "/wagoui"
+}
+addon.ADDON_WIDTH = 1280
+addon.ADDON_HEIGHT = 800
+addon.dbDefaults = {
+  anchorTo = "CENTER",
+  anchorFrom = "CENTER",
+  xoffset = 0,
+  yoffset = 0,
+  config = {},
+};
+
+addon.externalLinks = {
+  {
+    name = "GitHub",
+    tooltip = L["Open an issue on GitHub"],
+    url = "<Placeholder GitHub Link>",
+  },
+  {
+    name = "Discord",
+    tooltip = L["Provide feedback in Discord"],
+    url = "<Placeholder Discord Link>",
+  },
+}

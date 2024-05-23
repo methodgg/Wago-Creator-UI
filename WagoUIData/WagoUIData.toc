@@ -1,0 +1,8 @@
+## Interface: 100207
+## Title: WagoUIData
+## Author: The Wago Team
+## Version: 1.0.0
+## DefaultState: Enabled
+## LoadOnDemand: 0
+
+load.xml

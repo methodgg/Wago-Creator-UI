@@ -1,0 +1,10 @@
+## Interface: 100207
+## Title: WagoUI
+## Author: The Wago Team
+## Version: 1.0.0
+## DefaultState: Enabled
+## LoadOnDemand: 0
+## OptionalDeps: WagoUIData
+## SavedVariables: WagoUIDB
+
+load.xml

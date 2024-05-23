@@ -1,0 +1,338 @@
+---@diagnostic disable: undefined-field
+local addonName, addon = ...
+local L = addon.L
+local DF = _G["DetailsFramework"]
+local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
+
+local profileDropdowns = {}
+local db
+
+function addon:CreateFrameContent(f)
+  db = addon.db
+  local contentWidth = f:GetWidth()
+  local contentHeight = f:GetHeight()
+  addon:CreateProfileList(f, contentWidth - 6, contentHeight)
+end
+
+do
+  local f = CreateFrame("frame")
+  local tx = f:CreateTexture()
+  function addon:TestTexture(path)
+    tx:SetTexture("?")
+    tx:SetTexture(path)
+    return tx:GetTexture()
+  end
+end
+
+function addon:CreateProfileList(f, width, height)
+  local function contentScrollboxUpdate(self, data, offset, totalLines)
+    addon.ModuleFunctions:SortModuleConfigs()
+    for i = 1, totalLines do
+      local index = i + offset
+      local info = data[index]
+      if (info) then
+        local line = self:GetLine(i)
+        local res = db.creatorUI.resolutions
+        local loaded = info.isLoaded() and res.enabled[res.chosen]
+        if loaded then
+          line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
+        else
+          line:SetBackdropColor(unpack({ .8, .8, .8, 0.1 }))
+        end
+
+        -- icon
+        -- need to test if the texture exists
+        local tex = addon:TestTexture(info.icon) and info.icon or QUESTION_MARK_ICON
+        line.icon:SetTexture(tex)
+        line.icon:SetPushedTexture(tex)
+        line.icon:SetDisabledTexture(tex)
+        line.icon:SetHighlightAtlas(info.openModuleOptions and "bags-glow-white" or "")
+        line.icon:SetTooltip(info.openModuleOptions and string.format(L["Click to open %s options"], info.name) or nil)
+        line.icon:SetScript("OnClick", function()
+          info.lapModule.openConfig()
+          f.contentScrollbox:Refresh()
+        end)
+        if loaded or info.lapModule.needsInitialization() then
+          line.icon:SetEnabled(true)
+        else
+          line.icon:SetEnabled(false)
+        end
+
+        -- name
+        line.nameLabel:SetText(info.name)
+        if not loaded then
+          line.nameLabel:SetTextColor(0.5, 0.5, 0.5, 1)
+        else
+          line.nameLabel:SetTextColor(1, 1, 1, 1)
+        end
+        if info.lapModule.needsInitialization() then
+          line.initializationWarning:Show()
+          line.initializationWarning:SetScript("OnClick", function()
+            info.lapModule.openConfig()
+            C_Timer.After(0, function()
+              info.lapModule.closeConfig()
+            end)
+            f.contentScrollbox:Refresh()
+          end)
+        else
+          line.initializationWarning:Hide()
+        end
+
+        -- profile dropdown
+        if info.hasGroups then
+          line.manageButton:Show()
+          line.profileDropdown:Hide()
+          line.manageButton:SetClickFunction(function()
+            local copyCallback = function()
+              addon:Async(function()
+                if info.copyFuncOverride then
+                  -- TODO: what is this?
+                else
+                  -- TODO: this needs to be fixed to work with the new profile system
+                  addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 50, L["Preparing export string..."])
+                  info.exportFunc()
+                  addon.copyHelper:Hide()
+                  addon:TextExport(UIManagerDB.profiles[info.name][1])
+                end
+              end, "copy1Func")
+            end
+            info.manageFunc(addon.frames.mainFrame, 1, L["Copy"], nil, copyCallback)
+          end)
+        else
+          line.manageButton:Hide()
+          line.profileDropdown:Show()
+        end
+        local profileKey = db.creatorUI.profileKeys[db.creatorUI.resolutions.chosen][info.name]
+        local fallbackOptions = function()
+          return profileKey and {
+            {
+              value = profileKey,
+              label = profileKey,
+              onclick = function()
+              end
+            }
+          } or {}
+        end
+        line.profileDropdown.func = loaded and info.dropdown1Options or fallbackOptions
+        line.profileDropdown:Refresh()
+        if not info.hasGroups then
+          line.profileDropdown:Select(profileKey)
+          if not profileKey then line.profileDropdown:NoOptionSelected() end
+        end
+        if not loaded then
+          line.profileDropdown:SetEnabled(false)
+          line.profileDropdown.myIsEnabled = false
+          line.manageButton:Disable()
+        else
+          line.profileDropdown:SetEnabled(true)
+          line.profileDropdown.myIsEnabled = true
+          line.manageButton:Enable()
+        end
+
+        --last update
+        local metaData = db.creatorUI.profileMetadata[db.creatorUI.resolutions.chosen][info.name]
+        if metaData then
+          local lastUpdatedAt = 0
+          local lastUpdatedAtString
+          if type(metaData.lastUpdatedAt) == "number" then
+            lastUpdatedAt = metaData.lastUpdatedAt
+          elseif type(metaData.lastUpdatedAt) == "table" then
+            for _, v in pairs(metaData.lastUpdatedAt) do
+              if v > lastUpdatedAt then lastUpdatedAt = v end
+            end
+          end
+          lastUpdatedAtString = lastUpdatedAt and date("%b %d %H:%M", lastUpdatedAt) or ""
+          line.lastUpdateLabel:SetText(lastUpdatedAtString)
+        else
+          line.lastUpdateLabel:SetText("")
+        end
+      end
+    end
+  end
+
+  local function createScrollLine(self, index)
+    ---@class Line
+    ---@diagnostic disable-next-line: assign-type-mismatch
+    local line = CreateFrame("Button", nil, self)
+    PixelUtil.SetPoint(line, "TOPLEFT", self, "TOPLEFT", 1, -((index - 1) * (self.LineHeight + 1)) - 1)
+    line:SetSize(width - 18, self.LineHeight)
+    if not line.SetBackdrop then
+      Mixin(line, BackdropTemplateMixin)
+    end
+    line:SetBackdrop({ bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true })
+    line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
+    DF:Mixin(line, DF.HeaderFunctions)
+
+    -- icon
+    local icon = DF:CreateButton(line, nil, 42, 42, "", nil, nil, QUESTION_MARK_ICON, nil, nil, nil, nil)
+    line:AddFrameToHeaderAlignment(icon)
+    line.icon = icon
+
+    -- name
+    local nameLabel = DF:CreateLabel(line, "", 16, "white")
+    line:AddFrameToHeaderAlignment(nameLabel)
+    line.nameLabel = nameLabel
+
+    local initializationWarning = DF:CreateButton(line, nil, 30, 30, "", nil, nil,
+      "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew", nil, nil, nil, nil)
+    initializationWarning:SetPoint("LEFT", nameLabel, "RIGHT", 0, 0)
+    initializationWarning:SetTooltip(L["This AddOn needs to be initialized. Click to initialize."])
+    line.initializationWarning = initializationWarning
+
+    -- profile dropdown
+    local profileDropdown = DF:CreateDropDown(line, function() return {} end, nil, 180, 30, nil, nil,
+      options_dropdown_template)
+    tinsert(profileDropdowns, profileDropdown)
+    line:AddFrameToHeaderAlignment(profileDropdown)
+    line.profileDropdown = profileDropdown
+
+    -- manage button
+    line.manageButton = DF:CreateButton(line, nil, 180, 30, L["Manage"], nil, nil, nil, nil, nil, nil,
+      options_dropdown_template)
+    line.manageButton:SetAllPoints(profileDropdown.dropdown)
+    line.manageButton.text_overlay:SetFont(line.manageButton.text_overlay:GetFont(), 16)
+
+    -- -- version
+    -- local versionLabel = DF:CreateLabel(line, "", 10, "white")
+    -- line:AddFrameToHeaderAlignment(versionLabel)
+    -- line.versionLabel = versionLabel
+
+    -- last update
+    local lastUpdateLabel = DF:CreateLabel(line, "", 10, "white")
+    line:AddFrameToHeaderAlignment(lastUpdateLabel)
+    line.lastUpdateLabel = lastUpdateLabel
+
+    line:AlignWithHeader(f.contentHeader, "LEFT")
+    return line
+  end
+
+  local totalHeight = 0
+  local function addLine(widgets, xOffset, yOffset)
+    xOffset = xOffset or 0
+    yOffset = yOffset or 0
+    local maxHeight = 0
+    for i, widget in ipairs(widgets) do
+      if i == 1 then
+        widget:SetPoint("TOPLEFT", f, "TOPLEFT", xOffset, 0 - totalHeight + yOffset)
+      else
+        widget:SetPoint("LEFT", widgets[i - 1], "RIGHT", 10 + xOffset, 0)
+      end
+      maxHeight = math.max(maxHeight, widget:GetHeight())
+    end
+    totalHeight = totalHeight + maxHeight + 10 - yOffset
+  end
+
+  -- resolution explainer
+  local resExplainerLabel = DF:CreateLabel(f, "Startup", 16, "white")
+  resExplainerLabel:SetWidth((width - 40) / 2)
+  resExplainerLabel:SetWordWrap(true)
+  resExplainerLabel:SetText(
+    L
+    ["Choose which resolutions you want the UI pack to support. You can provide a separate profile for each resolution and AddOn."])
+  addLine({ resExplainerLabel }, 5, -10)
+
+  -- resolution
+  local resolutions = {
+    {
+      value = "1080",
+      label = "1080x1920",
+      onclick = function()
+        db.creatorUI.resolutions.chosen = "1080"
+        f:UpdateResolutionCheckedFromDB()
+      end
+    },
+    {
+      value = "1440",
+      label = "1440x2560",
+      onclick = function()
+        db.creatorUI.resolutions.chosen = "1440"
+        f:UpdateResolutionCheckedFromDB()
+      end
+    }
+  }
+  --TODO: set resolution
+  local resolutionDropdown = DF:CreateDropDown(f, function() return resolutions end, nil, 180, 30, nil, nil,
+    options_dropdown_template)
+  resolutionDropdown:Select(db.creatorUI.resolutions.chosen)
+  local resolutionCheckBox = DF:CreateSwitch(f,
+    function(_, _, value)
+      local res = db.creatorUI.resolutions
+      res.enabled[res.chosen] = value
+      f.contentScrollbox:Refresh()
+    end,
+    false, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, DF:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
+  resolutionCheckBox:SetSize(25, 25)
+  resolutionCheckBox:SetAsCheckBox()
+  f.resolutionCheckBox = resolutionCheckBox
+  function f:UpdateResolutionCheckedFromDB()
+    local res = db.creatorUI.resolutions
+    resolutionCheckBox:SetValue(res.enabled[res.chosen])
+    f.contentScrollbox:Refresh()
+  end
+
+  local resolutionEnabledLabel = DF:CreateLabel(f, "Startup", 16, "white")
+  resolutionEnabledLabel:SetText(L["Enable this resolution"])
+
+  -- logo
+  local logo = DF:CreateImage(f, [[Interface\AddOns\]]..addonName..[[\media\wagoLogo512]], 256, 256)
+  logo:SetPoint("TOPRIGHT", f, "TOPRIGHT", -90, 40)
+
+  addLine({ resolutionDropdown, resolutionCheckBox, resolutionEnabledLabel }, 5, 0)
+
+  -- export explainer
+  local exportExplainerLabel = DF:CreateLabel(f, "Startup", 16, "white")
+  exportExplainerLabel:SetWidth((width - 40) / 2)
+  exportExplainerLabel:SetWordWrap(true)
+  exportExplainerLabel:SetText(
+    L
+    ["All chosen profiles for all enabled resolutions will be exported.After a reload a new update can be pushed via the WagoApp."])
+  addLine({ exportExplainerLabel }, 5, 0)
+
+  local exportAllButton = DF:CreateButton(f, nil, 250, 40, L["Export All Profiles"], nil, nil, nil, nil, nil, nil,
+    options_dropdown_template)
+  exportAllButton.text_overlay:SetFont(exportAllButton.text_overlay:GetFont(), 16)
+  exportAllButton:SetClickFunction(addon.ExportAllProfiles)
+  f.exportAllButton = exportAllButton
+  -- checkUIPackName(db.creatorUI.name)
+  addLine({ exportAllButton }, 5, 0)
+
+  local widths = {
+    options = 60,
+    name = 350,
+    profile = 200,
+    -- version = 100,
+    lastUpdate = 150,
+  }
+  local totalHeaderWidth = 0
+  for _, w in pairs(widths) do
+    totalHeaderWidth = totalHeaderWidth + w
+  end
+
+  local headerTable = {
+    { text = L["Options"],           width = widths.options,                              offset = 1 },
+    { text = L["Name"],              width = widths.name },
+    { text = L["Profile to Export"], width = widths.profile },
+    -- { text = "Version",           width = widths.version },
+    { text = L["Last Update"],       width = width - totalHeaderWidth + widths.lastUpdate },
+  }
+  local lineHeight = 42
+  local contentScrollbox = DF:CreateScrollBox(f, nil, contentScrollboxUpdate, {}, width - 17,
+    height - totalHeight + 4, 0, lineHeight, createScrollLine, true)
+  f.contentHeader = DF:CreateHeader(f, headerTable, nil, addonName.."ContentHeader")
+  f.contentScrollbox = contentScrollbox
+  addLine({ f.contentHeader }, 0, 0)
+  contentScrollbox:SetPoint("TOPLEFT", f.contentHeader, "BOTTOMLEFT")
+  contentScrollbox.ScrollBar.scrollStep = 60
+  DF:ReskinSlider(contentScrollbox)
+
+
+  addon.ModuleFunctions:SortModuleConfigs()
+  contentScrollbox:SetData(addon.moduleConfigs)
+  contentScrollbox:Refresh()
+  f:UpdateResolutionCheckedFromDB()
+  -- TODO:
+  -- hooksecurefunc(contentScrollbox, "Refresh", function()
+  --   addon:RefreshAllProfileDropdowns()
+  -- end)
+  addon.contentScrollbox = contentScrollbox
+end

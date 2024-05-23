@@ -1,0 +1,9 @@
+## Interface: 20504
+## Title: UIManager
+## Author: The Wago Team
+## Version: 1.0.0
+## DefaultState: Enabled
+## LoadOnDemand: 0
+## SavedVariables: UIManagerDB
+
+load.xml
