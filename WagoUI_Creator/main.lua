@@ -56,7 +56,7 @@ end
 function addon:ResetOptions()
   DF:ShowPromptPanel(L["Reset?"]
     , function()
-      UIManagerDB = nil
+      WagoUICreatorDB = nil
       handleDBLoad(addon.db, true, dbDefaults)
       DetailsFrameworkPromptSimple:SetHeight(80)
       ReloadUI()
@@ -113,10 +113,10 @@ do
   addon.frames.eventListener:SetScript("OnEvent", function(self, event, ...)
     if (event == "PLAYER_ENTERING_WORLD") then
       addon.frames.eventListener:UnregisterEvent("PLAYER_ENTERING_WORLD")
-      if UIManagerDB.autoStart then
+      if WagoUICreatorDB.autoStart then
         addon:ShowFrame()
       end
-      if UIManagerDB.testMode then
+      if WagoUICreatorDB.testMode then
         addon:AddDataToDataAddon()
       end
     elseif (event == "ADDON_LOADED") then
@@ -219,7 +219,7 @@ function addon:ExportAllProfiles()
     else
       addon.copyHelper:SmartFadeOut(2, L["No Changes detected"])
     end
-    if UIManagerDB.testMode then
+    if WagoUICreatorDB.testMode then
       addon:AddDataToDataAddon()
     end
   end, "ExportAllProfiles")
@@ -229,11 +229,11 @@ function addon:AddDataToDataAddon()
   if not WagoUIData then return end
   local data = {
     name = "Local Test Data",
-    profileMetadata = UIManagerDB.creatorUI.profileMetadata,
-    resolutions = UIManagerDB.creatorUI.resolutions,
-    releaseNotes = UIManagerDB.creatorUI.releaseNotes,
-    profileKeys = UIManagerDB.creatorUI.profileKeys,
-    profiles = UIManagerDB.creatorUI.profiles,
+    profileMetadata = WagoUICreatorDB.creatorUI.profileMetadata,
+    resolutions = WagoUICreatorDB.creatorUI.resolutions,
+    releaseNotes = WagoUICreatorDB.creatorUI.releaseNotes,
+    profileKeys = WagoUICreatorDB.creatorUI.profileKeys,
+    profiles = WagoUICreatorDB.creatorUI.profiles,
   }
   WagoUIData.LocalTestData = data
 end
@@ -276,7 +276,7 @@ function addon:CreateFrames()
   local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "Title");
   local frame = DF:CreateSimplePanel(UIParent, addon.ADDON_WIDTH, addon.ADDON_HEIGHT, addonTitle,
     addonName.."Frame",
-    panelOptions, UIManagerDB)
+    panelOptions, WagoUICreatorDB)
   frame:Hide()
   DF:ApplyStandardBackdrop(frame)
   DF:CreateBorder(frame, 1, 0, 0)
@@ -284,11 +284,12 @@ function addon:CreateFrames()
   frame:SetFrameStrata("HIGH")
   frame:SetFrameLevel(100)
   frame:SetToplevel(true)
-  frame:SetPoint(UIManagerDB.anchorTo, UIParent, UIManagerDB.anchorFrom, UIManagerDB.xoffset, UIManagerDB.yoffset)
+  frame:SetPoint(WagoUICreatorDB.anchorTo, UIParent, WagoUICreatorDB.anchorFrom, WagoUICreatorDB.xoffset,
+    WagoUICreatorDB.yoffset)
   hooksecurefunc(frame, "StopMovingOrSizing", function()
     local from, _, to, x, y = frame:GetPoint(nil)
-    UIManagerDB.anchorFrom, UIManagerDB.anchorTo = from, to
-    UIManagerDB.xoffset, UIManagerDB.yoffset = x, y
+    WagoUICreatorDB.anchorFrom, WagoUICreatorDB.anchorTo = from, to
+    WagoUICreatorDB.xoffset, WagoUICreatorDB.yoffset = x, y
   end)
   frame.__background:SetAlpha(1)
 
@@ -304,26 +305,26 @@ function addon:CreateFrames()
 
   local autoStartCheckbox = DF:CreateSwitch(frame,
     function(_, _, value)
-      UIManagerDB.autoStart = value
+      WagoUICreatorDB.autoStart = value
     end,
     false, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, DF:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
   autoStartCheckbox:SetSize(25, 25)
   autoStartCheckbox:SetAsCheckBox()
   autoStartCheckbox:SetPoint("TOPLEFT", frame, "TOPRIGHT", 5, 0)
-  autoStartCheckbox:SetValue(UIManagerDB.autoStart)
+  autoStartCheckbox:SetValue(WagoUICreatorDB.autoStart)
 
   local autoStartLabel = DF:CreateLabel(frame, "Startup", 16, "white")
   autoStartLabel:SetPoint("LEFT", autoStartCheckbox, "RIGHT", 0, 0)
 
   local testModeCheckbox = DF:CreateSwitch(frame,
     function(_, _, value)
-      UIManagerDB.testMode = value
+      WagoUICreatorDB.testMode = value
     end,
     false, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, DF:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
   testModeCheckbox:SetSize(25, 25)
   testModeCheckbox:SetAsCheckBox()
   testModeCheckbox:SetPoint("TOPLEFT", frame, "TOPRIGHT", 5, -30)
-  testModeCheckbox:SetValue(UIManagerDB.testMode)
+  testModeCheckbox:SetValue(WagoUICreatorDB.testMode)
 
   local testModeLabel = DF:CreateLabel(frame, "Test Mode", 16, "white")
   testModeLabel:SetPoint("LEFT", testModeCheckbox, "RIGHT", 0, 0)

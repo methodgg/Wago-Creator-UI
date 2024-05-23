@@ -92,7 +92,7 @@ function addon:CreateProfileList(f, width, height)
                   addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 50, L["Preparing export string..."])
                   info.exportFunc()
                   addon.copyHelper:Hide()
-                  addon:TextExport(UIManagerDB.profiles[info.name][1])
+                  addon:TextExport(WagoUICreatorDB.profiles[info.name][1])
                 end
               end, "copy1Func")
             end

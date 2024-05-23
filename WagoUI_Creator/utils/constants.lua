@@ -5,15 +5,15 @@ local L = addon.L
 addon.moduleConfigs = {}
 
 function addon:SetUpDB()
-  UIManagerDB = UIManagerDB or {}
-  UIManagerDB.profileKeys = UIManagerDB.profileKeys or {}
-  UIManagerDB.profiles = UIManagerDB.profiles or {}
-  UIManagerDB.disabledModules = UIManagerDB.disabledModules or {}
+  WagoUICreatorDB = WagoUICreatorDB or {}
+  WagoUICreatorDB.profileKeys = WagoUICreatorDB.profileKeys or {}
+  WagoUICreatorDB.profiles = WagoUICreatorDB.profiles or {}
+  WagoUICreatorDB.disabledModules = WagoUICreatorDB.disabledModules or {}
   for _, config in pairs(addon.moduleConfigs) do
-    UIManagerDB.profileKeys[config.name] = UIManagerDB.profileKeys[config.name] or {}
-    UIManagerDB.profiles[config.name] = UIManagerDB.profiles[config.name] or {}
+    WagoUICreatorDB.profileKeys[config.name] = WagoUICreatorDB.profileKeys[config.name] or {}
+    WagoUICreatorDB.profiles[config.name] = WagoUICreatorDB.profiles[config.name] or {}
   end
-  addon.db = UIManagerDB
+  addon.db = WagoUICreatorDB
 end
 
 addon.color = "FFE2CB00"

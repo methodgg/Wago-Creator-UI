@@ -43,7 +43,7 @@ end
 
 local copyFuncOverride = function(...)
   local clickSource, index = ...
-  local profileKey = UIManagerDB.profileKeys[moduleName][index]
+  local profileKey = WagoUICreatorDB.profileKeys[moduleName][index]
   if not profileKey then return end
   local choices = {
     {
@@ -51,9 +51,9 @@ local copyFuncOverride = function(...)
       on_click = function()
         addon:Async(function()
           addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 50, L["Preparing export string..."])
-          UIManagerDB.profiles[moduleName][index] = lapModule.exportProfile(profileKey)
+          WagoUICreatorDB.profiles[moduleName][index] = lapModule.exportProfile(profileKey)
           addon.copyHelper:Hide()
-          addon:TextExport(UIManagerDB.profiles[moduleName][index])
+          addon:TextExport(WagoUICreatorDB.profiles[moduleName][index])
         end, "sufChoice1OnClick")
       end,
       tooltipText = "Copy a string that can be used by UI Installers based on UIManager",
@@ -63,7 +63,7 @@ local copyFuncOverride = function(...)
       on_click = function()
         addon:Async(function()
           addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 50, L["Preparing export string..."])
-          UIManagerDB.profiles[moduleName][index] = lapModule.exportProfile(profileKey)
+          WagoUICreatorDB.profiles[moduleName][index] = lapModule.exportProfile(profileKey)
           local sufExport = writeTable(ShadowedUFDB.profiles[profileKey])
           addon.copyHelper:Hide()
           addon:TextExport(sufExport)
