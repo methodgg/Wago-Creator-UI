@@ -60,6 +60,10 @@
 ---@field Serialize fun(self: AceSerializer-3.0Async, input: any): string
 ---@field Deserialize fun(self: AceSerializer-3.0Async, input: string): boolean, table | nil
 
+---@class LibSerialize
+---@field SerializeAsyncEx fun(self:LibSerialize, configForLS: table, inTable: table) : function
+---@field DeserializeAsync fun(self:LibSerialize, serialized: string) : function
+
 --- @class LibAsync : table
 --- @field GetHandler fun(self, config: LibAsyncConfig | nil) : LibAsyncHandler
 
