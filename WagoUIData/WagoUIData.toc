@@ -1,5 +1,5 @@
 ## Interface: 100207
-## Title: WagoUIData
+## Title: WagoUI Data
 ## Author: The Wago Team
 ## Version: 1.0.0
 ## DefaultState: Enabled
