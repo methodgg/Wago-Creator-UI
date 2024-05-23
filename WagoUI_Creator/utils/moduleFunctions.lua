@@ -84,9 +84,6 @@ function ModuleFunctions:InsertModuleConfig(m)
   local onSuccessfulTestOverride = m.onSuccessfulTestOverride and function(...)
     m.onSuccessfulTestOverride(...)
   end or nil
-  m.lapModule.needsInitialization = m.lapModule.needsInitialization or function()
-    return false
-  end
   tinsert(addon.moduleConfigs, {
     name = m.moduleName,
     lapModule = m.lapModule,
