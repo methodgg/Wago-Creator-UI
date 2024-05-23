@@ -23,7 +23,7 @@ addon.colorRGB = { --used by status bar
   b = 0 / 255,
 }
 addon.slashPrefixes = {
-  "/uim", "/uimanager",
+  "/wuic", "/wagouicreator",
 }
 addon.ADDON_WIDTH = 1000
 addon.ADDON_HEIGHT = 800

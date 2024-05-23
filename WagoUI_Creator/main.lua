@@ -273,7 +273,8 @@ function addon:CreateFrames()
     -- UseScaleBar = true, --disable for now might use it later on
     NoCloseButton = false,
   }
-  local frame = DF:CreateSimplePanel(UIParent, addon.ADDON_WIDTH, addon.ADDON_HEIGHT, addonName,
+  local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "Title");
+  local frame = DF:CreateSimplePanel(UIParent, addon.ADDON_WIDTH, addon.ADDON_HEIGHT, addonTitle,
     addonName.."Frame",
     panelOptions, UIManagerDB)
   frame:Hide()
