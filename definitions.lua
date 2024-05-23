@@ -64,18 +64,18 @@
 ---@field SerializeAsyncEx fun(self:LibSerialize, configForLS: table, inTable: table) : function
 ---@field DeserializeAsync fun(self:LibSerialize, serialized: string) : function
 
---- @class LibAsync : table
---- @field GetHandler fun(self, config: LibAsyncConfig | nil) : LibAsyncHandler
+---@class LibAsync : table
+---@field GetHandler fun(self, config: LibAsyncConfig | nil) : LibAsyncHandler
 
---- @class LibAsyncConfig
---- @field type "everyFrame" The type of handler to create.
---- @field maxTime number The maximum time in milliseconds to spend on a single update.
---- @field maxTimeCombat number The maximum time in milliseconds to spend on a single update while in dungeon combat.
---- @field errorHandler fun(msg: string, stacktrace?: string, name?: string) The error handler to use when a coroutine errors.
+---@class LibAsyncConfig
+---@field type "everyFrame" The type of handler to create.
+---@field maxTime number The maximum time in milliseconds to spend on a single update.
+---@field maxTimeCombat number The maximum time in milliseconds to spend on a single update while in dungeon combat.
+---@field errorHandler fun(msg: string, stacktrace?: string, name?: string) The error handler to use when a coroutine errors.
 
---- @class LibAsyncHandler
---- @field size number
---- @field frame table
---- @field update table
---- @field CancelAsync fun(self, name: string)
---- @field Async fun(self, func: function, name: string, singleton: boolean)
+---@class LibAsyncHandler
+---@field size number
+---@field frame table
+---@field update table
+---@field CancelAsync fun(self, name: string)
+---@field Async fun(self, func: function, name: string, singleton: boolean)
