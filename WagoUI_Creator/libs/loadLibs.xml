@@ -21,6 +21,6 @@
 	<Include file="LibSharedMedia-3.0\lib.xml"/>
 	<Include file="LibDFramework-1.0\load.xml"/>
 	<Include file="LibAddonProfiles\load.xml"/>
-	<Include file="LibSerialize-1.2.1\lib.xml"/>
+	<Include file="LibSerialize\lib.xml"/>
 	<Include file='LibAsync\LibAsync.xml'/>
 </Ui>
