@@ -5,7 +5,7 @@ local DF = _G["DetailsFramework"]
 local copyPrompt = "Press CTRL + C to copy!"
 
 function addon:CreateCopyHelper()
-  addon.copyHelper = CreateFrame("Frame", "UIManagerCopyHelper", UIParent)
+  addon.copyHelper = CreateFrame("Frame", addonName.."CopyHelper", UIParent)
   addon.copyHelper:SetFrameStrata("TOOLTIP")
   addon.copyHelper:SetFrameLevel(200)
   addon.copyHelper:SetHeight(100)
