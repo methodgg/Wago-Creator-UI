@@ -367,10 +367,6 @@ local function dropdownOptions()
   return {}
 end
 
-local hasGroups = {
-  hasResolutions = false,
-}
-
 local onSuccessfulTestOverride = function(profileString, profileKey)
   local importCallback = function()
     addon:Async(function()
@@ -392,7 +388,7 @@ local moduleConfig = {
   hookRefresh = nil, --no profiles, only global config
   copyButtonTooltipText = string.format(addon.L.noBuiltInProfileTextImport, moduleName),
   sortIndex = 2,
-  hasGroups = hasGroups,
+  hasGroups = true,
   manageFunc = showManageFrame,
   onSuccessfulTestOverride = onSuccessfulTestOverride,
 }

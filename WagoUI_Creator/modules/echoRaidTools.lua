@@ -351,10 +351,6 @@ local function hookRefresh()
 
 end
 
-local hasGroups = {
-  hasResolutions = false,
-}
-
 local onSuccessfulTestOverride = function(profileString)
   EchoCooldowns.importStringExternal(profileString)
 end
@@ -368,7 +364,7 @@ local moduleConfig = {
   hookRefresh = hookRefresh,
   copyButtonTooltipText = nil,
   sortIndex = 12,
-  hasGroups = hasGroups,
+  hasGroups = true,
   manageFunc = showManageFrame,
   onSuccessfulTestOverride = onSuccessfulTestOverride,
 }

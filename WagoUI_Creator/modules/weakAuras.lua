@@ -360,10 +360,6 @@ local function hookRefresh()
 
 end
 
-local hasGroups = {
-  hasResolutions = false,
-}
-
 local onSuccessfulTestOverride = function(_, weakAuraTable)
   WeakAuras.Import(weakAuraTable)
 end
@@ -377,7 +373,7 @@ local moduleConfig = {
   hookRefresh = hookRefresh,
   copyButtonTooltipText = nil,
   sortIndex = 11,
-  hasGroups = hasGroups,
+  hasGroups = true,
   manageFunc = showManageFrame,
   onSuccessfulTestOverride = onSuccessfulTestOverride,
 }
