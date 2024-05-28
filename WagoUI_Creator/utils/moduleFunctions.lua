@@ -102,10 +102,6 @@ function ModuleFunctions:InsertModuleConfig(m)
     end,
     copyFuncOverride = copyFuncOverride,
     hookRefresh = m.hookRefresh,
-    openModuleOptions = function()
-      if not m.lapModule.slash then return end
-      addon:FireUnprotectedSlashCommand(m.lapModule.slash)
-    end,
     copyButtonTooltipText = m.copyButtonTooltipText,
     isLoaded = m.lapModule.isLoaded,
     sortIndex = m.sortIndex,

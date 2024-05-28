@@ -46,8 +46,11 @@ function addon:CreateProfileList(f, width, height)
         line.icon:SetTexture(tex)
         line.icon:SetPushedTexture(tex)
         line.icon:SetDisabledTexture(tex)
-        line.icon:SetHighlightAtlas(info.openModuleOptions and "bags-glow-white" or "")
-        line.icon:SetTooltip(info.openModuleOptions and string.format(L["Click to open %s options"], info.name) or nil)
+        line.icon:SetHighlightAtlas(info.lapModule.openConfig and "bags-glow-white" or "")
+        if not info.lapModule.openConfig then
+          line.icon:ClearHighlightTexture()
+        end
+        line.icon:SetTooltip(info.lapModule.openConfig and string.format(L["Click to open %s options"], info.name) or nil)
         line.icon:SetScript("OnClick", function()
           info.lapModule.openConfig()
           f.contentScrollbox:Refresh()
