@@ -241,7 +241,7 @@ function addon:CreateProfileList(f, width, height)
       label = "1080x1920",
       onclick = function()
         db.creatorUI.resolutions.chosen = "1080"
-        f:UpdateResolutionCheckedFromDB()
+        addon.UpdateResolutionCheckedFromDB()
       end
     },
     {
@@ -249,11 +249,10 @@ function addon:CreateProfileList(f, width, height)
       label = "1440x2560",
       onclick = function()
         db.creatorUI.resolutions.chosen = "1440"
-        f:UpdateResolutionCheckedFromDB()
+        addon.UpdateResolutionCheckedFromDB()
       end
     }
   }
-  --TODO: set resolution
   local resolutionDropdown = DF:CreateDropDown(f, function() return resolutions end, nil, 180, 30, nil, nil,
     options_dropdown_template)
   resolutionDropdown:Select(db.creatorUI.resolutions.chosen)
@@ -267,7 +266,7 @@ function addon:CreateProfileList(f, width, height)
   resolutionCheckBox:SetSize(25, 25)
   resolutionCheckBox:SetAsCheckBox()
   f.resolutionCheckBox = resolutionCheckBox
-  function f:UpdateResolutionCheckedFromDB()
+  function addon.UpdateResolutionCheckedFromDB()
     local res = db.creatorUI.resolutions
     resolutionCheckBox:SetValue(res.enabled[res.chosen])
     f.contentScrollbox:Refresh()
@@ -332,7 +331,7 @@ function addon:CreateProfileList(f, width, height)
   addon.ModuleFunctions:SortModuleConfigs()
   contentScrollbox:SetData(addon.moduleConfigs)
   contentScrollbox:Refresh()
-  f:UpdateResolutionCheckedFromDB()
+  addon.UpdateResolutionCheckedFromDB()
   -- TODO:
   -- hooksecurefunc(contentScrollbox, "Refresh", function()
   --   addon:RefreshAllProfileDropdowns()
