@@ -13,9 +13,13 @@ local widths = {
 }
 
 function addon:CreateProfileTable(f)
+  local profileFrame = CreateFrame("Frame", addonName.."ProfileFrame", f)
+  profileFrame:SetAllPoints(f)
+  profileFrame:Hide()
+  addon.frames.profileFrame = profileFrame
   db = addon.db
-  local frameWidth = f:GetWidth() - 0
-  local frameHeight = f:GetHeight() - 40
+  local frameWidth = profileFrame:GetWidth() - 0
+  local frameHeight = profileFrame:GetHeight() - 40
   local initialXOffset = 2
   local initialYOffset = -30
 
@@ -68,7 +72,7 @@ function addon:CreateProfileTable(f)
     line.lastUpdateLabel = lastUpdateLabel;
 
     ---@diagnostic disable-next-line: undefined-field
-    line:AlignWithHeader(f.contentHeader, "LEFT");
+    line:AlignWithHeader(profileFrame.contentHeader, "LEFT");
     return line;
   end
 
@@ -97,7 +101,7 @@ function addon:CreateProfileTable(f)
         line.icon:SetTooltip(lap.openConfig and string.format(L["Click to open %s options"], info.moduleName) or nil);
         line.icon:SetScript("OnClick", function()
           lap.openConfig()
-          f.contentScrollbox:Refresh()
+          profileFrame.contentScrollbox:Refresh()
         end)
         if loaded or lap.needsInitialization() then
           line.icon:SetEnabled(true);
@@ -119,7 +123,7 @@ function addon:CreateProfileTable(f)
             C_Timer.After(0, function()
               lap.closeConfig()
             end)
-            f.contentScrollbox:Refresh()
+            profileFrame.contentScrollbox:Refresh()
           end)
         else
           line.initializationWarning:Hide()
@@ -140,7 +144,7 @@ function addon:CreateProfileTable(f)
     local maxHeight = 0
     for i, widget in ipairs(widgets) do
       if i == 1 then
-        widget:SetPoint("TOPLEFT", f, "TOPLEFT", xOffset + initialXOffset, 0 - totalHeight + yOffset)
+        widget:SetPoint("TOPLEFT", profileFrame, "TOPLEFT", xOffset + initialXOffset, 0 - totalHeight + yOffset)
       else
         widget:SetPoint("LEFT", widgets[i - 1], "RIGHT", 10 + xOffset, 0)
       end
@@ -150,7 +154,8 @@ function addon:CreateProfileTable(f)
   end
 
 
-  local wagoDataDropdown = DF:CreateDropDown(f, function() return addon:GetWagoDataForDropdown() end, nil, 180, 40, nil,
+  local wagoDataDropdown = DF:CreateDropDown(profileFrame, function() return addon:GetWagoDataForDropdown() end, nil, 180,
+    40, nil,
     nil,
     options_dropdown_template)
   if not db.selectedWagoData then
@@ -159,7 +164,8 @@ function addon:CreateProfileTable(f)
     wagoDataDropdown:Select(db.selectedWagoData)
   end
 
-  local resolutionDropdown = DF:CreateDropDown(f, function() return addon:GetResolutionsForDropdown() end, nil, 180, 40,
+  local resolutionDropdown = DF:CreateDropDown(profileFrame, function() return addon:GetResolutionsForDropdown() end, nil,
+    180, 40,
     nil,
     nil,
     options_dropdown_template)
@@ -183,6 +189,14 @@ function addon:CreateProfileTable(f)
     end
   end
 
+  local introButton = DF:CreateButton(profileFrame, nil, 100, 40, "Intro", nil, nil, nil, nil, nil, nil,
+    options_dropdown_template);
+  introButton.text_overlay:SetFont(introButton.text_overlay:GetFont(), 16);
+  introButton:SetClickFunction(function()
+    addon.frames.introFrame:Show()
+    addon.frames.profileFrame:Hide()
+  end);
+
   -- TODO: An update all button is not really possible
   -- some modules require user input to continue importing/updating (WA / EchoRT)
 
@@ -195,7 +209,7 @@ function addon:CreateProfileTable(f)
   -- end);
   -- f.updateAllButton = updateAllButton
 
-  addLine({ wagoDataDropdown, resolutionDropdown --[[, updateAllButton ]] }, 0, 0)
+  addLine({ wagoDataDropdown, resolutionDropdown, introButton --[[, updateAllButton ]] }, 0, 0)
 
 
   local totalHeaderWidth = 0
@@ -211,12 +225,14 @@ function addon:CreateProfileTable(f)
     { text = L["Last Update"], width = frameWidth - totalHeaderWidth + widths.lastUpdate - 35 },
   };
   local lineHeight = 42
-  local contentScrollbox = DF:CreateScrollBox(f, nil, contentScrollboxUpdate, {}, frameWidth - 30,
+  local contentScrollbox = DF:CreateScrollBox(profileFrame, nil, contentScrollboxUpdate, {}, frameWidth - 30,
     frameHeight - totalHeight + 4, 0, lineHeight, createScrollLine, true);
-  f.contentHeader = DF:CreateHeader(f, headerTable, nil, addonName.."ContentHeader");
-  f.contentScrollbox = contentScrollbox
-  addLine({ f.contentHeader }, 0, 0)
-  contentScrollbox:SetPoint("TOPLEFT", f.contentHeader, "BOTTOMLEFT");
+  ---@diagnostic disable-next-line: inject-field
+  profileFrame.contentHeader = DF:CreateHeader(profileFrame, headerTable, nil, addonName.."ContentHeader");
+  ---@diagnostic disable-next-line: inject-field
+  profileFrame.contentScrollbox = contentScrollbox
+  addLine({ profileFrame.contentHeader }, 0, 0)
+  contentScrollbox:SetPoint("TOPLEFT", profileFrame.contentHeader, "BOTTOMLEFT");
   contentScrollbox.ScrollBar.scrollStep = 60;
   DF:ReskinSlider(contentScrollbox);
 

@@ -45,7 +45,9 @@ end
 function init()
   addon:RegisterErrorHandledFunctions()
   addon:SetupWagoData()
+  addon:MakeCopyHelper()
   local mainFrame = addon:CreateMainFrame()
   addon:CreateProfileTable(mainFrame)
-  addon:MakeCopyHelper()
+  addon:CreateIntroFrame(mainFrame)
+  addon.frames.introFrame:Show()
 end
