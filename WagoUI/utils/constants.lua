@@ -4,10 +4,10 @@ local L = addon.L
 addon.color = "FFE2CB00";
 addon.dbKey = "WagoUIDB"
 addon.slashPrefixes = {
-  "/wui", "/wagoui"
+  "/wago", "/wui", "/wagoui"
 }
-addon.ADDON_WIDTH = 1280
-addon.ADDON_HEIGHT = 800
+addon.ADDON_WIDTH = 800
+addon.ADDON_HEIGHT = 600
 addon.dbDefaults = {
   anchorTo = "CENTER",
   anchorFrom = "CENTER",
