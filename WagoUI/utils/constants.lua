@@ -2,6 +2,11 @@ local addonName, addon = ...;
 local L = addon.L
 
 addon.color = "FFE2CB00";
+addon.colorRGB = {
+  226 / 255,
+  203 / 255,
+  0 / 255,
+}
 addon.dbKey = "WagoUIDB"
 addon.slashPrefixes = {
   "/wago", "/wui", "/wagoui"
