@@ -12,10 +12,10 @@ function addon:CreateIntroFrame(f)
   local frameWidth = introFrame:GetWidth() - 0
   local frameHeight = introFrame:GetHeight() - 40
 
-  local button = DF:CreateButton(introFrame, nil, 100, 40, "Expert", nil, nil, nil, nil, nil, nil,
+  local expertButton = DF:CreateButton(introFrame, nil, 100, 40, "Expert", nil, nil, nil, nil, nil, nil,
     options_dropdown_template);
-  button.text_overlay:SetFont(button.text_overlay:GetFont(), 16);
-  button:SetClickFunction(function()
+  expertButton.text_overlay:SetFont(expertButton.text_overlay:GetFont(), 16);
+  expertButton:SetClickFunction(function()
     addon.frames.introFrame:Hide()
     addon.frames.profileFrame:Show()
   end);
