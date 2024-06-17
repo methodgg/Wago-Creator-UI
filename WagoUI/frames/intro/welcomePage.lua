@@ -1,7 +1,5 @@
 local addonName, addon = ...;
 local DF = _G["DetailsFramework"];
-local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE");
-local db
 local L = addon.L
 
 local pageName = "WelcomePage"
