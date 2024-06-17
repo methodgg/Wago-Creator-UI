@@ -74,19 +74,41 @@ function addon:CreateIntroFrame(f)
   nextButton.text_overlay:SetFont(nextButton.text_overlay:GetFont(), 16);
   nextButton:SetPoint("BOTTOMRIGHT", introFrame, "BOTTOMRIGHT", -5, 5);
   nextButton:SetClickFunction(function()
-    currentPage = currentPage + 1
-    addon:UpdateProgressBar(currentPage)
+    addon:NextPage()
+  end);
+
+  local prevButton = addon.DF:CreateButton(introFrame, 80, 30, "<< Prev", 16)
+  prevButton:SetPoint("BOTTOMLEFT", introFrame, "BOTTOMLEFT", 5, 5);
+  prevButton:SetClickFunction(function()
+    addon:PrevPage()
   end);
 
   for _, pageFunc in pairs(pagesToCreate) do
     table.insert(pages, pageFunc())
   end
 
-  hooksecurefunc(introFrame, "Show", function()
+  createStatusBar(introFrame)
+
+  local function updatePages()
     for i = 1, #pages do
       pages[i]:Hide()
     end
     pages[currentPage]:Show()
     addon:UpdateProgressBar(currentPage)
+  end
+
+  hooksecurefunc(introFrame, "Show", function()
+    updatePages()
+    addon:UpdateProgressBar(currentPage)
   end)
+
+  function addon:NextPage()
+    currentPage = currentPage + 1
+    updatePages()
+  end
+
+  function addon:PrevPage()
+    currentPage = math.max(currentPage - 1, 1)
+    updatePages()
+  end
 end
