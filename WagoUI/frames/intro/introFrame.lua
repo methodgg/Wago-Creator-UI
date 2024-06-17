@@ -103,7 +103,7 @@ function addon:CreateIntroFrame(f)
   end)
 
   function addon:NextPage()
-    currentPage = currentPage + 1
+    currentPage = math.min(currentPage + 1, #pages)
     updatePages()
   end
 
