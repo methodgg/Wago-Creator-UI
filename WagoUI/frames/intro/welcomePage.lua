@@ -17,32 +17,14 @@ local function createPage()
   local logo = DF:CreateImage(page, [[Interface\AddOns\]]..addonName..[[\media\wagoLogo512]], 256, 256)
   logo:SetPoint("TOP", header, "BOTTOM", 0, 50)
 
-  local startButton = DF:CreateButton(page, nil, 230, 50, "Full Installation", nil, nil, nil, nil, nil,
-    nil,
-    options_dropdown_template);
-  startButton:SetScript("OnEnter", function(self)
-    startButton.button:SetBackdropBorderColor(1, 1, 1, 1)
-  end)
-  startButton:SetScript("OnLeave", function(self)
-    startButton.button:SetBackdropBorderColor(1, 1, 1, 0)
-  end)
+  local startButton = addon.DF:CreateButton(page, 230, 50, "Full Installation", 22)
   startButton:SetPoint("BOTTOMLEFT", page, "BOTTOMLEFT", 140, 100);
-  startButton.text_overlay:SetFont(startButton.text_overlay:GetFont(), 22);
   startButton:SetClickFunction(function()
 
   end);
 
-  local expertButton = DF:CreateButton(page, nil, 230, 50, "Expert Mode", nil, nil, nil, nil
-    , nil, nil,
-    options_dropdown_template);
-  expertButton:SetScript("OnEnter", function(self)
-    expertButton.button:SetBackdropBorderColor(1, 1, 1, 1)
-  end)
-  expertButton:SetScript("OnLeave", function(self)
-    expertButton.button:SetBackdropBorderColor(1, 1, 1, 0)
-  end)
+  local expertButton = addon.DF:CreateButton(page, 230, 50, "Expert Mode", 22)
   expertButton:SetPoint("BOTTOMRIGHT", page, "BOTTOMRIGHT", -140, 100);
-  expertButton.text_overlay:SetFont(expertButton.text_overlay:GetFont(), 22);
   expertButton:SetClickFunction(function()
 
   end);

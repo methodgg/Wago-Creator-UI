@@ -4,6 +4,7 @@
   <Include file="genericUtils.lua"/>
   <Include file="slashCommands.lua"/>
 	<Include file="async.lua"/>
+  <Include file="DFWidgetHelpers.lua"/>
 	<Include file="copyHelper.lua"/>
 	<Include file="errorHandling.lua"/>
 </Ui>
