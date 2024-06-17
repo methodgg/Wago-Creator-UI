@@ -68,10 +68,6 @@ function addon:CreateIntroFrame(f)
   introFrame:SetAllPoints(f)
   introFrame:Hide()
   addon.frames.introFrame = introFrame
-  local frameWidth = introFrame:GetWidth() - 0
-  local frameHeight = introFrame:GetHeight() - 40
-
-  createStatusBar(introFrame)
 
   local nextButton = DF:CreateButton(introFrame, nil, 80, 30, "Next >>", nil, nil, nil, nil, nil, nil,
     options_dropdown_template);
