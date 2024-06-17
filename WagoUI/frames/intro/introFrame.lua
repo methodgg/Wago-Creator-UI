@@ -4,8 +4,22 @@ local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_T
 local db
 local L = addon.L
 
-local currentPage = 0
-local maxPages = 10
+local currentPage = 1
+
+local pages = {}
+local pagesToCreate = {}
+
+function addon:RegisterPage(pageFunc)
+  table.insert(pagesToCreate, pageFunc)
+end
+
+function addon:CreatePageProtoType(pageName)
+  local parent = addon.frames.introFrame
+  local pagePrototype = CreateFrame("Frame", addonName..pageName, parent)
+  pagePrototype:SetPoint("TOPLEFT", parent, "TOPLEFT", 3, -25)
+  pagePrototype:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -3, 40)
+  return pagePrototype
+end
 
 local function createStatusBar(parent)
   -- parent frame to give the statusbar a background
@@ -37,16 +51,15 @@ local function createStatusBar(parent)
   Mixin(statusBar.bar, SmoothStatusBarMixin)
 
   ---@diagnostic disable-next-line: undefined-field
-  statusBar.bar:SetMinMaxSmoothedValue(currentPage, maxPages)
+  statusBar.bar:SetMinMaxSmoothedValue(currentPage, #pages)
 
   function addon:UpdateProgressBar(page)
     ---@diagnostic disable-next-line: undefined-field
     statusBar.bar:SetSmoothedValue(page)
-    local text = page.."/"..maxPages - 1
+    local text = page.."/"..#pages
     statusBar.bar.text:SetText(text)
   end
 
-  currentPage = currentPage + 1
   addon:UpdateProgressBar(currentPage)
 end
 
@@ -77,4 +90,16 @@ function addon:CreateIntroFrame(f)
     currentPage = currentPage + 1
     addon:UpdateProgressBar(currentPage)
   end);
+
+  for _, pageFunc in pairs(pagesToCreate) do
+    table.insert(pages, pageFunc())
+  end
+
+  hooksecurefunc(introFrame, "Show", function()
+    for i = 1, #pages do
+      pages[i]:Hide()
+    end
+    pages[currentPage]:Show()
+    addon:UpdateProgressBar(currentPage)
+  end)
 end

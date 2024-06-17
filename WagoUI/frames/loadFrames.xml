@@ -3,4 +3,5 @@
 	<Include file="profileTable/actionButton.lua"/>
 	<Include file="profileTable/profileTable.lua"/>
 	<Include file="intro/introFrame.lua"/>
+	<Include file="intro/welcomePage.lua"/>
 </Ui>
