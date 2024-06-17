@@ -18,7 +18,7 @@ local function createPage()
   local startButton = addon.DF:CreateButton(page, 230, 50, "Full Installation", 22)
   startButton:SetPoint("BOTTOMLEFT", page, "BOTTOMLEFT", 140, 100);
   startButton:SetClickFunction(function()
-
+    addon:NextPage()
   end);
 
   local expertButton = addon.DF:CreateButton(page, 230, 50, "Expert Mode", 22)
