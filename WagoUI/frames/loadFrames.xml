@@ -4,4 +4,9 @@
 	<Include file="profileTable/profileTable.lua"/>
 	<Include file="intro/introFrame.lua"/>
 	<Include file="intro/welcomePage.lua"/>
+	<Include file="intro/resolutionPage.lua"/>
+	<Include file="intro/directProfilesPage.lua"/>
+	<Include file="intro/indirectProfilesPage.lua"/>
+	<Include file="intro/weakaurasPage.lua"/>
+	<Include file="intro/donePage.lua"/>
 </Ui>
