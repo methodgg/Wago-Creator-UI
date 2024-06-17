@@ -3,9 +3,9 @@ local L = addon.L
 
 addon.color = "FFC1272D";
 addon.colorRGB = {
-  226 / 255,
-  203 / 255,
-  0 / 255,
+  193 / 255,
+  39 / 255,
+  45 / 255,
 }
 addon.dbKey = "WagoUIDB"
 addon.slashPrefixes = {
