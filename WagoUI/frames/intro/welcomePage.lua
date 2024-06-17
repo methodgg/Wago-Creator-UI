@@ -7,7 +7,8 @@ local pageName = "WelcomePage"
 local function createPage()
   local page = addon:CreatePageProtoType(pageName)
 
-  local header = DF:CreateLabel(page, string.format(L["Welcome to |c%sWago|rUI!"], addon.color), 38, "white");
+  local header = DF:CreateLabel(page, string.format(L["Welcome to |c%sWago|rUI:"], addon.color), 38,
+    "white");
   header:SetWidth(page:GetWidth() - 10)
   header:SetJustifyH("CENTER")
   header:SetPoint("TOP", page, "TOP", 0, -100);
