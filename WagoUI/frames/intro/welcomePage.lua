@@ -26,7 +26,8 @@ local function createPage()
   local expertButton = addon.DF:CreateButton(page, 230, 50, "Expert Mode", 22)
   expertButton:SetPoint("BOTTOMRIGHT", page, "BOTTOMRIGHT", -140, 100);
   expertButton:SetClickFunction(function()
-
+    addon.frames.introFrame:Hide()
+    addon.frames.profileFrame:Show()
   end);
 
 

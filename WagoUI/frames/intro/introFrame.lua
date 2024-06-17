@@ -71,15 +71,6 @@ function addon:CreateIntroFrame(f)
   local frameWidth = introFrame:GetWidth() - 0
   local frameHeight = introFrame:GetHeight() - 40
 
-  local expertButton = DF:CreateButton(introFrame, nil, 100, 40, "Expert", nil, nil, nil, nil, nil, nil,
-    options_dropdown_template);
-  expertButton.text_overlay:SetFont(expertButton.text_overlay:GetFont(), 16);
-  expertButton:SetPoint("TOPRIGHT", introFrame, "TOPRIGHT", -4, -30)
-  expertButton:SetClickFunction(function()
-    addon.frames.introFrame:Hide()
-    addon.frames.profileFrame:Show()
-  end);
-
   createStatusBar(introFrame)
 
   local nextButton = DF:CreateButton(introFrame, nil, 80, 30, "Next >>", nil, nil, nil, nil, nil, nil,
