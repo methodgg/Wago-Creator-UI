@@ -5,6 +5,7 @@
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
 ## Dependencies: WagoUI_Data
+## OptionalDeps: WagoUI_Creator
 ## SavedVariables: WagoUIDB
 
 load.xml
