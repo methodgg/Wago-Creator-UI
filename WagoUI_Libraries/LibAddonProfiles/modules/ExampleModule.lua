@@ -61,6 +61,15 @@ local importProfile = function(profileString, profileKey, isDuplicateProfile)
 
 end
 
+local exportOptions = {
+  example = false
+}
+local setExportOptions = function(options)
+  for k, v in pairs(options) do
+    exportOptions[k] = v
+  end
+end
+
 ---@param profileKey string | nil
 ---@return string | nil
 local exportProfile = function(profileKey)
@@ -94,7 +103,8 @@ local m = {
   testImport = testImport,
   importProfile = importProfile,
   exportProfile = exportProfile,
-  exportGroup = nil, --optional
+  setExportOptions = setExportOptions, --optional
+  exportGroup = nil,                   --optional
   getProfileKeys = getProfileKeys,
   getCurrentProfileKey = getCurrentProfileKey,
   setProfile = setProfile,

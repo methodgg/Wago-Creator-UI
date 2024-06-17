@@ -312,6 +312,21 @@ local function createManageFrame(w, h)
     label:SetPoint("BOTTOM", scrollBox, "TOP", 0, 30)
   end
 
+  local purgeWagoCheckbox = DF:CreateSwitch(m,
+    function(_, _, value)
+      WagoUICreatorDB.exportOptions[moduleName].purgeWago = value
+      lapModule.setExportOptions(WagoUICreatorDB.exportOptions[moduleName])
+    end,
+    false, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, DF:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
+  purgeWagoCheckbox:SetValue(WagoUICreatorDB.exportOptions[moduleName])
+  purgeWagoCheckbox:SetSize(25, 25)
+  purgeWagoCheckbox:SetAsCheckBox()
+  purgeWagoCheckbox:SetPoint("BOTTOMLEFT", m, "BOTTOMLEFT", 60, 20)
+
+  local purgeWagoLabel = DF:CreateLabel(m, "Startup", 16, "white")
+  purgeWagoLabel:SetPoint("LEFT", purgeWagoCheckbox, "RIGHT", 10, 0)
+  purgeWagoLabel:SetText(L["Purge Wago IDs for exports"])
+
   local okayButton = DF:CreateButton(m, nil, 200, 40, L["Okay"], nil, nil, nil, nil, nil,
     nil,
     options_dropdown_template)
@@ -325,7 +340,7 @@ local function createManageFrame(w, h)
   okayButton:SetScript("OnLeave", function(self)
     okayButton.button:SetBackdropBorderColor(1, 1, 1, 0)
   end)
-  okayButton:SetPoint("BOTTOM", m, "BOTTOM", 0, 20)
+  okayButton:SetPoint("BOTTOMRIGHT", m, "BOTTOMRIGHT", -60, 20)
 
   return m
 end

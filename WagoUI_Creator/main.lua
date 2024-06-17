@@ -9,6 +9,7 @@ addon.version = tonumber(versiontext)
 addon.frames = {}
 local profileDropdowns = {}
 local currentProfileDropdowns = {}
+local LAP = LibStub:GetLibrary("LibAddonProfiles")
 
 local dbDefaults = {
   anchorTo = "CENTER",
@@ -16,6 +17,11 @@ local dbDefaults = {
   xoffset = 0,
   yoffset = 0,
   config = {},
+  exportOptions = {
+    ["WeakAuras"] = {
+      purgeWago = true,
+    }
+  },
   creatorUI = {
     name = "",
     profileKeys = {
@@ -151,6 +157,13 @@ function addon:DeepCopyAsync(orig)
 end
 
 function addon:ExportAllProfiles()
+  -- set all export options from db
+  for moduleName, options in pairs(addon.db.exportOptions) do
+    local lapModule = LAP:GetModule(moduleName)
+    if lapModule.setExportOptions then
+      lapModule.setExportOptions(options)
+    end
+  end
   -- delesecting a profile key will instantly set both the key and the profile to nil in the db
   -- See: ModuleFunctions:CreateDropdownOptions
   -- so we do not need to worry about removing those unwanted exports here

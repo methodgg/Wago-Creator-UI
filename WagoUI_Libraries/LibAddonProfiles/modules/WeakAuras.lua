@@ -328,12 +328,26 @@ function TableToString(inTable, forChat)
   return encoded
 end
 
+local exportOptions = {
+  purgeWago = false
+}
+local setExportOptions = function(options)
+  vdt(options)
+  for k, v in pairs(options) do
+    exportOptions[k] = v
+  end
+end
+
 ---@param id string | nil
 ---@return string | nil
 local exportGroup = function(id)
-  local data = WeakAuras.GetData(id);
+  local data = CopyTable(WeakAuras.GetData(id));
 
   if (data) then
+    if exportOptions.purgeWago then
+      data.wagoID = nil
+      data.url = nil
+    end
     data.uid = data.uid or GenerateUniqueID()
     -- Check which transmission version we want to use
     local version = 1421
@@ -449,6 +463,7 @@ local m = {
   testImport = testImport,
   importProfile = importProfile,
   exportProfile = exportAllDisplays,
+  setExportOptions = setExportOptions,
   exportGroup = exportGroup,
   areProfileStringsEqual = areProfileStringsEqual,
 }
