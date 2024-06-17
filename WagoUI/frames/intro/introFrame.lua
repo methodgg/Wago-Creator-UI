@@ -77,7 +77,7 @@ function addon:CreateIntroFrame(f)
     addon:NextPage()
   end);
 
-  local prevButton = addon.DF:CreateButton(introFrame, 80, 30, "<< Prev", 16)
+  local prevButton = addon.DF:CreateButton(introFrame, 80, 30, "<< Back", 16)
   prevButton:SetPoint("BOTTOMLEFT", introFrame, "BOTTOMLEFT", 5, 5);
   prevButton:SetClickFunction(function()
     addon:PrevPage()
@@ -94,6 +94,17 @@ function addon:CreateIntroFrame(f)
       pages[i]:Hide()
     end
     pages[currentPage]:Show()
+    if currentPage == #pages then
+      nextButton:Hide()
+    else
+      nextButton:Show()
+    end
+    if currentPage == 1 then
+      prevButton:Hide()
+      nextButton:Hide()
+    else
+      prevButton:Show()
+    end
     addon:UpdateProgressBar(currentPage)
   end
 
