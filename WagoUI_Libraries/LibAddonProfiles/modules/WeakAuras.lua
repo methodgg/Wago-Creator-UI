@@ -332,7 +332,6 @@ local exportOptions = {
   purgeWago = false
 }
 local setExportOptions = function(options)
-  vdt(options)
   for k, v in pairs(options) do
     exportOptions[k] = v
   end
