@@ -157,6 +157,9 @@ function addon:DeepCopyAsync(orig)
 end
 
 function addon:ExportAllProfiles()
+  -- set current toc version
+  local gameVersion = select(4, GetBuildInfo())
+  addon.db.creatorUI.gameVersion = gameVersion
   -- set all export options from db
   for moduleName, options in pairs(addon.db.exportOptions) do
     local lapModule = LAP:GetModule(moduleName)
