@@ -1,5 +1,6 @@
 ## Interface: 100207
-## Title: WagoUI Data
+## Title: |cFFC1272DWago|rUI Data
+## IconTexture: Interface\AddOns\WagoUI_Data\logoSmall.png
 ## Author: The Wago Team
 ## Version: 1.0.0
 ## DefaultState: Enabled
