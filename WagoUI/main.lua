@@ -47,7 +47,7 @@ function init()
   addon:SetupWagoData()
   addon:MakeCopyHelper()
   local mainFrame = addon:CreateMainFrame()
-  addon:CreateProfileTable(mainFrame)
+  addon:CreateExpertFrame(mainFrame)
   addon:CreateIntroFrame(mainFrame)
   if addon.db.introEnabled then
     addon.frames.introFrame:Show()

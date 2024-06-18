@@ -1,12 +1,12 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
 	<Include file="mainFrame.lua"/>
-	<Include file="profileTable/actionButton.lua"/>
-	<Include file="profileTable/profileTable.lua"/>
-	<Include file="intro/introFrame.lua"/>
-	<Include file="intro/welcomePage.lua"/>
-	<Include file="intro/resolutionPage.lua"/>
-	<Include file="intro/directProfilesPage.lua"/>
-	<Include file="intro/indirectProfilesPage.lua"/>
-	<Include file="intro/weakaurasPage.lua"/>
-	<Include file="intro/donePage.lua"/>
+	<Include file="components/actionButton.lua"/>
+	<Include file="expertFrame/expertFrame.lua"/>
+	<Include file="introFrame/introFrame.lua"/>
+	<Include file="introFrame/welcomePage.lua"/>
+	<Include file="introFrame/resolutionPage.lua"/>
+	<Include file="introFrame/directProfilesPage.lua"/>
+	<Include file="introFrame/indirectProfilesPage.lua"/>
+	<Include file="introFrame/weakaurasPage.lua"/>
+	<Include file="introFrame/donePage.lua"/>
 </Ui>

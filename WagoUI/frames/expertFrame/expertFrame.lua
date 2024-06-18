@@ -12,8 +12,8 @@ local widths = {
   lastUpdate = 150,
 }
 
-function addon:CreateProfileTable(f)
-  local profileFrame = CreateFrame("Frame", addonName.."ProfileFrame", f)
+function addon:CreateExpertFrame(f)
+  local profileFrame = CreateFrame("Frame", addonName.."ExpertFrame", f)
   profileFrame:SetAllPoints(f)
   profileFrame:Hide()
   addon.frames.profileFrame = profileFrame
