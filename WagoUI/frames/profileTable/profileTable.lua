@@ -238,7 +238,7 @@ function addon:CreateProfileTable(f)
 
   db.selectedWagoDataTab = db.selectedWagoDataTab or 1
   local profileTabButton = addon.DF:CreateTabButton(profileFrame, (frameWidth / 2) - 2, 40, "Profiles", 16)
-  local weakaurasTabButton = addon.DF:CreateTabButton(profileFrame, (frameWidth / 2) - 3, 40, "Weakauras", 16)
+  local weakaurasTabButton = addon.DF:CreateTabButton(profileFrame, (frameWidth / 2) - 2, 40, "Weakauras", 16)
   local tabFunction = function(tabIndex)
     db.selectedWagoDataTab = tabIndex
     if db.selectedWagoDataResolution and addon.wagoData then
@@ -246,7 +246,7 @@ function addon:CreateProfileTable(f)
     end
   end
   addon.DF:CreateTabStructure({ profileTabButton, weakaurasTabButton }, tabFunction, db.selectedWagoDataTab)
-  addLine({ profileTabButton, weakaurasTabButton }, 0, 0, 1, 0)
+  addLine({ profileTabButton, weakaurasTabButton }, 0, 0, 0, 0)
 
   addLine({ profileFrame.contentHeader }, 0, 0)
 
