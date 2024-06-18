@@ -100,11 +100,44 @@ function addon:CreateExpertFrame(f)
 
   local profileList = addon.DF:CreateProfileList(expertFrame, frameWidth, frameHeight - totalHeight + 4)
 
+  local updateData = function(data)
+    local filtered = {}
+    if data then
+      if db.selectedWagoDataTab == 1 then
+        for _, entry in ipairs(data) do
+          if entry.moduleName ~= "WeakAuras" and entry.moduleName ~= "Echo Raid Tools" then
+            tinsert(filtered, entry)
+          end
+        end
+        --sort disabled modules to bottom
+        table.sort(filtered, function(a, b)
+          local orderA = (a.lap.isLoaded() or a.lap.needsInitialization()) and 1 or 0
+          local orderB = (b.lap.isLoaded() or b.lap.needsInitialization()) and 1 or 0
+          return orderA > orderB
+        end)
+      end
+      if db.selectedWagoDataTab == 2 then
+        for _, entry in ipairs(data) do
+          if entry.moduleName == "WeakAuras" or entry.moduleName == "Echo Raid Tools" then
+            tinsert(filtered, entry)
+          end
+        end
+        --sort weakauras on top
+        table.sort(filtered, function(a, b)
+          local orderA = a.moduleName == "WeakAuras" and 1 or 0
+          local orderB = b.moduleName == "WeakAuras" and 1 or 0
+          return orderA > orderB
+        end)
+      end
+    end
+    profileList.updateData(filtered)
+  end
+
+  addon:RegisterDataConsumer(updateData)
+
   local tabFunction = function(tabIndex)
     db.selectedWagoDataTab = tabIndex
-    if db.selectedWagoDataResolution and addon.wagoData then
-      profileList.updateData(addon.wagoData[db.selectedWagoDataResolution][db.selectedWagoDataTab])
-    end
+    addon:UpdateRegisteredDataConsumers()
   end
   addon.DF:CreateTabStructure({ profileTabButton, weakaurasTabButton }, tabFunction, db.selectedWagoDataTab)
 

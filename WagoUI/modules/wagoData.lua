@@ -21,11 +21,9 @@ function addon:SetupWagoData()
   addon.wagoData = {}
   for resolution, modules in pairs(source.profileKeys) do
     addon.wagoData[resolution] = {}
-    addon.wagoData[resolution][1] = {} -- TODO: hardcoded 2 tabs right now
-    addon.wagoData[resolution][2] = {}
     for moduleName, moduleData in pairs(modules) do
       if type(moduleData) == "string" then
-        tinsert(addon.wagoData[resolution][1], {
+        tinsert(addon.wagoData[resolution], {
           lap = LAP:GetModule(moduleName),
           moduleName = moduleName,
           profileKey = moduleData,
@@ -34,10 +32,9 @@ function addon:SetupWagoData()
         })
       elseif moduleName == "WeakAuras" or moduleName == "Echo Raid Tools" then
         for groupId in pairs(moduleData) do
-          tinsert(addon.wagoData[resolution][2], {
+          tinsert(addon.wagoData[resolution], {
             lap = LAP:GetModule(moduleName),
             moduleName = moduleName,
-            sortOrder = moduleName == "WeakAuras" and 1 or 2,
             entryName = groupId,
             profileKey = groupId,
             profileMetadata = source.profileMetadata[resolution][moduleName],
@@ -48,16 +45,6 @@ function addon:SetupWagoData()
         --TODO: TalentLoadoutEx
       end
     end
-    --sort disabled modules to bottom
-    table.sort(addon.wagoData[resolution][1], function(a, b)
-      local orderA = (a.lap.isLoaded() or a.lap.needsInitialization()) and 1 or 0
-      local orderB = (b.lap.isLoaded() or b.lap.needsInitialization()) and 1 or 0
-      return orderA > orderB
-    end)
-    --sort weakauras on top
-    table.sort(addon.wagoData[resolution][2], function(a, b)
-      return a.sortOrder < b.sortOrder
-    end)
   end
 end
 
@@ -72,9 +59,7 @@ function addon:GetWagoDataForDropdown()
           db.selectedWagoData = key
           addon:SetupWagoData()
           addon:RefreshResolutionDropdown()
-          local arg = addon.wagoData[db.selectedWagoDataResolution] and
-              addon.wagoData[db.selectedWagoDataResolution][db.selectedWagoDataTab]
-          addon:UpdateProfileTable(arg)
+          addon:UpdateRegisteredDataConsumers()
         end
       }
       tinsert(wagoData, entry)
@@ -97,7 +82,7 @@ function addon:GetResolutionsForDropdown()
           onclick = function()
             db.selectedWagoDataResolution = key
             addon:SetupWagoData()
-            addon:UpdateProfileTable(addon.wagoData[key][db.selectedWagoDataTab])
+            addon:UpdateRegisteredDataConsumers()
           end
         }
         tinsert(res, entry)
@@ -105,4 +90,18 @@ function addon:GetResolutionsForDropdown()
     end
   end
   return res
+end
+
+do
+  local consumers = {}
+  function addon:RegisterDataConsumer(func)
+    tinsert(consumers, func)
+  end
+
+  function addon:UpdateRegisteredDataConsumers()
+    local wagoData = addon.wagoData and addon.wagoData[db.selectedWagoDataResolution]
+    for _, consumer in ipairs(consumers) do
+      consumer(wagoData)
+    end
+  end
 end
