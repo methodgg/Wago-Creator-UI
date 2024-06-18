@@ -66,7 +66,9 @@ function addon:GetWagoDataForDropdown()
           db.selectedWagoData = key
           addon:SetupWagoData()
           addon:RefreshResolutionDropdown()
-          addon:UpdateProfileTable(addon.wagoData[db.selectedWagoDataResolution])
+          local arg = addon.wagoData[db.selectedWagoDataResolution] and
+              addon.wagoData[db.selectedWagoDataResolution][db.selectedWagoDataTab]
+          addon:UpdateProfileTable(arg)
         end
       }
       tinsert(wagoData, entry)
@@ -89,7 +91,7 @@ function addon:GetResolutionsForDropdown()
           onclick = function()
             db.selectedWagoDataResolution = key
             addon:SetupWagoData()
-            addon:UpdateProfileTable(addon.wagoData[key])
+            addon:UpdateProfileTable(addon.wagoData[key][db.selectedWagoDataTab])
           end
         }
         tinsert(res, entry)
