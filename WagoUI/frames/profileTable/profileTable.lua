@@ -190,6 +190,7 @@ function addon:CreateProfileTable(f)
   introButton:SetClickFunction(function()
     addon.frames.introFrame:Show()
     addon.frames.profileFrame:Hide()
+    addon.db.introEnabled = true
   end);
 
   -- TODO: An update all button is not really possible

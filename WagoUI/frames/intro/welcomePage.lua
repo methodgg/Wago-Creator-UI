@@ -38,6 +38,7 @@ local function createPage()
   expertButton:SetClickFunction(function()
     addon.frames.introFrame:Hide()
     addon.frames.profileFrame:Show()
+    addon.db.introEnabled = false
   end);
 
 

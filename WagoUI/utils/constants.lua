@@ -19,6 +19,7 @@ addon.dbDefaults = {
   xoffset = 0,
   yoffset = 0,
   config = {},
+  introEnabled = true,
 };
 
 addon.externalLinks = {
