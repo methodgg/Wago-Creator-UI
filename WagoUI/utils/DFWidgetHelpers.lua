@@ -1,6 +1,6 @@
 local addonName, addon = ...;
 local DF = _G["DetailsFramework"];
-local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE");
+local odt = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE");
 local db
 local L = addon.L
 
@@ -10,9 +10,7 @@ local L = addon.L
 addon.DF = {}
 
 function addon.DF:CreateButton(parent, width, height, text, fontSize)
-  local button = DF:CreateButton(parent, nil, width, height, text, nil, nil, nil, nil, nil,
-    nil,
-    options_dropdown_template);
+  local button = DF:CreateButton(parent, nil, width, height, text, nil, nil, nil, nil, nil, nil, odt);
   button:SetScript("OnEnter", function(self)
     button.button:SetBackdropBorderColor(1, 1, 1, 1)
   end)
