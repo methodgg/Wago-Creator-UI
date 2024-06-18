@@ -48,6 +48,12 @@ function addon:SetupWagoData()
         --TODO: TalentLoadoutEx
       end
     end
+    --sort disabled modules to bottom
+    table.sort(addon.wagoData[resolution][1], function(a, b)
+      local orderA = (a.lap.isLoaded() or a.lap.needsInitialization()) and 1 or 0
+      local orderB = (b.lap.isLoaded() or b.lap.needsInitialization()) and 1 or 0
+      return orderA > orderB
+    end)
     --sort weakauras on top
     table.sort(addon.wagoData[resolution][2], function(a, b)
       return a.sortOrder < b.sortOrder
