@@ -20,3 +20,11 @@ function addon.DF:CreateButton(parent, width, height, text, fontSize)
   button.text_overlay:SetFont(button.text_overlay:GetFont(), fontSize);
   return button
 end
+
+function addon.DF:CreateDropdown(parent, width, height, fontSize, dropdownFunc)
+  local dropdown = DF:CreateDropDown(parent, dropdownFunc, nil, width, height, nil, nil, odt)
+  if fontSize then
+    dropdown.dropdown.text:SetFont(dropdown.dropdown.text:GetFont(), fontSize)
+  end
+  return dropdown
+end
