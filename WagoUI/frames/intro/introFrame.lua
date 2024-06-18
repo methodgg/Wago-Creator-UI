@@ -69,9 +69,7 @@ function addon:CreateIntroFrame(f)
   introFrame:Hide()
   addon.frames.introFrame = introFrame
 
-  local nextButton = DF:CreateButton(introFrame, nil, 80, 30, "Next >>", nil, nil, nil, nil, nil, nil,
-    options_dropdown_template);
-  nextButton.text_overlay:SetFont(nextButton.text_overlay:GetFont(), 16);
+  local nextButton = addon.DF:CreateButton(introFrame, 80, 30, "Next >>", 16)
   nextButton:SetPoint("BOTTOMRIGHT", introFrame, "BOTTOMRIGHT", -5, 5);
   nextButton:SetClickFunction(function()
     addon:NextPage()

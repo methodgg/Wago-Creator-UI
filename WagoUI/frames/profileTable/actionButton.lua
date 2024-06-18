@@ -23,9 +23,7 @@ end
 
 
 function addon:CreateActionButton(parent)
-  local actionButton = DF:CreateButton(parent, nil, 180, 30, L["Import"], nil, nil, nil, nil, nil, nil,
-    options_dropdown_template);
-  actionButton.text_overlay:SetFont(actionButton.text_overlay:GetFont(), 16);
+  local actionButton = addon.DF:CreateButton(parent, 180, 30, L["Import"], 16)
 
   --TODO: Check if profile is uptodate, use timestamp from metadata to verify
   function actionButton:UpdateAction(info)

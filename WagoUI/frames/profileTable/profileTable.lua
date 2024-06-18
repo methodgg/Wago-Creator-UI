@@ -154,21 +154,16 @@ function addon:CreateProfileTable(f)
   end
 
 
-  local wagoDataDropdown = DF:CreateDropDown(profileFrame, function() return addon:GetWagoDataForDropdown() end, nil, 180,
-    40, nil,
-    nil,
-    options_dropdown_template)
+  local wagoDataDropdownFunc = function() return addon:GetWagoDataForDropdown() end
+  local wagoDataDropdown = addon.DF:CreateDropdown(profileFrame, 180, 40, 16, wagoDataDropdownFunc)
   if not db.selectedWagoData then
     wagoDataDropdown:NoOptionSelected()
   else
     wagoDataDropdown:Select(db.selectedWagoData)
   end
 
-  local resolutionDropdown = DF:CreateDropDown(profileFrame, function() return addon:GetResolutionsForDropdown() end, nil,
-    180, 40,
-    nil,
-    nil,
-    options_dropdown_template)
+  local resolutionDropdownFunc = function() return addon:GetResolutionsForDropdown() end
+  local resolutionDropdown = addon.DF:CreateDropdown(profileFrame, 180, 40, 16, resolutionDropdownFunc)
   if not db.selectedWagoDataResolution then
     resolutionDropdown:NoOptionSelected()
   else
@@ -189,9 +184,7 @@ function addon:CreateProfileTable(f)
     end
   end
 
-  local introButton = DF:CreateButton(profileFrame, nil, 100, 40, "Intro", nil, nil, nil, nil, nil, nil,
-    options_dropdown_template);
-  introButton.text_overlay:SetFont(introButton.text_overlay:GetFont(), 16);
+  local introButton = addon.DF:CreateButton(profileFrame, 100, 40, "Intro", 16)
   introButton:SetClickFunction(function()
     addon.frames.introFrame:Show()
     addon.frames.profileFrame:Hide()

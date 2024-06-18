@@ -47,16 +47,12 @@ function addon:CreateMainFrame()
   autoStartCheckbox:SetPoint("TOPLEFT", frame, "TOPRIGHT", 10, 0)
   autoStartCheckbox:SetValue(addon.db.autoStart)
 
-  local resetButton = DF:CreateButton(frame, nil, 60, 40, "RESET", nil, nil, nil, nil, nil, nil,
-    options_dropdown_template);
+  local resetButton = addon.DF:CreateButton(frame, 60, 40, "RESET", 16)
   resetButton:SetPoint("TOPLEFT", frame, "TOPRIGHT", 0, -30);
-  resetButton.text_overlay:SetFont(resetButton.text_overlay:GetFont(), 16);
   resetButton:SetClickFunction(addon.ShowAddonResetPrompt);
 
-  local forceErrorButton = DF:CreateButton(frame, nil, 120, 40, "Force Error", nil, nil, nil, nil, nil, nil,
-    options_dropdown_template);
+  local forceErrorButton = addon.DF:CreateButton(frame, 120, 40, "Force Error", 16)
   forceErrorButton:SetPoint("TOPLEFT", frame, "TOPRIGHT", 0, -80);
-  forceErrorButton.text_overlay:SetFont(forceErrorButton.text_overlay:GetFont(), 16);
   forceErrorButton:SetClickFunction(addon.TestErrorHandling);
 
   addon.frames.mainFrame = frame;
