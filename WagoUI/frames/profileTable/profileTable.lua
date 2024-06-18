@@ -138,19 +138,21 @@ function addon:CreateProfileTable(f)
 
 
   local totalHeight = -initialYOffset
-  local function addLine(widgets, xOffset, yOffset)
+  local function addLine(widgets, xOffset, yOffset, xGap, yGap)
     xOffset = xOffset or 0
     yOffset = yOffset or 0
+    xGap = xGap or 10
+    yGap = yGap or 10
     local maxHeight = 0
     for i, widget in ipairs(widgets) do
       if i == 1 then
         widget:SetPoint("TOPLEFT", profileFrame, "TOPLEFT", xOffset + initialXOffset, 0 - totalHeight + yOffset)
       else
-        widget:SetPoint("LEFT", widgets[i - 1], "RIGHT", 10 + xOffset, 0)
+        widget:SetPoint("LEFT", widgets[i - 1], "RIGHT", xGap + xOffset, 0)
       end
       maxHeight = math.max(maxHeight, widget:GetHeight())
     end
-    totalHeight = totalHeight + maxHeight + 10 - yOffset
+    totalHeight = totalHeight + maxHeight + yGap - yOffset
   end
 
 
@@ -204,7 +206,6 @@ function addon:CreateProfileTable(f)
 
   addLine({ wagoDataDropdown, resolutionDropdown, introButton --[[, updateAllButton ]] }, 0, 0)
 
-
   local totalHeaderWidth = 0
   for _, w in pairs(widths) do
     totalHeaderWidth = totalHeaderWidth + w
@@ -224,7 +225,6 @@ function addon:CreateProfileTable(f)
   profileFrame.contentHeader = DF:CreateHeader(profileFrame, headerTable, nil, addonName.."ContentHeader");
   ---@diagnostic disable-next-line: inject-field
   profileFrame.contentScrollbox = contentScrollbox
-  addLine({ profileFrame.contentHeader }, 0, 0)
   contentScrollbox:SetPoint("TOPLEFT", profileFrame.contentHeader, "BOTTOMLEFT");
   contentScrollbox.ScrollBar.scrollStep = 60;
   DF:ReskinSlider(contentScrollbox);
@@ -236,9 +236,19 @@ function addon:CreateProfileTable(f)
     contentScrollbox:Refresh()
   end
 
-  if db.selectedWagoDataResolution and addon.wagoData then
-    addon:UpdateProfileTable(addon.wagoData[db.selectedWagoDataResolution])
+  db.selectedWagoDataTab = db.selectedWagoDataTab or 1
+  local profileTabButton = addon.DF:CreateTabButton(profileFrame, (frameWidth / 2) - 2, 40, "Profiles", 16)
+  local weakaurasTabButton = addon.DF:CreateTabButton(profileFrame, (frameWidth / 2) - 3, 40, "Weakauras", 16)
+  local tabFunction = function(tabIndex)
+    db.selectedWagoDataTab = tabIndex
+    if db.selectedWagoDataResolution and addon.wagoData then
+      addon:UpdateProfileTable(addon.wagoData[db.selectedWagoDataResolution][db.selectedWagoDataTab])
+    end
   end
+  addon.DF:CreateTabStructure({ profileTabButton, weakaurasTabButton }, tabFunction, db.selectedWagoDataTab)
+  addLine({ profileTabButton, weakaurasTabButton }, 0, 0, 1, 0)
+
+  addLine({ profileFrame.contentHeader }, 0, 0)
 
   addon.contentScrollbox = contentScrollbox
 end

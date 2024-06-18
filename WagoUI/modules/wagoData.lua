@@ -21,10 +21,11 @@ function addon:SetupWagoData()
   addon.wagoData = {}
   for resolution, modules in pairs(source.profileKeys) do
     addon.wagoData[resolution] = {}
+    addon.wagoData[resolution][1] = {} -- TODO: hardcoded 2 tabs right now
+    addon.wagoData[resolution][2] = {}
     for moduleName, moduleData in pairs(modules) do
-      --TODO: add grouped profiles (WeakAuras etc)
       if type(moduleData) == "string" then
-        tinsert(addon.wagoData[resolution], {
+        tinsert(addon.wagoData[resolution][1], {
           lap = LAP:GetModule(moduleName),
           moduleName = moduleName,
           profileKey = moduleData,
@@ -33,9 +34,10 @@ function addon:SetupWagoData()
         })
       elseif moduleName == "WeakAuras" or moduleName == "Echo Raid Tools" then
         for groupId in pairs(moduleData) do
-          tinsert(addon.wagoData[resolution], {
+          tinsert(addon.wagoData[resolution][2], {
             lap = LAP:GetModule(moduleName),
             moduleName = moduleName,
+            sortOrder = moduleName == "WeakAuras" and 1 or 2,
             entryName = groupId,
             profileKey = groupId,
             profileMetadata = source.profileMetadata[resolution][moduleName],
@@ -44,9 +46,12 @@ function addon:SetupWagoData()
         end
       else
         --TODO: TalentLoadoutEx
-        --vdt(moduleData, moduleName)
       end
     end
+    --sort weakauras on top
+    table.sort(addon.wagoData[resolution][2], function(a, b)
+      return a.sortOrder < b.sortOrder
+    end)
   end
 end
 
