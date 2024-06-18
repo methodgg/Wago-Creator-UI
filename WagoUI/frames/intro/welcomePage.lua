@@ -15,8 +15,8 @@ local function createPage()
   -- label or dropdown, depending on if single or multiple ui packs available
   local dropdownData = addon:GetWagoDataForDropdown()
   if #dropdownData > 1 then
-    local uiPackDropdown = addon.DF:CreateDropdown(page, 250, 40, 20,
-      function() return addon:GetWagoDataForDropdown() end)
+    local dropdownFunc = function() return addon:GetWagoDataForDropdown() end
+    local uiPackDropdown = addon.DF:CreateDropdown(page, 250, 40, 20, dropdownFunc)
     uiPackDropdown:SetPoint("TOP", header, "BOTTOM", 0, -10)
   else
     local uiPackLabel = DF:CreateLabel(page, dropdownData[1].label, 38, "white");
