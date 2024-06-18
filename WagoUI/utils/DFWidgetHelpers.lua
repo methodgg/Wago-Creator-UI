@@ -15,7 +15,7 @@ function addon.DF:CreateButton(parent, width, height, text, fontSize)
     button.button:SetBackdropBorderColor(1, 1, 1, 1)
   end)
   button:SetScript("OnLeave", function(self)
-    button.button:SetBackdropBorderColor(1, 1, 1, 0)
+    button.button:SetBackdropBorderColor(0, 0, 0, 1)
   end)
   button.text_overlay:SetFont(button.text_overlay:GetFont(), fontSize);
   return button
