@@ -37,7 +37,7 @@ local function createPage()
   expertButton:SetPoint("BOTTOMRIGHT", page, "BOTTOMRIGHT", -140, 80);
   expertButton:SetClickFunction(function()
     addon.frames.introFrame:Hide()
-    addon.frames.profileFrame:Show()
+    addon.frames.expertFrame:Show()
     addon.db.introEnabled = false
   end);
 

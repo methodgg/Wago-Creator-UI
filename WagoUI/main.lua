@@ -52,6 +52,6 @@ function init()
   if addon.db.introEnabled then
     addon.frames.introFrame:Show()
   else
-    addon.frames.profileFrame:Show()
+    addon.frames.expertFrame:Show()
   end
 end

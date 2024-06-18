@@ -13,7 +13,7 @@ local widths = {
   lastUpdate = 150,
 }
 
-function addon.DF.CreateProfileList(parent, frameWidth, frameHeight)
+function addon.DF:CreateProfileList(parent, frameWidth, frameHeight)
   local header
   local contentScrollbox
 
@@ -140,8 +140,8 @@ function addon.DF.CreateProfileList(parent, frameWidth, frameHeight)
     { text = L["Last Update"], width = frameWidth - totalHeaderWidth + widths.lastUpdate - 35 },
   };
   local lineHeight = 42
-  contentScrollbox = DF:CreateScrollBox(parent, nil, contentScrollboxUpdate, {}, frameWidth - 30,
-    frameHeight, 0, lineHeight, createScrollLine, true);
+  contentScrollbox = DF:CreateScrollBox(parent, nil, contentScrollboxUpdate, {}, frameWidth - 30, frameHeight, 0,
+    lineHeight, createScrollLine, true);
   ---@diagnostic disable-next-line: inject-field
   header = DF:CreateHeader(parent, headerTable, nil, nil);
   contentScrollbox:SetPoint("TOPLEFT", header, "BOTTOMLEFT");

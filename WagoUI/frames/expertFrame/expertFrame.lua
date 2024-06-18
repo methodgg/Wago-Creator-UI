@@ -13,13 +13,13 @@ local widths = {
 }
 
 function addon:CreateExpertFrame(f)
-  local profileFrame = CreateFrame("Frame", addonName.."ExpertFrame", f)
-  profileFrame:SetAllPoints(f)
-  profileFrame:Hide()
-  addon.frames.profileFrame = profileFrame
+  local expertFrame = CreateFrame("Frame", addonName.."ExpertFrame", f)
+  expertFrame:SetAllPoints(f)
+  expertFrame:Hide()
+  addon.frames.expertFrame = expertFrame
   db = addon.db
-  local frameWidth = profileFrame:GetWidth() - 0
-  local frameHeight = profileFrame:GetHeight() - 40
+  local frameWidth = expertFrame:GetWidth() - 0
+  local frameHeight = expertFrame:GetHeight() - 40
   local initialXOffset = 2
   local initialYOffset = -30
 
@@ -32,7 +32,7 @@ function addon:CreateExpertFrame(f)
     local maxHeight = 0
     for i, widget in ipairs(widgets) do
       if i == 1 then
-        widget:SetPoint("TOPLEFT", profileFrame, "TOPLEFT", xOffset + initialXOffset, 0 - totalHeight + yOffset)
+        widget:SetPoint("TOPLEFT", expertFrame, "TOPLEFT", xOffset + initialXOffset, 0 - totalHeight + yOffset)
       else
         widget:SetPoint("LEFT", widgets[i - 1], "RIGHT", xGap + xOffset, 0)
       end
@@ -43,7 +43,7 @@ function addon:CreateExpertFrame(f)
 
 
   local wagoDataDropdownFunc = function() return addon:GetWagoDataForDropdown() end
-  local wagoDataDropdown = addon.DF:CreateDropdown(profileFrame, 180, 40, 16, wagoDataDropdownFunc)
+  local wagoDataDropdown = addon.DF:CreateDropdown(expertFrame, 180, 40, 16, wagoDataDropdownFunc)
   if not db.selectedWagoData then
     wagoDataDropdown:NoOptionSelected()
   else
@@ -51,7 +51,7 @@ function addon:CreateExpertFrame(f)
   end
 
   local resolutionDropdownFunc = function() return addon:GetResolutionsForDropdown() end
-  local resolutionDropdown = addon.DF:CreateDropdown(profileFrame, 180, 40, 16, resolutionDropdownFunc)
+  local resolutionDropdown = addon.DF:CreateDropdown(expertFrame, 180, 40, 16, resolutionDropdownFunc)
   if not db.selectedWagoDataResolution then
     resolutionDropdown:NoOptionSelected()
   else
@@ -72,10 +72,10 @@ function addon:CreateExpertFrame(f)
     end
   end
 
-  local introButton = addon.DF:CreateButton(profileFrame, 100, 40, "Intro", 16)
+  local introButton = addon.DF:CreateButton(expertFrame, 100, 40, "Intro", 16)
   introButton:SetClickFunction(function()
     addon.frames.introFrame:Show()
-    addon.frames.profileFrame:Hide()
+    addon.frames.expertFrame:Hide()
     addon.db.introEnabled = true
   end);
 
@@ -94,11 +94,11 @@ function addon:CreateExpertFrame(f)
   addLine({ wagoDataDropdown, resolutionDropdown, introButton --[[, updateAllButton ]] }, 0, 0)
 
   db.selectedWagoDataTab = db.selectedWagoDataTab or 1
-  local profileTabButton = addon.DF:CreateTabButton(profileFrame, (frameWidth / 2) - 2, 40, "Profiles", 16)
-  local weakaurasTabButton = addon.DF:CreateTabButton(profileFrame, (frameWidth / 2) - 2, 40, "Weakauras", 16)
+  local profileTabButton = addon.DF:CreateTabButton(expertFrame, (frameWidth / 2) - 2, 40, "Profiles", 16)
+  local weakaurasTabButton = addon.DF:CreateTabButton(expertFrame, (frameWidth / 2) - 2, 40, "Weakauras", 16)
   addLine({ profileTabButton, weakaurasTabButton }, 0, 0, 0, 0)
 
-  local profileList = addon.DF.CreateProfileList(profileFrame, frameWidth, frameHeight - totalHeight + 4)
+  local profileList = addon.DF:CreateProfileList(expertFrame, frameWidth, frameHeight - totalHeight + 4)
 
   local tabFunction = function(tabIndex)
     db.selectedWagoDataTab = tabIndex

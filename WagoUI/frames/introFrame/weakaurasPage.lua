@@ -12,6 +12,9 @@ local function createPage()
   header:SetJustifyH("CENTER")
   header:SetPoint("TOP", page, "TOP", 0, -100);
 
+  local profileList = addon.DF:CreateProfileList(page, page:GetWidth(), page:GetHeight())
+  -- profileList.UpdateData({})
+  profileList.header:SetPoint("TOPLEFT", page, "TOPLEFT", 0, -80)
 
   return page
 end
