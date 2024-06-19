@@ -19,6 +19,8 @@ local function addButtonToPage(button, i, total)
 end
 
 local onShow = function()
+  addon:ToggleNavgiationButton("prev", true)
+  addon:ToggleNavgiationButton("next", false)
   for _, button in pairs(resolutionButtons) do
     button:Hide()
     button:ClearAllPoints()

@@ -7,6 +7,8 @@ local pageName = "WelcomePage"
 local uiPackDropdown
 
 local onShow = function()
+  addon:ToggleNavgiationButton("prev", false)
+  addon:ToggleNavgiationButton("next", false)
   if uiPackDropdown then
     uiPackDropdown:Select(addon.db.selectedWagoData)
   end

@@ -81,6 +81,16 @@ function addon:CreateIntroFrame(f)
     addon:PrevPage()
   end);
 
+  function addon:ToggleNavgiationButton(type, show)
+    local button = type == "next" and nextButton or type == "prev" and prevButton
+    if not button then return end
+    if show then
+      button:Show()
+    else
+      button:Hide()
+    end
+  end
+
   for _, pageFunc in pairs(pagesToCreate) do
     table.insert(pages, pageFunc())
   end
@@ -92,17 +102,6 @@ function addon:CreateIntroFrame(f)
       pages[i]:Hide()
     end
     pages[currentPage]:Show()
-    if currentPage == #pages then
-      nextButton:Hide()
-    else
-      nextButton:Show()
-    end
-    if currentPage == 1 then
-      prevButton:Hide()
-      nextButton:Hide()
-    else
-      prevButton:Show()
-    end
     addon:UpdateProgressBar(currentPage)
   end
 
