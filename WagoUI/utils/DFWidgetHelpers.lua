@@ -84,3 +84,39 @@ function addon.DF:CreateResolutionButton(parent, text)
   button.text_overlay:SetFont(button.text_overlay:GetFont(), 28);
   return button
 end
+
+function addon.DF:ShowPrompt(promptText, successCallback, errorCallback, okayText, cancelText)
+  okayText = okayText or L["Okay"]
+  cancelText = cancelText or L["Cancel"]
+  if not addon.promptFrame then
+    addon.promptFrame = CreateFrame("Frame", "WagoUIPromptFrame", addon.frames.mainFrame)
+    addon.promptFrame:SetPoint("BOTTOMRIGHT", addon.frames.mainFrame, "BOTTOMRIGHT")
+    addon.promptFrame:SetPoint("TOPLEFT", addon.frames.mainFrame, "TOPLEFT", 0, -20)
+    addon.promptFrame:SetFrameStrata("DIALOG")
+    addon.promptFrame:EnableMouse(true)
+    local tex = addon.promptFrame:CreateTexture(nil, "BACKGROUND")
+    tex:SetAllPoints(addon.promptFrame)
+    tex:SetColorTexture(0, 0, 0, 0.9)
+    local label = DF:CreateLabel(addon.promptFrame, promptText, 22, "white");
+    label:SetWidth(addon.promptFrame:GetWidth() - 10)
+    label:SetJustifyH("CENTER")
+    label:SetPoint("TOP", addon.promptFrame, "TOP", 0, -120);
+    local okayButton = addon.DF:CreateButton(addon.promptFrame, 180, 40, okayText, 18)
+    okayButton:SetPoint("BOTTOMRIGHT", addon.promptFrame, "BOTTOM", -60, 60)
+    okayButton:SetClickFunction(function()
+      addon.promptFrame:Hide()
+      if successCallback then
+        successCallback()
+      end
+    end)
+    local cancelButton = addon.DF:CreateButton(addon.promptFrame, 180, 40, cancelText, 18)
+    cancelButton:SetPoint("BOTTOMLEFT", addon.promptFrame, "BOTTOM", 60, 60)
+    cancelButton:SetClickFunction(function()
+      addon.promptFrame:Hide()
+      if errorCallback then
+        errorCallback()
+      end
+    end)
+  end
+  addon.promptFrame:Show()
+end
