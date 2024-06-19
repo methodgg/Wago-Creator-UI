@@ -21,11 +21,12 @@ function addon.DF:CreateButton(parent, width, height, text, fontSize)
   return button
 end
 
-function addon.DF:CreateDropdown(parent, width, height, fontSize, dropdownFunc)
+function addon.DF:CreateDropdown(parent, width, height, fontSize, frameScale, dropdownFunc)
   local dropdown = DF:CreateDropDown(parent, dropdownFunc, nil, width, height, nil, nil, odt)
   if fontSize then
     dropdown.dropdown.text:SetFont(dropdown.dropdown.text:GetFont(), fontSize)
   end
+  dropdown.dropdown.dropdownframe:SetScale(frameScale)
   return dropdown
 end
 

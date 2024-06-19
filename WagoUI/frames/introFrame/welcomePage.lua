@@ -30,7 +30,7 @@ local function createPage()
   end
   if #dropdownData > 1 then
     local dropdownFunc = function() return addon:GetWagoDataForDropdown() end
-    uiPackDropdown = addon.DF:CreateDropdown(page, 250, 40, 20, dropdownFunc)
+    uiPackDropdown = addon.DF:CreateDropdown(page, 250, 40, 20, 1.5, dropdownFunc)
     if not addon.db.selectedWagoData then
       uiPackDropdown:NoOptionSelected()
     else

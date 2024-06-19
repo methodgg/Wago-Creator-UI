@@ -52,7 +52,7 @@ function addon:CreateExpertFrame(f)
 
 
   local wagoDataDropdownFunc = function() return addon:GetWagoDataForDropdown() end
-  uiPackDropdown = addon.DF:CreateDropdown(expertFrame, 180, 40, 16, wagoDataDropdownFunc)
+  uiPackDropdown = addon.DF:CreateDropdown(expertFrame, 180, 40, 16, 1.2, wagoDataDropdownFunc)
   if not db.selectedWagoData then
     uiPackDropdown:NoOptionSelected()
   else
@@ -60,7 +60,7 @@ function addon:CreateExpertFrame(f)
   end
 
   local resolutionDropdownFunc = function() return addon:GetResolutionsForDropdown() end
-  resolutionDropdown = addon.DF:CreateDropdown(expertFrame, 180, 40, 16, resolutionDropdownFunc)
+  resolutionDropdown = addon.DF:CreateDropdown(expertFrame, 180, 40, 16, 1.2, resolutionDropdownFunc)
   if not db.selectedWagoDataResolution then
     resolutionDropdown:NoOptionSelected()
   else
