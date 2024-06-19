@@ -47,6 +47,11 @@ end
 local function copyExportString(id)
   addon:Async(function()
     addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 50, L["Preparing export string..."])
+    if addon.db.exportOptions[moduleName] then
+      if lapModule.setExportOptions then
+        lapModule.setExportOptions(addon.db.exportOptions[moduleName])
+      end
+    end
     local exportString = lapModule.exportGroup(id)
     addon.copyHelper:Hide()
     addon:TextExport(exportString)
