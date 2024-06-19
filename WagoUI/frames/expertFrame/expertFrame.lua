@@ -143,3 +143,13 @@ function addon:CreateExpertFrame(f)
 
   addLine({ profileList.header }, 0, 0)
 end
+
+function addon:ShowExpertFrame()
+  local wagoData = addon:GetWagoDataForDropdown()
+  if #wagoData == 0 then
+    addon.frames.introFrame:Show()
+    addon.frames.expertFrame:Hide()
+    return
+  end
+  addon.frames.expertFrame:Show()
+end

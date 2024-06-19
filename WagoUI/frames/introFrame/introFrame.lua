@@ -121,3 +121,7 @@ function addon:CreateIntroFrame(f)
     updatePages()
   end
 end
+
+function addon:ShowIntroFrame()
+  addon.frames.introFrame:Show()
+end

@@ -50,8 +50,8 @@ function init()
   addon:CreateExpertFrame(mainFrame)
   addon:CreateIntroFrame(mainFrame)
   if addon.db.introEnabled then
-    addon.frames.introFrame:Show()
+    addon:ShowIntroFrame()
   else
-    addon.frames.expertFrame:Show()
+    addon:ShowExpertFrame()
   end
 end
