@@ -120,3 +120,15 @@ function addon.DF:ShowPrompt(promptText, successCallback, errorCallback, okayTex
   end
   addon.promptFrame:Show()
 end
+
+function addon.DF:CreateCheckbox(parent, size, switchFunc, defaultValue)
+  local checkBox = DF:CreateSwitch(parent,
+    function(_, _, value)
+      if switchFunc then switchFunc(value) end
+    end,
+    false, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, DF:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
+  checkBox:SetValue(defaultValue)
+  checkBox:SetSize(size, size)
+  checkBox:SetAsCheckBox()
+  return checkBox
+end

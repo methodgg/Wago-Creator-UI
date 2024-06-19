@@ -2,6 +2,7 @@
 	<Include file="mainFrame.lua"/>
 	<Include file="components/actionButton.lua"/>
 	<Include file="components/profileList.lua"/>
+	<Include file="components/profileSelectionList.lua"/>
 	<Include file="expertFrame/expertFrame.lua"/>
 	<Include file="introFrame/introFrame.lua"/>
 	<Include file="introFrame/welcomePage.lua"/>

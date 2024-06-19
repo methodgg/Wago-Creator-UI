@@ -12,10 +12,43 @@ end
 local function createPage()
   local page = addon:CreatePageProtoType(pageName)
 
-  local header = DF:CreateLabel(page, "Direct Profiles", 38, "white");
+  local text = L["Choose the profiles you would like to install."]
+  local header = DF:CreateLabel(page, text, 22, "white");
   header:SetWidth(page:GetWidth() - 10)
   header:SetJustifyH("CENTER")
-  header:SetPoint("TOP", page, "TOP", 0, -100);
+  header:SetPoint("TOPLEFT", page, "TOPLEFT", 0, -15);
+
+  local list = addon.DF:CreateProfileSelectionList(page, page:GetWidth() - 160, page:GetHeight() - 160)
+  local updateData = function(data)
+    local filtered = {}
+    if data then
+      for _, entry in ipairs(data) do
+        if entry.moduleName ~= "WeakAuras" and entry.moduleName ~= "Echo Raid Tools" then
+          tinsert(filtered, entry)
+        end
+      end
+      --sort disabled modules to bottom, alphabetically afterwards
+      table.sort(filtered, function(a, b)
+        local orderA = (a.lap.isLoaded() or a.lap.needsInitialization()) and 1 or 0
+        local orderB = (b.lap.isLoaded() or b.lap.needsInitialization()) and 1 or 0
+        if orderA == orderB then
+          return a.moduleName < b.moduleName
+        end
+        return orderA > orderB
+      end)
+    end
+    list.updateData(filtered)
+  end
+  addon:RegisterDataConsumer(updateData)
+  addon:UpdateRegisteredDataConsumers()
+  list.header:SetPoint("TOPLEFT", page, "TOPLEFT", 80, -60)
+
+  local installButton = addon.DF:CreateButton(page, 180, 40, L["Install Profiles"], 18)
+  installButton:SetPoint("BOTTOM", page, "BOTTOM", 0, 10)
+  installButton:SetClickFunction(function()
+    addon:NextPage()
+  end);
+
 
   page:SetScript("OnShow", onShow)
   return page
