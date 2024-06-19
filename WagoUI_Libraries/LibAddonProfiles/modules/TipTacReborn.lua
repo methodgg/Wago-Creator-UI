@@ -96,6 +96,7 @@ local m = {
   needsInitialization = needsInitialization,
   needProfileKey = false,    --optional
   preventRename = true,
+  willOverrideProfile = true,
   isLoaded = isLoaded,
   openConfig = openConfig,
   closeConfig = closeConfig,

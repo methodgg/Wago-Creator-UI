@@ -95,6 +95,7 @@ local m = {
   needReloadOnImport = true,
   needsInitialization = needsInitialization,
   needProfileKey = false,
+  willOverrideProfile = true,
   isLoaded = isLoaded,
   openConfig = openConfig,
   closeConfig = closeConfig,

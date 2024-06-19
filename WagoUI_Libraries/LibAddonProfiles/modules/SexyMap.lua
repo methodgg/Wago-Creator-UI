@@ -111,6 +111,7 @@ local m = {
   needsInitialization = needsInitialization,
   needProfileKey = false,
   isLoaded = isLoaded,
+  willOverrideProfile = true,
   openConfig = openConfig,
   closeConfig = closeConfig,
   isDuplicate = isDuplicate,

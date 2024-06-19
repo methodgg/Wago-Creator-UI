@@ -29,6 +29,7 @@
 ---@field isDuplicate fun(profileKey: string) : boolean
 ---@field needReloadOnImport? boolean
 ---@field needProfileKey? boolean
+---@field willOverrideProfile? boolean
 ---@field exportGroup? fun(profileKey: string)
 ---@field getProfileKeys? fun() : table<string, any>
 ---@field getCurrentProfileKey? fun() : string
