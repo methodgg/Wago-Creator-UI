@@ -4,6 +4,12 @@ local L = addon.L
 
 local pageName = "WeakAurasPage"
 
+local onShow = function()
+  addon:ToggleNavgiationButton("prev", true)
+  addon:ToggleNavgiationButton("next", true)
+end
+
+
 local function createPage()
   local page = addon:CreatePageProtoType(pageName)
 
@@ -34,6 +40,7 @@ local function createPage()
   addon:UpdateRegisteredDataConsumers()
   profileList.header:SetPoint("TOPLEFT", page, "TOPLEFT", 0, -80)
 
+  page:SetScript("OnShow", onShow)
   return page
 end
 

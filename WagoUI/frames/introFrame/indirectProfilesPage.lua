@@ -4,6 +4,11 @@ local L = addon.L
 
 local pageName = "IndirectProfilesPage"
 
+local onShow = function()
+  addon:ToggleNavgiationButton("prev", true)
+  addon:ToggleNavgiationButton("next", true)
+end
+
 local function createPage()
   local page = addon:CreatePageProtoType(pageName)
 
@@ -12,7 +17,7 @@ local function createPage()
   header:SetJustifyH("CENTER")
   header:SetPoint("TOP", page, "TOP", 0, -100);
 
-
+  page:SetScript("OnShow", onShow)
   return page
 end
 
