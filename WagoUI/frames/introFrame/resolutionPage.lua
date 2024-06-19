@@ -7,6 +7,23 @@ local page
 local availableResolutions
 local resolutionButtons = {}
 
+local function isScreenResolutionCorrect(selectedResolution)
+  local resolution = C_VideoOptions.GetCurrentGameWindowSize()
+  local w = resolution.x
+  local h = resolution.y
+  if selectedResolution == "1080" then
+    if w == 1920 and h == 1080 then
+      return true
+    end
+  elseif selectedResolution == "1440" then
+    if w == 2560 and h == 1440 then
+      return true
+    end
+  end
+  local supported = (w == 1920 and h == 1080) or (w == 2560 and h == 1440)
+  return false, w, h, supported
+end
+
 local function addButtonToPage(button, i, total)
   button:Show()
   -- 3 buttons next to each other then a new row
@@ -27,11 +44,25 @@ local onShow = function()
   end
   availableResolutions = addon:GetResolutionsForDropdown()
   for i, data in ipairs(availableResolutions) do
-    if not resolutionButtons[data.value] then
-      local button = addon.DF:CreateResolutionButton(page, data.label)
-      button:SetScript("OnClick", data.onclick)
+    local button = resolutionButtons[data.value]
+    if not button then
+      button = addon.DF:CreateResolutionButton(page, data.label)
       resolutionButtons[data.value] = button
     end
+    button:SetClickFunction(function()
+      local isCorrect, w, h, supported = isScreenResolutionCorrect(data.value)
+      local successCallback = function()
+        data.onclick()
+        addon:NextPage()
+      end
+      if not isCorrect then
+        local warning = string.format(L["WRONG_RESOLUTION_WARNING"], data.label, w, h, "")
+        -- not supported and "This resolution is not supported!" or "")
+        addon.DF:ShowPrompt(warning, successCallback)
+        return
+      end
+      successCallback()
+    end)
     addButtonToPage(resolutionButtons[data.value], i, #availableResolutions)
   end
 end
@@ -39,7 +70,7 @@ end
 local function createPage()
   page = addon:CreatePageProtoType(pageName)
 
-  local header = DF:CreateLabel(page, "Choose the Resolution that fits your UI and Monitor best", 38, "white");
+  local header = DF:CreateLabel(page, L["Choose the Resolution that fits your UI and Monitor best"], 38, "white");
   header:SetWidth(page:GetWidth() - 10)
   header:SetJustifyH("CENTER")
   header:SetPoint("TOP", page, "TOP", 0, -130);
