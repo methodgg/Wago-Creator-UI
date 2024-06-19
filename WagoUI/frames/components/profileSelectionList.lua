@@ -11,7 +11,7 @@ local widths = {
   profile = 150,
 }
 
-function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight)
+function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight, enabledStateCallback)
   local header
   local contentScrollbox
 
@@ -86,6 +86,7 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight)
         line.checkBox:SetChecked(info.enabled)
         line.checkBox:SetSwitchFunction(function()
           info.enabled = not info.enabled
+          enabledStateCallback()
           updateEnabledState()
         end)
 
@@ -119,11 +120,15 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight)
               line.textEntry.editbox:SetFocus()
               line.textEntry.editbox:HighlightText()
             end)
+            info.invalidProfileKey = true
+            enabledStateCallback()
           else
             line.textEntry.editbox:SetTextColor(1, 1, 1, 1)
             if not lap.willOverrideProfile then
               line.importOverrideWarning:Hide()
             end
+            info.invalidProfileKey = nil
+            enabledStateCallback()
           end
           info.profileKey = newText
         end

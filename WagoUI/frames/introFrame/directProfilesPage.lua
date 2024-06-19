@@ -3,11 +3,30 @@ local DF = _G["DetailsFramework"];
 local L = addon.L
 
 local pageName = "DirectProfilesPage"
+local installButton
 local filtered
 
 local onShow = function()
   addon:ToggleNavgiationButton("prev", true)
   addon:ToggleNavgiationButton("next", true)
+end
+
+local enabledStateCallback = function()
+  local numEnabled = 0
+  local numInvalid = 0
+  for _, entry in ipairs(filtered) do
+    if entry.enabled then
+      numEnabled = numEnabled + 1
+      if entry.invalidProfileKey then
+        numInvalid = numInvalid + 1
+      end
+    end
+  end
+  if numEnabled == 0 or numInvalid > 0 then
+    installButton:SetEnabled(false)
+  else
+    installButton:SetEnabled(true)
+  end
 end
 
 local function createPage()
@@ -19,7 +38,8 @@ local function createPage()
   header:SetJustifyH("CENTER")
   header:SetPoint("TOPLEFT", page, "TOPLEFT", 0, -15);
 
-  local list = addon.DF:CreateProfileSelectionList(page, page:GetWidth() - 160, page:GetHeight() - 160)
+  local list = addon.DF:CreateProfileSelectionList(page, page:GetWidth() - 160, page:GetHeight() - 160,
+    enabledStateCallback)
   local updateData = function(data)
     filtered = {}
     if data then
@@ -44,7 +64,7 @@ local function createPage()
   addon:UpdateRegisteredDataConsumers()
   list.header:SetPoint("TOPLEFT", page, "TOPLEFT", 80, -60)
 
-  local installButton = addon.DF:CreateButton(page, 180, 40, L["Install Profiles"], 18)
+  installButton = addon.DF:CreateButton(page, 200, 50, L["Install Profiles"], 18)
   installButton:SetPoint("BOTTOM", page, "BOTTOM", 0, 10)
   installButton:SetClickFunction(function()
     for _, entry in ipairs(filtered) do
