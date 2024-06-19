@@ -132,3 +132,8 @@ function addon.DF:CreateCheckbox(parent, size, switchFunc, defaultValue)
   checkBox:SetAsCheckBox()
   return checkBox
 end
+
+function addon.DF:CreateTextEntry(parent, width, height, textChangedCallback)
+  local textEntry = DF:CreateTextEntry(parent, textChangedCallback, width, height, nil, nil, nil, odt)
+  return textEntry
+end

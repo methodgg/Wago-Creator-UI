@@ -41,16 +41,16 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight)
     line:AddFrameToHeaderAlignment(nameLabel);
     line.nameLabel = nameLabel;
 
+    local textEntry = addon.DF:CreateTextEntry(parent, 150, 20, function() end)
+    textEntry:SetFrameLevel(150)
+    ---@diagnostic disable-next-line: undefined-field
+    line:AddFrameToHeaderAlignment(textEntry);
+    line.textEntry = textEntry;
+
     local importOverrideWarning = DF:CreateButton(line, nil, 30, 30, "", nil, nil,
       "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew", nil, nil, nil, nil);
-    importOverrideWarning:SetPoint("LEFT", line.nameLabel, "RIGHT", 0, 0)
-    importOverrideWarning:SetTooltip(L["Importing this profile will overwrite your current profile for this AddOn."]);
+    importOverrideWarning:SetPoint("LEFT", textEntry, "RIGHT", 0, 0)
     line.importOverrideWarning = importOverrideWarning
-
-    local profileKeyLabel = DF:CreateLabel(line, "", 12, "white");
-    ---@diagnostic disable-next-line: undefined-field
-    line:AddFrameToHeaderAlignment(profileKeyLabel);
-    line.profileKeyLabel = profileKeyLabel;
 
     ---@diagnostic disable-next-line: undefined-field
     line:AlignWithHeader(header, "LEFT");
@@ -88,15 +88,53 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight)
           line.nameLabel:SetTextColor(1, 1, 1, 1);
         end
 
-        --TODO: we will need to check aswell if the profile is already installed via lap.isDuplicate
-        --also offer to rename the new profile if it is a duplicate
         if lap.willOverrideProfile then
+          line.importOverrideWarning:SetTooltip(L["PROFILE_OVERWRITE_WARNING1"]);
+          line.importOverrideWarning:SetClickFunction(function() end)
           line.importOverrideWarning:Show()
         else
           line.importOverrideWarning:Hide()
         end
 
-        line.profileKeyLabel:SetText(info.profileKey)
+        line.textEntry:SetText(info.profileKey)
+        if info.lap.willOverrideProfile then
+          line.textEntry:Disable()
+        else
+          line.textEntry:Enable()
+        end
+        line.textEntry.func = function()
+          local newText = line.textEntry:GetText()
+          if info.lap.isDuplicate(newText) and not info.lap.willOverrideProfile then
+            line.textEntry.editbox:SetTextColor(1, 0, 0, 1)
+            line.importOverrideWarning:Show()
+            line.importOverrideWarning:SetTooltip(L["PROFILE_OVERWRITE_WARNING2"]);
+            line.importOverrideWarning:SetClickFunction(function()
+              line.textEntry.editbox:SetFocus()
+              line.textEntry.editbox:HighlightText()
+            end)
+          else
+            line.textEntry.editbox:SetTextColor(1, 1, 1, 1)
+            if not lap.willOverrideProfile then
+              line.importOverrideWarning:Hide()
+            end
+          end
+          info.profileKey = newText
+        end
+        line.textEntry.editbox:SetScript("OnTextChanged", function(...)
+          local newText = line.textEntry:GetText()
+          if not newText or newText == "" then
+            return
+          end
+          line.textEntry.func()
+        end)
+        line.textEntry.editbox:SetScript("OnEditFocusLost", function(...)
+          local newText = line.textEntry:GetText()
+          if not newText or newText == "" then
+            line.textEntry:SetText(info.profileKey)
+          end
+        end)
+
+        line.textEntry.func()
       end
     end
   end
