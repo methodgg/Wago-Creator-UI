@@ -12,6 +12,15 @@ local widths = {
   lastUpdate = 150,
 }
 
+local uiPackDropdown, resolutionDropdown
+
+local onShow = function()
+  if uiPackDropdown then
+    uiPackDropdown:Select(addon.db.selectedWagoData)
+    resolutionDropdown:Select(addon.db.selectedWagoDataResolution)
+  end
+end
+
 function addon:CreateExpertFrame(f)
   local expertFrame = CreateFrame("Frame", addonName.."ExpertFrame", f)
   expertFrame:SetAllPoints(f)
@@ -43,15 +52,15 @@ function addon:CreateExpertFrame(f)
 
 
   local wagoDataDropdownFunc = function() return addon:GetWagoDataForDropdown() end
-  local wagoDataDropdown = addon.DF:CreateDropdown(expertFrame, 180, 40, 16, wagoDataDropdownFunc)
+  uiPackDropdown = addon.DF:CreateDropdown(expertFrame, 180, 40, 16, wagoDataDropdownFunc)
   if not db.selectedWagoData then
-    wagoDataDropdown:NoOptionSelected()
+    uiPackDropdown:NoOptionSelected()
   else
-    wagoDataDropdown:Select(db.selectedWagoData)
+    uiPackDropdown:Select(db.selectedWagoData)
   end
 
   local resolutionDropdownFunc = function() return addon:GetResolutionsForDropdown() end
-  local resolutionDropdown = addon.DF:CreateDropdown(expertFrame, 180, 40, 16, resolutionDropdownFunc)
+  resolutionDropdown = addon.DF:CreateDropdown(expertFrame, 180, 40, 16, resolutionDropdownFunc)
   if not db.selectedWagoDataResolution then
     resolutionDropdown:NoOptionSelected()
   else
@@ -91,7 +100,7 @@ function addon:CreateExpertFrame(f)
   -- end);
   -- f.updateAllButton = updateAllButton
 
-  addLine({ wagoDataDropdown, resolutionDropdown, introButton --[[, updateAllButton ]] }, 0, 0)
+  addLine({ uiPackDropdown, resolutionDropdown, introButton --[[, updateAllButton ]] }, 0, 0)
 
   db.selectedWagoDataTab = db.selectedWagoDataTab or 1
   local profileTabButton = addon.DF:CreateTabButton(expertFrame, (frameWidth / 2) - 2, 40, "Profiles", 16)
@@ -142,6 +151,8 @@ function addon:CreateExpertFrame(f)
   addon.DF:CreateTabStructure({ profileTabButton, weakaurasTabButton }, tabFunction, db.selectedWagoDataTab)
 
   addLine({ profileList.header }, 0, 0)
+
+  expertFrame:SetScript("OnShow", onShow)
 end
 
 function addon:ShowExpertFrame()

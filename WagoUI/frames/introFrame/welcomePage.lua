@@ -4,6 +4,14 @@ local L = addon.L
 
 local pageName = "WelcomePage"
 
+local uiPackDropdown
+
+local onShow = function()
+  if uiPackDropdown then
+    uiPackDropdown:Select(addon.db.selectedWagoData)
+  end
+end
+
 local function createPage()
   local page = addon:CreatePageProtoType(pageName)
 
@@ -22,7 +30,12 @@ local function createPage()
   end
   if #dropdownData > 1 then
     local dropdownFunc = function() return addon:GetWagoDataForDropdown() end
-    local uiPackDropdown = addon.DF:CreateDropdown(page, 250, 40, 20, dropdownFunc)
+    uiPackDropdown = addon.DF:CreateDropdown(page, 250, 40, 20, dropdownFunc)
+    if not addon.db.selectedWagoData then
+      uiPackDropdown:NoOptionSelected()
+    else
+      uiPackDropdown:Select(addon.db.selectedWagoData)
+    end
     uiPackDropdown:SetPoint("TOP", header, "BOTTOM", 0, -10)
   else
     local uiPackLabel = DF:CreateLabel(page, dropdownData[1].label, 38, "white");
@@ -47,7 +60,7 @@ local function createPage()
     addon.db.introEnabled = false
   end);
 
-
+  page:SetScript("OnShow", onShow)
   return page
 end
 
