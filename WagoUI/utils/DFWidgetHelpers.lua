@@ -71,3 +71,16 @@ function addon.DF:CreateTabStructure(buttons, tabFunction, defaultTab)
   end
   tabFunction(defaultTab)
 end
+
+function addon.DF:CreateResolutionButton(parent, text)
+  local button = DF:CreateButton(parent, nil, 250, 80, text, nil, nil, nil, nil, nil, nil,
+    odt);
+  button:SetScript("OnEnter", function(self)
+    button.button:SetBackdropBorderColor(1, 1, 1, 1)
+  end)
+  button:SetScript("OnLeave", function(self)
+    button.button:SetBackdropBorderColor(1, 1, 1, 0)
+  end)
+  button.text_overlay:SetFont(button.text_overlay:GetFont(), 28);
+  return button
+end
