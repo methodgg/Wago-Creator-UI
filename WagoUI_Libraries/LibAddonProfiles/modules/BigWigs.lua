@@ -153,7 +153,6 @@ local m = {
   slash = "/bigwigs",
   icon = 134337,
   needReloadOnImport = true,
-  willOverrideProfile = true,
   needsInitialization = needsInitialization,
   openConfig = openConfig,
   closeConfig = closeConfig,
