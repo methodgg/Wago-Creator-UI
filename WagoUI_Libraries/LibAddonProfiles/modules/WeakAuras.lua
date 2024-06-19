@@ -295,36 +295,13 @@ local configForDeflate = { level = 5 }
 local configForLS = {
   errorOnUnserializableType = false
 }
-local compressedTablesCache = {}
 
-function TableToString(inTable, forChat)
+function TableToString(inTable)
   local LibDeflate = LibStub:GetLibrary("LibDeflateAsync");
   local serialized = private:LibSerializeSerializeAsyncEx(configForLS, inTable)
-  local compressed
-  -- TODO: remove this caching, we dont care about it
-  -- get from / add to cache
-  if compressedTablesCache[serialized] then
-    compressed = compressedTablesCache[serialized].compressed
-    compressedTablesCache[serialized].lastAccess = time()
-  else
-    compressed = LibDeflate:CompressDeflate(serialized, configForDeflate)
-    compressedTablesCache[serialized] = {
-      compressed = compressed,
-      lastAccess = time(),
-    }
-  end
-  -- remove cache items after 5 minutes
-  for k, v in pairs(compressedTablesCache) do
-    if v.lastAccess < (time() - 300) then
-      compressedTablesCache[k] = nil
-    end
-  end
+  local compressed = LibDeflate:CompressDeflate(serialized, configForDeflate)
   local encoded = "!WA:2!"
-  if (forChat) then
-    encoded = encoded..LibDeflate:EncodeForPrint(compressed)
-  else
-    encoded = encoded..LibDeflate:EncodeForWoWAddonChannel(compressed)
-  end
+  encoded = encoded..LibDeflate:EncodeForPrint(compressed)
   return encoded
 end
 
@@ -393,7 +370,7 @@ local exportGroup = function(id)
         end
       end
     end
-    return TableToString(transmit, true);
+    return TableToString(transmit);
   else
     return "";
   end
