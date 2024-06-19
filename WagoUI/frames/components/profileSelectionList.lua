@@ -7,7 +7,8 @@ local LAP = LibStub:GetLibrary("LibAddonProfiles")
 
 local widths = {
   install = 43,
-  name = 300,
+  addon = 300,
+  profile = 150,
 }
 
 function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight)
@@ -35,7 +36,6 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight)
     line:AddFrameToHeaderAlignment(checkBox);
     line.checkBox = checkBox;
 
-
     local nameLabel = DF:CreateLabel(line, "", 16, "white");
     ---@diagnostic disable-next-line: undefined-field
     line:AddFrameToHeaderAlignment(nameLabel);
@@ -47,10 +47,10 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight)
     importOverrideWarning:SetTooltip(L["Importing this profile will overwrite your current profile for this AddOn."]);
     line.importOverrideWarning = importOverrideWarning
 
-    local lastUpdateLabel = DF:CreateLabel(line, "", 10, "white");
+    local profileKeyLabel = DF:CreateLabel(line, "", 12, "white");
     ---@diagnostic disable-next-line: undefined-field
-    line:AddFrameToHeaderAlignment(lastUpdateLabel);
-    line.lastUpdateLabel = lastUpdateLabel;
+    line:AddFrameToHeaderAlignment(profileKeyLabel);
+    line.profileKeyLabel = profileKeyLabel;
 
     ---@diagnostic disable-next-line: undefined-field
     line:AlignWithHeader(header, "LEFT");
@@ -72,7 +72,10 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight)
           line:SetBackdropColor(unpack({ .8, .8, .8, 0.1 }));
         end
 
-        --TODO: handel checkBox switch func
+        line.checkBox:SetChecked(info.enabled)
+        line.checkBox:SetSwitchFunction(function()
+          info.enabled = not info.enabled
+        end)
 
         -- need to test if the texture exists
         local texturePath = addon:TestTexture(lap.icon) and lap.icon or QUESTION_MARK_ICON
@@ -85,13 +88,15 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight)
           line.nameLabel:SetTextColor(1, 1, 1, 1);
         end
 
+        --TODO: we will need to check aswell if the profile is already installed via lap.isDuplicate
+        --also offer to rename the new profile if it is a duplicate
         if lap.willOverrideProfile then
           line.importOverrideWarning:Show()
         else
           line.importOverrideWarning:Hide()
         end
 
-        --append warning icon if profile will get overwritten
+        line.profileKeyLabel:SetText(info.profileKey)
       end
     end
   end
@@ -102,8 +107,9 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight)
   end
 
   local headerTable = {
-    { text = L["Install?"],      width = widths.install,                                  offset = 1 },
-    { text = L["AddOn Profile"], width = frameWidth - totalHeaderWidth + widths.name - 35 },
+    { text = L["Install?"],                width = widths.install,                                     offset = 1 },
+    { text = L["AddOn"],                   width = widths.addon },
+    { text = L["Profile to be installed"], width = frameWidth - totalHeaderWidth + widths.profile - 35 },
   };
   local headerOptions = {
     text_size = 12
@@ -113,12 +119,10 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight)
     lineHeight, createScrollLine, true);
   ---@diagnostic disable-next-line: inject-field
   header = DF:CreateHeader(parent, headerTable, headerOptions, nil);
-  vdt(header)
   contentScrollbox:SetPoint("TOPLEFT", header, "BOTTOMLEFT");
   contentScrollbox.ScrollBar.scrollStep = 60;
   DF:ReskinSlider(contentScrollbox);
 
-  --TODO: chose resolution with wizard
   local function updateData(data)
     contentScrollbox:SetData(data or {})
     contentScrollbox:Refresh()

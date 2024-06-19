@@ -3,6 +3,7 @@ local DF = _G["DetailsFramework"];
 local L = addon.L
 
 local pageName = "DirectProfilesPage"
+local filtered
 
 local onShow = function()
   addon:ToggleNavgiationButton("prev", true)
@@ -20,7 +21,7 @@ local function createPage()
 
   local list = addon.DF:CreateProfileSelectionList(page, page:GetWidth() - 160, page:GetHeight() - 160)
   local updateData = function(data)
-    local filtered = {}
+    filtered = {}
     if data then
       for _, entry in ipairs(data) do
         if entry.moduleName ~= "WeakAuras" and entry.moduleName ~= "Echo Raid Tools" then
@@ -46,6 +47,11 @@ local function createPage()
   local installButton = addon.DF:CreateButton(page, 180, 40, L["Install Profiles"], 18)
   installButton:SetPoint("BOTTOM", page, "BOTTOM", 0, 10)
   installButton:SetClickFunction(function()
+    for _, entry in ipairs(filtered) do
+      if entry.enabled then
+        --TODO: Implement profile installation, respect renamed profile keys
+      end
+    end
     addon:NextPage()
   end);
 

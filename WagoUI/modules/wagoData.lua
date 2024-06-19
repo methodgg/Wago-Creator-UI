@@ -29,6 +29,7 @@ function addon:SetupWagoData()
           profileKey = moduleData,
           profileMetadata = source.profileMetadata[resolution][moduleName],
           profile = source.profiles[resolution][moduleName],
+          enabled = true,
         })
       elseif moduleName == "WeakAuras" or moduleName == "Echo Raid Tools" then
         for groupId in pairs(moduleData) do
@@ -39,6 +40,7 @@ function addon:SetupWagoData()
             profileKey = groupId,
             profileMetadata = source.profileMetadata[resolution][moduleName],
             profile = source.profiles[resolution][moduleName][groupId],
+            enabled = true,
           })
         end
       else
