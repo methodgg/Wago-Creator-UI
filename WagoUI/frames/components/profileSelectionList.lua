@@ -66,15 +66,27 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight)
         local lap = info.lap
         local line = self:GetLine(i);
         local loaded = lap.isLoaded() or lap.needsInitialization()
-        if loaded then
-          line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }));
-        else
-          line:SetBackdropColor(unpack({ .8, .8, .8, 0.1 }));
+        local updateEnabledState = function()
+          if loaded and info.enabled then
+            line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }));
+            line.nameLabel:SetTextColor(1, 1, 1, 1);
+            line.importOverrideWarning:Enable()
+            if not info.lap.willOverrideProfile then
+              line.textEntry:Enable()
+            end
+          else
+            line:SetBackdropColor(unpack({ .8, .8, .8, 0.1 }));
+            line.nameLabel:SetTextColor(0.5, 0.5, 0.5, 1);
+            line.importOverrideWarning:Disable()
+            line.textEntry:Disable()
+          end
         end
+        updateEnabledState()
 
         line.checkBox:SetChecked(info.enabled)
         line.checkBox:SetSwitchFunction(function()
           info.enabled = not info.enabled
+          updateEnabledState()
         end)
 
         -- need to test if the texture exists
@@ -82,11 +94,6 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight)
         local labelText = "|T"..texturePath..":30|t"
         labelText = labelText.." "..(info.entryName and info.moduleName..": "..info.entryName or info.moduleName)
         line.nameLabel:SetText(labelText);
-        if not loaded then
-          line.nameLabel:SetTextColor(0.5, 0.5, 0.5, 1);
-        else
-          line.nameLabel:SetTextColor(1, 1, 1, 1);
-        end
 
         if lap.willOverrideProfile then
           line.importOverrideWarning:SetTooltip(L["PROFILE_OVERWRITE_WARNING1"]);
