@@ -337,16 +337,21 @@ local setExportOptions = function(options)
   end
 end
 
+local function purgeWago(data)
+  data.wagoID = nil
+  --do not touch user provided urls
+  local testString = "https://wago.io"
+  if data.url and string.sub(data.url, 1, #testString) == testString then
+    data.url = nil
+  end
+end
+
 ---@param id string | nil
 ---@return string | nil
 local exportGroup = function(id)
-  local data = CopyTable(WeakAuras.GetData(id));
+  local data = WeakAuras.GetData(id);
 
   if (data) then
-    if exportOptions.purgeWago then
-      data.wagoID = nil
-      data.url = nil
-    end
     data.uid = data.uid or GenerateUniqueID()
     -- Check which transmission version we want to use
     local version = 1421
@@ -378,6 +383,14 @@ local exportGroup = function(id)
         transmit.c[index] = CompressDisplay(child, version);
         index = index + 1
         coroutine.yield()
+      end
+    end
+    if exportOptions.purgeWago then
+      purgeWago(transmit.d)
+      if transmit.c then
+        for _, child in ipairs(transmit.c) do
+          purgeWago(child)
+        end
       end
     end
     return TableToString(transmit, true);
