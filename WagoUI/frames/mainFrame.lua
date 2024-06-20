@@ -84,6 +84,11 @@ function addon:CreateMainFrame()
         addon.DF:ShowPrompt(promptText, successCallback)
       end)
     end
+    --some profile imports close this frame as it is added to UISpecialFrames so we need to reopen it
+    if addon.state.isImporting then
+      frame:Show()
+      return
+    end
     if addon.state.needReload then
       if addon.db.introEnabled then
         if addon.state.currentPage == "DonePage" then

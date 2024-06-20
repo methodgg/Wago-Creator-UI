@@ -69,6 +69,7 @@ local function createPage()
   installButton:SetPoint("BOTTOM", page, "BOTTOM", 0, 10)
   installButton:SetClickFunction(function()
     installButton:SetEnabled(false)
+    addon.state.isImporting = true
     addon:Async(function()
       for _, entry in ipairs(filtered) do
         if entry.enabled then
@@ -81,6 +82,7 @@ local function createPage()
         end
       end
       installButton:SetEnabled(true)
+      addon.state.isImporting = false
       addon:NextPage()
     end, "installProfiles")
   end);
