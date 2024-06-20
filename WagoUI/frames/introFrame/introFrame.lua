@@ -24,6 +24,7 @@ end
 local function createStatusBar(parent)
   -- parent frame to give the statusbar a background
   local statusBar = CreateFrame("Frame", addonName.."StatusBar", parent, "BackdropTemplate")
+  addon.frames.introFrameStatusBar = statusBar
   statusBar:SetBackdropBorderColor(1, 0, 0, 0)
   statusBar:SetSize(400, 28)
   statusBar:SetFrameStrata("DIALOG")
@@ -51,12 +52,12 @@ local function createStatusBar(parent)
   Mixin(statusBar.bar, SmoothStatusBarMixin)
 
   ---@diagnostic disable-next-line: undefined-field
-  statusBar.bar:SetMinMaxSmoothedValue(currentPage, #pages)
+  statusBar.bar:SetMinMaxSmoothedValue(0, #pages - 1)
 
   function addon:UpdateProgressBar(page)
     ---@diagnostic disable-next-line: undefined-field
-    statusBar.bar:SetSmoothedValue(page)
-    local text = page.."/"..#pages
+    statusBar.bar:SetSmoothedValue(page - 1)
+    local text = (page - 1).."/"..#pages - 1
     statusBar.bar.text:SetText(text)
   end
 
@@ -88,6 +89,14 @@ function addon:CreateIntroFrame(f)
       button:Show()
     else
       button:Hide()
+    end
+  end
+
+  function addon:ToggleStatusBar(show)
+    if show then
+      addon.frames.introFrameStatusBar:Show()
+    else
+      addon.frames.introFrameStatusBar:Hide()
     end
   end
 

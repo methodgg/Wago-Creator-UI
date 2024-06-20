@@ -49,7 +49,7 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight, en
 
     local importOverrideWarning = DF:CreateButton(line, nil, 30, 30, "", nil, nil,
       "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew", nil, nil, nil, nil);
-    importOverrideWarning:SetPoint("LEFT", textEntry, "RIGHT", 0, 0)
+    importOverrideWarning:SetPoint("LEFT", textEntry, "RIGHT", 4, 0)
     line.importOverrideWarning = importOverrideWarning
 
     ---@diagnostic disable-next-line: undefined-field

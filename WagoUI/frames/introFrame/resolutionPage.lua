@@ -28,16 +28,17 @@ local function addButtonToPage(button, i, total)
   button:Show()
   -- 3 buttons next to each other then a new row
   if total == 1 then
-    button:SetPoint("CENTER", page, "CENTER", 0, -70)
+    button:SetPoint("CENTER", page, "CENTER", 0, -30)
   end
   if total == 2 then
-    button:SetPoint("CENTER", page, "CENTER", i == 1 and -150 or 150, -70)
+    button:SetPoint("CENTER", page, "CENTER", i == 1 and -150 or 150, -30)
   end
 end
 
 local onShow = function()
   addon:ToggleNavgiationButton("prev", true)
   addon:ToggleNavgiationButton("next", false)
+  addon:ToggleStatusBar(true)
   for _, button in pairs(resolutionButtons) do
     button:Hide()
     button:ClearAllPoints()
@@ -70,10 +71,10 @@ end
 local function createPage()
   page = addon:CreatePageProtoType(pageName)
 
-  local header = DF:CreateLabel(page, L["Choose the Resolution that fits your UI and Monitor best"], 38, "white");
+  local header = DF:CreateLabel(page, L["Choose the Resolution that fits your UI and Monitor best"], 28, "white");
   header:SetWidth(page:GetWidth() - 10)
   header:SetJustifyH("CENTER")
-  header:SetPoint("TOP", page, "TOP", 0, -130);
+  header:SetPoint("TOP", page, "TOP", 0, -160);
 
   page:SetScript("OnShow", onShow)
   return page
