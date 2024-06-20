@@ -45,7 +45,7 @@ function addon:CreateMainFrame()
   reloadIndicator:Hide()
   reloadIndicator:SetClickFunction(function()
     if not addon.db.introEnabled then
-      addon.DF:ShowPrompt(L["Reload Now?"], ReloadUI, nil, L["Reload"])
+      ReloadUI()
     end
   end)
 
