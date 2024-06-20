@@ -83,6 +83,7 @@ local function createPage()
             addon:ToggleReloadIndicator(true)
             addon.state.needReload = true
           end
+          coroutine.yield()
         end
       end
       installButton:SetEnabled(true)
