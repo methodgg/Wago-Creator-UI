@@ -75,6 +75,14 @@ local function createPage()
     end
     installButton:SetEnabled(false)
     addon.state.isImporting = true
+    local countOperations = 0
+    for _, entry in ipairs(filtered) do
+      if entry.enabled then
+        countOperations = countOperations + 1
+      end
+    end
+    addon:StartCopyHelperProgressBar(countOperations)
+    addon.copyHelper:SmartShow(UIParent, 0, 0, L["Importing profiles..."])
     addon:Async(function()
       for _, entry in ipairs(filtered) do
         if entry.enabled then
@@ -84,11 +92,17 @@ local function createPage()
             addon:ToggleReloadIndicator(true)
             addon.state.needReload = true
           end
+          addon:UpdateCopyHelperProgressBar()
           coroutine.yield()
         end
       end
       installButton:SetEnabled(true)
       addon.state.isImporting = false
+      if addon.state.needReopen then
+        addon.frames.mainFrame:Show()
+      end
+      addon.copyHelper:SmartHide()
+      addon.copyHelper:SmartFadeOut(2, L["Done"], UIParent, 0, 0)
       addon:NextPage()
     end, "installProfiles")
   end);

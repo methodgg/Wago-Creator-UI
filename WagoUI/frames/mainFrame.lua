@@ -86,7 +86,7 @@ function addon:CreateMainFrame()
     end
     --some profile imports close this frame as it is added to UISpecialFrames so we need to reopen it
     if addon.state.isImporting then
-      frame:Show()
+      addon.state.needReopen = true
       return
     end
     if addon.state.needReload then
