@@ -76,12 +76,8 @@ function addon:CreateIntroFrame(f)
   reloadIndicator:SetTooltip(L["IMPORT_RELOAD_WARNING"]);
   reloadIndicator:Hide()
 
-  function addon:ToggleReloadIndicator(show)
-    if show then
-      reloadIndicator:Show()
-    else
-      reloadIndicator:Hide()
-    end
+  function addon:ShowReloadIndicator()
+    reloadIndicator:Show()
   end
 
   local nextButton = addon.DF:CreateButton(introFrame, 80, 30, "Next >>", 16)

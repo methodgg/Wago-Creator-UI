@@ -73,7 +73,7 @@ local function createPage()
         if entry.enabled then
           entry.lap.importProfile(entry.profile, entry.profileKey)
           if entry.lap.needReloadOnImport then
-            addon:ToggleReloadIndicator(true)
+            addon:ShowReloadIndicator()
           end
         end
       end
