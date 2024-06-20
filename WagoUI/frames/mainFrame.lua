@@ -66,7 +66,6 @@ function addon:CreateMainFrame()
     end
     if addon.state.needReload then
       if addon.db.introEnabled then
-        vdt(addon.state.currentPage, "currentPage")
         if addon.state.currentPage == "DonePage" then
           promptFunc(L["IMPORT_RELOAD_WARNING2"], ReloadUI)
         else
