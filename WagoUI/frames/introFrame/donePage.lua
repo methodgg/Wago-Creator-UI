@@ -3,20 +3,39 @@ local DF = _G["DetailsFramework"];
 local L = addon.L
 
 local pageName = "DonePage"
+local reloadButton
 
 local onShow = function()
   addon.state.currentPage = pageName
   addon:ToggleNavgiationButton("prev", true)
   addon:ToggleNavgiationButton("next", false)
+  if addon.state.needReload then
+    reloadButton:SetText(L["Reload UI"])
+  else
+    reloadButton:SetText(L["Close"])
+  end
 end
 
 local function createPage()
   local page = addon:CreatePageProtoType(pageName)
 
-  local header = DF:CreateLabel(page, "Done", 38, "white");
+  local header = DF:CreateLabel(page, L["INSTALLATION_END_TEXT"], 38, "white");
   header:SetWidth(page:GetWidth() - 10)
   header:SetJustifyH("CENTER")
   header:SetPoint("TOP", page, "TOP", 0, -100);
+
+  reloadButton = addon.DF:CreateButton(page, 250, 70, "", 24)
+  reloadButton:SetClickFunction(function()
+    addon.db.introEnabled = false
+    if addon.state.needReload then
+      ReloadUI()
+    else
+      addon.frames.introFrame:Hide()
+      addon.frames.expertFrame:Show()
+      addon.frames.mainFrame:Hide()
+    end
+  end)
+  reloadButton:SetPoint("BOTTOM", page, "BOTTOM", 0, 180)
 
   page:SetScript("OnShow", onShow)
   return page
