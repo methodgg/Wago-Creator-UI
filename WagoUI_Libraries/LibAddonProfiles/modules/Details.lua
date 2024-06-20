@@ -122,6 +122,7 @@ end
 ---@param profileKey string
 ---@param isDuplicateProfile boolean
 local importProfile = function(profileString, profileKey, isDuplicateProfile)
+  --TODO: cant update atm, Details will append a 2 to the profile name
   Details:ImportProfile(profileString, profileKey);
 end
 
