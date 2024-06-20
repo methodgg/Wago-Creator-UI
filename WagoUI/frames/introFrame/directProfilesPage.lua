@@ -72,6 +72,9 @@ local function createPage()
       for _, entry in ipairs(filtered) do
         if entry.enabled then
           entry.lap.importProfile(entry.profile, entry.profileKey)
+          if entry.lap.needReloadOnImport then
+            addon:ToggleReloadIndicator(true)
+          end
         end
       end
       installButton:SetEnabled(true)
