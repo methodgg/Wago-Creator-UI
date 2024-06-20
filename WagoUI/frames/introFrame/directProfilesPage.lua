@@ -68,6 +68,10 @@ local function createPage()
   installButton = addon.DF:CreateButton(page, 200, 50, L["Install Profiles"], 18)
   installButton:SetPoint("BOTTOM", page, "BOTTOM", 0, 10)
   installButton:SetClickFunction(function()
+    if InCombatLockdown() then
+      addon:AddonPrintError(L["Cannot install profiles while in combat."])
+      return
+    end
     installButton:SetEnabled(false)
     addon.state.isImporting = true
     addon:Async(function()
