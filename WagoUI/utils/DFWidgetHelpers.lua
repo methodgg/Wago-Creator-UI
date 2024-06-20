@@ -103,19 +103,21 @@ function addon.DF:ShowPrompt(promptText, successCallback, errorCallback, okayTex
     addon.promptFrame.label:SetJustifyH("CENTER")
     addon.promptFrame.label:SetPoint("TOP", addon.promptFrame, "TOP", 0, -120);
     ---@diagnostic disable-next-line: inject-field
-    addon.promptFrame.okayButton = addon.DF:CreateButton(addon.promptFrame, 180, 40, okayText, 18)
+    addon.promptFrame.okayButton = addon.DF:CreateButton(addon.promptFrame, 180, 40, "", 18)
     addon.promptFrame.okayButton:SetPoint("BOTTOMRIGHT", addon.promptFrame, "BOTTOM", -60, 60)
     ---@diagnostic disable-next-line: inject-field
-    addon.promptFrame.cancelButton = addon.DF:CreateButton(addon.promptFrame, 180, 40, cancelText, 18)
+    addon.promptFrame.cancelButton = addon.DF:CreateButton(addon.promptFrame, 180, 40, "", 18)
     addon.promptFrame.cancelButton:SetPoint("BOTTOMLEFT", addon.promptFrame, "BOTTOM", 60, 60)
   end
   addon.promptFrame.label:SetText(promptText)
+  addon.promptFrame.okayButton:SetText(okayText)
   addon.promptFrame.okayButton:SetClickFunction(function()
     addon.promptFrame:Hide()
     if successCallback then
       successCallback()
     end
   end)
+  addon.promptFrame.cancelButton:SetText(cancelText)
   addon.promptFrame.cancelButton:SetClickFunction(function()
     addon.promptFrame:Hide()
     if errorCallback then
