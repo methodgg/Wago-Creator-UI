@@ -20,6 +20,7 @@ addon.dbDefaults = {
   yoffset = 0,
   config = {},
   introEnabled = true,
+  importedProfiles = {},
 };
 
 addon.state = {}

@@ -1,48 +1,54 @@
 local addonName, addon = ...;
-local DF = _G["DetailsFramework"];
-local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE");
-local db
 local L = addon.L
-local LAP = LibStub:GetLibrary("LibAddonProfiles")
 
 ---@param lapModule LibAddonProfilesModule
 ---@param profileString string
-local function importProfile(lapModule, profileString, profileKey)
-  local genericPKey, genericProfile, genericRaw = LAP:GenericDecode(profileString)
-  if lapModule.testImport then
-    local successful = lapModule.testImport(profileString, genericPKey, genericProfile, genericRaw)
-    if successful then
-      local isDuplicate = lapModule.isDuplicate and lapModule.isDuplicate(profileKey)
-      --TODO: this is pretty raw and might need to be adjusted for certain addons
-      --TODO: set last imported to timestamp from metadata (not the time when we imported)
-      --TODO: update the profileTable list and reflect the status in the actionButton
-      lapModule.importProfile(profileString, profileKey, isDuplicate)
-    end
-  end
+local function importProfile(lapModule, profileString, profileKey, latestVersion, entryName)
+  local isDuplicate = lapModule.isDuplicate and lapModule.isDuplicate(profileKey)
+  lapModule.importProfile(profileString, profileKey, isDuplicate)
+  addon:StoreImportedProfileTimestamp(latestVersion, lapModule.moduleName, profileKey, entryName)
+  if lapModule.needReloadOnImport then addon:ToggleReloadIndicator(true) end
+  addon:UpdateRegisteredDataConsumers()
 end
 
 
 function addon:CreateActionButton(parent)
   local actionButton = addon.DF:CreateButton(parent, 180, 30, L["Import"], 16)
 
-  --TODO: Check if profile is uptodate, use timestamp from metadata to verify
-  function actionButton:UpdateAction(info)
+  function actionButton:UpdateAction(info, updateAvailable, lastImport, latestVersion)
     ---@class LibAddonProfilesModule
     local lap = info.lap
     local loaded = lap.isLoaded()
+    actionButton:SetBackdropColor(1, 1, 1, 0.7)
+    local askReimport
+
     if loaded then
-      actionButton:SetText(L["Import"])
+      if not lastImport then
+        actionButton:SetText(L["Import"])
+      elseif updateAvailable then
+        actionButton:SetText(L["Update"])
+        actionButton:SetBackdropColor(0, 0.8, 0, 1)
+      else
+        actionButton:SetBackdropColor(0, 0, 0, 0.3)
+        actionButton:SetText(L["Up to date"])
+        askReimport = true
+      end
       actionButton:Enable()
     else
       actionButton:SetText(L["Not loaded"])
       actionButton:Disable()
     end
     actionButton:SetClickFunction(function()
-      --TODO: Implement Import
-      addon:Async(function()
-        -- vdt(info)
-        importProfile(info.lap, info.profile, info.profileKey)
-      end)
+      local importCallback = function()
+        addon:Async(function()
+          importProfile(info.lap, info.profile, info.profileKey, latestVersion, info.entryName)
+        end)
+      end
+      if askReimport then
+        addon.DF:ShowPrompt(L["REIMPORT_PROMPT"], importCallback, nil, L["Re-Import"])
+      else
+        importCallback()
+      end
     end)
   end
 
