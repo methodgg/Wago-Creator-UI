@@ -58,7 +58,7 @@ function addon.DF:CreateProfileList(parent, frameWidth, frameHeight)
     line.initializationWarning = initializationWarning
 
     -- last update
-    local lastUpdateLabel = DF:CreateLabel(line, "", 10, "white");
+    local lastUpdateLabel = DF:CreateLabel(line, "", 14, "white");
     ---@diagnostic disable-next-line: undefined-field
     line:AddFrameToHeaderAlignment(lastUpdateLabel);
     line.lastUpdateLabel = lastUpdateLabel;
