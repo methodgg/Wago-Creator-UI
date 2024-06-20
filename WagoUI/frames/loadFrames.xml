@@ -8,7 +8,7 @@
 	<Include file="introFrame/welcomePage.lua"/>
 	<Include file="introFrame/resolutionPage.lua"/>
 	<Include file="introFrame/directProfilesPage.lua"/>
-	<Include file="introFrame/indirectProfilesPage.lua"/>
+	<!-- <Include file="introFrame/indirectProfilesPage.lua"/> -->
 	<Include file="introFrame/weakaurasPage.lua"/>
 	<Include file="introFrame/donePage.lua"/>
 </Ui>
