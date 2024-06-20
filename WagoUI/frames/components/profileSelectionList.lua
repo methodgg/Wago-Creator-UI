@@ -108,12 +108,16 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight, en
         if info.lap.willOverrideProfile then
           line.textEntry:Disable()
         else
-          line.textEntry:Enable()
+          if info.enabled then
+            line.textEntry:Enable()
+          end
         end
         line.textEntry.func = function()
           local newText = line.textEntry:GetText()
           if info.lap.isDuplicate(newText) and not info.lap.willOverrideProfile then
-            line.textEntry.editbox:SetTextColor(1, 0, 0, 1)
+            if info.enabled then
+              line.textEntry.editbox:SetTextColor(1, 0, 0, 1)
+            end
             line.importOverrideWarning:Show()
             line.importOverrideWarning:SetTooltip(L["PROFILE_OVERWRITE_WARNING2"]);
             line.importOverrideWarning:SetClickFunction(function()
@@ -123,7 +127,9 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight, en
             info.invalidProfileKey = true
             enabledStateCallback()
           else
-            line.textEntry.editbox:SetTextColor(1, 1, 1, 1)
+            if info.enabled then
+              line.textEntry.editbox:SetTextColor(1, 1, 1, 1)
+            end
             if not lap.willOverrideProfile then
               line.importOverrideWarning:Hide()
             end
