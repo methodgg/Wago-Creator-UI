@@ -67,12 +67,16 @@ local function createPage()
   installButton = addon.DF:CreateButton(page, 200, 50, L["Install Profiles"], 18)
   installButton:SetPoint("BOTTOM", page, "BOTTOM", 0, 10)
   installButton:SetClickFunction(function()
-    for _, entry in ipairs(filtered) do
-      if entry.enabled then
-        --TODO: Implement profile installation
+    installButton:SetEnabled(false)
+    addon:Async(function()
+      for _, entry in ipairs(filtered) do
+        if entry.enabled then
+          entry.lap.importProfile(entry.profile, entry.profileKey)
+        end
       end
-    end
-    addon:NextPage()
+      installButton:SetEnabled(true)
+      addon:NextPage()
+    end, "installProfiles")
   end);
 
 
