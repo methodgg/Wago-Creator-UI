@@ -45,8 +45,7 @@ end
 ---@param profileKey string
 ---@return boolean
 local isDuplicate = function(profileKey)
-  --private profile always gets stored by character - realm and exports dont carry profileKey
-  return false
+  return ElvPrivateDB.profiles[profileKey] and true or false
 end
 
 ---@param profileString string
@@ -72,11 +71,9 @@ local importProfile = function(profileString, profileKey, isDuplicateProfile)
   local D = E:GetModule('Distributor')
   local _, _, data = D:Decode(profileString)
   if not data then return end
-  local privateKey = ElvPrivateDB.profileKeys and ElvPrivateDB.profileKeys[E.mynameRealm]
-  if privateKey then
-    data = E:FilterTableFromBlacklist(data, D.blacklistedKeys.private) --Remove unwanted options from import
-    ElvPrivateDB.profiles[privateKey] = data
-  end
+  ElvPrivateDB.profileKeys[E.mynameRealm] = profileKey
+  data = E:FilterTableFromBlacklist(data, D.blacklistedKeys.private) --Remove unwanted options from import
+  ElvPrivateDB.profiles[profileKey] = data
 end
 
 ---@param profileKey string | nil
