@@ -5,6 +5,7 @@ local L = addon.L
 local pageName = "DonePage"
 
 local onShow = function()
+  addon.state.currentPage = pageName
   addon:ToggleNavgiationButton("prev", true)
   addon:ToggleNavgiationButton("next", false)
 end

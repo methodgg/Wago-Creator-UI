@@ -22,6 +22,8 @@ addon.dbDefaults = {
   introEnabled = true,
 };
 
+addon.state = {}
+
 addon.externalLinks = {
   {
     name = "GitHub",

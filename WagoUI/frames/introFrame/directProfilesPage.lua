@@ -7,6 +7,7 @@ local installButton
 local filtered
 
 local onShow = function()
+  addon.state.currentPage = pageName
   addon:ToggleNavgiationButton("prev", true)
   addon:ToggleNavgiationButton("next", true)
 end
@@ -73,7 +74,8 @@ local function createPage()
         if entry.enabled then
           entry.lap.importProfile(entry.profile, entry.profileKey)
           if entry.lap.needReloadOnImport then
-            addon:ShowReloadIndicator()
+            addon:ToggleReloadIndicator(true)
+            addon.state.needReload = true
           end
         end
       end

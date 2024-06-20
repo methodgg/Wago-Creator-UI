@@ -1,7 +1,5 @@
 local addonName, addon = ...;
 local DF = _G["DetailsFramework"];
-local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE");
-local db
 local L = addon.L
 
 local currentPage = 1
@@ -16,6 +14,8 @@ end
 function addon:CreatePageProtoType(pageName)
   local parent = addon.frames.introFrame
   local pagePrototype = CreateFrame("Frame", addonName..pageName, parent)
+  ---@diagnostic disable-next-line: inject-field
+  pagePrototype.pageName = pageName
   pagePrototype:SetPoint("TOPLEFT", parent, "TOPLEFT", 3, -25)
   pagePrototype:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -3, 40)
   return pagePrototype
@@ -73,11 +73,15 @@ function addon:CreateIntroFrame(f)
   local reloadIndicator = DF:CreateButton(introFrame, nil, 40, 40, "", nil, nil,
     "UI-RefreshButton", nil, nil, nil, nil);
   reloadIndicator:SetPoint("TOPRIGHT", introFrame, "TOPRIGHT", -10, -30)
-  reloadIndicator:SetTooltip(L["IMPORT_RELOAD_WARNING"]);
+  reloadIndicator:SetTooltip(L["IMPORT_RELOAD_WARNING1"]);
   reloadIndicator:Hide()
 
-  function addon:ShowReloadIndicator()
-    reloadIndicator:Show()
+  function addon:ToggleReloadIndicator(show)
+    if show then
+      reloadIndicator:Show()
+    else
+      reloadIndicator:Hide()
+    end
   end
 
   local nextButton = addon.DF:CreateButton(introFrame, 80, 30, "Next >>", 16)
@@ -137,6 +141,16 @@ function addon:CreateIntroFrame(f)
   function addon:PrevPage()
     currentPage = math.max(currentPage - 1, 1)
     updatePages()
+  end
+
+  function addon:GotoPage(pageName)
+    for i, page in ipairs(pages) do
+      if page.pageName == pageName then
+        currentPage = i
+        updatePages()
+        return
+      end
+    end
   end
 end
 

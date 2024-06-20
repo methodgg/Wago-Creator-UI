@@ -7,6 +7,7 @@ local pageName = "WelcomePage"
 local uiPackDropdown
 
 local onShow = function()
+  addon.state.currentPage = pageName
   addon:ToggleStatusBar(false)
   addon:ToggleNavgiationButton("prev", false)
   addon:ToggleNavgiationButton("next", false)

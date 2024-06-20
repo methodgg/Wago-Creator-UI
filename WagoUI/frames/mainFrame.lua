@@ -1,6 +1,6 @@
 local addonName, addon = ...;
 local DF = _G["DetailsFramework"];
-local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE");
+local L = addon.L
 
 function addon:CreateMainFrame()
   local metaVersion = C_AddOns.GetAddOnMetadata(addonName, "Version");
@@ -56,5 +56,32 @@ function addon:CreateMainFrame()
   forceErrorButton:SetClickFunction(addon.TestErrorHandling);
 
   addon.frames.mainFrame = frame;
+
+  hooksecurefunc(frame, "Hide", function()
+    local promptFunc = function(promptText, successCallback)
+      C_Timer.After(0.1, function()
+        frame:Show()
+        addon.DF:ShowPrompt(promptText, successCallback)
+      end)
+    end
+    if addon.state.needReload then
+      if addon.db.introEnabled then
+        vdt(addon.state.currentPage, "currentPage")
+        if addon.state.currentPage == "DonePage" then
+          promptFunc(L["IMPORT_RELOAD_WARNING2"], ReloadUI)
+        else
+          promptFunc(L["INTRO_NOTFINISHED_WARNING"], function()
+            addon.state.needReload = false
+            addon:ToggleReloadIndicator(false)
+            addon:GotoPage("WelcomePage")
+            frame:Hide()
+          end)
+        end
+      else
+        promptFunc(L["IMPORT_RELOAD_WARNING1"], ReloadUI)
+      end
+    end
+  end)
+
   return frame
 end
