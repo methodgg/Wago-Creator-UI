@@ -139,11 +139,14 @@ function addon.DF:CreateProfileList(parent, frameWidth, frameHeight)
     -- { text = "Version",           width = widths.version },
     { text = L["Last Update"], width = frameWidth - totalHeaderWidth + widths.lastUpdate - 35 },
   };
+  local headerOptions = {
+    text_size = 12
+  }
   local lineHeight = 42
   contentScrollbox = DF:CreateScrollBox(parent, nil, contentScrollboxUpdate, {}, frameWidth - 30, frameHeight, 0,
     lineHeight, createScrollLine, true);
   ---@diagnostic disable-next-line: inject-field
-  header = DF:CreateHeader(parent, headerTable, nil, nil);
+  header = DF:CreateHeader(parent, headerTable, headerOptions, nil);
   contentScrollbox:SetPoint("TOPLEFT", header, "BOTTOMLEFT");
   contentScrollbox.ScrollBar.scrollStep = 60;
   DF:ReskinSlider(contentScrollbox);

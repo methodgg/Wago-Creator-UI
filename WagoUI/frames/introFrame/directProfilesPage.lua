@@ -69,7 +69,7 @@ local function createPage()
   installButton:SetClickFunction(function()
     for _, entry in ipairs(filtered) do
       if entry.enabled then
-        --TODO: Implement profile installation, respect renamed profile keys
+        --TODO: Implement profile installation
       end
     end
     addon:NextPage()
