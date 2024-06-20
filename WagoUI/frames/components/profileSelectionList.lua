@@ -7,7 +7,7 @@ local LAP = LibStub:GetLibrary("LibAddonProfiles")
 
 local widths = {
   install = 43,
-  addon = 300,
+  addon = 400,
   profile = 150,
 }
 
