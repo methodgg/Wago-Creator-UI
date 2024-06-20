@@ -70,20 +70,6 @@ function addon:CreateIntroFrame(f)
   introFrame:Hide()
   addon.frames.introFrame = introFrame
 
-  local reloadIndicator = DF:CreateButton(introFrame, nil, 40, 40, "", nil, nil,
-    "UI-RefreshButton", nil, nil, nil, nil);
-  reloadIndicator:SetPoint("TOPRIGHT", introFrame, "TOPRIGHT", -10, -30)
-  reloadIndicator:SetTooltip(L["IMPORT_RELOAD_WARNING1"]);
-  reloadIndicator:Hide()
-
-  function addon:ToggleReloadIndicator(show)
-    if show then
-      reloadIndicator:Show()
-    else
-      reloadIndicator:Hide()
-    end
-  end
-
   local nextButton = addon.DF:CreateButton(introFrame, 80, 30, "Next >>", 16)
   nextButton:SetPoint("BOTTOMRIGHT", introFrame, "BOTTOMRIGHT", -5, 5);
   nextButton:SetClickFunction(function()

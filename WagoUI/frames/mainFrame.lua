@@ -37,6 +37,26 @@ function addon:CreateMainFrame()
   versionString:SetText("v"..metaVersion)
   versionString:SetPoint("LEFT", frame.TitleBar, "LEFT", 2, 0)
 
+  local reloadIndicator = DF:CreateButton(frame, nil, 40, 40, "", nil, nil,
+    "UI-RefreshButton", nil, nil, nil, nil);
+  reloadIndicator:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -10, -30)
+  reloadIndicator:SetTooltip(L["IMPORT_RELOAD_WARNING1"]);
+  reloadIndicator:SetFrameStrata("DIALOG")
+  reloadIndicator:Hide()
+  reloadIndicator:SetClickFunction(function()
+    if not addon.db.introEnabled then
+      addon.DF:ShowPrompt(L["Reload Now?"], ReloadUI, nil, L["Reload"])
+    end
+  end)
+
+  function addon:ToggleReloadIndicator(show)
+    if show then
+      reloadIndicator:Show()
+    else
+      reloadIndicator:Hide()
+    end
+  end
+
   local autoStartCheckbox = DF:CreateSwitch(frame,
     function(_, _, value)
       addon.db.autoStart = value
