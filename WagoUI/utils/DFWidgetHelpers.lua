@@ -97,27 +97,31 @@ function addon.DF:ShowPrompt(promptText, successCallback, errorCallback, okayTex
     local tex = addon.promptFrame:CreateTexture(nil, "BACKGROUND")
     tex:SetAllPoints(addon.promptFrame)
     tex:SetColorTexture(0, 0, 0, 0.9)
-    local label = DF:CreateLabel(addon.promptFrame, promptText, 22, "white");
-    label:SetWidth(addon.promptFrame:GetWidth() - 10)
-    label:SetJustifyH("CENTER")
-    label:SetPoint("TOP", addon.promptFrame, "TOP", 0, -120);
-    local okayButton = addon.DF:CreateButton(addon.promptFrame, 180, 40, okayText, 18)
-    okayButton:SetPoint("BOTTOMRIGHT", addon.promptFrame, "BOTTOM", -60, 60)
-    okayButton:SetClickFunction(function()
-      addon.promptFrame:Hide()
-      if successCallback then
-        successCallback()
-      end
-    end)
-    local cancelButton = addon.DF:CreateButton(addon.promptFrame, 180, 40, cancelText, 18)
-    cancelButton:SetPoint("BOTTOMLEFT", addon.promptFrame, "BOTTOM", 60, 60)
-    cancelButton:SetClickFunction(function()
-      addon.promptFrame:Hide()
-      if errorCallback then
-        errorCallback()
-      end
-    end)
+    ---@diagnostic disable-next-line: inject-field
+    addon.promptFrame.label = DF:CreateLabel(addon.promptFrame, "", 22, "white");
+    addon.promptFrame.label:SetWidth(addon.promptFrame:GetWidth() - 10)
+    addon.promptFrame.label:SetJustifyH("CENTER")
+    addon.promptFrame.label:SetPoint("TOP", addon.promptFrame, "TOP", 0, -120);
+    ---@diagnostic disable-next-line: inject-field
+    addon.promptFrame.okayButton = addon.DF:CreateButton(addon.promptFrame, 180, 40, okayText, 18)
+    addon.promptFrame.okayButton:SetPoint("BOTTOMRIGHT", addon.promptFrame, "BOTTOM", -60, 60)
+    ---@diagnostic disable-next-line: inject-field
+    addon.promptFrame.cancelButton = addon.DF:CreateButton(addon.promptFrame, 180, 40, cancelText, 18)
+    addon.promptFrame.cancelButton:SetPoint("BOTTOMLEFT", addon.promptFrame, "BOTTOM", 60, 60)
   end
+  addon.promptFrame.label:SetText(promptText)
+  addon.promptFrame.okayButton:SetClickFunction(function()
+    addon.promptFrame:Hide()
+    if successCallback then
+      successCallback()
+    end
+  end)
+  addon.promptFrame.cancelButton:SetClickFunction(function()
+    addon.promptFrame:Hide()
+    if errorCallback then
+      errorCallback()
+    end
+  end)
   addon.promptFrame:Show()
 end
 
