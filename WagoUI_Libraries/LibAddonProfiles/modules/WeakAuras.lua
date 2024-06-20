@@ -397,6 +397,7 @@ end
 ---@return table
 ---@return table
 local areProfileStringsEqual = function(profileTableA, profileTableB)
+  --TODO: some issues here
   local allEqual = true
   local changedEntries = {}
   local removedEntries = {}
