@@ -7,10 +7,10 @@ local LAP = LibStub:GetLibrary("LibAddonProfiles")
 
 local widths = {
   options = 60,
-  name = 350,
-  profile = 200,
-  -- version = 100,
-  lastUpdate = 150,
+  name = 260,
+  action = 180,
+  profile = 120,
+  lastUpdate = 120,
 }
 
 function addon.DF:CreateProfileList(parent, frameWidth, frameHeight)
@@ -47,7 +47,7 @@ function addon.DF:CreateProfileList(parent, frameWidth, frameHeight)
     line.nameLabel = nameLabel;
 
     -- action button
-    line.actionButton = addon:CreateActionButton(line)
+    line.actionButton = addon:CreateActionButton(line, widths.action - 10, 30, 16);
     ---@diagnostic disable-next-line: undefined-field
     line:AddFrameToHeaderAlignment(line.actionButton);
 
@@ -56,6 +56,12 @@ function addon.DF:CreateProfileList(parent, frameWidth, frameHeight)
     initializationWarning:SetPoint("RIGHT", line.actionButton, "LEFT", -2, -2)
     initializationWarning:SetTooltip(L["This AddOn needs to be initialized. Click to initialize."]);
     line.initializationWarning = initializationWarning
+
+    -- profile key
+    local profileKeyLabel = DF:CreateLabel(line, "Test", 12, "white");
+    ---@diagnostic disable-next-line: undefined-field
+    line:AddFrameToHeaderAlignment(profileKeyLabel);
+    line.profileKeyLabel = profileKeyLabel;
 
     -- last update
     local lastUpdateLabel = DF:CreateLabel(line, "", 14, "white");
@@ -102,7 +108,7 @@ function addon.DF:CreateProfileList(parent, frameWidth, frameHeight)
         end
 
         -- name
-        line.nameLabel:SetText((info.entryName and info.moduleName..": "..info.entryName) or info.moduleName);
+        line.nameLabel:SetText(info.entryName or info.moduleName);
         if not loaded then
           line.nameLabel:SetTextColor(0.5, 0.5, 0.5, 1);
         else
@@ -120,6 +126,9 @@ function addon.DF:CreateProfileList(parent, frameWidth, frameHeight)
         else
           line.initializationWarning:Hide()
         end
+
+        -- profile key
+        line.profileKeyLabel:SetText(info.entryName and "" or info.profileKey);
 
         -- last update
         local lastUpdatedAt = addon:GetImportedProfileTimestamp(info.moduleName, info.entryName)
@@ -147,8 +156,8 @@ function addon.DF:CreateProfileList(parent, frameWidth, frameHeight)
   local headerTable = {
     { text = L["Options"],     width = widths.options,                                        offset = 1 },
     { text = L["Name"],        width = widths.name },
-    { text = L["Action"],      width = widths.profile },
-    -- { text = "Version",           width = widths.version },
+    { text = L["Action"],      width = widths.action },
+    { text = L["Profile"],     width = widths.profile },
     { text = L["Last Update"], width = frameWidth - totalHeaderWidth + widths.lastUpdate - 35 },
   };
   local headerOptions = {

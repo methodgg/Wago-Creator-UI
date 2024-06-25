@@ -12,8 +12,8 @@ local function importProfile(lapModule, profileString, profileKey, latestVersion
 end
 
 
-function addon:CreateActionButton(parent)
-  local actionButton = addon.DF:CreateButton(parent, 180, 30, L["Import"], 16)
+function addon:CreateActionButton(parent, width, height, fontSize)
+  local actionButton = addon.DF:CreateButton(parent, width, height, "", fontSize)
 
   function actionButton:UpdateAction(info, updateAvailable, lastImport, latestVersion)
     ---@class LibAddonProfilesModule
