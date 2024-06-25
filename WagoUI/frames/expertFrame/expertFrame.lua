@@ -118,10 +118,13 @@ function addon:CreateExpertFrame(f)
             tinsert(filtered, entry)
           end
         end
-        --sort disabled modules to bottom
+        --sort disabled modules to bottom, alphabetically afterwards
         table.sort(filtered, function(a, b)
           local orderA = (a.lap.isLoaded() or a.lap.needsInitialization()) and 1 or 0
           local orderB = (b.lap.isLoaded() or b.lap.needsInitialization()) and 1 or 0
+          if orderA == orderB then
+            return a.moduleName < b.moduleName
+          end
           return orderA > orderB
         end)
       end
@@ -131,10 +134,13 @@ function addon:CreateExpertFrame(f)
             tinsert(filtered, entry)
           end
         end
-        --sort weakauras on top
+        --sort weakauras on top, alphabetically afterwards
         table.sort(filtered, function(a, b)
           local orderA = a.moduleName == "WeakAuras" and 1 or 0
           local orderB = b.moduleName == "WeakAuras" and 1 or 0
+          if orderA == orderB then
+            return a.entryName < b.entryName
+          end
           return orderA > orderB
         end)
       end
