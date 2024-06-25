@@ -100,6 +100,7 @@ local importProfile = function(profileString, profileKey, isDuplicateProfile)
   if StaticPopup1Button2Text:GetText() == "Ignore" then
     StaticPopup1Button2:Click()
   end
+  setProfile(profileKey)
 end
 
 ---@param profileKey string | nil
