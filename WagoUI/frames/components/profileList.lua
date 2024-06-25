@@ -61,6 +61,7 @@ function addon.DF:CreateProfileList(parent, frameWidth, frameHeight)
     local profileKeyLabel = DF:CreateLabel(line, "Test", 12, "white");
     ---@diagnostic disable-next-line: undefined-field
     line:AddFrameToHeaderAlignment(profileKeyLabel);
+    profileKeyLabel:SetWidth(widths.profile)
     line.profileKeyLabel = profileKeyLabel;
 
     -- last update
