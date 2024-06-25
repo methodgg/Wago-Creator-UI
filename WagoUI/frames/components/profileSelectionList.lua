@@ -65,7 +65,14 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight, en
         ---@class LibAddonProfilesModule
         local lap = info.lap
         local line = self:GetLine(i);
-        local loaded = lap.isLoaded() or lap.needsInitialization()
+        if lap.needsInitialization() then
+          lap.openConfig()
+            C_Timer.After(0, function()
+              lap.closeConfig()
+              addon:UpdateRegisteredDataConsumers()
+            end)
+        end
+        local loaded = lap.isLoaded()
         local updateEnabledState = function()
           if loaded and info.enabled then
             line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }));
