@@ -17,7 +17,7 @@ local enabledStateCallback = function()
   local numEnabled = 0
   local numInvalid = 0
   for _, entry in ipairs(filtered) do
-    if entry.enabled then
+    if entry.enabled and entry.loaded then
       numEnabled = numEnabled + 1
       if entry.invalidProfileKey then
         numInvalid = numInvalid + 1

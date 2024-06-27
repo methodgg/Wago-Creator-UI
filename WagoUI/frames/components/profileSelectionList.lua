@@ -6,7 +6,7 @@ local L = addon.L
 local LAP = LibStub:GetLibrary("LibAddonProfiles")
 
 local widths = {
-  install = 43,
+  install = 50,
   addon = 400,
   profile = 150,
 }
@@ -47,6 +47,12 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight, en
     line:AddFrameToHeaderAlignment(textEntry);
     line.textEntry = textEntry;
 
+    local fallbackLabel = DF:CreateLabel(line, L["Addon not loaded"], 13, { .8, .8, .8, 0.3 });
+    fallbackLabel:SetWidth(widths.install)
+    fallbackLabel:SetPoint("LEFT", textEntry, "LEFT", 0, 0)
+    fallbackLabel:SetPoint("RIGHT", textEntry, "RIGHT", 0, 0)
+    line.fallbackLabel = fallbackLabel;
+
     local importOverrideWarning = DF:CreateButton(line, nil, 30, 30, "", nil, nil,
       "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew", nil, nil, nil, nil);
     importOverrideWarning:SetPoint("LEFT", textEntry, "RIGHT", 4, 0)
@@ -67,12 +73,13 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight, en
         local line = self:GetLine(i);
         if lap.needsInitialization() then
           lap.openConfig()
-            C_Timer.After(0, function()
-              lap.closeConfig()
-              addon:UpdateRegisteredDataConsumers()
-            end)
+          C_Timer.After(0, function()
+            lap.closeConfig()
+            addon:UpdateRegisteredDataConsumers()
+          end)
         end
         local loaded = lap.isLoaded()
+        info.loaded = loaded
         local updateEnabledState = function()
           if loaded and info.enabled then
             line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }));
@@ -90,16 +97,21 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight, en
         end
         updateEnabledState()
 
-        line.checkBox:SetChecked(info.enabled)
-        line.checkBox:SetSwitchFunction(function()
-          info.enabled = not info.enabled
-          enabledStateCallback()
-          updateEnabledState()
-        end)
+        if loaded then
+          line.checkBox:Show()
+          line.checkBox:SetChecked(info.enabled)
+          line.checkBox:SetSwitchFunction(function()
+            info.enabled = not info.enabled
+            enabledStateCallback()
+            updateEnabledState()
+          end)
+        else
+          line.checkBox:Hide()
+        end
 
         -- need to test if the texture exists
         local texturePath = addon:TestTexture(lap.icon) and lap.icon or QUESTION_MARK_ICON
-        local labelText = "|T"..texturePath..":30|t"
+        local labelText = loaded and "|T"..texturePath..":30|t" or ""
         labelText = labelText.." "..(info.entryName and info.moduleName..": "..info.entryName or info.moduleName)
         line.nameLabel:SetText(labelText);
 
@@ -112,38 +124,43 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight, en
         end
 
         line.textEntry:SetText(info.profileKey)
-        if info.lap.willOverrideProfile then
-          line.textEntry:Disable()
+        if loaded then
+          line.textEntry:Show()
+          line.textEntry:Enable()
+          line.fallbackLabel:Hide()
+          if lap.willOverrideProfile then
+            line.textEntry:Disable()
+          end
+          line.textEntry.func = function()
+            local newText = line.textEntry:GetText()
+            if info.lap.isDuplicate(newText) and not info.lap.willOverrideProfile then
+              if info.enabled then
+                line.textEntry.editbox:SetTextColor(1, 0, 0, 1)
+              end
+              line.importOverrideWarning:Show()
+              line.importOverrideWarning:SetTooltip(L["PROFILE_OVERWRITE_WARNING2"]);
+              line.importOverrideWarning:SetClickFunction(function()
+                line.textEntry.editbox:SetFocus()
+                line.textEntry.editbox:HighlightText()
+              end)
+              info.invalidProfileKey = true
+              enabledStateCallback()
+            else
+              if info.enabled then
+                line.textEntry.editbox:SetTextColor(1, 1, 1, 1)
+              end
+              if not lap.willOverrideProfile then
+                line.importOverrideWarning:Hide()
+              end
+              info.invalidProfileKey = nil
+              enabledStateCallback()
+            end
+            info.profileKey = newText
+          end
         else
-          if info.enabled then
-            line.textEntry:Enable()
-          end
-        end
-        line.textEntry.func = function()
-          local newText = line.textEntry:GetText()
-          if info.lap.isDuplicate(newText) and not info.lap.willOverrideProfile then
-            if info.enabled then
-              line.textEntry.editbox:SetTextColor(1, 0, 0, 1)
-            end
-            line.importOverrideWarning:Show()
-            line.importOverrideWarning:SetTooltip(L["PROFILE_OVERWRITE_WARNING2"]);
-            line.importOverrideWarning:SetClickFunction(function()
-              line.textEntry.editbox:SetFocus()
-              line.textEntry.editbox:HighlightText()
-            end)
-            info.invalidProfileKey = true
-            enabledStateCallback()
-          else
-            if info.enabled then
-              line.textEntry.editbox:SetTextColor(1, 1, 1, 1)
-            end
-            if not lap.willOverrideProfile then
-              line.importOverrideWarning:Hide()
-            end
-            info.invalidProfileKey = nil
-            enabledStateCallback()
-          end
-          info.profileKey = newText
+          line.importOverrideWarning:Hide()
+          line.textEntry:Hide()
+          line.fallbackLabel:Show()
         end
         line.textEntry.editbox:SetScript("OnTextChanged", function(...)
           local newText = line.textEntry:GetText()
