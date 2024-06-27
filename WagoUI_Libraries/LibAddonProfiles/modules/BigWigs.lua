@@ -10,7 +10,7 @@ end
 
 ---@return boolean
 local needsInitialization = function()
-  return BigWigs3DB and not isLoaded()
+  return C_AddOns.IsAddOnLoaded("BigWigs") and not isLoaded()
 end
 
 ---@return nil
