@@ -167,8 +167,7 @@ end
 
 ---@param profileString string
 ---@param profileKey string
----@param isDuplicateProfile boolean
-local importProfile = function(profileString, profileKey, isDuplicateProfile)
+local importProfile = function(profileString, profileKey)
   local success, data
   success, data = UnserializeProfile(profileString, true)
   if not success or not data then return end

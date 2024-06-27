@@ -42,8 +42,7 @@ end
 
 ---@param profileString string
 ---@param importFilter table
----@param isDuplicateProfile boolean
-local importProfile = function(profileString, importFilter, isDuplicateProfile)
+local importProfile = function(profileString, importFilter)
   local pKey, data = private:GenericDecode(profileString)
   if not data or not pKey then return end
   --have to sanitize loadout names, user might have duplicates

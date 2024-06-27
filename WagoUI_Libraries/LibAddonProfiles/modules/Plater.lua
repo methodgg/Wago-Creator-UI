@@ -202,11 +202,10 @@ end
 
 ---@param profileString string
 ---@param profileKey string
----@param isDuplicateProfile boolean
-local importProfile = function(profileString, profileKey, isDuplicateProfile)
+local importProfile = function(profileString, profileKey)
   local _, _, profile = private:GenericDecode(profileString)
   if not profile then return end
-  doProfileImport(profileKey, profile, isDuplicateProfile, false)
+  doProfileImport(profileKey, profile, true, false)
   coroutine.yield()
   if DetailsFrameworkPromptSimple then DetailsFrameworkPromptSimple:Hide() end
   C_Timer.After(.5, function()

@@ -56,8 +56,7 @@ end
 
 ---@param profileString string
 ---@param profileKey string
----@param isDuplicateProfile boolean
-local importProfile = function(profileString, profileKey, isDuplicateProfile)
+local importProfile = function(profileString, profileKey)
 
 end
 
