@@ -12,6 +12,15 @@ local function getLayoutByName(layoutName)
   end
 end
 
+local function getLayoutIndexByName(layoutName)
+  local layouts = EditModeManagerFrame:GetLayouts()
+  for i, layout in pairs(layouts) do
+    if layout.layoutName == layoutName then
+      return i
+    end
+  end
+end
+
 ---@return boolean
 local isLoaded = function()
   return true
@@ -88,11 +97,19 @@ local testImport = function(profileString, profileKey, profileData, rawData)
   end
 end
 
+local removeProfile = function(profileKey)
+  local layoutIndex = getLayoutIndexByName(profileKey)
+  if layoutIndex then
+    EditModeManagerFrame:DeleteLayout(layoutIndex)
+  end
+end
+
 ---@param profileString string
 ---@param profileKey string
 ---@param isDuplicateProfile boolean
 local importProfile = function(profileString, profileKey, isDuplicateProfile)
   EditModeManagerFrame:Show()
+  removeProfile(profileKey) --need to remove old profile with same name first for updating to work and not be confusing
   local newLayoutInfo = C_EditMode.ConvertStringToLayoutInfo(profileString);
   EditModeManagerFrame:ImportLayout(newLayoutInfo, 1, profileKey)
   EditModeManagerFrame.CloseButton:Click()
