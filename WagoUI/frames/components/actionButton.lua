@@ -4,8 +4,7 @@ local L = addon.L
 ---@param lapModule LibAddonProfilesModule
 ---@param profileString string
 local function importProfile(lapModule, profileString, profileKey, latestVersion, entryName)
-  local isDuplicate = lapModule.isDuplicate and lapModule.isDuplicate(profileKey)
-  lapModule.importProfile(profileString, profileKey, isDuplicate)
+  lapModule.importProfile(profileString, profileKey)
   addon:StoreImportedProfileTimestamp(latestVersion, lapModule.moduleName, profileKey, entryName)
   if lapModule.needReloadOnImport then
     addon:ToggleReloadIndicator(true)

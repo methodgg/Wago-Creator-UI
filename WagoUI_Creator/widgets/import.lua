@@ -82,10 +82,9 @@ local function onSuccessfulTest(moduleName, module, profileKey, profileString)
       if module.needProfileKey or isDuplicate and not module.preventRename then
         tempProfileKey = importFrame.profileNameInput:GetText()
       end
-      local isRenamedDuplicate = isLoaded and module.isDuplicate and module.isDuplicate(tempProfileKey)
 
       local importClickCallback = function()
-        module.importProfile(profileString, tempProfileKey, isRenamedDuplicate)
+        module.importProfile(profileString, tempProfileKey)
         feedbackString = string.format("\n\n|cFF00FF00Profile %s successfully imported into %s|r", tempProfileKey,
           moduleName)
         if module.needReloadOnImport then
