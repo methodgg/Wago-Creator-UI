@@ -97,25 +97,7 @@ local function onSuccessfulTest(moduleName, module, profileKey, profileString)
           importFrame:Show()
         end
       end
-
-      if isRenamedDuplicate then
-        local choices = {
-          {
-            text = "Overwrite",
-            on_click = function()
-              addon:Async(function()
-                importClickCallback()
-              end, "importOverwriteChoice1Click")
-            end,
-          },
-        }
-        local promptText = string.format(
-          "A profile with name '%s' already exists.\nDo you want to overwrite it?",
-          tempProfileKey)
-        addon:ShowPrompt(promptText, choices, "Choose Action", nil, nil, "CENTER", importFrame, "CENTER")
-      else
-        importClickCallback()
-      end
+      importClickCallback()
     end, "importFrameConfirmButtonClick")
   end)
 
