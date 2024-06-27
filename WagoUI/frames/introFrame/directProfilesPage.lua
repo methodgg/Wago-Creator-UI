@@ -77,7 +77,7 @@ local function createPage()
     addon.state.isImporting = true
     local countOperations = 0
     for _, entry in ipairs(filtered) do
-      if entry.enabled then
+      if entry.enabled and entry.loaded then
         countOperations = countOperations + 1
       end
     end
@@ -85,7 +85,7 @@ local function createPage()
     addon.copyHelper:SmartShow(UIParent, 0, 0, L["Importing profiles..."])
     addon:Async(function()
       for _, entry in ipairs(filtered) do
-        if entry.enabled then
+        if entry.enabled and entry.loaded then
           entry.lap.importProfile(entry.profile, entry.profileKey)
           addon:StoreImportedProfileTimestamp(entry.profileMetadata.lastUpdatedAt, entry.moduleName, entry.profileKey)
           if entry.lap.needReloadOnImport then
