@@ -92,7 +92,7 @@ end
 ---@param profileKey string
 ---@param isDuplicateProfile boolean
 local importProfile = function(profileString, profileKey, isDuplicateProfile)
-  GameMenuButtonEditMode:Click()
+  EditModeManagerFrame:Show()
   local newLayoutInfo = C_EditMode.ConvertStringToLayoutInfo(profileString);
   EditModeManagerFrame:ImportLayout(newLayoutInfo, 1, profileKey)
   EditModeManagerFrame.CloseButton:Click()
