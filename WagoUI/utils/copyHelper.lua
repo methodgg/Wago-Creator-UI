@@ -93,10 +93,10 @@ function addon:CreateCopyHelper()
   local currentProgress = 0
   function addon:StartCopyHelperProgressBar(max)
     maxProgress = max
+    currentProgress = 0
     statusBar.bar:SetMinMaxSmoothedValue(0, max)
     statusBar:Show()
     statusBar:SetAlpha(1)
-    addon:UpdateProgressBar(0)
   end
 
   function addon:UpdateCopyHelperProgressBar(progress)
