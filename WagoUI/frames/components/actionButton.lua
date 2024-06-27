@@ -7,7 +7,10 @@ local function importProfile(lapModule, profileString, profileKey, latestVersion
   local isDuplicate = lapModule.isDuplicate and lapModule.isDuplicate(profileKey)
   lapModule.importProfile(profileString, profileKey, isDuplicate)
   addon:StoreImportedProfileTimestamp(latestVersion, lapModule.moduleName, profileKey, entryName)
-  if lapModule.needReloadOnImport then addon:ToggleReloadIndicator(true) end
+  if lapModule.needReloadOnImport then
+    addon:ToggleReloadIndicator(true)
+    addon.state.needReload = true
+  end
   addon:UpdateRegisteredDataConsumers()
 end
 

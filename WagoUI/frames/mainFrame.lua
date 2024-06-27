@@ -78,11 +78,14 @@ function addon:CreateMainFrame()
   addon.frames.mainFrame = frame;
 
   hooksecurefunc(frame, "Hide", function()
-    local promptFunc = function(promptText, successCallback)
+    local promptFunc = function(promptText, successCallback, cancelCallback, okayText, cancelText)
       C_Timer.After(0.1, function()
         frame:Show()
-        addon.DF:ShowPrompt(promptText, successCallback)
+        addon.DF:ShowPrompt(promptText, successCallback, cancelCallback, okayText, cancelText)
       end)
+    end
+    local cancelFunc = function()
+      addon.state.needReload = false
     end
     --some profile imports close this frame as it is added to UISpecialFrames so we need to reopen it
     if addon.state.isImporting then
@@ -92,17 +95,18 @@ function addon:CreateMainFrame()
     if addon.state.needReload then
       if addon.db.introEnabled then
         if addon.state.currentPage == "DonePage" then
-          promptFunc(L["IMPORT_RELOAD_WARNING2"], ReloadUI)
+          promptFunc(L["IMPORT_RELOAD_WARNING2"], ReloadUI, cancelFunc, L["Reload UI"], L["Cancel"])
         else
-          promptFunc(L["INTRO_NOTFINISHED_WARNING"], function()
+          local notFinishedFunc = function()
             addon.state.needReload = false
             addon:ToggleReloadIndicator(false)
             addon:GotoPage("WelcomePage")
             frame:Hide()
-          end)
+          end
+          promptFunc(L["INTRO_NOTFINISHED_WARNING"], notFinishedFunc, cancelFunc, L["Abort"], L["Cancel"])
         end
       else
-        promptFunc(L["IMPORT_RELOAD_WARNING1"], ReloadUI)
+        promptFunc(L["IMPORT_RELOAD_WARNING2"], ReloadUI, cancelFunc, L["Reload UI"], L["Cancel"])
       end
     end
   end)

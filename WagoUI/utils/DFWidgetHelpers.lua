@@ -85,7 +85,7 @@ function addon.DF:CreateResolutionButton(parent, text)
   return button
 end
 
-function addon.DF:ShowPrompt(promptText, successCallback, errorCallback, okayText, cancelText)
+function addon.DF:ShowPrompt(promptText, successCallback, cancelCallback, okayText, cancelText)
   okayText = okayText or L["Okay"]
   cancelText = cancelText or L["Cancel"]
   if not addon.promptFrame then
@@ -113,16 +113,12 @@ function addon.DF:ShowPrompt(promptText, successCallback, errorCallback, okayTex
   addon.promptFrame.okayButton:SetText(okayText)
   addon.promptFrame.okayButton:SetClickFunction(function()
     addon.promptFrame:Hide()
-    if successCallback then
-      successCallback()
-    end
+    if successCallback then successCallback() end
   end)
   addon.promptFrame.cancelButton:SetText(cancelText)
   addon.promptFrame.cancelButton:SetClickFunction(function()
     addon.promptFrame:Hide()
-    if errorCallback then
-      errorCallback()
-    end
+    if cancelCallback then cancelCallback() end
   end)
   addon.promptFrame:Show()
 end
