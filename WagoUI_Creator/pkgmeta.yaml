@@ -10,31 +10,32 @@ enable-nolib-creation: no
 package-as: WagoUI_Creator
 
 externals:
-  ../templibs/LibStub: https://repos.curseforge.com/wow/libstub/trunk
-  ../templibs/LibCompress: https://repos.curseforge.com/wow/libcompress/trunk
-  ../templibs/CallbackHandler-1.0: https://repos.curseforge.com/wow/callbackhandler/trunk/CallbackHandler-1.0
-  ../templibs/AceAddon-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceAddon-3.0
-  ../templibs/AceEvent-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceEvent-3.0
-  ../templibs/AceDB-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceDB-3.0
-  ../templibs/AceDBOptions-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceDBOptions-3.0
-  ../templibs/LibDataBroker-1.1: https://github.com/tekkub/libdatabroker-1-1
-  ../templibs/AceTimer-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceTimer-3.0
-  ../templibs/AceLocale-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceLocale-3.0
-  ../templibs/AceConsole-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceConsole-3.0
-  ../templibs/AceGUI-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceGUI-3.0
-  ../templibs/AceConfig-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceConfig-3.0
-  ../templibs/AceComm-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceComm-3.0
-  ../templibs/AceSerializer-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceSerializer-3.0
-  ../templibs/LibDeflate: https://github.com/SafeteeWoW/LibDeflate
-  ../templibs/LibDBIcon-1.0: https://repos.curseforge.com/wow/libdbicon-1-0/trunk/LibDBIcon-1.0
+  templibs/LibStub: https://repos.curseforge.com/wow/libstub/trunk
+  templibs/LibCompress: https://repos.curseforge.com/wow/libcompress/trunk
+  templibs/CallbackHandler-1.0: https://repos.curseforge.com/wow/callbackhandler/trunk/CallbackHandler-1.0
+  templibs/AceAddon-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceAddon-3.0
+  templibs/AceEvent-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceEvent-3.0
+  templibs/AceDB-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceDB-3.0
+  templibs/AceDBOptions-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceDBOptions-3.0
+  templibs/LibDataBroker-1.1: https://github.com/tekkub/libdatabroker-1-1
+  templibs/AceTimer-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceTimer-3.0
+  templibs/AceLocale-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceLocale-3.0
+  templibs/AceConsole-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceConsole-3.0
+  templibs/AceGUI-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceGUI-3.0
+  templibs/AceConfig-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceConfig-3.0
+  templibs/AceComm-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceComm-3.0
+  templibs/AceSerializer-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceSerializer-3.0
+  templibs/LibDeflate: https://github.com/SafeteeWoW/LibDeflate
+  templibs/LibDBIcon-1.0: https://repos.curseforge.com/wow/libdbicon-1-0/trunk/LibDBIcon-1.0
   # TODO fix this guy
   # WagoUI_Creator/libs/LibSharedMedia-3.0: https://repos.curseforge.com/wow/libsharedmedia-3-0/trunk/libsharedmedia-3-0
-  ../templibs/LibDFramework-1.0: https://github.com/Tercioo/Details-Framework
-  ../templibs/LibSerialize: https://github.com/rossnichols/LibSerialize
-  ../templibs/LibAsync: https://github.com/Nnoggie/LibAsync
+  templibs/LibDFramework-1.0: https://github.com/Tercioo/Details-Framework
+  templibs/LibSerialize: https://github.com/rossnichols/LibSerialize
+  templibs/LibAsync: https://github.com/Nnoggie/LibAsync
 
 move-folders:
   ../WagoUI_Creator: WagoUI_Creator
+  ../templibs: WagoUI_Creator/libs
   ../WagoUI_Libraries/AceSerializer-3.0Async: WagoUI_Creator/libs/AceSerializer-3.0Async
   ../WagoUI_Libraries/LibAddonProfiles: WagoUI_Creator/libs/LibAddonProfiles
   ../WagoUI_Libraries/LibDeflateAsync: WagoUI_Creator/libs/LibDeflateAsync
