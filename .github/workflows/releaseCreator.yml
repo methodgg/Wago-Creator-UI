@@ -34,10 +34,8 @@ jobs:
         with:
           fetch-depth: 0 # gets entire git history, needed for automatic changelogs
 
-      - name: copy toc file
-        run:
-          cp WagoUI_Creator/WagoUI_Creator_Mainline.toc WagoUI_Creator_Mainline.toc
-          cp WagoUI_Creator/CHANGELOG.txt CHANGELOG.txt
+      - name: copy toc file and changelog
+        run: cp WagoUI_Creator/WagoUI_Creator_Mainline.toc WagoUI_Creator_Mainline.toc && cp WagoUI_Creator/CHANGELOG.txt CHANGELOG.txt
 
       # once cloned, we just run the GitHub Action for the packager project
       - name: Package and release
