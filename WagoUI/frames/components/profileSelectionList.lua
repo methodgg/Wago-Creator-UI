@@ -95,7 +95,6 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight, en
             line.textEntry:Disable()
           end
         end
-        updateEnabledState()
 
         if loaded then
           line.checkBox:Show()
@@ -175,7 +174,7 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight, en
             line.textEntry:SetText(info.profileKey)
           end
         end)
-
+        updateEnabledState()
         line.textEntry.func()
       end
     end
