@@ -32,6 +32,7 @@ externals:
 
 ignore:
   - WagoUI_Creator
+  - WagoUI/pkgmeta.yaml
 
 move-folders:
   WagoUI/WagoUI: WagoUI
