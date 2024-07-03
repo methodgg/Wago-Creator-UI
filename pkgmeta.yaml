@@ -5,6 +5,7 @@ ignore:
   - pkgmeta.yaml
   - definitions.lua
 enable-nolib-creation: no
+package-as: WagoUI
 externals:
   WagoUI/libs/LibStub: https://repos.curseforge.com/wow/libstub/trunk
   WagoUI/libs/LibCompress: https://repos.curseforge.com/wow/libcompress/trunk
@@ -32,5 +33,3 @@ move-folders:
   WagoUI_Libraries/AceSerializer-3.0Async: WagoUI/libs/AceSerializer-3.0Async
   WagoUI_Libraries/LibAddonProfiles: WagoUI/libs/LibAddonProfiles
   WagoUI_Libraries/LibDeflateAsync: WagoUI/libs/LibDeflateAsync
-  # move contents of WagoUI into root
-  WagoUI: ./
