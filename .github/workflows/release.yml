@@ -5,10 +5,16 @@ name: Package and release
 # this will target only tags, and not all pushes to the master branch.
 # this part can be heavily customized to your liking, like targeting only tags that match a certain word,
 # other branches or even pullrequests.
+# on:
+#   push:
+#     tags:
+#       - "**"
+
+# temporary, for testing purposes, we will target a specific branch
 on:
   push:
-    tags:
-      - "**"
+    branches:
+      - releasescript
 
 # a workflow is built up as jobs, and within these jobs are steps
 jobs:
