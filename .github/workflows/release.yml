@@ -39,6 +39,13 @@ jobs:
         with:
           fetch-depth: 0 # gets entire git history, needed for automatic changelogs
 
+          #  move contents of WagoUI to root
+      - name: Move folders
+        run: |
+          ls -la
+          mv WagoUI/* .
+          rm -rf WagoUI
+
       # once cloned, we just run the GitHub Action for the packager project
       - name: Package and release
         uses: BigWigsMods/packager@v2
