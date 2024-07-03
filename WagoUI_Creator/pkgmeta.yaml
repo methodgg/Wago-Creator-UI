@@ -1,11 +1,11 @@
 manual-changelog: CHANGELOG.txt
 ignore:
   - README.md
-  - WagoUI_Libraries
   - definitions.lua
-  - WagoUI
-  - WagoUI_Data
   - WagoUI_Creator/pkgmeta.yaml
+  - WagoUI_Libraries
+  - WagoUI_Data
+  - WagoUI
 enable-nolib-creation: no
 package-as: WagoUI_Creator
 
