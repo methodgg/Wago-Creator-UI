@@ -8,32 +8,35 @@ ignore:
   - WagoUI_Creator/pkgmeta.yaml
 enable-nolib-creation: no
 package-as: WagoUI_Creator
-externals:
-  WagoUI_Creator/libs/LibStub: https://repos.curseforge.com/wow/libstub/trunk
-  WagoUI_Creator/libs/LibCompress: https://repos.curseforge.com/wow/libcompress/trunk
-  WagoUI_Creator/libs/CallbackHandler-1.0: https://repos.curseforge.com/wow/callbackhandler/trunk/CallbackHandler-1.0
-  WagoUI_Creator/libs/AceAddon-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceAddon-3.0
-  WagoUI_Creator/libs/AceEvent-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceEvent-3.0
-  WagoUI_Creator/libs/AceDB-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceDB-3.0
-  WagoUI_Creator/libs/AceDBOptions-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceDBOptions-3.0
-  WagoUI_Creator/libs/LibDataBroker-1.1: https://github.com/tekkub/libdatabroker-1-1
-  WagoUI_Creator/libs/AceTimer-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceTimer-3.0
-  WagoUI_Creator/libs/AceLocale-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceLocale-3.0
-  WagoUI_Creator/libs/AceConsole-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceConsole-3.0
-  WagoUI_Creator/libs/AceGUI-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceGUI-3.0
-  WagoUI_Creator/libs/AceConfig-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceConfig-3.0
-  WagoUI_Creator/libs/AceComm-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceComm-3.0
-  WagoUI_Creator/libs/AceSerializer-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceSerializer-3.0
-  WagoUI_Creator/libs/LibDeflate: https://github.com/SafeteeWoW/LibDeflate
-  WagoUI_Creator/libs/LibDBIcon-1.0: https://repos.curseforge.com/wow/libdbicon-1-0/trunk/LibDBIcon-1.0
-  # TODO fix this guy
-  # WagoUI_Creator/libs/LibSharedMedia-3.0: https://repos.curseforge.com/wow/libsharedmedia-3-0/trunk/libsharedmedia-3-0
-  WagoUI_Creator/libs/LibDFramework-1.0: https://github.com/Tercioo/Details-Framework
-  WagoUI_Creator/libs/LibSerialize: https://github.com/rossnichols/LibSerialize
-  WagoUI_Creator/libs/LibAsync: https://github.com/Nnoggie/LibAsync
 
 move-folders:
   ../WagoUI_Creator: WagoUI_Creator
+
+externals:
+  libs/LibStub: https://repos.curseforge.com/wow/libstub/trunk
+  libs/LibCompress: https://repos.curseforge.com/wow/libcompress/trunk
+  libs/CallbackHandler-1.0: https://repos.curseforge.com/wow/callbackhandler/trunk/CallbackHandler-1.0
+  libs/AceAddon-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceAddon-3.0
+  libs/AceEvent-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceEvent-3.0
+  libs/AceDB-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceDB-3.0
+  libs/AceDBOptions-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceDBOptions-3.0
+  libs/LibDataBroker-1.1: https://github.com/tekkub/libdatabroker-1-1
+  libs/AceTimer-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceTimer-3.0
+  libs/AceLocale-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceLocale-3.0
+  libs/AceConsole-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceConsole-3.0
+  libs/AceGUI-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceGUI-3.0
+  libs/AceConfig-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceConfig-3.0
+  libs/AceComm-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceComm-3.0
+  libs/AceSerializer-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceSerializer-3.0
+  libs/LibDeflate: https://github.com/SafeteeWoW/LibDeflate
+  libs/LibDBIcon-1.0: https://repos.curseforge.com/wow/libdbicon-1-0/trunk/LibDBIcon-1.0
+  # TODO fix this guy
+  # WagoUI_Creator/libs/LibSharedMedia-3.0: https://repos.curseforge.com/wow/libsharedmedia-3-0/trunk/libsharedmedia-3-0
+  libs/LibDFramework-1.0: https://github.com/Tercioo/Details-Framework
+  libs/LibSerialize: https://github.com/rossnichols/LibSerialize
+  libs/LibAsync: https://github.com/Nnoggie/LibAsync
+
+move-folders:
   ../WagoUI_Libraries/AceSerializer-3.0Async: WagoUI_Creator/libs/AceSerializer-3.0Async
   ../WagoUI_Libraries/LibAddonProfiles: WagoUI_Creator/libs/LibAddonProfiles
   ../WagoUI_Libraries/LibDeflateAsync: WagoUI_Creator/libs/LibDeflateAsync
