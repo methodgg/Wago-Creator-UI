@@ -34,6 +34,6 @@ externals:
 
 move-folders:
   ../WagoUI_Creator: WagoUI_Creator
-  ../WagoUI_Libraries/AceSerializer-3.0Async: /libs/AceSerializer-3.0Async
-  ../WagoUI_Libraries/LibAddonProfiles: /libs/LibAddonProfiles
-  ../WagoUI_Libraries/LibDeflateAsync: /libs/LibDeflateAsync
+  ../WagoUI_Libraries/AceSerializer-3.0Async: WagoUI_Creator/libs/AceSerializer-3.0Async
+  ../WagoUI_Libraries/LibAddonProfiles: WagoUI_Creator/libs/LibAddonProfiles
+  ../WagoUI_Libraries/LibDeflateAsync: WagoUI_Creator/libs/LibDeflateAsync
