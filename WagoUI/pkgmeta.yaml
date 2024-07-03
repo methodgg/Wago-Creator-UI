@@ -1,9 +1,9 @@
-manual-changelog: CHANGELOG.txt
 ignore:
   - README.md
   - WagoUI_Libraries
-  - pkgmeta.yaml
   - definitions.lua
+  - WagoUI_Creator
+  - WagoUI/pkgmeta.yaml
 enable-nolib-creation: no
 package-as: WagoUI
 externals:
@@ -29,10 +29,6 @@ externals:
   WagoUI/libs/LibDFramework-1.0: https://github.com/Tercioo/Details-Framework
   WagoUI/libs/LibSerialize: https://github.com/rossnichols/LibSerialize
   WagoUI/libs/LibAsync: https://github.com/Nnoggie/LibAsync
-
-ignore:
-  - WagoUI_Creator
-  - WagoUI/pkgmeta.yaml
 
 move-folders:
   WagoUI/WagoUI: WagoUI

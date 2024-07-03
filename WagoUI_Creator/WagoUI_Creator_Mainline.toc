@@ -6,5 +6,6 @@
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
 ## SavedVariables: WagoUICreatorDB
+## X-Wago-ID: mKOv7Q6x
 
 load.xml
