@@ -47,7 +47,7 @@ jobs:
       - name: Package and release
         uses: BigWigsMods/packager@v2
         with:
-          args: -w 0 -a 0 -p 0 -m "WagoUI/pkgmeta.yaml"
+          args: -w 0 -p 0 -m "WagoUI/pkgmeta.yaml"
 
       - name: delete toc file
         run: rm WagoUI.toc
