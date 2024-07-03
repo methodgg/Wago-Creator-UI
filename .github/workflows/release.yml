@@ -39,9 +39,6 @@ jobs:
         with:
           fetch-depth: 0 # gets entire git history, needed for automatic changelogs
 
-      - name: change working directory
-        run: cd WagoUI
-
       # once cloned, we just run the GitHub Action for the packager project
       - name: Package and release
         uses: BigWigsMods/packager@v2
