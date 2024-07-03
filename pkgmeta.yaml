@@ -32,3 +32,5 @@ move-folders:
   WagoUI_Libraries/AceSerializer-3.0Async: WagoUI/libs/AceSerializer-3.0Async
   WagoUI_Libraries/LibAddonProfiles: WagoUI/libs/LibAddonProfiles
   WagoUI_Libraries/LibDeflateAsync: WagoUI/libs/LibDeflateAsync
+  # move contents of WagoUI into root
+  WagoUI: ./
