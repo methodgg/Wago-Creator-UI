@@ -30,6 +30,11 @@ externals:
   WagoUI/libs/LibSerialize: https://github.com/rossnichols/LibSerialize
   WagoUI/libs/LibAsync: https://github.com/Nnoggie/LibAsync
 
+ignore:
+  - WagoUI_Creator
+  - WagoUI_Data
+  - WagoUI_Libraries
+
 move-folders:
   WagoUI_Libraries/AceSerializer-3.0Async: WagoUI/libs/AceSerializer-3.0Async
   WagoUI_Libraries/LibAddonProfiles: WagoUI/libs/LibAddonProfiles
