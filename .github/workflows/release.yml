@@ -39,6 +39,9 @@ jobs:
         with:
           fetch-depth: 0 # gets entire git history, needed for automatic changelogs
 
+      - name: move toc file
+        run: mv WagoUI/WagoUI.toc WagoUI.toc
+
       # once cloned, we just run the GitHub Action for the packager project
       - name: Package and release
         uses: BigWigsMods/packager@v2
