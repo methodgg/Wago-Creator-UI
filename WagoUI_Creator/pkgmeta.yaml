@@ -1,3 +1,4 @@
+manual-changelog: CHANGELOG.txt
 ignore:
   - README.md
   - WagoUI_Libraries
