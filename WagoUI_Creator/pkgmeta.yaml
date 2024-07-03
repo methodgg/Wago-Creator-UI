@@ -7,7 +7,7 @@ ignore:
   - WagoUI_Creator/pkgmeta.yaml
 enable-nolib-creation: no
 package-as: WagoUI_Creator
-manual-changelog: WagoUI_Creator/CHANGELOG.txt
+manual-changelog: CHANGELOG.txt
 externals:
   ../libs/LibStub: https://repos.curseforge.com/wow/libstub/trunk
   ../libs/LibCompress: https://repos.curseforge.com/wow/libcompress/trunk
