@@ -11,12 +11,6 @@ on:
       # match tags that start with "installer"
       - "installer*"
 
-# temporary, for testing purposes, we will target a specific branch
-# on:
-#   push:
-#     branches:
-#       - releasescript
-
 # a workflow is built up as jobs, and within these jobs are steps
 jobs:
   # "release" is a job, you can name it anything you want
@@ -48,6 +42,3 @@ jobs:
         uses: BigWigsMods/packager@v2
         with:
           args: -w 0 -p 0 -m "WagoUI/pkgmeta.yaml"
-
-      - name: delete toc file
-        run: rm WagoUI.toc
