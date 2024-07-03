@@ -1,3 +1,4 @@
+manual-changelog: CHANGELOG.txt
 ignore:
   - README.md
   - WagoUI_Libraries
@@ -6,6 +7,7 @@ ignore:
   - WagoUI/pkgmeta.yaml
 enable-nolib-creation: no
 package-as: WagoUI
+
 externals:
   WagoUI/libs/LibStub: https://repos.curseforge.com/wow/libstub/trunk
   WagoUI/libs/LibCompress: https://repos.curseforge.com/wow/libcompress/trunk
@@ -24,8 +26,7 @@ externals:
   WagoUI/libs/AceSerializer-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceSerializer-3.0
   WagoUI/libs/LibDeflate: https://github.com/SafeteeWoW/LibDeflate
   WagoUI/libs/LibDBIcon-1.0: https://repos.curseforge.com/wow/libdbicon-1-0/trunk/LibDBIcon-1.0
-  # TODO fix this guy
-  # WagoUI/libs/LibSharedMedia-3.0: https://repos.curseforge.com/wow/libsharedmedia-3-0/trunk/libsharedmedia-3-0
+  WagoUI/libs/LibSharedMedia-3.0: https://repos.curseforge.com/wow/libsharedmedia-3-0/trunk/LibSharedMedia-3.0
   WagoUI/libs/LibDFramework-1.0: https://github.com/Tercioo/Details-Framework
   WagoUI/libs/LibSerialize: https://github.com/rossnichols/LibSerialize
   WagoUI/libs/LibAsync: https://github.com/Nnoggie/LibAsync

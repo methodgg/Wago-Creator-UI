@@ -27,8 +27,7 @@ externals:
   WagoUI_Creator/libs/AceSerializer-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceSerializer-3.0
   WagoUI_Creator/libs/LibDeflate: https://github.com/SafeteeWoW/LibDeflate
   WagoUI_Creator/libs/LibDBIcon-1.0: https://repos.curseforge.com/wow/libdbicon-1-0/trunk/LibDBIcon-1.0
-  # TODO fix this guy
-  # WagoUI/libs/LibSharedMedia-3.0: https://repos.curseforge.com/wow/libsharedmedia-3-0/trunk/libsharedmedia-3-0
+  WagoUI_Creator/libs/LibSharedMedia-3.0: https://repos.curseforge.com/wow/libsharedmedia-3-0/trunk/LibSharedMedia-3.0
   WagoUI_Creator/libs/LibDFramework-1.0: https://github.com/Tercioo/Details-Framework
   WagoUI_Creator/libs/LibSerialize: https://github.com/rossnichols/LibSerialize
   WagoUI_Creator/libs/LibAsync: https://github.com/Nnoggie/LibAsync
