@@ -3,6 +3,7 @@ ignore:
   - WagoUI_Libraries
   - definitions.lua
   - WagoUI
+  - WagoUI_Data
   - WagoUI_Creator/pkgmeta.yaml
 enable-nolib-creation: no
 package-as: WagoUI_Creator
@@ -31,7 +32,7 @@ externals:
   ../libs/LibAsync: https://github.com/Nnoggie/LibAsync
 
 move-folders:
-  # WagoUI/WagoUI_Creator: WagoUI_Creator
+  ../WagoUI_Creator: WagoUI_Creator
   ../WagoUI_Libraries/AceSerializer-3.0Async: WagoUI_Creator/libs/AceSerializer-3.0Async
   ../WagoUI_Libraries/LibAddonProfiles: WagoUI_Creator/libs/LibAddonProfiles
   ../WagoUI_Libraries/LibDeflateAsync: WagoUI_Creator/libs/LibDeflateAsync
