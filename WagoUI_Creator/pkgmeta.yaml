@@ -5,7 +5,7 @@ ignore:
   - definitions.lua
   - WagoUI
   - WagoUI_Data
-  - pkgmeta.yaml
+  - WagoUI_Creator/pkgmeta.yaml
 enable-nolib-creation: no
 package-as: WagoUI_Creator
 externals:
