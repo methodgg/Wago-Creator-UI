@@ -1,4 +1,4 @@
-## Interface: 100207
+## Interface: 110002
 ## Title: |cFFC1272DWago|rUI Data
 ## IconTexture: Interface\AddOns\WagoUI_Data\logoSmall.png
 ## Author: The Wago Team
