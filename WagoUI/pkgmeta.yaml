@@ -5,6 +5,7 @@ ignore:
   - pkgmeta.yaml
   - definitions.lua
 enable-nolib-creation: no
+package-as: WagoUI
 externals:
   libs/LibStub: https://repos.curseforge.com/wow/libstub/trunk
   libs/LibCompress: https://repos.curseforge.com/wow/libcompress/trunk
