@@ -8,7 +8,7 @@ name: Release Creator
 on:
   push:
     tags:
-      # match tags that start with "installer"
+      # match tags that start with "creator"
       - "creator*"
 
 # a workflow is built up as jobs, and within these jobs are steps
@@ -34,6 +34,7 @@ jobs:
         with:
           fetch-depth: 0 # gets entire git history, needed for automatic changelogs
 
+      # bigwigs packager needs the toc file and changelog to be in the root directory
       - name: copy toc file and changelog
         run: cp WagoUI_Creator/WagoUI_Creator_Mainline.toc WagoUI_Creator_Mainline.toc && cp WagoUI_Creator/CHANGELOG.txt CHANGELOG.txt
 
