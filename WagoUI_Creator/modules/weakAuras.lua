@@ -15,16 +15,17 @@ local scrollBoxHeight = frameHeight - 165
 local lineHeight = 30
 
 local getChosenResolution = function()
-  return addon.db.creatorUI.resolutions.chosen
+  return addon:GetCurrentPack().resolutions.chosen
 end
 
 local setWeakAuraExportState = function(resolution, id, value)
-  addon.db.creatorUI.profileKeys[resolution][moduleName][id] = value
+  addon:GetCurrentPack().profileKeys[resolution][moduleName][id] = value
 end
 
 local getWeakAuraExportState = function(resolution, id)
-  addon.db.creatorUI.profileKeys[resolution][moduleName] = addon.db.creatorUI.profileKeys[resolution][moduleName] or {}
-  return addon.db.creatorUI.profileKeys[resolution][moduleName][id]
+  addon:GetCurrentPack().profileKeys[resolution][moduleName] = addon:GetCurrentPack().profileKeys[resolution]
+  [moduleName] or {}
+  return addon:GetCurrentPack().profileKeys[resolution][moduleName][id]
 end
 
 local scrollBoxData = {

@@ -4,13 +4,14 @@ local ModuleFunctions = addon.ModuleFunctions
 local LAP = LibStub:GetLibrary("LibAddonProfiles")
 
 function ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKeys, currentProfileKey)
+  local currrentUIPack = addon:GetCurrentPack()
   tinsert(res, {
     value = 1,
     label = "|A:common-icon-redx:16:16|a|cff808080None|r",
     onclick = function(dropdown)
       dropdown:NoOptionSelected()
-      addon.db.creatorUI.profileKeys[addon.db.creatorUI.resolutions.chosen][moduleName] = nil
-      addon.db.creatorUI.profiles[addon.db.creatorUI.resolutions.chosen][moduleName] = nil
+      currrentUIPack.profileKeys[currrentUIPack.resolutions.chosen][moduleName] = nil
+      currrentUIPack.profiles[currrentUIPack.resolutions.chosen][moduleName] = nil
     end
   })
 
@@ -20,7 +21,7 @@ function ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKe
       value = profileKey,
       label = coloredProfileKey,
       onclick = function()
-        addon.db.creatorUI.profileKeys[addon.db.creatorUI.resolutions.chosen][moduleName] = profileKey
+        currrentUIPack.profileKeys[currrentUIPack.resolutions.chosen][moduleName] = profileKey
       end
     })
   end
@@ -29,28 +30,29 @@ function ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKe
 end
 
 local function exportFunc(moduleName, resolution, exportProfileFunc, timestamp)
-  local newExport = exportProfileFunc(addon.db.creatorUI.profileKeys[resolution][moduleName])
-  local oldExport = addon.db.creatorUI.profiles[resolution][moduleName]
+  local currrentUIPack = addon:GetCurrentPack()
+  local newExport = exportProfileFunc(currrentUIPack.profileKeys[resolution][moduleName])
+  local oldExport = currrentUIPack.profiles[resolution][moduleName]
   ---@class LibAddonProfilesModule
   local lapModule = LAP:GetModule(moduleName)
   local areEqual, changedEntries, removedEntries = lapModule.areProfileStringsEqual(oldExport, newExport)
   if areEqual then return false end
   --stuff changed, we need to handle it
   --set the profile, time of export
-  addon.db.creatorUI.profileMetadata[resolution][moduleName] = addon.db.creatorUI.profileMetadata[resolution]
+  currrentUIPack.profileMetadata[resolution][moduleName] = currrentUIPack.profileMetadata[resolution]
       [moduleName] or {}
   if moduleName == "WeakAuras" or moduleName == "Echo Raid Tools" then
-    addon.db.creatorUI.profileMetadata[resolution][moduleName].lastUpdatedAt = addon.db.creatorUI.profileMetadata
+    currrentUIPack.profileMetadata[resolution][moduleName].lastUpdatedAt = currrentUIPack.profileMetadata
         [resolution][moduleName].lastUpdatedAt or {}
     if changedEntries then
       for key in pairs(changedEntries) do
-        addon.db.creatorUI.profileMetadata[resolution][moduleName].lastUpdatedAt[key] = timestamp
+        currrentUIPack.profileMetadata[resolution][moduleName].lastUpdatedAt[key] = timestamp
       end
     end
-    addon.db.creatorUI.profiles[resolution][moduleName] = newExport
+    currrentUIPack.profiles[resolution][moduleName] = newExport
   else
-    addon.db.creatorUI.profileMetadata[resolution][moduleName].lastUpdatedAt = timestamp
-    addon.db.creatorUI.profiles[resolution][moduleName] = newExport
+    currrentUIPack.profileMetadata[resolution][moduleName].lastUpdatedAt = timestamp
+    currrentUIPack.profiles[resolution][moduleName] = newExport
   end
   return true, changedEntries, removedEntries
 end

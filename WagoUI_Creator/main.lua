@@ -159,7 +159,8 @@ end
 function addon:ExportAllProfiles()
   -- set current toc version
   local gameVersion = select(4, GetBuildInfo())
-  addon.db.creatorUI.gameVersion = gameVersion
+  local currentUIPack = addon:GetCurrentPack()
+  currentUIPack.gameVersion = gameVersion
   -- set all export options from db
   for moduleName, options in pairs(addon.db.exportOptions) do
     local lapModule = LAP:GetModule(moduleName)
@@ -172,13 +173,13 @@ function addon:ExportAllProfiles()
   -- so we do not need to worry about removing those unwanted exports here
   -- only export the profiles that the user wants to export
   local timestamp = GetServerTime()
-  local enabledResolutions = addon.db.creatorUI.resolutions.enabled
+  local enabledResolutions = currentUIPack.resolutions.enabled
   local countOperations = 0
   for _, module in pairs(addon.moduleConfigs) do
     if module.isLoaded() or module.lapModule.needsInitialization() then
       local hasAtleastOneExport = false
       for resolution, enabled in pairs(enabledResolutions) do
-        if enabled and addon.db.creatorUI.profileKeys[resolution][module.name] then
+        if enabled and currentUIPack.profileKeys[resolution][module.name] then
           hasAtleastOneExport = true
         end
       end
@@ -208,7 +209,7 @@ function addon:ExportAllProfiles()
       if module.isLoaded() then
         local didExportAtleastOne = false
         for resolution, enabled in pairs(enabledResolutions) do
-          if enabled and addon.db.creatorUI.profileKeys[resolution][module.name] then
+          if enabled and currentUIPack.profileKeys[resolution][module.name] then
             local updated, changedEntries, removedEntries = module.exportFunc(resolution, timestamp)
             if updated then
               updates[module.name] = changedEntries or true
@@ -239,15 +240,21 @@ end
 
 function addon:AddDataToDataAddon()
   if not WagoUI_Data then return end
+  local currentUIPack = addon:GetCurrentPack()
   local data = {
     name = "Local Test Data",
-    profileMetadata = WagoUICreatorDB.creatorUI.profileMetadata,
-    resolutions = WagoUICreatorDB.creatorUI.resolutions,
-    releaseNotes = WagoUICreatorDB.creatorUI.releaseNotes,
-    profileKeys = WagoUICreatorDB.creatorUI.profileKeys,
-    profiles = WagoUICreatorDB.creatorUI.profiles,
+    profileMetadata = currentUIPack.profileMetadata,
+    resolutions = currentUIPack.resolutions,
+    releaseNotes = currentUIPack.releaseNotes,
+    profileKeys = currentUIPack.profileKeys,
+    profiles = currentUIPack.profiles,
   }
   WagoUI_Data.LocalTestData = data
+end
+
+function addon:GetCurrentPack()
+  return addon.db.creatorUI
+  -- return addon:GetCurrentPack()[db.chosenPack]
 end
 
 --needed if the profile data of the addons changes

@@ -137,15 +137,16 @@ local specData = {
 local db
 
 local getChosenResolution = function()
-  return addon.db.creatorUI.resolutions.chosen
+  return addon:GetCurrentPack().resolutions.chosen
 end
 
 local function setupDB()
-  addon.db.creatorUI.wagoSettings = addon.db.creatorUI.wagoSettings or {}
-  addon.db.creatorUI.wagoSettings[getChosenResolution()] = addon.db.creatorUI.wagoSettings[getChosenResolution()] or {}
-  addon.db.creatorUI.wagoSettings[getChosenResolution()].enabledSpecs = addon.db.creatorUI.wagoSettings
+  local currentUIPack = addon:GetCurrentPack()
+  currentUIPack.wagoSettings = currentUIPack.wagoSettings or {}
+  currentUIPack.wagoSettings[getChosenResolution()] = currentUIPack.wagoSettings[getChosenResolution()] or {}
+  currentUIPack.wagoSettings[getChosenResolution()].enabledSpecs = currentUIPack.wagoSettings
       [getChosenResolution()].enabledSpecs or {}
-  db = addon.db.creatorUI.wagoSettings[getChosenResolution()]
+  db = currentUIPack.wagoSettings[getChosenResolution()]
   for _, classData in ipairs(specData) do
     if not db.enabledSpecs[classData.dataName] then db.enabledSpecs[classData.dataName] = {} end
   end

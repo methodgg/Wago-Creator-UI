@@ -25,6 +25,7 @@ do
 end
 
 function addon:CreateProfileList(f, width, height)
+  local currentUIPack = addon:GetCurrentPack()
   local function contentScrollboxUpdate(self, data, offset, totalLines)
     addon.ModuleFunctions:SortModuleConfigs()
     for i = 1, totalLines do
@@ -32,7 +33,7 @@ function addon:CreateProfileList(f, width, height)
       local info = data[index]
       if (info) then
         local line = self:GetLine(i)
-        local res = db.creatorUI.resolutions
+        local res = currentUIPack.resolutions
         local loaded = info.isLoaded() and res.enabled[res.chosen]
         if loaded then
           line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
@@ -105,7 +106,7 @@ function addon:CreateProfileList(f, width, height)
           line.manageButton:Hide()
           line.profileDropdown:Show()
         end
-        local profileKey = db.creatorUI.profileKeys[db.creatorUI.resolutions.chosen][info.name]
+        local profileKey = currentUIPack.profileKeys[currentUIPack.resolutions.chosen][info.name]
         local fallbackOptions = function()
           return profileKey and {
             {
@@ -133,7 +134,7 @@ function addon:CreateProfileList(f, width, height)
         end
 
         --last update
-        local metaData = db.creatorUI.profileMetadata[db.creatorUI.resolutions.chosen][info.name]
+        local metaData = currentUIPack.profileMetadata[currentUIPack.resolutions.chosen][info.name]
         if metaData then
           local lastUpdatedAt = 0
           local lastUpdatedAtString
@@ -225,6 +226,28 @@ function addon:CreateProfileList(f, width, height)
     totalHeight = totalHeight + maxHeight + 10 - yOffset
   end
 
+  -- local function getPacksForDropdown()
+  --   local packs = {}
+  --   local currentUIPack = addon:GetCurrentPack()
+  --   for _, pack in pairs(currentUIPack) do
+  --     local newPack = {
+  --       value = pack.name,
+  --       label = pack.name,
+  --       onclick = function()
+  --         db.chosenPack = pack.name
+  --         f.contentScrollbox:Refresh()
+  --       end
+  --     }
+  --     packs.insert(newPack)
+  --   end
+  --   return packs
+  -- end
+
+  -- local packDropdown = DF:CreateDropDown(f,  getPacksForDropdown, nil, 180, 30, nil, nil,
+  --   options_dropdown_template)
+  -- packDropdown:Select(db.chosenPack)
+
+
   -- resolution explainer
   local resExplainerLabel = DF:CreateLabel(f, "Startup", 16, "white")
   resExplainerLabel:SetWidth((width - 40) / 2)
@@ -240,7 +263,7 @@ function addon:CreateProfileList(f, width, height)
       value = "1080",
       label = "1080x1920",
       onclick = function()
-        db.creatorUI.resolutions.chosen = "1080"
+        addon:GetCurrentPack().resolutions.chosen = "1080"
         addon.UpdateResolutionCheckedFromDB()
       end
     },
@@ -248,17 +271,17 @@ function addon:CreateProfileList(f, width, height)
       value = "1440",
       label = "1440x2560",
       onclick = function()
-        db.creatorUI.resolutions.chosen = "1440"
+        addon:GetCurrentPack().resolutions.chosen = "1440"
         addon.UpdateResolutionCheckedFromDB()
       end
     }
   }
   local resolutionDropdown = DF:CreateDropDown(f, function() return resolutions end, nil, 180, 30, nil, nil,
     options_dropdown_template)
-  resolutionDropdown:Select(db.creatorUI.resolutions.chosen)
+  resolutionDropdown:Select(addon:GetCurrentPack().resolutions.chosen)
   local resolutionCheckBox = DF:CreateSwitch(f,
     function(_, _, value)
-      local res = db.creatorUI.resolutions
+      local res = addon:GetCurrentPack().resolutions
       res.enabled[res.chosen] = value
       f.contentScrollbox:Refresh()
     end,
@@ -267,7 +290,7 @@ function addon:CreateProfileList(f, width, height)
   resolutionCheckBox:SetAsCheckBox()
   f.resolutionCheckBox = resolutionCheckBox
   function addon.UpdateResolutionCheckedFromDB()
-    local res = db.creatorUI.resolutions
+    local res = addon:GetCurrentPack().resolutions
     resolutionCheckBox:SetValue(res.enabled[res.chosen])
     f.contentScrollbox:Refresh()
   end
@@ -295,7 +318,6 @@ function addon:CreateProfileList(f, width, height)
   exportAllButton.text_overlay:SetFont(exportAllButton.text_overlay:GetFont(), 16)
   exportAllButton:SetClickFunction(addon.ExportAllProfiles)
   f.exportAllButton = exportAllButton
-  -- checkUIPackName(db.creatorUI.name)
   addLine({ exportAllButton }, 5, 0)
 
   local widths = {

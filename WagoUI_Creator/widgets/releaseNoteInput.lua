@@ -78,5 +78,5 @@ function addon:OpenReleaseNoteInput(timestamp, updates, removals)
 end
 
 function addon:SaveReleaseNotes(input)
-  addon.db.creatorUI.releaseNotes[releaseNotesFrame.timestamp] = input
+  addon:GetCurrentPack().releaseNotes[releaseNotesFrame.timestamp] = input
 end
