@@ -396,13 +396,14 @@ end
 ---@return table
 ---@return table
 local areProfileStringsEqual = function(profileTableA, profileTableB)
-  --TODO: some issues here
   local allEqual = true
   local changedEntries = {}
   local removedEntries = {}
   local inBoth = {}
 
-  if not profileTableA or not profileTableB then return false, changedEntries, removedEntries end
+  if not profileTableA or not profileTableB then
+    return false, profileTableB, removedEntries
+  end
 
   for groupIdx in pairs(profileTableB) do
     if profileTableA[groupIdx] then

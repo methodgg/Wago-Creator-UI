@@ -99,7 +99,9 @@ local areProfileStringsEqual = function(profileTableA, profileTableB)
   local removedEntries = {}
   local inBoth = {}
 
-  if not profileTableA or not profileTableB then return false, changedEntries, removedEntries end
+  if not profileTableA or not profileTableB then
+    return false, profileTableB, removedEntries
+  end
 
   for groupIdx in pairs(profileTableB) do
     if profileTableA[groupIdx] then
