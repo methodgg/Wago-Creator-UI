@@ -46,6 +46,7 @@ local function exportFunc(moduleName, resolution, exportProfileFunc, timestamp)
         [resolution][moduleName].lastUpdatedAt or {}
     if changedEntries then
       for key in pairs(changedEntries) do
+        -- TODO: IMPORTANT this is not working properly
         currrentUIPack.profileMetadata[resolution][moduleName].lastUpdatedAt[key] = timestamp
       end
     end
