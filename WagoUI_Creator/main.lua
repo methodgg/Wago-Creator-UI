@@ -22,29 +22,7 @@ local dbDefaults = {
       purgeWago = true,
     }
   },
-  creatorUI = {
-    name = "",
-    profileKeys = {
-      ["1080"] = {},
-      ["1440"] = {},
-    },
-    profiles = {
-      ["1080"] = {},
-      ["1440"] = {},
-    },
-    profileMetadata = {
-      ["1080"] = {},
-      ["1440"] = {},
-    },
-    releaseNotes = {},
-    resolutions = {
-      chosen = "1080",
-      enabled = {
-        ["1080"] = true,
-        ["1440"] = false,
-      },
-    }
-  },
+  creatorUI = {},
 }
 
 local function handleDBLoad(database, force, defaults)
@@ -160,6 +138,10 @@ function addon:ExportAllProfiles()
   -- set current toc version
   local gameVersion = select(4, GetBuildInfo())
   local currentUIPack = addon:GetCurrentPack()
+  if not currentUIPack then
+    addon:AddonPrintError("No pack selected")
+    return
+  end
   currentUIPack.gameVersion = gameVersion
   -- set all export options from db
   for moduleName, options in pairs(addon.db.exportOptions) do
@@ -240,21 +222,86 @@ end
 
 function addon:AddDataToDataAddon()
   if not WagoUI_Data then return end
-  local currentUIPack = addon:GetCurrentPack()
-  local data = {
-    name = "Local Test Data",
-    profileMetadata = currentUIPack.profileMetadata,
-    resolutions = currentUIPack.resolutions,
-    releaseNotes = currentUIPack.releaseNotes,
-    profileKeys = currentUIPack.profileKeys,
-    profiles = currentUIPack.profiles,
-  }
-  WagoUI_Data.LocalTestData = data
+  for _, pack in pairs(addon:GetAllPacks()) do
+    local data = {
+      name = pack.localName,
+      profileMetadata = pack.profileMetadata,
+      resolutions = pack.resolutions,
+      releaseNotes = pack.releaseNotes,
+      profileKeys = pack.profileKeys,
+      profiles = pack.profiles,
+    }
+    WagoUI_Data[pack.localName] = data
+  end
 end
 
 function addon:GetCurrentPack()
+  if not addon.db.chosenPack then return end
+  return addon.db.creatorUI[addon.db.chosenPack]
+end
+
+function addon:GetAllPacks()
   return addon.db.creatorUI
-  -- return addon:GetCurrentPack()[db.chosenPack]
+end
+
+function addon.CreatePack()
+  local newName = addon.GetNewEditBoxText()
+  if not newName or string.len(newName) < 5 then
+    addon:AddonPrintError("Name too short")
+    return
+  end
+  if addon.db.creatorUI[newName] then
+    addon:AddonPrintError("Name already exists")
+    return
+  end
+  local newPack = {
+    localName = newName,
+    profileKeys = {
+      ["1080"] = {},
+      ["1440"] = {},
+    },
+    profiles = {
+      ["1080"] = {},
+      ["1440"] = {},
+    },
+    profileMetadata = {
+      ["1080"] = {},
+      ["1440"] = {},
+    },
+    releaseNotes = {},
+    resolutions = {
+      chosen = "1080",
+      enabled = {
+        ["1080"] = true,
+        ["1440"] = false,
+      },
+    }
+  }
+  addon.db.creatorUI[newName] = newPack
+  addon.db.chosenPack = newName
+
+  addon.UpdatePackSelectedUI()
+end
+
+function addon.DeleteCurrentPack()
+  if not addon.db.chosenPack then return end
+  addon.db.creatorUI[addon.db.chosenPack] = nil
+  addon.db.chosenPack = nil
+  addon.UpdatePackSelectedUI()
+end
+
+function addon:RefreshDropdown(dropdown)
+  dropdown:Refresh()
+  dropdown:Close()
+  local dropdownValue = dropdown:GetValue()
+  dropdown:Select(dropdownValue)
+  local values = {}
+  for _, v in pairs(dropdown.func()) do
+    if v.value then values[v.value] = true end
+  end
+  if not values[dropdownValue] then
+    dropdown:NoOptionSelected()
+  end
 end
 
 --needed if the profile data of the addons changes

@@ -169,7 +169,7 @@ local function createManageFrame()
   addon.frames.mainFrame:HookScript("OnHide", function()
     manageFrame:Hide()
   end)
-  hooksecurefunc(addon, "UpdateResolutionCheckedFromDB", function()
+  hooksecurefunc(addon, "UpdatePackSelectedUI", function()
     manageFrame:Hide()
   end)
 

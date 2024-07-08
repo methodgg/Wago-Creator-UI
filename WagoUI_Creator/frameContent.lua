@@ -27,6 +27,25 @@ end
 function addon:CreateProfileList(f, width, height)
   local function contentScrollboxUpdate(self, data, offset, totalLines)
     local currentUIPack = addon:GetCurrentPack()
+    -- hide all lines
+    for i = 1, totalLines do
+      local line = self:GetLine(i)
+      if not currentUIPack then
+        line:Hide()
+        line.icon:Hide()
+        line.nameLabel:SetText("")
+        line.initializationWarning:Hide()
+        line.manageButton:Hide()
+        line.profileDropdown:Hide()
+      else
+        line:Show()
+        line.icon:Show()
+        line.initializationWarning:Show()
+        line.manageButton:Show()
+        line.profileDropdown:Show()
+      end
+    end
+    if not currentUIPack then return end
     addon.ModuleFunctions:SortModuleConfigs()
     for i = 1, totalLines do
       local index = i + offset
@@ -226,27 +245,50 @@ function addon:CreateProfileList(f, width, height)
     totalHeight = totalHeight + maxHeight + 10 - yOffset
   end
 
-  -- local function getPacksForDropdown()
-  --   local packs = {}
-  --   local currentUIPack = addon:GetCurrentPack()
-  --   for _, pack in pairs(currentUIPack) do
-  --     local newPack = {
-  --       value = pack.name,
-  --       label = pack.name,
-  --       onclick = function()
-  --         db.chosenPack = pack.name
-  --         f.contentScrollbox:Refresh()
-  --       end
-  --     }
-  --     packs.insert(newPack)
-  --   end
-  --   return packs
-  -- end
+  local function getPacksForDropdown()
+    local packs = {}
+    for _, pack in pairs(addon:GetAllPacks()) do
+      local newPack = {
+        value = pack.localName,
+        label = pack.localName,
+        onclick = function()
+          db.chosenPack = pack.localName
+          addon.UpdatePackSelectedUI()
+        end
+      }
+      table.insert(packs, newPack)
+    end
+    return packs
+  end
 
-  -- local packDropdown = DF:CreateDropDown(f,  getPacksForDropdown, nil, 180, 30, nil, nil,
-  --   options_dropdown_template)
-  -- packDropdown:Select(db.chosenPack)
+  local packDropdown = DF:CreateDropDown(f, getPacksForDropdown, nil, 180, 30, nil, nil,
+    options_dropdown_template)
+  if not db.chosenPack then
+    packDropdown:NoOptionSelected()
+  else
+    packDropdown:Select(db.chosenPack)
+  end
+  f.packDropdown = packDropdown
 
+  local newPackEditBox = DF:CreateTextEntry(f, nil, 180, 30, nil, nil, nil, nil, nil, nil, nil, nil,
+    options_dropdown_template)
+
+  addon.GetNewEditBoxText = function()
+    return newPackEditBox:GetText()
+  end
+
+  local createNewPackButton = DF:CreateButton(f, nil, 150, 40, L["New Pack"], nil, nil, nil, nil, nil, nil,
+    options_dropdown_template)
+  createNewPackButton.text_overlay:SetFont(createNewPackButton.text_overlay:GetFont(), 16)
+  createNewPackButton:SetClickFunction(addon.CreatePack)
+  f.createNewPackButton = createNewPackButton
+
+  local deletePackButton = DF:CreateButton(f, nil, 150, 40, L["Delete"], nil, nil, nil, nil, nil, nil,
+    options_dropdown_template)
+  deletePackButton.text_overlay:SetFont(deletePackButton.text_overlay:GetFont(), 16)
+  deletePackButton:SetClickFunction(addon.DeleteCurrentPack)
+  f.deletePackButton = deletePackButton
+  addLine({ packDropdown, newPackEditBox, createNewPackButton, deletePackButton }, 5, -10)
 
   -- resolution explainer
   local resExplainerLabel = DF:CreateLabel(f, "Startup", 16, "white")
@@ -263,35 +305,55 @@ function addon:CreateProfileList(f, width, height)
       value = "1080",
       label = "1080x1920",
       onclick = function()
-        addon:GetCurrentPack().resolutions.chosen = "1080"
-        addon.UpdateResolutionCheckedFromDB()
+        local currentPack = addon:GetCurrentPack()
+        if not currentPack then return end
+        currentPack.resolutions.chosen = "1080"
+        addon.UpdatePackSelectedUI()
       end
     },
     {
       value = "1440",
       label = "1440x2560",
       onclick = function()
-        addon:GetCurrentPack().resolutions.chosen = "1440"
-        addon.UpdateResolutionCheckedFromDB()
+        local currentPack = addon:GetCurrentPack()
+        if not currentPack then return end
+        currentPack.resolutions.chosen = "1440"
+        addon.UpdatePackSelectedUI()
       end
     }
   }
   local resolutionDropdown = DF:CreateDropDown(f, function() return resolutions end, nil, 180, 30, nil, nil,
     options_dropdown_template)
-  resolutionDropdown:Select(addon:GetCurrentPack().resolutions.chosen)
   local resolutionCheckBox = DF:CreateSwitch(f,
     function(_, _, value)
-      local res = addon:GetCurrentPack().resolutions
-      res.enabled[res.chosen] = value
+      local currentPack = addon:GetCurrentPack()
+      if not currentPack then return end
+      currentPack.resolutions.enabled[currentPack.resolutions.chosen] = value
       f.contentScrollbox:Refresh()
     end,
     false, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, DF:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
   resolutionCheckBox:SetSize(25, 25)
   resolutionCheckBox:SetAsCheckBox()
   f.resolutionCheckBox = resolutionCheckBox
-  function addon.UpdateResolutionCheckedFromDB()
-    local res = addon:GetCurrentPack().resolutions
-    resolutionCheckBox:SetValue(res.enabled[res.chosen])
+
+  function addon.UpdatePackSelectedUI()
+    local currentPack = addon:GetCurrentPack()
+    if not currentPack then
+      resolutionDropdown:Disable()
+      resolutionCheckBox:Disable()
+      f.exportAllButton:Disable()
+      deletePackButton:Disable()
+    else
+      resolutionDropdown:Enable()
+      addon:RefreshDropdown(resolutionDropdown)
+      resolutionCheckBox:Enable()
+      resolutionDropdown:Select(currentPack.resolutions.chosen)
+      resolutionCheckBox:SetValue(currentPack.resolutions.enabled[currentPack.resolutions.chosen])
+      f.exportAllButton:Enable()
+      deletePackButton:Enable()
+    end
+    addon:RefreshDropdown(packDropdown)
+    packDropdown:Select(db.chosenPack)
     f.contentScrollbox:Refresh()
   end
 
@@ -353,7 +415,7 @@ function addon:CreateProfileList(f, width, height)
   addon.ModuleFunctions:SortModuleConfigs()
   contentScrollbox:SetData(addon.moduleConfigs)
   contentScrollbox:Refresh()
-  addon.UpdateResolutionCheckedFromDB()
+  addon.UpdatePackSelectedUI()
   -- TODO:
   -- hooksecurefunc(contentScrollbox, "Refresh", function()
   --   addon:RefreshAllProfileDropdowns()
