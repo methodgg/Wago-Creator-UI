@@ -25,8 +25,8 @@ do
 end
 
 function addon:CreateProfileList(f, width, height)
-  local currentUIPack = addon:GetCurrentPack()
   local function contentScrollboxUpdate(self, data, offset, totalLines)
+    local currentUIPack = addon:GetCurrentPack()
     addon.ModuleFunctions:SortModuleConfigs()
     for i = 1, totalLines do
       local index = i + offset
