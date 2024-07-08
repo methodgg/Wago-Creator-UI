@@ -67,10 +67,16 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight, en
     for i = 1, totalLines do
       local index = i + offset;
       local info = data[index];
+      local line = self:GetLine(i);
+      line.checkBox:Hide()
+      line.nameLabel:SetText("");
+      line.textEntry:Hide()
+      line.fallbackLabel:Hide()
+      line.importOverrideWarning:Hide()
+      line:SetBackdropColor(unpack({ .8, .8, .8, 0.1 }));
       if (info) then
         ---@class LibAddonProfilesModule
         local lap = info.lap
-        local line = self:GetLine(i);
         if lap.needsInitialization() then
           lap.openConfig()
           C_Timer.After(0, function()
