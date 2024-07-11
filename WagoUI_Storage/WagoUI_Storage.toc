@@ -1,6 +1,6 @@
 ## Interface: 110002
-## Title: |cFFC1272DWago|rUI Data
-## IconTexture: Interface\AddOns\WagoUI_Data\logo.png
+## Title: |cFFC1272DWago|rUI Storage
+## IconTexture: Interface\AddOns\WagoUI_Storage\logo.png
 ## Author: The Wago Team
 ## Version: 1.0.0
 ## DefaultState: Enabled

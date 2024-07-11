@@ -221,7 +221,7 @@ function addon:ExportAllProfiles()
 end
 
 function addon:AddDataToDataAddon()
-  if not WagoUI_Data then return end
+  if not WagoUI_Storage then return end
   for _, pack in pairs(addon:GetAllPacks()) do
     local data = {
       name = pack.localName,
@@ -231,7 +231,7 @@ function addon:AddDataToDataAddon()
       profileKeys = pack.profileKeys,
       profiles = pack.profiles,
     }
-    WagoUI_Data[pack.localName] = data
+    WagoUI_Storage[pack.localName] = data
   end
 end
 

@@ -5,7 +5,7 @@
 ## Version: 1.0.1
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
-## OptionalDeps: WagoUI_Creator, WagoUIData
+## OptionalDeps: WagoUI_Creator, WagoUI_Storage
 ## SavedVariables: WagoUIDB
 ## X-Wago-ID: O67jdaN3
 

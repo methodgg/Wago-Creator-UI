@@ -1,4 +1,4 @@
-WagoUI_Data = {
+WagoUI_Storage = {
   ["asdf123rvd"] = {
     ["localName"] = "Test 1",
     ["profileMetadata"] = {

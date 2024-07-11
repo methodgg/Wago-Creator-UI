@@ -5,19 +5,19 @@ local db
 function addon:SetupWagoData()
   db = addon.db
   if not db.selectedWagoData then
-    if WagoUI_Data then
-      for key in pairs(WagoUI_Data) do
+    if WagoUI_Storage then
+      for key in pairs(WagoUI_Storage) do
         db.selectedWagoData = key
         break
       end
     end
   end
-  if not WagoUI_Data or not WagoUI_Data[db.selectedWagoData] then
+  if not WagoUI_Storage or not WagoUI_Storage[db.selectedWagoData] then
     db.selectedWagoData = nil
     addon.wagoData = nil
     return
   end
-  local source = WagoUI_Data[db.selectedWagoData]
+  local source = WagoUI_Storage[db.selectedWagoData]
   addon.wagoData = {}
   for resolution, modules in pairs(source.profileKeys) do
     addon.wagoData[resolution] = {}
@@ -52,8 +52,8 @@ end
 
 function addon:GetWagoDataForDropdown()
   local wagoData = {}
-  if WagoUI_Data then
-    for key, data in pairs(WagoUI_Data) do
+  if WagoUI_Storage then
+    for key, data in pairs(WagoUI_Storage) do
       local entry = {
         value = key,
         label = data.localName,
@@ -72,10 +72,10 @@ end
 
 function addon:GetResolutionsForDropdown()
   local res = {}
-  local selectedWagoUI_Data = db.selectedWagoData and WagoUI_Data[db.selectedWagoData]
-  local resolutions = selectedWagoUI_Data and selectedWagoUI_Data.resolutions.enabled
+  local selectedWagoUI_Storage = db.selectedWagoData and WagoUI_Storage[db.selectedWagoData]
+  local resolutions = selectedWagoUI_Storage and selectedWagoUI_Storage.resolutions.enabled
 
-  if WagoUI_Data and resolutions then
+  if WagoUI_Storage and resolutions then
     for key, enabled in pairs(resolutions) do
       if enabled then
         local entry = {
