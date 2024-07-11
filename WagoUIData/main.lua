@@ -1,5 +1,5 @@
 WagoUI_Data = {
-  ["test 1"] = {
+  ["asdf123rvd"] = {
     ["localName"] = "Test 1",
     ["profileMetadata"] = {
       ["1080"] = {
@@ -43,7 +43,7 @@ WagoUI_Data = {
       },
     },
   },
-  ["test 2"] = {
+  ["asdf235234"] = {
     ["localName"] = "Test 2",
     ["profileMetadata"] = {
       ["1080"] = {
