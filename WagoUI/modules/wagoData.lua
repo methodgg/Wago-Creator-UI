@@ -56,7 +56,7 @@ function addon:GetWagoDataForDropdown()
     for key, data in pairs(WagoUI_Data) do
       local entry = {
         value = key,
-        label = data.name,
+        label = data.localName,
         onclick = function()
           db.selectedWagoData = key
           addon:SetupWagoData()

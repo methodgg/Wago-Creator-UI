@@ -6,4 +6,4 @@
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
 
-load.xml
+main.lua
