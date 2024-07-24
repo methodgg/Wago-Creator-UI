@@ -6,13 +6,6 @@ local pageName = "DirectProfilesPage"
 local installButton
 local filtered
 
-local onShow = function()
-  addon.state.currentPage = pageName
-  addon:ToggleNavgiationButton("prev", true)
-  addon:ToggleNavgiationButton("next", true)
-  addon:UpdateRegisteredDataConsumers()
-end
-
 local enabledStateCallback = function()
   local numEnabled = 0
   local numInvalid = 0
@@ -29,6 +22,14 @@ local enabledStateCallback = function()
   else
     installButton:SetEnabled(true)
   end
+end
+
+local onShow = function()
+  addon.state.currentPage = pageName
+  addon:ToggleNavgiationButton("prev", true)
+  addon:ToggleNavgiationButton("next", true)
+  addon:UpdateRegisteredDataConsumers()
+  enabledStateCallback()
 end
 
 local function createPage()
