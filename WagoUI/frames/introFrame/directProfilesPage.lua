@@ -64,7 +64,6 @@ local function createPage()
     list.updateData(filtered)
   end
   addon:RegisterDataConsumer(updateData)
-  addon:UpdateRegisteredDataConsumers()
   list.header:SetPoint("TOPLEFT", page, "TOPLEFT", 0, -60)
 
   installButton = addon.DF:CreateButton(page, 200, 50, L["Install Profiles"], 18)
