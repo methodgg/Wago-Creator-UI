@@ -47,11 +47,16 @@ function init()
   addon:SetupWagoData()
   addon:CreateCopyHelper()
   local mainFrame = addon:CreateMainFrame()
-  addon:CreateExpertFrame(mainFrame)
   addon:CreateIntroFrame(mainFrame)
+  addon:CreateAltFrame(mainFrame)
+  addon:CreateExpertFrame(mainFrame)
   if addon.db.introEnabled then
     addon:ShowIntroFrame()
+  elseif not addon.dbC.firstLogin then
+    addon:SuppressAddOnSpam()
+    addon:ShowAltFrame()
   else
     addon:ShowExpertFrame()
   end
+  addon.dbC.firstLogin = true
 end

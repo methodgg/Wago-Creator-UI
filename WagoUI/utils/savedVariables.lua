@@ -33,7 +33,6 @@ local function shouldAutoStart()
   end
   -- first login on this character
   if not addon.dbC.firstLogin then
-    addon.dbC.firstLogin = true
     return true, true
   end
   return false, false
