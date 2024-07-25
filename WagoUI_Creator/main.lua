@@ -224,7 +224,9 @@ function addon:AddDataToDataAddon()
   if not WagoUI_Storage then return end
   for _, pack in pairs(addon:GetAllPacks()) do
     local data = {
-      name = pack.localName,
+      accountName = '',
+      gameVersion = pack.gameVersion,
+      localName = pack.localName,
       profileMetadata = pack.profileMetadata,
       resolutions = pack.resolutions,
       releaseNotes = pack.releaseNotes,
