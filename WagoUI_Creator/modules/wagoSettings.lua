@@ -304,9 +304,15 @@ local function createManageFrame()
           db.enabledSpecs[classData.dataName][specIdx] = allChecked
           specSwitches[specId]:SetValue(allChecked)
         end
+        local _, specName = GetSpecializationInfoByID(specId)
+        updateSwitchAndLabelVisual(specIcons[specId], specLabels[specId], specName,
+          classData.dataName, allChecked)
       end
       if classSwitches[classData.dataName]:IsEnabled() then
         classSwitches[classData.dataName]:SetValue(allChecked)
+        updateSwitchAndLabelVisual(classIcons[classData.dataName], classLabels[classData.dataName], classData
+          .displayName,
+          classData.dataName, allChecked)
       end
     end
   end)
