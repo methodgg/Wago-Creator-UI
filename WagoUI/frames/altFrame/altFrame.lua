@@ -37,6 +37,7 @@ function addon:CreateAltFrame(f)
   header:SetWidth(altFrame:GetWidth() - 10)
   header:SetJustifyH("CENTER")
   header:SetPoint("LEFT", altFrame, "LEFT", 0, -80);
+  addon.frames.altFrame.header = header
 
   local cancelButton = addon.DF:CreateButton(altFrame, 220, 50, L["Cancel"], 22)
   cancelButton:SetPoint("CENTER", altFrame, "CENTER", 160, -180)
@@ -57,6 +58,10 @@ function addon:CreateAltFrame(f)
       end);
     end);
   end);
+end
+
+function addon:SetAltFrameHeaderText(text)
+  addon.frames.altFrame.header:SetText(text)
 end
 
 function addon:ShowAltFrame()

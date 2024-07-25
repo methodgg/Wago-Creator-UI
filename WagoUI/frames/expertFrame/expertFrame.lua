@@ -88,6 +88,13 @@ function addon:CreateExpertFrame(f)
     addon.db.introEnabled = true
   end);
 
+  local altButton = addon.DF:CreateButton(expertFrame, 160, 40, L["Alt Character"], 16)
+  altButton:SetClickFunction(function()
+    addon:SetAltFrameHeaderText(L["altFrameHeader3"])
+    addon.frames.altFrame:Show()
+    addon.frames.expertFrame:Hide()
+  end);
+
   -- TODO: An update all button is not really possible
   -- some modules require user input to continue importing/updating (WA / EchoRT)
 
@@ -100,7 +107,7 @@ function addon:CreateExpertFrame(f)
   -- end);
   -- f.updateAllButton = updateAllButton
 
-  addLine({ uiPackDropdown, resolutionDropdown, introButton --[[, updateAllButton ]] }, 0, 0)
+  addLine({ uiPackDropdown, resolutionDropdown, introButton, altButton --[[, updateAllButton ]] }, 0, 0)
 
   db.selectedWagoDataTab = db.selectedWagoDataTab or 1
   local profileTabButton = addon.DF:CreateTabButton(expertFrame, (frameWidth / 2) - 2, 40, L["Profiles"], 16)
