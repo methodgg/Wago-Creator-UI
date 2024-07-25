@@ -41,7 +41,7 @@ local function createPage()
   header:SetJustifyH("CENTER")
   header:SetPoint("TOPLEFT", page, "TOPLEFT", 0, -15);
 
-  local list = addon.DF:CreateProfileSelectionList(page, page:GetWidth(), page:GetHeight() - 260,
+  local list = addon.DF:CreateProfileSelectionList(page, page:GetWidth(), page:GetHeight() - 160,
     enabledStateCallback)
   local updateData = function(data)
     filtered = {}
