@@ -8,6 +8,7 @@ addon.colorRGB = {
   45 / 255,
 }
 addon.dbKey = "WagoUIDB"
+addon.dbCKey = "WagoUICDB"
 addon.slashPrefixes = {
   "/wago", "/wui", "/wagoui"
 }

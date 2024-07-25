@@ -12,15 +12,31 @@ local function handleDBLoad(database, force, defaults)
   end
 end
 
-local function setUpDB(dbKey)
+local function setUpDB(dbKey, dbCKey)
   _G[dbKey] = _G[dbKey] or {}
   addon.db = _G[dbKey]
+  _G[dbCKey] = _G[dbCKey] or {}
+  addon.dbC = _G[dbCKey] or {}
 end
 
 function addon.ResetOptions()
   _G[addon.dbKey] = nil;
+  _G[addon.dbCKey] = nil;
   handleDBLoad(addon.db, true, addon.dbDefaults);
   ReloadUI();
+end
+
+local function shouldAutoStart()
+  -- developer autostart
+  if addon.db.autoStart then
+    return true, false
+  end
+  -- first login on this character
+  if not addon.dbC.firstLogin then
+    addon.dbC.firstLogin = true
+    return true, true
+  end
+  return false, false
 end
 
 do
@@ -38,7 +54,7 @@ do
       local loadedAddonName = ...;
       if (loadedAddonName == addonName) then
         eventListener:UnregisterEvent("ADDON_LOADED");
-        setUpDB(addon.dbKey);
+        setUpDB(addon.dbKey, addon.dbCKey);
         handleDBLoad(addon.db, nil, addon.dbDefaults);
         --have to do this on next frame
         C_Timer.After(0, function()
@@ -49,7 +65,11 @@ do
       end
     elseif (event == "PLAYER_ENTERING_WORLD") then
       eventListener:UnregisterEvent("PLAYER_ENTERING_WORLD");
-      if addon.db.autoStart then
+      local shouldStart, firstLogin = shouldAutoStart()
+      if firstLogin then
+        addon:SuppressAddOnSpam()
+      end
+      if shouldStart then
         addon:ShowFrame()
       end
     end
