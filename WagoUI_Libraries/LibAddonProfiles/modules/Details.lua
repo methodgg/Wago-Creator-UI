@@ -120,7 +120,7 @@ end
 
 ---@param profileString string
 ---@param profileKey string
-local importProfile = function(profileString, profileKey)
+local importProfile = function(profileString, profileKey, fromIntro)
   Details:ImportProfile(profileString, profileKey, nil, true, true);
 end
 

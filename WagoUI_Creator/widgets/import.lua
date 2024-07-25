@@ -84,7 +84,7 @@ local function onSuccessfulTest(moduleName, module, profileKey, profileString)
       end
 
       local importClickCallback = function()
-        module.importProfile(profileString, tempProfileKey)
+        module.importProfile(profileString, tempProfileKey, false)
         feedbackString = string.format("\n\n|cFF00FF00Profile %s successfully imported into %s|r", tempProfileKey,
           moduleName)
         if module.needReloadOnImport then

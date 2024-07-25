@@ -167,7 +167,7 @@ end
 
 ---@param profileString string
 ---@param profileKey string
-local importProfile = function(profileString, profileKey)
+local importProfile = function(profileString, profileKey, fromIntro)
   local success, data
   success, data = UnserializeProfile(profileString, true)
   if not success or not data then return end

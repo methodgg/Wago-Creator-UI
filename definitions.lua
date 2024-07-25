@@ -24,7 +24,7 @@
 ---@field preventRename boolean?
 ---@field exportProfile fun(profileKey: string) : string | nil
 ---@field setExportOptions fun(options: table) : nil
----@field importProfile fun(profileString: string, profileKey: string)
+---@field importProfile fun(profileString: string, profileKey: string, fromIntro: boolean) : nil
 ---@field testImport fun(profileString: string, profileKey: string | nil, profileData: table| nil, rawData: table | nil) : string | nil
 ---@field isDuplicate fun(profileKey: string) : boolean
 ---@field needReloadOnImport? boolean

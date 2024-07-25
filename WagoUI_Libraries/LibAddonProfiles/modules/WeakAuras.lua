@@ -166,7 +166,7 @@ end
 
 ---@param profileString string
 ---@param profileKey string
-local importProfile = function(profileString, profileKey)
+local importProfile = function(profileString, profileKey, fromIntro)
   local data = decodeWeakAuraString(profileString);
   WeakAuras.Import(data);
 end

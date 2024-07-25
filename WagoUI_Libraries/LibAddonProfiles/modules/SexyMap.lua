@@ -63,7 +63,7 @@ end
 
 ---@param profileString string
 ---@param profileKey string
-local importProfile = function(profileString, profileKey)
+local importProfile = function(profileString, profileKey, fromIntro)
   local _, pData = private:GenericDecode(profileString)
   if not pData then return end
   if profileKey == "global" then

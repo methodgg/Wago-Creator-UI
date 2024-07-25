@@ -42,7 +42,7 @@ end
 
 ---@param profileString string
 ---@param profileKey string
-local importProfile = function(profileString, profileKey)
+local importProfile = function(profileString, profileKey, fromIntro)
   EchoCooldowns.importStringExternal(profileString)
 end
 

@@ -65,7 +65,7 @@ end
 
 ---@param profileString string
 ---@param profileKey string
-local importProfile = function(profileString, profileKey)
+local importProfile = function(profileString, profileKey, fromIntro)
   local E = ElvUI[1]
   local D = E:GetModule('Distributor')
   local _, _, data = D:Decode(profileString)
@@ -77,6 +77,10 @@ local importProfile = function(profileString, profileKey)
     end
     ElvDB.profiles[profileKey] = data
     E.data:SetProfile(profileKey)
+  end
+  if fromIntro then
+    E.global.general.UIScale = E:PixelBestSize()
+    E:PixelScaleChanged()
   end
 end
 

@@ -202,7 +202,7 @@ end
 
 ---@param profileString string
 ---@param profileKey string
-local importProfile = function(profileString, profileKey)
+local importProfile = function(profileString, profileKey, fromIntro)
   local _, _, profile = private:GenericDecode(profileString)
   if not profile then return end
   doProfileImport(profileKey, profile, true, false)

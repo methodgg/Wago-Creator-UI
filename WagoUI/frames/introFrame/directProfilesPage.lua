@@ -86,7 +86,9 @@ local function createPage()
     addon:Async(function()
       for _, entry in ipairs(filtered) do
         if entry.enabled and entry.loaded then
-          entry.lap.importProfile(entry.profile, entry.profileKey)
+          ---@type LibAddonProfilesModule
+          local lap = entry.lap
+          lap.importProfile(entry.profile, entry.profileKey, true)
           addon:StoreImportedProfileTimestamp(entry.profileMetadata.lastUpdatedAt, entry.moduleName, entry.profileKey)
           if entry.lap.needReloadOnImport then
             addon:ToggleReloadIndicator(true)

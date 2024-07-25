@@ -106,7 +106,7 @@ end
 
 ---@param profileString string
 ---@param profileKey string
-local importProfile = function(profileString, profileKey)
+local importProfile = function(profileString, profileKey, fromIntro)
   EditModeManagerFrame:Show()
   removeProfile(profileKey) --need to remove old profile with same name first for updating to work and not be confusing
   local newLayoutInfo = C_EditMode.ConvertStringToLayoutInfo(profileString);
