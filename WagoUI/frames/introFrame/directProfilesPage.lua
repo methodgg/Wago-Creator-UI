@@ -105,6 +105,7 @@ local function createPage()
       end
       addon.copyHelper:SmartHide()
       addon.copyHelper:SmartFadeOut(2, L["Done"], UIParent, 0, 0)
+      addon.db.anyInstalled = true
       addon:NextPage()
     end, "installProfiles")
   end);

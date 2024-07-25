@@ -52,11 +52,14 @@ function init()
   addon:CreateExpertFrame(mainFrame)
   if addon.db.introEnabled then
     addon:ShowIntroFrame()
-  elseif not addon.dbC.firstLogin then
-    addon:SuppressAddOnSpam()
+  elseif not addon.dbC.hasLoggedIn and addon.db.anyInstalled then
     addon:ShowAltFrame()
   else
     addon:ShowExpertFrame()
   end
-  addon.dbC.firstLogin = true
+  if not addon.dbC.hasLoggedIn or not addon.db.hasLoggedInEver then
+    addon:SuppressAddOnSpam()
+  end
+  addon.dbC.hasLoggedIn = true
+  addon.db.hasLoggedInEver = true
 end

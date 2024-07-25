@@ -29,13 +29,17 @@ end
 local function shouldAutoStart()
   -- developer autostart
   if addon.db.autoStart then
-    return true, false
+    return true
   end
-  -- first login on this character
-  if not addon.dbC.firstLogin then
-    return true, true
+  -- first login on this character and user has installed on another character
+  if not addon.dbC.hasLoggedIn and addon.db.anyInstalled then
+    return true
   end
-  return false, false
+  -- first login ever
+  if not addon.db.hasLoggedInEver then
+    return true
+  end
+  return false
 end
 
 do
@@ -64,11 +68,7 @@ do
       end
     elseif (event == "PLAYER_ENTERING_WORLD") then
       eventListener:UnregisterEvent("PLAYER_ENTERING_WORLD");
-      local shouldStart, firstLogin = shouldAutoStart()
-      if firstLogin then
-        addon:SuppressAddOnSpam()
-      end
-      if shouldStart then
+      if shouldAutoStart() then
         addon:ShowFrame()
       end
     end
