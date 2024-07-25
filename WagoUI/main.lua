@@ -1,32 +1,9 @@
 local addonName, addon = ...;
 _G[addonName] = addon;
 local DF = _G["DetailsFramework"];
-local db
 local init
 
 addon.frames = {};
-
-function addon:ShowFrame()
-  if not addon.framesCreated then
-    init()
-    addon.framesCreated = true
-    addon.frames.mainFrame:Show();
-  else
-    addon.frames.mainFrame:Show();
-  end
-end
-
-function addon:HideFrame()
-  addon.frames.mainFrame:Hide();
-end
-
-function addon:ToggleFrame()
-  if (addon.frames and addon.frames.mainFrame and addon.frames.mainFrame:IsShown()) then
-    addon:HideFrame();
-  else
-    addon:ShowFrame();
-  end
-end
 
 function addon.ShowAddonResetPrompt()
   DF:ShowPromptPanel("Reset?"
@@ -40,6 +17,26 @@ function addon.ShowAddonResetPrompt()
     nil,
     nil)
   DetailsFrameworkPromptSimple:SetHeight(100)
+end
+
+function addon:ToggleFrame()
+  if (addon.frames and addon.frames.mainFrame and addon.frames.mainFrame:IsShown()) then
+    addon:HideFrame();
+  else
+    addon:ShowFrame();
+  end
+end
+
+function addon:HideFrame()
+  addon.frames.mainFrame:Hide();
+end
+
+function addon:ShowFrame()
+  if not addon.framesCreated then
+    init()
+    addon.framesCreated = true
+  end
+  addon.frames.mainFrame:Show();
 end
 
 function init()
