@@ -81,7 +81,7 @@ function addon:CreateExpertFrame(f)
     end
   end
 
-  local introButton = addon.DF:CreateButton(expertFrame, 100, 40, "Intro", 16)
+  local introButton = addon.DF:CreateButton(expertFrame, 100, 40, L["Intro"], 16)
   introButton:SetClickFunction(function()
     addon.frames.introFrame:Show()
     addon.frames.expertFrame:Hide()
@@ -103,8 +103,8 @@ function addon:CreateExpertFrame(f)
   addLine({ uiPackDropdown, resolutionDropdown, introButton --[[, updateAllButton ]] }, 0, 0)
 
   db.selectedWagoDataTab = db.selectedWagoDataTab or 1
-  local profileTabButton = addon.DF:CreateTabButton(expertFrame, (frameWidth / 2) - 2, 40, "Profiles", 16)
-  local weakaurasTabButton = addon.DF:CreateTabButton(expertFrame, (frameWidth / 2) - 2, 40, "Weakauras", 16)
+  local profileTabButton = addon.DF:CreateTabButton(expertFrame, (frameWidth / 2) - 2, 40, L["Profiles"], 16)
+  local weakaurasTabButton = addon.DF:CreateTabButton(expertFrame, (frameWidth / 2) - 2, 40, L["Weakauras"], 16)
   addLine({ profileTabButton, weakaurasTabButton }, 0, 0, 0, 0)
 
   local profileList = addon.DF:CreateProfileList(expertFrame, frameWidth, frameHeight - totalHeight + 4)
