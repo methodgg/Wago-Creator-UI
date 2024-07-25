@@ -104,7 +104,7 @@ function addon:CreateExpertFrame(f)
 
   db.selectedWagoDataTab = db.selectedWagoDataTab or 1
   local profileTabButton = addon.DF:CreateTabButton(expertFrame, (frameWidth / 2) - 2, 40, L["Profiles"], 16)
-  local weakaurasTabButton = addon.DF:CreateTabButton(expertFrame, (frameWidth / 2) - 2, 40, L["Weakauras"], 16)
+  local weakaurasTabButton = addon.DF:CreateTabButton(expertFrame, (frameWidth / 2) - 2, 40, L["WeakAuras"], 16)
   addLine({ profileTabButton, weakaurasTabButton }, 0, 0, 0, 0)
 
   local profileList = addon.DF:CreateProfileList(expertFrame, frameWidth, frameHeight - totalHeight + 4)
