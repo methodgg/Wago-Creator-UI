@@ -1,6 +1,8 @@
 local addonName, addon = ...;
 local L = addon.L
 
+addon.debug = true
+
 addon.color = "FFC1272D";
 addon.colorRGB = {
   193 / 255,

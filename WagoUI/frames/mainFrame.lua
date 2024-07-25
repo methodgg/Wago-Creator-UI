@@ -66,14 +66,23 @@ function addon:CreateMainFrame()
   autoStartCheckbox:SetAsCheckBox()
   autoStartCheckbox:SetPoint("TOPLEFT", frame, "TOPRIGHT", 10, 0)
   autoStartCheckbox:SetValue(addon.db.autoStart)
+  autoStartCheckbox:Hide()
 
   local resetButton = addon.DF:CreateButton(frame, 60, 40, "RESET", 16)
   resetButton:SetPoint("TOPLEFT", frame, "TOPRIGHT", 0, -30);
   resetButton:SetClickFunction(addon.ShowAddonResetPrompt);
+  resetButton:Hide()
 
   local forceErrorButton = addon.DF:CreateButton(frame, 120, 40, "Force Error", 16)
   forceErrorButton:SetPoint("TOPLEFT", frame, "TOPRIGHT", 0, -80);
   forceErrorButton:SetClickFunction(addon.TestErrorHandling);
+  forceErrorButton:Hide()
+
+  if addon.debug then
+    autoStartCheckbox:Show()
+    resetButton:Show()
+    forceErrorButton:Show()
+  end
 
   addon.frames.mainFrame = frame;
 
