@@ -9,3 +9,9 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 # max_line_length = 500
 space_around_concat_operator = false
+
+[*.yml]
+indent_size = 2
+
+[*.json]
+indent_size = 4
