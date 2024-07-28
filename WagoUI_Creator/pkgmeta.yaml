@@ -1,4 +1,4 @@
-manual-changelog: CHANGELOG.txt
+manual-changelog: CHANGELOG.md
 ignore:
   - README.md
   - definitions.lua

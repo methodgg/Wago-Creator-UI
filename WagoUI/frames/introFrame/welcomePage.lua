@@ -9,8 +9,8 @@ local uiPackDropdown
 local onShow = function()
   addon.state.currentPage = pageName
   addon:ToggleStatusBar(false)
-  addon:ToggleNavgiationButton("prev", false)
-  addon:ToggleNavgiationButton("next", false)
+  addon:ToggleNavigationButton("prev", false)
+  addon:ToggleNavigationButton("next", false)
   if uiPackDropdown then
     uiPackDropdown:Select(addon.db.selectedWagoData)
   end

@@ -5,8 +5,8 @@ local L = addon.L
 local pageName = "IndirectProfilesPage"
 
 local onShow = function()
-  addon:ToggleNavgiationButton("prev", true)
-  addon:ToggleNavgiationButton("next", true)
+  addon:ToggleNavigationButton("prev", true)
+  addon:ToggleNavigationButton("next", true)
 end
 
 local function createPage()

@@ -36,7 +36,7 @@ jobs:
 
       # bigwigs packager needs the toc file and changelog to be in the root directory
       - name: copy toc file and changelog
-        run: cp WagoUI_Creator/WagoUI_Creator_Mainline.toc WagoUI_Creator_Mainline.toc && cp WagoUI_Creator/CHANGELOG.txt CHANGELOG.txt
+        run: cp WagoUI_Creator/WagoUI_Creator_Mainline.toc WagoUI_Creator_Mainline.toc && cp WagoUI_Creator/CHANGELOG.md CHANGELOG.md
 
       # once cloned, we just run the GitHub Action for the packager project
       - name: Package and release

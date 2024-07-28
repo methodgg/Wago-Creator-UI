@@ -4,14 +4,14 @@ local ModuleFunctions = addon.ModuleFunctions
 local LAP = LibStub:GetLibrary("LibAddonProfiles")
 
 function ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKeys, currentProfileKey)
-  local currrentUIPack = addon:GetCurrentPack()
+  local currentUIPack = addon:GetCurrentPack()
   tinsert(res, {
     value = 1,
     label = "|A:common-icon-redx:16:16|a|cff808080None|r",
     onclick = function(dropdown)
       dropdown:NoOptionSelected()
-      currrentUIPack.profileKeys[currrentUIPack.resolutions.chosen][moduleName] = nil
-      currrentUIPack.profiles[currrentUIPack.resolutions.chosen][moduleName] = nil
+      currentUIPack.profileKeys[currentUIPack.resolutions.chosen][moduleName] = nil
+      currentUIPack.profiles[currentUIPack.resolutions.chosen][moduleName] = nil
     end
   })
 
@@ -21,7 +21,7 @@ function ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKe
       value = profileKey,
       label = coloredProfileKey,
       onclick = function()
-        currrentUIPack.profileKeys[currrentUIPack.resolutions.chosen][moduleName] = profileKey
+        currentUIPack.profileKeys[currentUIPack.resolutions.chosen][moduleName] = profileKey
       end
     })
   end
@@ -30,29 +30,29 @@ function ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKe
 end
 
 local function exportFunc(moduleName, resolution, exportProfileFunc, timestamp)
-  local currrentUIPack = addon:GetCurrentPack()
-  local newExport = exportProfileFunc(currrentUIPack.profileKeys[resolution][moduleName])
-  local oldExport = currrentUIPack.profiles[resolution][moduleName]
+  local currentUIPack = addon:GetCurrentPack()
+  local newExport = exportProfileFunc(currentUIPack.profileKeys[resolution][moduleName])
+  local oldExport = currentUIPack.profiles[resolution][moduleName]
   ---@class LibAddonProfilesModule
   local lapModule = LAP:GetModule(moduleName)
   local areEqual, changedEntries, removedEntries = lapModule.areProfileStringsEqual(oldExport, newExport)
   if areEqual then return false end
   --stuff changed, we need to handle it
   --set the profile, time of export
-  currrentUIPack.profileMetadata[resolution][moduleName] = currrentUIPack.profileMetadata[resolution]
+  currentUIPack.profileMetadata[resolution][moduleName] = currentUIPack.profileMetadata[resolution]
       [moduleName] or {}
   if moduleName == "WeakAuras" or moduleName == "Echo Raid Tools" then
-    currrentUIPack.profileMetadata[resolution][moduleName].lastUpdatedAt = currrentUIPack.profileMetadata
+    currentUIPack.profileMetadata[resolution][moduleName].lastUpdatedAt = currentUIPack.profileMetadata
         [resolution][moduleName].lastUpdatedAt or {}
     if changedEntries then
       for key in pairs(changedEntries) do
-        currrentUIPack.profileMetadata[resolution][moduleName].lastUpdatedAt[key] = timestamp
+        currentUIPack.profileMetadata[resolution][moduleName].lastUpdatedAt[key] = timestamp
       end
     end
-    currrentUIPack.profiles[resolution][moduleName] = newExport
+    currentUIPack.profiles[resolution][moduleName] = newExport
   else
-    currrentUIPack.profileMetadata[resolution][moduleName].lastUpdatedAt = timestamp
-    currrentUIPack.profiles[resolution][moduleName] = newExport
+    currentUIPack.profileMetadata[resolution][moduleName].lastUpdatedAt = timestamp
+    currentUIPack.profiles[resolution][moduleName] = newExport
   end
   return true, changedEntries, removedEntries
 end

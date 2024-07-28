@@ -82,7 +82,7 @@ function addon:CreateIntroFrame(f)
     addon:PrevPage()
   end);
 
-  function addon:ToggleNavgiationButton(type, show)
+  function addon:ToggleNavigationButton(type, show)
     local button = type == "next" and nextButton or type == "prev" and prevButton
     if not button then return end
     if show then

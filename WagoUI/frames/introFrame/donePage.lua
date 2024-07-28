@@ -7,8 +7,8 @@ local reloadButton
 
 local onShow = function()
   addon.state.currentPage = pageName
-  addon:ToggleNavgiationButton("prev", true)
-  addon:ToggleNavgiationButton("next", false)
+  addon:ToggleNavigationButton("prev", true)
+  addon:ToggleNavigationButton("next", false)
   if addon.state.needReload then
     reloadButton:SetText(L["Reload UI"])
   else

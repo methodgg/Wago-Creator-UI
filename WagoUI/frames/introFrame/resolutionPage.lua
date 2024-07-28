@@ -36,8 +36,8 @@ local function addButtonToPage(button, i, total)
 end
 
 local onShow = function()
-  addon:ToggleNavgiationButton("prev", true)
-  addon:ToggleNavgiationButton("next", false)
+  addon:ToggleNavigationButton("prev", true)
+  addon:ToggleNavigationButton("next", false)
   addon:ToggleStatusBar(true)
   for _, button in pairs(resolutionButtons) do
     button:Hide()

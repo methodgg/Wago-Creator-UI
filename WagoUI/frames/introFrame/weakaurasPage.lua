@@ -6,8 +6,8 @@ local pageName = "WeakAurasPage"
 
 local onShow = function()
   addon.state.currentPage = pageName
-  addon:ToggleNavgiationButton("prev", true)
-  addon:ToggleNavgiationButton("next", true)
+  addon:ToggleNavigationButton("prev", true)
+  addon:ToggleNavigationButton("next", true)
 end
 
 
