@@ -5,7 +5,7 @@ local db
 local L = addon.L
 
 -- Helpers for creating common widgets in the DetailsFramework
--- We want to simplyfy the creation of widgets in our style and make it easier to maintain
+-- We want to simplify the creation of widgets in our style and make it easier to maintain
 
 addon.DF = {}
 

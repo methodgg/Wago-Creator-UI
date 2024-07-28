@@ -6,7 +6,7 @@ if (not private) then return; end
 local function compressData(data)
   local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
   local LibAceSerializer = LibStub:GetLibrary("AceSerializer-3.0Async")
-  --check if there isn't funtions in the data to export
+  --check if there isn't a function in the data to export
   local dataCopied = DetailsFramework.table.copytocompress({}, data)
   if (LibDeflate and LibAceSerializer) then
     local dataSerialized = LibAceSerializer:Serialize(dataCopied)
@@ -130,7 +130,7 @@ local exportProfile = function(profileKey)
   --functions\profiles.lua
   if not profileKey then return nil end
   --need to call this so changes to the current profile are committed to the Details SavedVariables
-  --TODO: logout still applys some changes to the data, not sure what this is about
+  --TODO: logout still applies some changes to the data, not sure what this is about
   --      the important profile data is saved here, just might trigger additional versions
   Details.SaveProfile(profileKey)
   local profileObject = Details:GetProfile(profileKey)
@@ -140,7 +140,7 @@ local exportProfile = function(profileKey)
   local playerData = {}
   --data saved for the account
   local defaultGlobalData = Details.default_global_data
-  local globaData = {}
+  local globalData = {}
   --fill player and global data tables
   for key, _ in pairs(defaultPlayerData) do
     if (not exportProfileBlacklist[key]) then
@@ -155,9 +155,9 @@ local exportProfile = function(profileKey)
   for key, _ in pairs(defaultGlobalData) do
     if (not exportProfileBlacklist[key]) then
       if (type(Details[key]) == "table") then
-        globaData[key] = DetailsFramework.table.copy({}, Details[key])
+        globalData[key] = DetailsFramework.table.copy({}, Details[key])
       else
-        globaData[key] = Details[key]
+        globalData[key] = Details[key]
       end
     end
     coroutine.yield()
@@ -166,7 +166,7 @@ local exportProfile = function(profileKey)
   local exportedData = {
     profile = profileObject,
     playerData = playerData,
-    globaData = globaData,
+    globalData = globalData,
     version = 1,
   }
   return compressData(exportedData)

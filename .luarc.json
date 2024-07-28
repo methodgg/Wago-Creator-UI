@@ -91,7 +91,21 @@
         "ShadowedUFDB",
         "ShadowUF",
         "WeakAurasSaved",
-        "WeakAuras"
+        "WeakAuras",
+        "vdt",
+        "DetailsFramework",
+        "Grid2Options",
+        "Grid2Layout",
+        "OmniCCDB",
+        "SexyMap",
+        "TalentLoadoutsEx",
+        "TalentLoadoutsExGUI",
+        "TLX",
+        "TipTac",
+        "TipTacOptions",
+        "WeakAurasOptions",
+        "DetailsOptionsWindow",
+        "EchoRaidToolsMainFrame"
     ],
     "diagnostics.disable": [
         "lowercase-global",
