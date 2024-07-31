@@ -18,4 +18,5 @@
 	<Include file="weakAuras.lua"/>
 	<Include file="echoRaidTools.lua"/>
 	<Include file="omnicd.lua"/>
+	<Include file="cell.lua"/>
 </Ui>

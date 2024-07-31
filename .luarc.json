@@ -107,7 +107,11 @@
         "DetailsOptionsWindow",
         "EchoRaidToolsMainFrame",
         "OmniCD",
-        "OmniCDDB"
+        "OmniCDDB",
+        "CellChangelogsFrame",
+        "Cell",
+        "CellDB",
+        "CellCharacterDB"
     ],
     "diagnostics.disable": [
         "lowercase-global",

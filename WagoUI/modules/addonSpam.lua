@@ -20,6 +20,7 @@ local function hideAddOnPopups()
       SplashFrame.BottomCloseButton:Click()
     end
   end
+  if CellChangelogsFrame then CellChangelogsFrame:Hide() end
 end
 
 function addon:SuppressAddOnSpam()
