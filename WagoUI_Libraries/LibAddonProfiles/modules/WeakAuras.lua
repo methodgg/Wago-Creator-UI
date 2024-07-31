@@ -371,7 +371,7 @@ local exportGroup = function(id)
     end
     return TableToString(transmit);
   else
-    return "";
+    return nil;
   end
 end
 
