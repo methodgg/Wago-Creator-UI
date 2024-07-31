@@ -59,8 +59,8 @@ function addon:GetWagoDataForDropdown()
         label = data.localName,
         onclick = function()
           db.selectedWagoData = key
-          addon:SetupWagoData()
           addon:RefreshResolutionDropdown()
+          addon:SetupWagoData()
           addon:UpdateRegisteredDataConsumers()
         end
       }

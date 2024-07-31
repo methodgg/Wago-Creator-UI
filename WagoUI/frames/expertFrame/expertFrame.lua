@@ -62,7 +62,12 @@ function addon:CreateExpertFrame(f)
   local resolutionDropdownFunc = function() return addon:GetResolutionsForDropdown() end
   resolutionDropdown = addon.DF:CreateDropdown(expertFrame, 180, 40, 16, 1.2, resolutionDropdownFunc)
   if not db.selectedWagoDataResolution then
-    resolutionDropdown:NoOptionSelected()
+    if resolutionDropdown.func()[1] and resolutionDropdown.func()[1].value then
+      resolutionDropdown:Select(resolutionDropdown.func()[1].value)
+      db.selectedWagoDataResolution = resolutionDropdown.func()[1].value
+    else
+      resolutionDropdown:NoOptionSelected()
+    end
   else
     resolutionDropdown:Select(db.selectedWagoDataResolution)
   end
@@ -76,8 +81,14 @@ function addon:CreateExpertFrame(f)
       if v.value then values[v.value] = true end
     end
     if not db.selectedWagoDataResolution or not values[db.selectedWagoDataResolution] then
-      resolutionDropdown:NoOptionSelected()
-      db.selectedWagoDataResolution = nil
+      --pick first one
+      if resolutionDropdown.func()[1] and resolutionDropdown.func()[1].value then
+        resolutionDropdown:Select(resolutionDropdown.func()[1].value)
+        db.selectedWagoDataResolution = resolutionDropdown.func()[1].value
+      else
+        resolutionDropdown:NoOptionSelected()
+        db.selectedWagoDataResolution = nil
+      end
     end
   end
 
