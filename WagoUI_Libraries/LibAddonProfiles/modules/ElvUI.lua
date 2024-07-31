@@ -21,7 +21,7 @@ end
 
 ---@return nil
 local closeConfig = function()
-  local E = unpack(ElvUI)
+  local E = ElvUI[1]
   E.Config_CloseWindow()
 end
 
@@ -32,13 +32,13 @@ end
 
 ---@return string
 local getCurrentProfileKey = function()
-  local E = unpack(ElvUI)
+  local E = ElvUI[1]
   return ElvDB.profileKeys and ElvDB.profileKeys[E.mynameRealm]
 end
 
 ---@param profileKey string
 local setProfile = function(profileKey)
-  local E = unpack(ElvUI)
+  local E = ElvUI[1]
   E.data:SetProfile(profileKey)
 end
 
@@ -68,16 +68,8 @@ end
 local importProfile = function(profileString, profileKey, fromIntro)
   local E = ElvUI[1]
   local D = E:GetModule('Distributor')
-  local _, _, data = D:Decode(profileString)
-  if not data then return end
-  data = E:FilterTableFromBlacklist(data, D.blacklistedKeys.profile)
-  if not ElvDB.profiles[profileKey] then
-    if E.data.keys.profile == profileKey then
-      E.data.keys.profile = profileKey..'_Temp'
-    end
-    ElvDB.profiles[profileKey] = data
-    E.data:SetProfile(profileKey)
-  end
+  local success = D:ImportProfile(profileString)
+  if not success then return end
   if fromIntro then
     E.global.general.UIScale = E:PixelBestSize()
     E:PixelScaleChanged()
@@ -87,28 +79,11 @@ end
 ---@param profileKey string | nil
 ---@return string | nil
 local exportProfile = function(profileKey)
-  local LibDeflate = LibStub:GetLibrary("LibDeflateAsync");
-  --Core\General\Distributor.lua
   if not profileKey then return nil end
-  local E, L, V, P, G = unpack(ElvUI)
+  --Core\General\Distributor.lua
+  local E = ElvUI[1]
   local D = E:GetModule('Distributor')
-  local profileType = "profile"
-  local profileData = {}
-  profileData = E:CopyTable(profileData, ElvDB.profiles[profileKey])
-  coroutine.yield()
-  profileData = E:RemoveTableDuplicates(profileData, P, D.GeneratedKeys.profile)
-  coroutine.yield()
-  profileData = E:FilterTableFromBlacklist(profileData, D.blacklistedKeys.profile)
-  coroutine.yield()
-  local serialData = D:Serialize(profileData)
-  coroutine.yield()
-  local exportString = D:CreateProfileExport(serialData, profileType, profileKey)
-  coroutine.yield()
-  local compressedData = LibDeflate:CompressDeflate(exportString, { level = 5 })
-  coroutine.yield()
-  local printableString = LibDeflate:EncodeForPrint(compressedData)
-  coroutine.yield()
-  local profileExport = printableString and format('%s%s', EXPORT_PREFIX, printableString) or nil
+  local _, profileExport = D:GetProfileExport("profile", profileKey, "text")
   return profileExport
 end
 
