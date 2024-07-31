@@ -83,7 +83,7 @@ local exportProfile = function(profileKey)
   --Core\General\Distributor.lua
   local E = ElvUI[1]
   local D = E:GetModule('Distributor')
-  local _, profileExport = D:GetProfileExport("profile", "text", profileKey)
+  local _, profileExport = D:GetProfileExport("profile", profileKey, "text")
   return profileExport
 end
 
