@@ -11,7 +11,7 @@ end
 
 ---@return boolean
 local needsInitialization = function()
-  return true
+  return false
 end
 
 ---@return nil
