@@ -10,7 +10,7 @@
 ---@field GenericDecode fun(self, profileString : string) : string | nil, table | nil, table | nil
 ---@field DeepCompareAsync fun(self, tableA : table, tableB : table, ignoredKeys: table | nil) : boolean
 ---@field PrintError fun(self, ...)
----@field LibSerializeSerializeAsyncEx fun(self, configForLS : table , inTable: table) : string
+---@field LibSerializeSerializeAsyncEx fun(self, configForLS : table | nil , inTable: table) : string
 ---@field LibSerializeDeserializeAsync fun(self, serialized: string) : table
 
 ---@class LibAddonProfilesModule : table
@@ -63,7 +63,7 @@
 ---@field Deserialize fun(self: AceSerializer-3.0Async, input: string): boolean, table | nil
 
 ---@class LibSerialize
----@field SerializeAsyncEx fun(self:LibSerialize, configForLS: table, inTable: table) : function
+---@field SerializeAsyncEx fun(self:LibSerialize, configForLS: table | nil, inTable: table) : function
 ---@field DeserializeAsync fun(self:LibSerialize, serialized: string) : function
 
 ---@class LibAsync : table
