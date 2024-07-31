@@ -66,6 +66,8 @@ end
 ---@param profileString string
 ---@param profileKey string
 local importProfile = function(profileString, profileKey, fromIntro)
+  -- TODO: do we even want to change this to use D:ImportProfile?
+  -- seems simple enough as it is and sets the profile key (maybe this is not wanted?)
   local E = ElvUI[1]
   local D = E:GetModule('Distributor')
   local _, _, data = D:Decode(profileString)
@@ -78,28 +80,11 @@ end
 ---@param profileKey string | nil
 ---@return string | nil
 local exportProfile = function(profileKey)
-  local LibDeflate = LibStub:GetLibrary("LibDeflateAsync");
-  --Core\General\Distributor.lua
   if not profileKey then return nil end
-  local E, _, V = unpack(ElvUI)
+  --Core\General\Distributor.lua
+  local E = ElvUI[1]
   local D = E:GetModule('Distributor')
-  local profileType = "private"
-  local profileData = {}
-  profileData = E:CopyTable(profileData, ElvPrivateDB.profiles[profileKey])
-  coroutine.yield()
-  profileData = E:RemoveTableDuplicates(profileData, V, D.GeneratedKeys.private)
-  coroutine.yield()
-  profileData = E:FilterTableFromBlacklist(profileData, D.blacklistedKeys.private)
-  coroutine.yield()
-  local serialData = D:Serialize(profileData)
-  coroutine.yield()
-  local exportString = D:CreateProfileExport(serialData, profileType, profileKey)
-  coroutine.yield()
-  local compressedData = LibDeflate:CompressDeflate(exportString, { level = 5 })
-  coroutine.yield()
-  local printableString = LibDeflate:EncodeForPrint(compressedData)
-  coroutine.yield()
-  local profileExport = printableString and format('%s%s', EXPORT_PREFIX, printableString) or nil
+  local _, profileExport = D:GetProfileExport("private", profileKey, "text")
   return profileExport
 end
 
