@@ -105,7 +105,9 @@
         "TipTacOptions",
         "WeakAurasOptions",
         "DetailsOptionsWindow",
-        "EchoRaidToolsMainFrame"
+        "EchoRaidToolsMainFrame",
+        "OmniCD",
+        "OmniCDDB"
     ],
     "diagnostics.disable": [
         "lowercase-global",

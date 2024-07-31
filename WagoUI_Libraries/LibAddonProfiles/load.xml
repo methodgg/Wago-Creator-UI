@@ -17,5 +17,6 @@
 	<Script file ="modules\ShadowedUnitFrames.lua"/>
 	<Script file ="modules\TalentLoadoutsEx.lua"/>
 	<Script file ="modules\TipTacReborn.lua"/>
+	<Script file ="modules\OmniCD.lua"/>
 	<Script file ="finalize.lua"/>
 </Ui>

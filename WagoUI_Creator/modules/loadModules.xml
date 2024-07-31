@@ -17,4 +17,5 @@
 	<!-- <Include file="talentLoadoutEx.lua"/> -->
 	<Include file="weakAuras.lua"/>
 	<Include file="echoRaidTools.lua"/>
+	<Include file="omnicd.lua"/>
 </Ui>
