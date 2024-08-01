@@ -19,7 +19,7 @@ local moduleConfig = {
   copyFunc = nil,
   hookRefresh = nil, --this addon doesn't have profiles at all
   copyButtonTooltipText = nil,
-  sortIndex = 5,
+  sortIndex = 20,
 }
 
 addon.ModuleFunctions:InsertModuleConfig(moduleConfig)
