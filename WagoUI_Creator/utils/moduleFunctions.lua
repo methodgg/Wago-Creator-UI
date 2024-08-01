@@ -12,6 +12,7 @@ function ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKe
       dropdown:NoOptionSelected()
       currentUIPack.profileKeys[currentUIPack.resolutions.chosen][moduleName] = nil
       currentUIPack.profiles[currentUIPack.resolutions.chosen][moduleName] = nil
+      addon.UpdatePackSelectedUI()
     end
   })
 
@@ -22,6 +23,7 @@ function ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKe
       label = coloredProfileKey,
       onclick = function()
         currentUIPack.profileKeys[currentUIPack.resolutions.chosen][moduleName] = profileKey
+        addon.UpdatePackSelectedUI()
       end
     })
   end

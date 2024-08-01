@@ -24,7 +24,7 @@ end
 
 local getWeakAuraExportState = function(resolution, id)
   addon:GetCurrentPack().profileKeys[resolution][moduleName] = addon:GetCurrentPack().profileKeys[resolution]
-  [moduleName] or {}
+      [moduleName] or {}
   return addon:GetCurrentPack().profileKeys[resolution][moduleName][id]
 end
 
@@ -313,7 +313,7 @@ local function createManageFrame(w, h)
     local scrollBox = createGroupScrollBox(m, buttonConfig, idx)
     scrollBox:SetPoint("TOPLEFT", m, "TOPLEFT", 60 + ((idx - 1) * (scrollBoxWidth + 110)), -90)
     m.scrollBoxes[idx] = scrollBox
-    local labelText = idx == 1 and "WeakAuras" or idx == 2 and L["Export"]
+    local labelText = idx == 1 and "WeakAuras" or idx == 2 and L["Marked for Export"]
     local label = DF:CreateLabel(scrollBox, labelText, 20, "white")
     label:SetPoint("BOTTOM", scrollBox, "TOP", 0, 30)
   end

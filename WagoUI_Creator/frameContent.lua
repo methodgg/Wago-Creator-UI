@@ -134,6 +134,7 @@ function addon:CreateProfileList(f, width, height)
               value = profileKey,
               label = profileKey,
               onclick = function()
+                addon.UpdatePackSelectedUI()
               end
             }
           } or {}
@@ -170,6 +171,29 @@ function addon:CreateProfileList(f, width, height)
           line.lastUpdateLabel:SetText(lastUpdatedAtString)
         else
           line.lastUpdateLabel:SetText("")
+        end
+
+        --export button
+        local profileKeyToExport = currentUIPack.profileKeys[currentUIPack.resolutions.chosen][info.name]
+        if info.hasGroups then
+          line.exportButton:Hide()
+        else
+          line.exportButton:Show()
+          if not loaded or not profileKeyToExport then
+            line.exportButton:Disable()
+          else
+            line.exportButton:Enable()
+          end
+          line.exportButton:SetClickFunction(function()
+            addon:Async(function()
+              line.exportButton:Disable()
+              line.exportButton:SetText(L["Exporting..."])
+              local exportString = lapModule.exportProfile(profileKeyToExport)
+              addon:TextExport(exportString)
+              line.exportButton:Enable()
+              line.exportButton:SetText(L["Export"])
+            end, "copyProfileString")
+          end)
         end
       end
     end
@@ -226,6 +250,13 @@ function addon:CreateProfileList(f, width, height)
     local lastUpdateLabel = DF:CreateLabel(line, "", 10, "white")
     line:AddFrameToHeaderAlignment(lastUpdateLabel)
     line.lastUpdateLabel = lastUpdateLabel
+
+    -- export button
+    line.exportButton = DF:CreateButton(line, nil, 180, 30, L["Export"], nil, nil, nil, nil, nil, nil,
+      options_dropdown_template)
+    line.exportButton.text_overlay:SetFont(line.exportButton.text_overlay:GetFont(), 16)
+    line.exportButton:SetTooltip(L["exportButtonWarning"])
+    line:AddFrameToHeaderAlignment(line.exportButton)
 
     line:AlignWithHeader(f.contentHeader, "LEFT")
     return line
@@ -372,12 +403,10 @@ function addon:CreateProfileList(f, width, height)
   local exportExplainerLabel = DF:CreateLabel(f, "Startup", 16, "white")
   exportExplainerLabel:SetWidth((width - 40) / 2)
   exportExplainerLabel:SetWordWrap(true)
-  exportExplainerLabel:SetText(
-    L
-    ["All chosen profiles for all enabled resolutions will be exported.After a reload a new update can be pushed via the WagoApp."])
+  exportExplainerLabel:SetText(L["exportExplainerLabel"])
   addLine({ exportExplainerLabel }, 5, 0)
 
-  local exportAllButton = DF:CreateButton(f, nil, 250, 40, L["Export All Profiles"], nil, nil, nil, nil, nil, nil,
+  local exportAllButton = DF:CreateButton(f, nil, 250, 40, L["Save All Profiles"], nil, nil, nil, nil, nil, nil,
     options_dropdown_template)
   exportAllButton.text_overlay:SetFont(exportAllButton.text_overlay:GetFont(), 16)
   exportAllButton:SetClickFunction(addon.ExportAllProfiles)
@@ -388,8 +417,8 @@ function addon:CreateProfileList(f, width, height)
     options = 60,
     name = 350,
     profile = 200,
-    -- version = 100,
     lastUpdate = 150,
+    export = 200,
   }
   local totalHeaderWidth = 0
   for _, w in pairs(widths) do
@@ -397,11 +426,11 @@ function addon:CreateProfileList(f, width, height)
   end
 
   local headerTable = {
-    { text = L["Options"],           width = widths.options,                              offset = 1 },
-    { text = L["Name"],              width = widths.name },
-    { text = L["Profile to Export"], width = widths.profile },
-    -- { text = "Version",           width = widths.version },
-    { text = L["Last Update"],       width = width - totalHeaderWidth + widths.lastUpdate },
+    { text = L["Options"],         width = widths.options,                          offset = 1 },
+    { text = L["Name"],            width = widths.name },
+    { text = L["Profile to Save"], width = widths.profile },
+    { text = L["Last Save"],       width = widths.lastUpdate },
+    { text = L["Export"],          width = width - totalHeaderWidth + widths.export },
   }
   local lineHeight = 42
   local contentScrollbox = DF:CreateScrollBox(f, nil, contentScrollboxUpdate, {}, width - 17,

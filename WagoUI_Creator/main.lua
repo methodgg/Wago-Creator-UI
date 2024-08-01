@@ -183,7 +183,7 @@ function addon:ExportAllProfiles()
     return
   end
   addon:StartProgressBar(countOperations)
-  addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 50, L["Exporting all profiles..."])
+  addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 50, L["Saving all profiles..."])
   addon:Async(function()
     local updates = {}
     local removals = {}

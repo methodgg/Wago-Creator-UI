@@ -51,7 +51,6 @@ function addon:DisplayErrors(force)
     editBox:SetFocus()
     copyButton:SetDisabled(true)
     addon.copyHelper:SmartShow(addon.errorFrame.frame, 0, 0)
-    --addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 50, "Exporting all profiles...")
   end
 
   local function stopCopyAction(copyButton)
