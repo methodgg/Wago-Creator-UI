@@ -49,12 +49,13 @@ function addon:CreateMainFrame()
     end
   end)
 
-  function addon:ToggleReloadIndicator(show)
+  function addon:ToggleReloadIndicator(show, text)
     if show then
       reloadIndicator:Show()
     else
       reloadIndicator:Hide()
     end
+    reloadIndicator:SetTooltip(text or L["IMPORT_RELOAD_WARNING1"])
   end
 
   local autoStartCheckbox = DF:CreateSwitch(frame,

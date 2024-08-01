@@ -7,7 +7,7 @@ local function importProfile(lapModule, profileString, profileKey, latestVersion
   lapModule.importProfile(profileString, profileKey, false)
   addon:StoreImportedProfileTimestamp(latestVersion, lapModule.moduleName, profileKey, entryName)
   if lapModule.needReloadOnImport then
-    addon:ToggleReloadIndicator(true)
+    addon:ToggleReloadIndicator(true, L["IMPORT_RELOAD_WARNING3"])
     addon.state.needReload = true
   end
   addon:UpdateRegisteredDataConsumers()

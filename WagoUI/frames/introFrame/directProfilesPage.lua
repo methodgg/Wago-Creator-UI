@@ -91,7 +91,7 @@ local function createPage()
           lap.importProfile(entry.profile, entry.profileKey, true)
           addon:StoreImportedProfileTimestamp(entry.profileMetadata.lastUpdatedAt, entry.moduleName, entry.profileKey)
           if entry.lap.needReloadOnImport then
-            addon:ToggleReloadIndicator(true)
+            addon:ToggleReloadIndicator(true, L["IMPORT_RELOAD_WARNING1"])
             addon.state.needReload = true
           end
           addon:UpdateCopyHelperProgressBar()
