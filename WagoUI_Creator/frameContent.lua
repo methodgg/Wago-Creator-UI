@@ -52,6 +52,8 @@ function addon:CreateProfileList(f, width, height)
       local info = data[index]
       if (info) then
         local line = self:GetLine(i)
+        ---@type LibAddonProfilesModule
+        local lapModule = info.lapModule
         local res = currentUIPack.resolutions
         local loaded = info.isLoaded() and res.enabled[res.chosen]
         if loaded then
@@ -66,16 +68,16 @@ function addon:CreateProfileList(f, width, height)
         line.icon:SetTexture(tex)
         line.icon:SetPushedTexture(tex)
         line.icon:SetDisabledTexture(tex)
-        line.icon:SetHighlightAtlas(info.lapModule.openConfig and "bags-glow-white" or "")
-        if not info.lapModule.openConfig then
+        line.icon:SetHighlightAtlas(lapModule.openConfig and "bags-glow-white" or "")
+        if not lapModule.openConfig then
           line.icon:ClearHighlightTexture()
         end
-        line.icon:SetTooltip(info.lapModule.openConfig and string.format(L["Click to open %s options"], info.name) or nil)
+        line.icon:SetTooltip(lapModule.openConfig and string.format(L["Click to open %s options"], info.name) or nil)
         line.icon:SetScript("OnClick", function()
-          info.lapModule.openConfig()
+          lapModule.openConfig()
           f.contentScrollbox:Refresh()
         end)
-        if loaded or info.lapModule.needsInitialization() then
+        if loaded or lapModule.needsInitialization() then
           line.icon:SetEnabled(true)
         else
           line.icon:SetEnabled(false)
@@ -88,12 +90,12 @@ function addon:CreateProfileList(f, width, height)
         else
           line.nameLabel:SetTextColor(1, 1, 1, 1)
         end
-        if info.lapModule.needsInitialization() then
+        if lapModule.needsInitialization() then
           line.initializationWarning:Show()
           line.initializationWarning:SetScript("OnClick", function()
-            info.lapModule.openConfig()
+            lapModule.openConfig()
             C_Timer.After(0, function()
-              info.lapModule.closeConfig()
+              lapModule.closeConfig()
             end)
             f.contentScrollbox:Refresh()
           end)
