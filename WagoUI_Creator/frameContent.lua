@@ -395,7 +395,7 @@ function addon:CreateProfileList(f, width, height)
 
   -- logo
   local logo = DF:CreateImage(f, [[Interface\AddOns\]]..addonName..[[\media\wagoLogo512]], 256, 256)
-  logo:SetPoint("TOPRIGHT", f, "TOPRIGHT", -90, 40)
+  logo:SetPoint("TOPRIGHT", f, "TOPRIGHT", -90, -10)
 
   addLine({ resolutionDropdown, resolutionCheckBox, resolutionEnabledLabel }, 5, 0)
 
