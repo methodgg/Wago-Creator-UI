@@ -166,7 +166,7 @@ local exportProfile = function(profileKey)
   local exportedData = {
     profile = profileObject,
     playerData = playerData,
-    globalData = globalData,
+    globaData = globalData, --typo in Details
     version = 1,
   }
   return compressData(exportedData)
