@@ -390,6 +390,10 @@ function addon:CreateProfileList(f, width, height)
     f.contentScrollbox:Refresh()
   end
 
+  function addon.RefreshContentScrollBox()
+    f.contentScrollbox:Refresh()
+  end
+
   local resolutionEnabledLabel = DF:CreateLabel(f, "Startup", 16, "white")
   resolutionEnabledLabel:SetText(L["Enable this resolution"])
 

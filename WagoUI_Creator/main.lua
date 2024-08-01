@@ -331,6 +331,7 @@ function addon:RefreshAllProfileDropdowns()
       dropdown:Select(dropdown.info.lapModule.getCurrentProfileKey())
     end
   end
+  addon.RefreshContentScrollBox()
 end
 
 function addon:CreateFrames()
