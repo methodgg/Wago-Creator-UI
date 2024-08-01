@@ -6,7 +6,10 @@ local manageFrame
 local frameWidth = 850
 local frameHeight = 450
 
+-- small hack to add a module with the bare minimum to make it work
+-- don't want to adjust the type so we can keep the type checking
 ---@type LibAddonProfilesModule
+---@diagnostic disable-next-line: missing-fields
 local lapModule = {
   moduleName = "UI Pack Settings",
   icon = 4548874,
@@ -352,5 +355,5 @@ local moduleConfig = {
   hasGroups = true,
   manageFunc = showManageFrame,
 }
-
-addon.ModuleFunctions:InsertModuleConfig(moduleConfig)
+-- We don't need this at the moment, we use categories on the website instead
+-- addon.ModuleFunctions:InsertModuleConfig(moduleConfig)
