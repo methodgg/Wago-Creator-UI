@@ -68,8 +68,10 @@ end
 local importProfile = function(profileString, profileKey, fromIntro)
   local E = ElvUI[1]
   local D = E:GetModule('Distributor')
-  local success = D:ImportProfile(profileString)
-  if not success then return end
+  local decodedType, decodedKey, decodedData = D:Decode(profileString)
+  local force = false -- for now
+  -- important to use the supplied profileKey, as the decodedKey might be different
+  D:SetImportedProfile(decodedType, profileKey, decodedData, force)
   if fromIntro then
     E.global.general.UIScale = E:PixelBestSize()
     E:PixelScaleChanged()
