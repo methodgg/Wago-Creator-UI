@@ -111,7 +111,9 @@
         "CellChangelogsFrame",
         "Cell",
         "CellDB",
-        "CellCharacterDB"
+        "CellCharacterDB",
+        "VuhDoNewOptionsTabbedFrame",
+        "VUHDO_PROFILES"
     ],
     "diagnostics.disable": [
         "lowercase-global",

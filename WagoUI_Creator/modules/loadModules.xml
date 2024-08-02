@@ -19,4 +19,5 @@
 	<Include file="echoRaidTools.lua"/>
 	<Include file="omnicd.lua"/>
 	<Include file="cell.lua"/>
+	<Include file="vuhdo.lua"/>
 </Ui>
