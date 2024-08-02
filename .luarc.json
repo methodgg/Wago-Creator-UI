@@ -111,7 +111,8 @@
         "CellChangelogsFrame",
         "Cell",
         "CellDB",
-        "CellCharacterDB"
+        "CellCharacterDB",
+        "BugSackLDBIconDB"
     ],
     "diagnostics.disable": [
         "lowercase-global",
