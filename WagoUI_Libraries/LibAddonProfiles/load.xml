@@ -21,5 +21,6 @@
 	<Script file ="modules\Cell.lua"/>
 	<Script file ="modules\BugSack.lua"/>
 	<Script file ="modules\KuiNameplates.lua"/>
+	<Script file ="modules\WarpDeplete.lua"/>
 	<Script file ="finalize.lua"/>
 </Ui>

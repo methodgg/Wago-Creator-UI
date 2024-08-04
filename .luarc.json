@@ -116,7 +116,8 @@
         "KuiNameplatesCoreSaved",
         "KuiNameplatesCoreCharacterSaved",
         "KuiNameplatesCore",
-        "WagoUI"
+        "WagoUI",
+        "WarpDeplete"
     ],
     "diagnostics.disable": [
         "lowercase-global",

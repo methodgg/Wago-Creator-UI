@@ -21,4 +21,5 @@
 	<Include file="cell.lua"/>
 	<Include file="bugsack.lua"/>
 	<Include file="kuiNameplates.lua"/>
+	<Include file="warpDeplete.lua"/>
 </Ui>
