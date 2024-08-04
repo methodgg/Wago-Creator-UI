@@ -163,7 +163,12 @@ function addon:ExportAllProfiles()
     if lapModule.isLoaded() or lapModule.needsInitialization() then
       local hasAtleastOneExport = false
       for resolution, enabled in pairs(enabledResolutions) do
-        if enabled and currentUIPack.profileKeys[resolution][module.name] then
+        local profileKey = currentUIPack.profileKeys[resolution][module.name]
+        local profiles = lapModule.getProfileKeys and lapModule.getProfileKeys()
+        local profileExists = profiles and profiles[profileKey]
+        -- exception for modules with groups
+        if not profiles then profilesExists = true end
+        if enabled and profileKey and profileExists then
           hasAtleastOneExport = true
         end
       end
@@ -190,16 +195,29 @@ function addon:ExportAllProfiles()
     local updates = {}
     local removals = {}
     for _, module in pairs(addon.moduleConfigs) do
+      ---@type LibAddonProfilesModule
+      local lapModule = module.lapModule
       if module.isLoaded() then
         local didExportAtleastOne = false
         for resolution, enabled in pairs(enabledResolutions) do
-          if enabled and currentUIPack.profileKeys[resolution][module.name] then
-            local updated, changedEntries, removedEntries = module.exportFunc(resolution, timestamp)
-            if updated then
-              updates[module.name] = changedEntries or true
-              removals[module.name] = removedEntries --currently only for group modules
+          local profileKey = currentUIPack.profileKeys[resolution][module.name]
+          if enabled and profileKey then
+            --handle invalid profile keys
+            local profiles = lapModule.getProfileKeys and lapModule.getProfileKeys()
+            local profileExists = profiles and profiles[profileKey]
+            -- exception for modules with groups
+            if not profiles then profilesExists = true end
+            if not profileExists then
+              currentUIPack.profileKeys[currentUIPack.resolutions.chosen][module.name] = nil
+              currentUIPack.profiles[currentUIPack.resolutions.chosen][module.name] = nil
+            else
+              local updated, changedEntries, removedEntries = module.exportFunc(resolution, timestamp)
+              if updated then
+                updates[module.name] = changedEntries or true
+                removals[module.name] = removedEntries --currently only for group modules
+              end
+              didExportAtleastOne = true
             end
-            didExportAtleastOne = true
           end
         end
         if didExportAtleastOne then
@@ -330,6 +348,7 @@ function addon:RefreshAllProfileDropdowns()
   end
   for _, dropdown in pairs(currentProfileDropdowns) do
     if dropdown.info then
+      local lapProfileKey = dropdown.info.lapModule.getCurrentProfileKey()
       dropdown:Select(dropdown.info.lapModule.getCurrentProfileKey())
     end
   end
