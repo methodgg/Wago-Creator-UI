@@ -144,6 +144,11 @@ function addon:CreateProfileList(f, width, height)
         if not info.hasGroups then
           line.profileDropdown:Select(profileKey)
           if not profileKey then line.profileDropdown:NoOptionSelected() end
+          -- if profile key is no longer valid
+          -- this is only a visual change, we do not want to touch the exported data / profile key here
+          if profileKey and lapModule.isLoaded() and not lapModule.getProfileKeys()[profileKey] then
+            line.profileDropdown:NoOptionSelected()
+          end
         end
         if not loaded then
           line.profileDropdown:SetEnabled(false)
