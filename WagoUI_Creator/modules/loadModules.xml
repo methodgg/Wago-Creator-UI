@@ -20,4 +20,5 @@
 	<Include file="omnicd.lua"/>
 	<Include file="cell.lua"/>
 	<Include file="bugsack.lua"/>
+	<Include file="kuiNameplates.lua"/>
 </Ui>

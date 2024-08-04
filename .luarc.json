@@ -112,7 +112,11 @@
         "Cell",
         "CellDB",
         "CellCharacterDB",
-        "BugSackLDBIconDB"
+        "BugSackLDBIconDB",
+        "KuiNameplatesCoreSaved",
+        "KuiNameplatesCoreCharacterSaved",
+        "KuiNameplatesCore",
+        "WagoUI"
     ],
     "diagnostics.disable": [
         "lowercase-global",
