@@ -48,6 +48,12 @@ local isDuplicate = function(profileKey)
 end
 
 ---@param profileString string
+---@return table | nil
+local decodeProfileString = function(profileString)
+  -- use this in testImport and importProfile to make a table from a string
+end
+
+---@param profileString string
 ---@param profileKey string | nil
 ---@param profileData table | nil
 ---@param rawData table | nil
@@ -94,9 +100,9 @@ local m = {
   moduleName = "ExampleModule",
   icon = [[Interface\AddOns\Plater\images\cast_bar]], --can also be icon = 134337,
   slash = "/exampleslash",
-  needReloadOnImport = true,                          --optional
-  needProfileKey = true,                              --optional
-  preventRename = true,                               --optional
+  needReloadOnImport = true,                          --self explanatory
+  needProfileKey = true,                              --was used by the import anything function, might need again
+  preventRename = true,                               --for AddOns that usually only have a global profile, used in the intro wizard
   isLoaded = isLoaded,
   needsInitialization = needsInitialization,
   openConfig = openConfig,
