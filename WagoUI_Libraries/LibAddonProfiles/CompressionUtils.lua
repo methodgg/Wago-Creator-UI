@@ -4,12 +4,13 @@ local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAdd
 if (not private) then return; end
 local debug = false
 
-function private:GenericEncode(profileKey, profile)
+function private:GenericEncode(profileKey, profile, moduleName)
   local Serializer = LibStub:GetLibrary("AceSerializer-3.0Async")
   local LibDeflate = LibStub:GetLibrary("LibDeflateAsync");
   local data = {
     profileKey = profileKey,
     profile = profile,
+    moduleName = moduleName
   }
   local serialized = Serializer:Serialize(data)
   coroutine.yield()
@@ -36,7 +37,7 @@ function private:GenericDecode(profileString)
   local success, data = Serializer:Deserialize(decompressed)
   coroutine.yield()
   if success and data then
-    return data.profileKey, data.profile, data
+    return data.profileKey, data.profile, data, data.moduleName
   else
     return
   end

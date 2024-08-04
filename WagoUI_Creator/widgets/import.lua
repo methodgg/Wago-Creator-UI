@@ -10,12 +10,12 @@ local feedbackString = ""
 local IMPORT_EXPORT_EDIT_MAX_BYTES = 0 --1024000*4 -- 0 appears to be "no limit"
 
 local function findMatchingModule(profileString)
-  local genericPKey, genericProfile, genericRaw = LAP:GenericDecode(profileString)
+  local genericPKey, genericProfile, genericRaw, genericModuleName = LAP:GenericDecode(profileString)
   for moduleName, module in pairs(lapModules) do
     if module.testImport then
       feedbackString = feedbackString.."Testing import string for "..moduleName.."...\n"
       importFrame.editbox:SetText(feedbackString)
-      local profileKey = module.testImport(profileString, genericPKey, genericProfile, genericRaw)
+      local profileKey = module.testImport(profileString, genericPKey, genericProfile, genericRaw, genericModuleName)
       coroutine.yield()
       if profileKey then
         return moduleName, module, profileKey

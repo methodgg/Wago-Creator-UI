@@ -1,13 +1,13 @@
 ---@class LibAddonProfiles : table
 ---@field GetModule fun(self, moduleName: string) : LibAddonProfilesModule
 ---@field GetAllModules fun(self) : table<string, LibAddonProfilesModule>
----@field GenericEncode fun(self, profileKey : string , data: table) : string
----@field GenericDecode fun(self, profileString : string) : string | nil, table | nil, table | nil
+---@field GenericEncode fun(self, profileKey : string , data: table, moduleName?: string) : string
+---@field GenericDecode fun(self, profileString : string) : string | nil, table | nil, table | nil, string | nil
 
 ---@class LibAddonProfilesPrivate : table
 ---@field modules table<string, LibAddonProfilesModule>
----@field GenericEncode fun(self, profileKey : string , data: table) : string
----@field GenericDecode fun(self, profileString : string) : string | nil, table | nil, table | nil
+---@field GenericEncode fun(self, profileKey : string , data: table, moduleName?) : string
+---@field GenericDecode fun(self, profileString : string) : string | nil, table | nil, table | nil, string | nil
 ---@field DeepCompareAsync fun(self, tableA : table, tableB : table, ignoredKeys: table | nil) : boolean
 ---@field PrintError fun(self, ...)
 ---@field LibSerializeSerializeAsyncEx fun(self, configForLS : table | nil , inTable: table) : string
@@ -25,7 +25,7 @@
 ---@field exportProfile fun(profileKey: string) : string | nil
 ---@field setExportOptions? fun(options: table) : nil
 ---@field importProfile fun(profileString: string, profileKey: string, fromIntro: boolean) : nil
----@field testImport fun(profileString: string, profileKey: string | nil, profileData: table| nil, rawData: table | nil) : string | nil
+---@field testImport fun(profileString: string, profileKey: string | nil, profileData: table| nil, rawData: table | nil, moduleName: string | nil) : string | nil
 ---@field isDuplicate fun(profileKey: string) : boolean
 ---@field needReloadOnImport? boolean
 ---@field needProfileKey? boolean
