@@ -255,6 +255,10 @@ function addon:AddDataToDataAddon()
     }
     WagoUI_Storage[pack.localName] = data
   end
+  if WagoUI then
+    WagoUI:SetupWagoData()
+    WagoUI:UpdateRegisteredDataConsumers()
+  end
 end
 
 function addon:GetCurrentPack()
