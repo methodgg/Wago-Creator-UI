@@ -23,14 +23,17 @@ function addon:SetupWagoData()
     addon.wagoData[resolution] = {}
     for moduleName, moduleData in pairs(modules) do
       if type(moduleData) == "string" then
-        tinsert(addon.wagoData[resolution], {
-          lap = LAP:GetModule(moduleName),
-          moduleName = moduleName,
-          profileKey = moduleData,
-          profileMetadata = source.profileMetadata[resolution][moduleName],
-          profile = source.profiles[resolution][moduleName],
-          enabled = true,
-        })
+        local profileData = source.profiles[resolution][moduleName]
+        if profileData then
+          tinsert(addon.wagoData[resolution], {
+            lap = LAP:GetModule(moduleName),
+            moduleName = moduleName,
+            profileKey = moduleData,
+            profileMetadata = source.profileMetadata[resolution][moduleName],
+            profile = profileData,
+            enabled = true,
+          })
+        end
       elseif moduleName == "WeakAuras" or moduleName == "Echo Raid Tools" then
         for groupId in pairs(moduleData) do
           tinsert(addon.wagoData[resolution], {
