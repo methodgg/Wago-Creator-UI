@@ -98,12 +98,15 @@ end
 
 ---@param profileKey string
 local setProfile = function(profileKey)
+  if not profileKey then return end
+  if not getProfileKeys()[profileKey] then return end
   Details:ApplyProfile(profileKey)
 end
 
 ---@param profileKey string
 ---@return boolean
 local isDuplicate = function(profileKey)
+  if not profileKey then return false end
   return getProfileKeys()[profileKey]
 end
 
@@ -113,6 +116,7 @@ end
 ---@param rawData table | nil
 ---@return string | nil
 local testImport = function(profileString, profileKey, profileData, rawData)
+  if not profileString then return end
   if rawData and rawData.profile and rawData.profile.all_in_one_windows and rawData.profile.class_specs_coords then
     return ""
   end
@@ -121,14 +125,16 @@ end
 ---@param profileString string
 ---@param profileKey string
 local importProfile = function(profileString, profileKey, fromIntro)
+  if not profileString then return end
   Details:ImportProfile(profileString, profileKey, nil, true, true);
 end
 
 ---@param profileKey string | nil
 ---@return string | nil
 local exportProfile = function(profileKey)
+  if not profileKey then return end
+  if not getProfileKeys()[profileKey] then return end
   --functions\profiles.lua
-  if not profileKey then return nil end
   --need to call this so changes to the current profile are committed to the Details SavedVariables
   --TODO: logout still applies some changes to the data, not sure what this is about
   --      the important profile data is saved here, just might trigger additional versions

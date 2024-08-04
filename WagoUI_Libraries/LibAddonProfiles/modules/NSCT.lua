@@ -43,6 +43,7 @@ end
 ---@param profileKey string
 ---@return boolean
 local isDuplicate = function(profileKey)
+  if not profileKey then return false end
   return true
 end
 
@@ -52,6 +53,7 @@ end
 ---@param rawData table | nil
 ---@return string | nil
 local testImport = function(profileString, profileKey, profileData, rawData)
+  if not profileString then return end
   if profileData and profileData.NSCTGlobal then
     return profileKey
   end
@@ -60,6 +62,7 @@ end
 ---@param profileString string
 ---@param profileKey string
 local importProfile = function(profileString, profileKey, fromIntro)
+  if not profileString then return end
   local _, pData = private:GenericDecode(profileString)
   if not pData then return end
   NameplateSCTDB.global = pData.NSCTGlobal
@@ -68,7 +71,8 @@ end
 ---@param profileKey string | nil
 ---@return string | nil
 local exportProfile = function(profileKey)
-  if not profileKey then return nil end
+  if not profileKey then return end
+  if not getProfileKeys()[profileKey] then return end
   local data = {
     NSCTGlobal = NameplateSCTDB.global
   }

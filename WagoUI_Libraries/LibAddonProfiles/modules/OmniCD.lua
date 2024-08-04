@@ -37,12 +37,15 @@ end
 
 ---@param profileKey string
 local setProfile = function(profileKey)
+  if not profileKey then return end
+  if not getProfileKeys()[profileKey] then return end
   OmniCD[1].DB:SetProfile(profileKey)
 end
 
 ---@param profileKey string
 ---@return boolean
 local isDuplicate = function(profileKey)
+  if not profileKey then return false end
   return getProfileKeys()[profileKey]
 end
 
@@ -52,6 +55,7 @@ end
 ---@param rawData table | nil
 ---@return string | nil
 local testImport = function(profileString, profileKey, profileData, rawData)
+  if not profileString then return end
   local E = OmniCD[1]
   local PS = E.ProfileSharing
   -- pretty basic test, this is what the addon does and seems quite insecure but oh well
@@ -64,6 +68,7 @@ end
 ---@param profileString string
 ---@param profileKey string
 local importProfile = function(profileString, profileKey, fromIntro)
+  if not profileString then return end
   local E = OmniCD[1]
   local PS = E.ProfileSharing
   local profileType, decodedProfileKey, profileData = PS:Decode(profileString)
@@ -86,6 +91,7 @@ end
 ---@return string | nil
 local exportProfile = function(profileKey)
   if not profileKey then return nil end
+  if not getProfileKeys()[profileKey] then return end
   -- OmniCD\Core\ProfileSharing.lua
   local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
   local E = OmniCD[1]

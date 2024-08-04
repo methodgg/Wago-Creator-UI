@@ -52,6 +52,7 @@ end
 ---@param rawData table | nil
 ---@return string | nil
 local testImport = function(profileString, profileKey, profileData, rawData)
+  if not profileString then return end
   if profileData and profileData.TipTacGlobal then
     return profileKey
   end
@@ -60,6 +61,7 @@ end
 ---@param profileString string
 ---@param profileKey string
 local importProfile = function(profileString, profileKey, fromIntro)
+  if not profileString then return end
   local _, pData = private:GenericDecode(profileString)
   if not pData then return end
   TipTac_Config = pData.TipTacGlobal
@@ -68,7 +70,7 @@ end
 ---@param profileKey string | nil
 ---@return string | nil
 local exportProfile = function(profileKey)
-  if not profileKey then return nil end
+  if not profileKey then return end
   local data = {
     TipTacGlobal = TipTac_Config
   }

@@ -58,6 +58,8 @@ end
 
 ---@param profileKey string
 local setProfile = function(profileKey)
+  if not profileKey then return end
+  if not getProfileKeys()[profileKey] then return end
   local index
   for i, layout in pairs(EditModeManagerFrame:GetLayouts()) do
     if layout.layoutName == profileKey then
@@ -73,6 +75,7 @@ end
 ---@param profileKey string
 ---@return boolean
 local isDuplicate = function(profileKey)
+  if not profileKey then return false end
   return getLayoutByName(profileKey) ~= nil
 end
 
@@ -82,6 +85,7 @@ end
 ---@param rawData table | nil
 ---@return string | nil
 local testImport = function(profileString, profileKey, profileData, rawData)
+  if not profileString then return end
   local t = { strsplit(" ", profileString) }
   for i = 1, 8 do
     local v = t[i]
@@ -107,6 +111,7 @@ end
 ---@param profileString string
 ---@param profileKey string
 local importProfile = function(profileString, profileKey, fromIntro)
+  if not profileString then return end
   EditModeManagerFrame:Show()
   removeProfile(profileKey) --need to remove old profile with same name first for updating to work and not be confusing
   local newLayoutInfo = C_EditMode.ConvertStringToLayoutInfo(profileString);
@@ -122,7 +127,8 @@ end
 ---@param profileKey string | nil
 ---@return string | nil
 local exportProfile = function(profileKey)
-  if not profileKey then return nil end
+  if not profileKey then return end
+  if not getProfileKeys()[profileKey] then return end
   local layout = getLayoutByName(profileKey)
   return C_EditMode.ConvertLayoutInfoToString(layout)
 end

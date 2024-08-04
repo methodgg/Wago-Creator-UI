@@ -205,6 +205,8 @@ end
 ---@param profileKey string | nil
 ---@return string | nil
 local exportProfile = function(profileKey)
+  if not profileKey then return end
+  if not getProfileKeys()[profileKey] then return end
   -- Cell\Modules\About_ImportExport.lua
   local LibDeflate = LibStub:GetLibrary("LibDeflateAsync");
   local prefix = "!CELL:"..Cell.versionNum..":ALL!"

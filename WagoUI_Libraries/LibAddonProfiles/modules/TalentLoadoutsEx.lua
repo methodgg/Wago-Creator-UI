@@ -35,6 +35,7 @@ end
 ---@param rawData table | nil
 ---@return string | nil
 local testImport = function(profileString, profileKey, profileData, rawData)
+  if not profileString then return end
   if profileData and profileData.TalentLoadoutsEx then
     return profileData.TalentLoadoutsEx --return the data here as we use it in import
   end
@@ -43,6 +44,7 @@ end
 ---@param profileString string
 ---@param importFilter table
 local importProfile = function(profileString, importFilter)
+  if not profileString then return end
   local pKey, data = private:GenericDecode(profileString)
   if not data or not pKey then return end
   --have to sanitize loadout names, user might have duplicates
@@ -99,7 +101,7 @@ end
 ---@param config table | nil
 ---@return string | nil
 local exportProfile = function(config)
-  if not config then return nil end
+  if not config then return end
   local data = {
     TalentLoadoutsEx = {},
     TalentLoadoutsExGUI = {}

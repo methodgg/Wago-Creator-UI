@@ -171,6 +171,8 @@ end
 
 ---@param profileKey string
 local setProfile = function(profileKey)
+  if not profileKey then return end
+  if not getProfileKeys()[profileKey] then return end
   Plater.db:SetProfile(profileKey)
   DetailsFrameworkPromptSimple.CloseButton:Click()
 end
@@ -178,6 +180,7 @@ end
 ---@param profileKey string
 ---@return boolean
 local isDuplicate = function(profileKey)
+  if not profileKey then return false end
   local profiles = Plater.db:GetProfiles()
   local profileExists = false
   for i, existingProfName in ipairs(profiles) do
@@ -195,6 +198,7 @@ end
 ---@param rawData table | nil
 ---@return string | nil
 local testImport = function(profileString, profileKey, profileData, rawData)
+  if not profileString then return end
   if rawData and rawData.plate_config and rawData.profile_name then
     return rawData.profile_name
   end
@@ -203,6 +207,7 @@ end
 ---@param profileString string
 ---@param profileKey string
 local importProfile = function(profileString, profileKey, fromIntro)
+  if not profileString then return end
   local _, _, profile = private:GenericDecode(profileString)
   if not profile then return end
   doProfileImport(profileKey, profile, true, false)
@@ -216,6 +221,8 @@ end
 ---@param profileKey string | nil
 ---@return string | nil
 local exportProfile = function(profileKey)
+  if not profileKey then return end
+  if not getProfileKeys()[profileKey] then return end
   local LibAceSerializer = LibStub:GetLibrary("AceSerializer-3.0Async")
   local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
   --Plater_Comms.lua

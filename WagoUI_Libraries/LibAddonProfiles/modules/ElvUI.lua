@@ -38,6 +38,8 @@ end
 
 ---@param profileKey string
 local setProfile = function(profileKey)
+  if not profileKey then return end
+  if not getProfileKeys()[profileKey] then return end
   local E = ElvUI[1]
   E.data:SetProfile(profileKey)
 end
@@ -45,6 +47,7 @@ end
 ---@param profileKey string
 ---@return boolean
 local isDuplicate = function(profileKey)
+  if not profileKey then return false end
   return getProfileKeys()[profileKey]
 end
 
@@ -54,6 +57,7 @@ end
 ---@param rawData table | nil
 ---@return string | nil
 local testImport = function(profileString, profileKey, profileData, rawData)
+  if not profileString then return end
   local prefix = strsub(profileString, 1, 4)
   if prefix ~= EXPORT_PREFIX then return nil end
   local distributor = ElvUI[1]:GetModule("Distributor");
@@ -66,6 +70,7 @@ end
 ---@param profileString string
 ---@param profileKey string
 local importProfile = function(profileString, profileKey, fromIntro)
+  if not profileString then return end
   local E = ElvUI[1]
   local D = E:GetModule('Distributor')
   local decodedType, decodedKey, decodedData = D:Decode(profileString)
@@ -81,7 +86,8 @@ end
 ---@param profileKey string | nil
 ---@return string | nil
 local exportProfile = function(profileKey)
-  if not profileKey then return nil end
+  if not profileKey then return end
+  if not getProfileKeys()[profileKey] then return end
   --Core\General\Distributor.lua
   local E = ElvUI[1]
   local D = E:GetModule('Distributor')

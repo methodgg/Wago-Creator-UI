@@ -146,12 +146,14 @@ end
 
 ---@param profileKey string
 local setProfile = function(profileKey)
+  if not profileKey then return end
   Grid2.db:SetProfile(profileKey)
 end
 
 ---@param profileKey string
 ---@return boolean
 local isDuplicate = function(profileKey)
+  if not profileKey then return false end
   return getProfileKeys()[profileKey]
 end
 
@@ -161,6 +163,7 @@ end
 ---@param rawData table | nil
 ---@return string | nil
 local testImport = function(profileString, profileKey, profileData, rawData)
+  if not profileString then return end
   local pKey = profileString:match("%[=== (%w-) profile ===%]")
   return pKey
 end
@@ -168,6 +171,7 @@ end
 ---@param profileString string
 ---@param profileKey string
 local importProfile = function(profileString, profileKey, fromIntro)
+  if not profileString then return end
   local success, data
   success, data = UnserializeProfile(profileString, true)
   if not success or not data then return end
@@ -213,6 +217,9 @@ end
 ---@param profileKey string | nil
 ---@return string | nil
 local exportProfile = function(profileKey)
+  if not profileKey then return end
+  if not getProfileKeys()[profileKey] then return end
+  --TODO: This should not be here, we already handle this externally
   if not C_AddOns.IsAddOnLoaded("Grid2Options") then
     openConfig()
     closeConfig()

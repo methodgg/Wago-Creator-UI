@@ -36,12 +36,14 @@ end
 
 ---@param profileKey string
 local setProfile = function(profileKey)
-
+  if not profileKey then return end
+  if not getProfileKeys()[profileKey] then return end
 end
 
 ---@param profileKey string
 ---@return boolean
 local isDuplicate = function(profileKey)
+  if not profileKey then return false end
   return true
 end
 
@@ -51,13 +53,13 @@ end
 ---@param rawData table | nil
 ---@return string | nil
 local testImport = function(profileString, profileKey, profileData, rawData)
-
+  if not profileString then return end
 end
 
 ---@param profileString string
 ---@param profileKey string
 local importProfile = function(profileString, profileKey, fromIntro)
-
+  if not profileString then return end
 end
 
 local exportOptions = {
@@ -72,7 +74,8 @@ end
 ---@param profileKey string | nil
 ---@return string | nil
 local exportProfile = function(profileKey)
-
+  if not profileKey then return end
+  if not getProfileKeys()[profileKey] then return end
 end
 
 ---@param profileStringA string
