@@ -151,11 +151,11 @@ function addon:CreateProfileList(f, width, height)
           end
         end
         if not loaded then
-          line.profileDropdown:SetEnabled(false)
+          line.profileDropdown:Disable()
           line.profileDropdown.myIsEnabled = false
           line.manageButton:Disable()
         else
-          line.profileDropdown:SetEnabled(true)
+          line.profileDropdown:Enable()
           line.profileDropdown.myIsEnabled = true
           line.manageButton:Enable()
         end
