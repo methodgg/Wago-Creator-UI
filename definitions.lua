@@ -25,7 +25,7 @@
 ---@field exportProfile fun(profileKey: string) : string | nil
 ---@field setExportOptions? fun(options: table) : nil
 ---@field importProfile fun(profileString: string, profileKey: string, fromIntro: boolean) : nil
----@field testImport fun(profileString: string, profileKey: string | nil, profileData: table| nil, rawData: table | nil, moduleName: string | nil) : string | nil
+---@field testImport fun(profileString: string, profileKey: string | nil, profileData: table| nil, rawData: table | nil, moduleName: string | nil) : string | nil Test the profile string to see if it can be imported. Return the profile key if it can, nil otherwise. Tests profileData, rawData, and moduleName if they are provided, otherwise decodes the profileString and tests that.
 ---@field isDuplicate fun(profileKey: string) : boolean
 ---@field needReloadOnImport? boolean
 ---@field needProfileKey? boolean
