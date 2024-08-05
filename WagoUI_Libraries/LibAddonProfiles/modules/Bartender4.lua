@@ -147,5 +147,6 @@ local m = {
   getCurrentProfileKey = getCurrentProfileKey,
   setProfile = setProfile,
   areProfileStringsEqual = areProfileStringsEqual,
+  nonNativeProfileString = true,
 }
 private.modules[m.moduleName] = m

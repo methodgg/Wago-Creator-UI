@@ -185,6 +185,19 @@ function addon:CreateProfileList(f, width, height)
 
         --export button
         local profileKeyToExport = currentUIPack.profileKeys[currentUIPack.resolutions.chosen][info.name]
+        local setExportButtonText = function()
+          local text = L["Export"]
+          if lapModule.nonNativeProfileString then
+            text = text.." "..L["nonNativeExportLabel"]
+          end
+          line.exportButton:SetText(text)
+        end
+        setExportButtonText()
+        if lapModule.nonNativeProfileString then
+          line.exportButton:SetTooltip(L["exportButtonWarning"].."\n\n"..L["nonNativeExportTooltip"])
+        else
+          line.exportButton:SetTooltip(L["exportButtonWarning"])
+        end
         if info.hasGroups then
           line.exportButton:Hide()
         else
@@ -201,7 +214,7 @@ function addon:CreateProfileList(f, width, height)
               local exportString = lapModule.exportProfile(profileKeyToExport)
               addon:TextExport(exportString)
               line.exportButton:Enable()
-              line.exportButton:SetText(L["Export"])
+              setExportButtonText()
             end, "copyProfileString")
           end)
         end
@@ -262,10 +275,9 @@ function addon:CreateProfileList(f, width, height)
     line.lastUpdateLabel = lastUpdateLabel
 
     -- export button
-    line.exportButton = DF:CreateButton(line, nil, 180, 30, L["Export"], nil, nil, nil, nil, nil, nil,
+    line.exportButton = DF:CreateButton(line, nil, 180, 30, "", nil, nil, nil, nil, nil, nil,
       options_dropdown_template)
     line.exportButton.text_overlay:SetFont(line.exportButton.text_overlay:GetFont(), 16)
-    line.exportButton:SetTooltip(L["exportButtonWarning"])
     line:AddFrameToHeaderAlignment(line.exportButton)
 
     line:AlignWithHeader(f.contentHeader, "LEFT")

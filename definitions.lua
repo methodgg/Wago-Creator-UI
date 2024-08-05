@@ -35,6 +35,7 @@
 ---@field getCurrentProfileKey? fun() : string
 ---@field setProfile? fun(profileKey: string)
 ---@field areProfileStringsEqual fun(profileStringA: string | table, profileStringB: string | table) : areEqual: boolean, changedEntries: table | nil, removedEntries: table | nil
+---@field nonNativeProfileString? boolean
 
 ---@class ModuleConfig : table
 ---@field moduleName string

@@ -21,7 +21,6 @@ local moduleConfig = {
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
   hookRefresh = nil, --only global or character specific profile that requires reload to change
-  copyButtonTooltipText = string.format(addon.L.noBuiltInProfileTextImport, moduleName),
   sortIndex = 18,
 }
 

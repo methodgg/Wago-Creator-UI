@@ -29,7 +29,6 @@ local moduleConfig = {
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
   hookRefresh = hookRefresh,
-  copyButtonTooltipText = string.format(addon.L.noBuiltInProfileTextImport, moduleName),
   sortIndex = 15,
 }
 
