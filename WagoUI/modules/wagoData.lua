@@ -36,15 +36,18 @@ function addon:SetupWagoData()
         end
       elseif moduleName == "WeakAuras" or moduleName == "Echo Raid Tools" then
         for groupId in pairs(moduleData) do
-          tinsert(addon.wagoData[resolution], {
-            lap = LAP:GetModule(moduleName),
-            moduleName = moduleName,
-            entryName = groupId,
-            profileKey = groupId,
-            profileMetadata = source.profileMetadata[resolution][moduleName],
-            profile = source.profiles[resolution][moduleName][groupId],
-            enabled = true,
-          })
+          local profile = source.profiles[resolution][moduleName] and source.profiles[resolution][moduleName][groupId]
+          if profile then
+            tinsert(addon.wagoData[resolution], {
+              lap = LAP:GetModule(moduleName),
+              moduleName = moduleName,
+              entryName = groupId,
+              profileKey = groupId,
+              profileMetadata = source.profileMetadata[resolution][moduleName],
+              profile = profile,
+              enabled = true,
+            })
+          end
         end
       else
         --TODO: TalentLoadoutEx
