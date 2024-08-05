@@ -29,7 +29,7 @@ local moduleConfig = {
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
   hookRefresh = hookRefresh,
-  sortIndex = 15,
+  sortIndex = 23,
 }
 
 ModuleFunctions:InsertModuleConfig(moduleConfig)
