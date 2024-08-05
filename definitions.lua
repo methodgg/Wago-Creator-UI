@@ -13,6 +13,10 @@
 ---@field LibSerializeSerializeAsyncEx fun(self, configForLS : table | nil , inTable: table) : string
 ---@field LibSerializeDeserializeAsync fun(self, serialized: string) : table
 
+---@class RefreshHook : table
+---@field tablePath table<number, string | number>
+---@field functionName string
+
 ---@class LibAddonProfilesModule : table
 ---@field moduleName string
 ---@field slash string
@@ -36,13 +40,13 @@
 ---@field setProfile? fun(profileKey: string)
 ---@field areProfileStringsEqual fun(profileStringA: string | table, profileStringB: string | table) : areEqual: boolean, changedEntries: table | nil, removedEntries: table | nil
 ---@field nonNativeProfileString? boolean
+---@field refreshHookList table<number, RefreshHook> | nil Defines what functions should be hooked when wanting to monitor additions / deletions of profiles and changes to the currently active profile key.
 
 ---@class ModuleConfig : table
 ---@field moduleName string
 ---@field lapModule LibAddonProfilesModule
 ---@field dropdownOptions fun(index: number): table
 ---@field copyFunc fun() | nil
----@field hookRefresh fun() | nil
 ---@field copyButtonTooltipText string | nil
 ---@field sortIndex number | nil
 

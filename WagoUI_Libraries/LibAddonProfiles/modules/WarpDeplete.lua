@@ -119,5 +119,15 @@ local m = {
   setProfile = setProfile,
   areProfileStringsEqual = areProfileStringsEqual,
   nonNativeProfileString = true,
+  refreshHookList = {
+    {
+      tablePath = { "WarpDeplete", "db" },
+      functionName = "SetProfile",
+    },
+    {
+      tablePath = { "WarpDeplete", "db" },
+      functionName = "DeleteProfile",
+    },
+  }
 }
 private.modules[m.moduleName] = m

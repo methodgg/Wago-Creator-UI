@@ -148,5 +148,19 @@ local m = {
   setProfile = setProfile,
   areProfileStringsEqual = areProfileStringsEqual,
   nonNativeProfileString = true,
+  refreshHookList = {
+    {
+      tablePath = { "Bartender4", "db" },
+      functionName = "SetProfile",
+    },
+    {
+      tablePath = { "Bartender4", "db" },
+      functionName = "CopyProfile",
+    },
+    {
+      tablePath = { "Bartender4", "db" },
+      functionName = "DeleteProfile",
+    },
+  }
 }
 private.modules[m.moduleName] = m

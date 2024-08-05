@@ -6,12 +6,12 @@ local EXPORT_PREFIX = '!E1!'
 
 ---@return boolean
 local isLoaded = function()
-  return ElvUI and true or false
+  return ElvUI and ElvUI[1].Options.args.profiles and true or false
 end
 
 ---@return boolean
 local needsInitialization = function()
-  return false
+  return C_AddOns.IsAddOnLoaded("ElvUI") and not isLoaded()
 end
 
 ---@return nil
@@ -126,5 +126,19 @@ local m = {
   getCurrentProfileKey = getCurrentProfileKey,
   setProfile = setProfile,
   areProfileStringsEqual = areProfileStringsEqual,
+  refreshHookList = {
+    {
+      tablePath = { "ElvUI", 1, "Options", "args", "profiles", "args", "private", "handler", "db" },
+      functionName = "SetProfile",
+    },
+    {
+      tablePath = { "ElvUI", 1, "Options", "args", "profiles", "args", "private", "handler", "db" },
+      functionName = "CopyProfile",
+    },
+    {
+      tablePath = { "ElvUI", 1, "Options", "args", "profiles", "args", "private", "handler", "db" },
+      functionName = "DeleteProfile",
+    },
+  }
 }
 private.modules[m.moduleName] = m

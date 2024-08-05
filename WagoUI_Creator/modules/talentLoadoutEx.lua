@@ -385,7 +385,6 @@ local moduleConfig = {
   lapModule = lapModule,
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
-  hookRefresh = nil, --no profiles, only global config
   copyButtonTooltipText = string.format(addon.L.noBuiltInProfileTextImport, moduleName),
   sortIndex = 2,
   hasGroups = true,

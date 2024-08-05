@@ -12,23 +12,12 @@ local function dropdownOptions(index)
   return ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKeys, currentProfileKey)
 end
 
-local function hookRefresh()
-  if not lapModule.isLoaded() then return end
-  hooksecurefunc(BigWigs.db, "SetProfile", function()
-    addon:RefreshAllProfileDropdowns()
-  end)
-  hooksecurefunc(BigWigs.db, "DeleteProfile", function()
-    addon:RefreshAllProfileDropdowns()
-  end)
-end
-
 ---@type ModuleConfig
 local moduleConfig = {
   moduleName = moduleName,
   lapModule = lapModule,
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
-  hookRefresh = hookRefresh,
   sortIndex = 15,
 }
 

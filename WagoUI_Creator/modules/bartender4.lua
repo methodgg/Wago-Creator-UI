@@ -11,26 +11,12 @@ local function dropdownOptions(index)
   return addon.ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKeys, currentProfileKey)
 end
 
-local function hookRefresh()
-  if not lapModule.isLoaded() then return end
-  hooksecurefunc(Bartender4.db, "SetProfile", function()
-    addon:RefreshAllProfileDropdowns()
-  end)
-  hooksecurefunc(Bartender4.db, "CopyProfile", function()
-    addon:RefreshAllProfileDropdowns()
-  end)
-  hooksecurefunc(Bartender4.db, "DeleteProfile", function()
-    addon:RefreshAllProfileDropdowns()
-  end)
-end
-
 ---@type ModuleConfig
 local moduleConfig = {
   moduleName = moduleName,
   lapModule = lapModule,
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
-  hookRefresh = hookRefresh,
   sortIndex = 8,
 }
 

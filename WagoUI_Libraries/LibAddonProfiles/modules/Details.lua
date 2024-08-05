@@ -208,5 +208,15 @@ local m = {
   getCurrentProfileKey = getCurrentProfileKey,
   setProfile = setProfile,
   areProfileStringsEqual = areProfileStringsEqual,
+  refreshHookList = {
+    {
+      tablePath = { "Details" },
+      functionName = "ApplyProfile",
+    },
+    {
+      tablePath = { "Details" },
+      functionName = "EraseProfile",
+    },
+  }
 }
 private.modules[m.moduleName] = m

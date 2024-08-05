@@ -107,7 +107,6 @@ function ModuleFunctions:InsertModuleConfig(m)
       return m.dropdownOptions(2)
     end,
     copyFuncOverride = copyFuncOverride,
-    hookRefresh = m.hookRefresh,
     copyButtonTooltipText = m.copyButtonTooltipText,
     isLoaded = lapModule.isLoaded,
     sortIndex = m.sortIndex,

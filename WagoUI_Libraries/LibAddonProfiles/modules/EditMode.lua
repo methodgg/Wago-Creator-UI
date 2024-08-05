@@ -160,5 +160,19 @@ local m = {
   getCurrentProfileKey = getCurrentProfileKey,
   setProfile = setProfile,
   areProfileStringsEqual = areProfileStringsEqual,
+  refreshHookList = {
+    {
+      tablePath = { "EditModeManagerFrame" },
+      functionName = "SaveLayouts",
+    },
+    {
+      tablePath = { "EditModeManagerFrame" },
+      functionName = "Layout",
+    },
+    {
+      tablePath = { "EditModeManagerFrame" },
+      functionName = "SelectLayout",
+    },
+  }
 }
 private.modules[m.moduleName] = m

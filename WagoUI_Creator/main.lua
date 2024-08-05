@@ -440,10 +440,42 @@ function addon:CreateFrames()
 
   addon:CreateFrameContent(frame.frameContent)
 
-  --execute all hooks
-  for _, module in pairs(addon.moduleConfigs) do
-    if module.hookRefresh then
-      module.hookRefresh()
+  -- db hooks
+  -- We want to instantly update the profile dropdowns when a profile is added or removed and the current profile changes
+  -- Therefore we hook the functions that are responsible for these changes
+  do
+    ---@param lapModule LibAddonProfilesModule
+    local function executeRefreshHooks(lapModule)
+      if lapModule.refreshHookList then
+        for _, hook in pairs(lapModule.refreshHookList) do
+          local targetTable = _G[hook.tablePath[1]]
+          for i = 2, #hook.tablePath do
+            targetTable = targetTable and targetTable[hook.tablePath[i]]
+          end
+          if targetTable then
+            hooksecurefunc(targetTable, hook.functionName, function()
+              C_Timer.After(0.1, function() --edge case in editmode where the profilelist is not updated instantly
+                addon:RefreshAllProfileDropdowns()
+              end)
+            end)
+          end
+        end
+      end
+    end
+
+    for _, module in pairs(addon.moduleConfigs) do
+      ---@type LibAddonProfilesModule
+      local lapModule = module.lapModule
+      if lapModule.isLoaded() then
+        executeRefreshHooks(lapModule)
+      elseif lapModule.needsInitialization() then
+        local done = false
+        hooksecurefunc(lapModule, "openConfig", function()
+          if done then return end
+          executeRefreshHooks(lapModule)
+          done = true
+        end)
+      end
     end
   end
 

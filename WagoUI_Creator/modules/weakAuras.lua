@@ -377,10 +377,6 @@ local function dropdownOptions()
   return {}
 end
 
-local function hookRefresh()
-
-end
-
 local onSuccessfulTestOverride = function(_, weakAuraTable)
   WeakAuras.Import(weakAuraTable)
 end
@@ -391,7 +387,6 @@ local moduleConfig = {
   lapModule = lapModule,
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
-  hookRefresh = hookRefresh,
   copyButtonTooltipText = nil,
   sortIndex = 11,
   hasGroups = true,

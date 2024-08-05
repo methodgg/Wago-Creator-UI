@@ -349,7 +349,6 @@ local moduleConfig = {
   lapModule = lapModule,
   dropdownOptions = function() return {} end,
   copyFunc = nil,
-  hookRefresh = nil,
   copyButtonTooltipText = nil,
   sortIndex = 0,
   hasGroups = true,

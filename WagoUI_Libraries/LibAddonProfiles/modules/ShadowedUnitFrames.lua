@@ -118,5 +118,19 @@ local m = {
   setProfile = setProfile,
   areProfileStringsEqual = areProfileStringsEqual,
   nonNativeProfileString = true,
+  refreshHookList = {
+    {
+      tablePath = { "ShadowUF", "db" },
+      functionName = "SetProfile",
+    },
+    {
+      tablePath = { "ShadowUF", "db" },
+      functionName = "CopyProfile",
+    },
+    {
+      tablePath = { "ShadowUF", "db" },
+      functionName = "DeleteProfile",
+    },
+  },
 }
 private.modules[m.moduleName] = m

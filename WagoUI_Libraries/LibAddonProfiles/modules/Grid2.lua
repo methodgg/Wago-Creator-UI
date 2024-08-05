@@ -258,5 +258,19 @@ local m = {
   getCurrentProfileKey = getCurrentProfileKey,
   setProfile = setProfile,
   areProfileStringsEqual = areProfileStringsEqual,
+  refreshHookList = {
+    {
+      tablePath = { "Grid2", "db" },
+      functionName = "SetProfile",
+    },
+    {
+      tablePath = { "Grid2", "db" },
+      functionName = "CopyProfile",
+    },
+    {
+      tablePath = { "Grid2", "db" },
+      functionName = "DeleteProfile",
+    },
+  }
 }
 private.modules[m.moduleName] = m

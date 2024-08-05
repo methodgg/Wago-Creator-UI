@@ -151,5 +151,15 @@ local m = {
   getCurrentProfileKey = getCurrentProfileKey,
   setProfile = setProfile,
   areProfileStringsEqual = areProfileStringsEqual,
+  refreshHookList = {
+    {
+      tablePath = { "OmniCD", 1, "DB" },
+      functionName = "SetProfile",
+    },
+    {
+      tablePath = { "OmniCD", 1, "DB" },
+      functionName = "DeleteProfile",
+    },
+  }
 }
 private.modules[m.moduleName] = m

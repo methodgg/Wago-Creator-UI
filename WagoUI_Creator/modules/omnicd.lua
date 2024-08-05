@@ -11,23 +11,12 @@ local function dropdownOptions(index)
   return addon.ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKeys, currentProfileKey)
 end
 
-local function hookRefresh()
-  if not lapModule.isLoaded() then return end
-  hooksecurefunc(OmniCD[1].DB, "SetProfile", function()
-    addon:RefreshAllProfileDropdowns()
-  end)
-  hooksecurefunc(OmniCD[1].DB, "DeleteProfile", function()
-    addon:RefreshAllProfileDropdowns()
-  end)
-end
-
 ---@type ModuleConfig
 local moduleConfig = {
   moduleName = moduleName,
   lapModule = lapModule,
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
-  hookRefresh = hookRefresh,
   copyButtonTooltipText = nil,
   sortIndex = 1,
 }

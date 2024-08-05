@@ -20,7 +20,6 @@ local moduleConfig = {
   lapModule = lapModule,
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
-  hookRefresh = nil, --only global or character specific profile that requires reload to change
   sortIndex = 18,
 }
 

@@ -17,7 +17,6 @@ local moduleConfig = {
   lapModule = lapModule,
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
-  hookRefresh = nil, --no profiles, only global config
   sortIndex = 19,
 }
 

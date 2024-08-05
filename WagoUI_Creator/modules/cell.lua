@@ -17,7 +17,6 @@ local moduleConfig = {
   lapModule = lapModule,
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
-  hookRefresh = nil, --this addon doesn't have profiles at all
   copyButtonTooltipText = nil,
   sortIndex = 20,
 }

@@ -141,5 +141,15 @@ local m = {
   getCurrentProfileKey = getCurrentProfileKey,
   setProfile = setProfile,
   areProfileStringsEqual = areProfileStringsEqual,
+  refreshHookList = {
+    {
+      tablePath = { "KuiNameplatesCore" },
+      functionName = "ConfigChanged",
+    },
+    {
+      tablePath = { "KuiNameplatesCore", "config" },
+      functionName = "PostProfile",
+    },
+  },
 }
 private.modules[m.moduleName] = m

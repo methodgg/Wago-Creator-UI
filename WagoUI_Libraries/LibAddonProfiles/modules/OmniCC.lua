@@ -122,5 +122,15 @@ local m = {
   setProfile = setProfile,
   areProfileStringsEqual = areProfileStringsEqual,
   nonNativeProfileString = true,
+  refreshHookList = {
+    {
+      tablePath = { "OmniCC", "db" },
+      functionName = "SetProfile",
+    },
+    {
+      tablePath = { "OmniCC", "db" },
+      functionName = "DeleteProfile",
+    },
+  }
 }
 private.modules[m.moduleName] = m

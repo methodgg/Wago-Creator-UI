@@ -279,5 +279,19 @@ local m = {
   getCurrentProfileKey = getCurrentProfileKey,
   setProfile = setProfile,
   areProfileStringsEqual = areProfileStringsEqual,
+  refreshHookList = {
+    {
+      tablePath = { "Plater", "db" },
+      functionName = "SetProfile",
+    },
+    {
+      tablePath = { "Plater", "db" },
+      functionName = "CopyProfile",
+    },
+    {
+      tablePath = { "Plater", "db" },
+      functionName = "DeleteProfile",
+    },
+  }
 }
 private.modules[m.moduleName] = m

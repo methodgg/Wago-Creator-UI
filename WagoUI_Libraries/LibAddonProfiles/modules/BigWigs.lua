@@ -170,5 +170,15 @@ local m = {
   setProfile = setProfile,
   areProfileStringsEqual = areProfileStringsEqual,
   nonNativeProfileString = true,
+  refreshHookList = {
+    {
+      tablePath = { "BigWigs", "db" },
+      functionName = "SetProfile",
+    },
+    {
+      tablePath = { "BigWigs", "db" },
+      functionName = "DeleteProfile",
+    },
+  },
 }
 private.modules[m.moduleName] = m
