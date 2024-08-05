@@ -177,6 +177,11 @@ function addon:CreateProfileList(f, width, height)
         else
           line.lastUpdateLabel:SetText("")
         end
+        if loaded then
+          line.lastUpdateLabel:SetTextColor(1, 1, 1, 1)
+        else
+          line.lastUpdateLabel:SetTextColor(0.5, 0.5, 0.5, 1)
+        end
 
         --export button
         local profileKeyToExport = currentUIPack.profileKeys[currentUIPack.resolutions.chosen][info.name]
