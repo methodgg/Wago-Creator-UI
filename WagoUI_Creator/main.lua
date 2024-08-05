@@ -206,8 +206,7 @@ function addon:ExportAllProfiles()
             local profiles = lapModule.getProfileKeys and lapModule.getProfileKeys()
             local profileExists = profiles and profiles[profileKey]
             -- exception for modules with groups
-            if not profiles then profilesExists = true end
-            if not profileExists then
+            if not lapModule.exportGroup and not profileExists then
               currentUIPack.profileKeys[currentUIPack.resolutions.chosen][module.name] = nil
               currentUIPack.profiles[currentUIPack.resolutions.chosen][module.name] = nil
             else
