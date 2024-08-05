@@ -79,6 +79,8 @@ local function createProfileDropdownOptions(dropdown, lapModule)
 end
 
 function ModuleFunctions:InsertModuleConfig(m)
+  ---@type LibAddonProfilesModule
+  local lapModule = m.lapModule
   local copyFuncOverride = m.copyFunc and function(...)
     m.copyFunc(...)
   end or nil
@@ -90,16 +92,16 @@ function ModuleFunctions:InsertModuleConfig(m)
   end or nil
   tinsert(addon.moduleConfigs, {
     name = m.moduleName,
-    lapModule = m.lapModule,
-    icon = m.lapModule.icon,
+    lapModule = lapModule,
+    icon = lapModule.icon,
     profileDropdownOptions = function(dropdown)
-      return createProfileDropdownOptions(dropdown, m.lapModule)
+      return createProfileDropdownOptions(dropdown, lapModule)
     end,
     dropdown1Options = function()
       return m.dropdownOptions(1)
     end,
     exportFunc = function(resolution, timestamp)
-      return exportFunc(m.moduleName, resolution, m.lapModule.exportProfile, timestamp)
+      return exportFunc(m.moduleName, resolution, lapModule.exportProfile, timestamp)
     end,
     dropdown2Options = function()
       return m.dropdownOptions(2)
@@ -107,7 +109,7 @@ function ModuleFunctions:InsertModuleConfig(m)
     copyFuncOverride = copyFuncOverride,
     hookRefresh = m.hookRefresh,
     copyButtonTooltipText = m.copyButtonTooltipText,
-    isLoaded = m.lapModule.isLoaded,
+    isLoaded = lapModule.isLoaded,
     sortIndex = m.sortIndex,
     hasGroups = m.hasGroups,
     manageFunc = manageFunc,
