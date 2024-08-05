@@ -25,7 +25,7 @@ local closeConfig = function()
     for i = 1, select("#", UIParent:GetChildren()) do
       local childFrame = select(i, UIParent:GetChildren())
       if childFrame and childFrame.obj and childFrame.obj.titletext then
-        if childFrame.obj.titletext:GetText("BigWigs") then
+        if childFrame.obj.titletext:GetText() == "BigWigs" then
           return childFrame
         end
       end
