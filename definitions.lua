@@ -14,8 +14,8 @@
 ---@field LibSerializeDeserializeAsync fun(self, serialized: string) : table
 
 ---@class RefreshHook : table
----@field tableFunc fun() : table
----@field functionNames table<number, string>
+---@field tableFunc fun() : table The target table that we want to hook functions on
+---@field functionNames table<number, string> The names of the functions that we want to hook
 
 ---@class LibAddonProfilesModule : table
 ---@field moduleName string
