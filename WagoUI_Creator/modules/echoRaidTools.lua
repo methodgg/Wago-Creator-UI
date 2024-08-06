@@ -228,7 +228,8 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
   end
   groupsScrollBox.onSearchBoxTextChanged = onSearchBoxTextChanged
 
-  local searchBox = DF:CreateTextEntry(groupsScrollBox, function() end, scrollBoxWidth, 20, "ScriptSearchTextEntry", _, _,
+  local searchBox = DF:CreateTextEntry(groupsScrollBox, function() end, scrollBoxWidth, 20, "ScriptSearchTextEntry", nil,
+    nil,
     options_dropdown_template)
   searchBox:SetPoint("bottomleft", groupsScrollBox, "topleft", 0, 2)
   groupsScrollBox.searchBox = searchBox
