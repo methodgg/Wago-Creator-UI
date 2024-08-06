@@ -22,4 +22,5 @@
 	<Include file="bugsack.lua"/>
 	<Include file="kuiNameplates.lua"/>
 	<Include file="warpDeplete.lua"/>
+	<Include file="quartz.lua"/>
 </Ui>
