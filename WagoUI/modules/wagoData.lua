@@ -136,12 +136,20 @@ function addon:StoreImportedProfileTimestamp(timestamp, moduleName, profileKey, 
   end
 end
 
-function addon:GetImportedProfileTimestamp(moduleName, entryName)
+---@param moduleName string
+---@param entryName? string Name of the profile if the profile is from a module that has multiple profiles (e.g. WeakAuras).
+---@return number | nil lastUpdatedAt Timestamp of when the profile was last updated by the creator
+---@return string | nil profileKey Profile the imported profile was imported as. The user could have changed the profile key during the intro wizard
+function addon:GetImportedProfileData(moduleName, entryName)
   if entryName then
-    return db.importedProfiles[moduleName]
+    local data = db.importedProfiles[moduleName]
         and db.importedProfiles[moduleName].entries
         and db.importedProfiles[moduleName].entries[entryName]
-        and db.importedProfiles[moduleName].entries[entryName].lastUpdatedAt
+        and db.importedProfiles[moduleName].entries[entryName]
+    if not data then return end
+    return data.lastUpdatedAt, data.profileKey
   end
-  return db.importedProfiles[moduleName] and db.importedProfiles[moduleName].lastUpdatedAt
+  local data = db.importedProfiles[moduleName]
+  if not data then return end
+  return data.lastUpdatedAt, data.profileKey
 end

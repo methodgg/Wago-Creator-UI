@@ -18,7 +18,7 @@ end
 function addon:CreateActionButton(parent, width, height, fontSize)
   local actionButton = addon.DF:CreateButton(parent, width, height, "", fontSize)
 
-  function actionButton:UpdateAction(info, updateAvailable, lastImport, latestVersion)
+  function actionButton:UpdateAction(info, updateAvailable, lastUdatedAt, profileKey, latestVersion)
     ---@class LibAddonProfilesModule
     local lap = info.lap
     local loaded = lap.isLoaded()
@@ -26,7 +26,7 @@ function addon:CreateActionButton(parent, width, height, fontSize)
     local askReimport
 
     if loaded then
-      if not lastImport then
+      if not lastUdatedAt then
         actionButton:SetText(L["Import"])
       elseif updateAvailable then
         actionButton:SetText(L["Update"])
@@ -44,7 +44,7 @@ function addon:CreateActionButton(parent, width, height, fontSize)
     actionButton:SetClickFunction(function()
       local importCallback = function()
         addon:Async(function()
-          importProfile(info.lap, info.profile, info.profileKey, latestVersion, info.entryName)
+          importProfile(info.lap, info.profile, profileKey, latestVersion, info.entryName)
         end)
       end
       if askReimport then

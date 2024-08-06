@@ -129,23 +129,25 @@ function addon.DF:CreateProfileList(parent, frameWidth, frameHeight)
           line.initializationWarning:Hide()
         end
 
+        local importedLastUpdatedAt, importedProfileKey = addon:GetImportedProfileData(info.moduleName, info.entryName)
+        local lastUdatedAt = importedLastUpdatedAt or 0
+        local profileKey = importedProfileKey or info.profileKey
         -- profile key
-        line.profileKeyLabel:SetText(info.entryName and "" or info.profileKey);
+        line.profileKeyLabel:SetText(info.entryName and "" or profileKey);
 
         -- last update
-        local lastUpdatedAt = addon:GetImportedProfileTimestamp(info.moduleName, info.entryName)
         local latestVersion
         if info.entryName then
           latestVersion = info.profileMetadata.lastUpdatedAt[info.entryName]
         else
           latestVersion = info.profileMetadata.lastUpdatedAt
         end
-        local updateAvailable = latestVersion > (lastUpdatedAt or 0)
-        local lastUpdatedtext = lastUpdatedAt and date("%b %d %H:%M", lastUpdatedAt)
+        local updateAvailable = latestVersion > lastUdatedAt
+        local lastUpdatedtext = lastUdatedAt and date("%b %d %H:%M", lastUdatedAt)
         line.lastUpdateLabel:SetText(lastUpdatedtext);
 
         -- action button
-        line.actionButton:UpdateAction(info, updateAvailable, lastUpdatedAt, latestVersion)
+        line.actionButton:UpdateAction(info, updateAvailable, lastUdatedAt, profileKey, latestVersion)
       end
     end
   end
