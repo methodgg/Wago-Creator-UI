@@ -58,7 +58,7 @@ end
 ---@return boolean
 local isDuplicate = function(profileKey)
   if not profileKey then return false end
-  return getProfileKeys()[profileKey]
+  return getProfileKeys()[profileKey] ~= nil
 end
 
 ---@param profileString string
