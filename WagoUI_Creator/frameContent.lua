@@ -1,5 +1,8 @@
 ---@diagnostic disable: undefined-field
-local addonName, addon = ...
+---@type string
+local addonName = ...
+---@class WagoUICreator
+local addon = select(2, ...)
 local L = addon.L
 local DF = _G["DetailsFramework"]
 local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
@@ -212,7 +215,9 @@ function addon:CreateProfileList(f, width, height)
               line.exportButton:Disable()
               line.exportButton:SetText(L["Exporting..."])
               local exportString = lapModule.exportProfile(profileKeyToExport)
-              addon:TextExport(exportString)
+              if exportString then
+                addon:TextExport(exportString)
+              end
               line.exportButton:Enable()
               setExportButtonText()
             end, "copyProfileString")

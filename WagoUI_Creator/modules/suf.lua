@@ -1,4 +1,5 @@
-local _, addon = ...
+---@class WagoUICreator
+local addon = select(2, ...)
 local L = addon.L
 local moduleName = "ShadowedUnitFrames"
 local LAP = LibStub:GetLibrary("LibAddonProfiles")

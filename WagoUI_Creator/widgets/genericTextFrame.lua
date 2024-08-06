@@ -1,5 +1,5 @@
----@diagnostic disable: param-type-mismatch, undefined-field
-local addonName, addon = ...
+---@class WagoUICreator
+local addon = select(2, ...)
 local DF = _G["DetailsFramework"]
 
 function addon:CreateGenericTextFrame(width, height, title)

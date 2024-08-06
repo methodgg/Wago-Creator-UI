@@ -1,4 +1,5 @@
-local addonName, addon = ...
+---@class WagoUICreator
+local addon = select(2, ...)
 addon.ModuleFunctions = {}
 local ModuleFunctions = addon.ModuleFunctions
 local LAP = LibStub:GetLibrary("LibAddonProfiles")

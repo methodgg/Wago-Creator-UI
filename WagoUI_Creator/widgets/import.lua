@@ -1,4 +1,5 @@
-local _, addon = ...
+---@class WagoUICreator
+local addon = select(2, ...)
 local DF = _G["DetailsFramework"]
 local LAP = LibStub:GetLibrary("LibAddonProfiles")
 local lapModules = LAP:GetAllModules()

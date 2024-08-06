@@ -1,5 +1,6 @@
 ---@format disable
-local addonName, addon = ...
+---@class WagoUICreator
+local addon = select(2, ...)
 addon.L = {}
 local L = addon.L
 

@@ -1,5 +1,5 @@
----@diagnostic disable: undefined-field
-local _, addon = ...
+---@class WagoUICreator
+local addon = select(2, ...)
 local L = addon.L
 local moduleName = "WeakAuras"
 local LAP = LibStub:GetLibrary("LibAddonProfiles")

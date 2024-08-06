@@ -1,4 +1,5 @@
-local _, addon = ...
+---@class WagoUICreator
+local addon = select(2, ...)
 local moduleName = "OmniCD"
 local LAP = LibStub:GetLibrary("LibAddonProfiles")
 local lapModule = LAP:GetModule(moduleName)

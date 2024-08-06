@@ -1,5 +1,7 @@
----@diagnostic disable: inject-field, undefined-field, param-type-mismatch
-local addonName, addon = ...
+---@type string
+local addonName = ...
+---@class WagoUICreator
+local addon = select(2, ...)
 local DF = _G["DetailsFramework"]
 local L = addon.L
 
@@ -108,6 +110,7 @@ function addon:CreateCopyHelper()
     statusBar.bar:SetSmoothedValue(currentProgress)
     local text = currentProgress.."/"..maxProgress
     if currentProgress == maxProgress then
+      ---@diagnostic disable-next-line: param-type-mismatch
       UIFrameFadeOut(statusBar, 1, 1, 0)
     end
     statusBar.bar.text:SetText(text)

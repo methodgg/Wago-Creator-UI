@@ -1,5 +1,7 @@
----@diagnostic disable: undefined-field
-local addonName, addon = ...
+---@type string
+local addonName = ...
+---@class WagoUICreator
+local addon = select(2, ...)
 local L = addon.L
 local DF = _G["DetailsFramework"]
 

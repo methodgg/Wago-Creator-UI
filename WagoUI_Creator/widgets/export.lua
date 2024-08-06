@@ -1,5 +1,5 @@
----@diagnostic disable: param-type-mismatch, undefined-field
-local addonName, addon = ...
+---@class WagoUICreator
+local addon = select(2, ...)
 
 local exportFrame
 
@@ -43,7 +43,7 @@ function addon:CreateTextExportFrame()
 end
 
 --- @param str string
---- @param dontHighlight boolean
+--- @param dontHighlight? boolean
 function addon:TextExport(str, dontHighlight)
   if not exportFrame then addon:CreateTextExportFrame() end
   if not str then return end

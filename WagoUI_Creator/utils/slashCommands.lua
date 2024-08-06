@@ -1,5 +1,7 @@
-local addonName, addon = ...
-local DF = _G["DetailsFramework"]
+---@type string
+local addonName = ...
+---@class WagoUICreator
+local addon = select(2, ...)
 
 local function slashCommandShow(args, editbox)
   local req, arg = strsplit(' ', args)

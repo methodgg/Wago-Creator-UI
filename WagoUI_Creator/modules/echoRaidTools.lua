@@ -1,5 +1,5 @@
----@diagnostic disable: undefined-field
-local _, addon = ...
+---@class WagoUICreator
+local addon = select(2, ...)
 local L = addon.L
 local moduleName = "Echo Raid Tools"
 local LAP = LibStub:GetLibrary("LibAddonProfiles")
@@ -24,7 +24,7 @@ end
 
 local getGroupExportState = function(resolution, id)
   addon:GetCurrentPack().profileKeys[resolution][moduleName] = addon:GetCurrentPack().profileKeys[resolution]
-  [moduleName] or {}
+      [moduleName] or {}
   return addon:GetCurrentPack().profileKeys[resolution][moduleName][id]
 end
 
