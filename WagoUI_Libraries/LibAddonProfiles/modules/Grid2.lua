@@ -260,16 +260,10 @@ local m = {
   areProfileStringsEqual = areProfileStringsEqual,
   refreshHookList = {
     {
-      tablePath = { "Grid2", "db" },
-      functionName = "SetProfile",
-    },
-    {
-      tablePath = { "Grid2", "db" },
-      functionName = "CopyProfile",
-    },
-    {
-      tablePath = { "Grid2", "db" },
-      functionName = "DeleteProfile",
+      tableFunc = function()
+        return Grid2.db
+      end,
+      functionNames = { "SetProfile", "CopyProfile", "DeleteProfile" }
     },
   }
 }

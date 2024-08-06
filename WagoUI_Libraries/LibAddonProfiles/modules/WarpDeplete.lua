@@ -121,12 +121,10 @@ local m = {
   nonNativeProfileString = true,
   refreshHookList = {
     {
-      tablePath = { "WarpDeplete", "db" },
-      functionName = "SetProfile",
-    },
-    {
-      tablePath = { "WarpDeplete", "db" },
-      functionName = "DeleteProfile",
+      tableFunc = function()
+        return WarpDeplete.db
+      end,
+      functionNames = { "SetProfile", "DeleteProfile" }
     },
   }
 }

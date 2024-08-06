@@ -150,16 +150,10 @@ local m = {
   nonNativeProfileString = true,
   refreshHookList = {
     {
-      tablePath = { "Bartender4", "db" },
-      functionName = "SetProfile",
-    },
-    {
-      tablePath = { "Bartender4", "db" },
-      functionName = "CopyProfile",
-    },
-    {
-      tablePath = { "Bartender4", "db" },
-      functionName = "DeleteProfile",
+      tableFunc = function()
+        return Bartender4.db
+      end,
+      functionNames = { "SetProfile", "CopyProfile", "DeleteProfile" }
     },
   }
 }

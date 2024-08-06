@@ -471,13 +471,10 @@ function addon:CreateFrames()
     local function executeRefreshHooks(lapModule)
       if lapModule.refreshHookList then
         for _, hook in pairs(lapModule.refreshHookList) do
-          local targetTable = _G[hook.tablePath[1]]
-          for i = 2, #hook.tablePath do
-            targetTable = targetTable and targetTable[hook.tablePath[i]]
-          end
-          if targetTable then
-            hooksecurefunc(targetTable, hook.functionName, function()
-              C_Timer.After(0.1, function() --edge case in editmode where the profilelist is not updated instantly
+          local targetTable = hook.tableFunc()
+          for _, functionName in pairs(hook.functionNames) do
+            hooksecurefunc(targetTable, functionName, function()
+              C_Timer.After(0.1, function()   --edge case in editmode where the profilelist is not updated instantly
                 addon:RefreshAllProfileDropdowns()
               end)
             end)

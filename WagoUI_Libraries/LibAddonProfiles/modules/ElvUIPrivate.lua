@@ -128,16 +128,10 @@ local m = {
   areProfileStringsEqual = areProfileStringsEqual,
   refreshHookList = {
     {
-      tablePath = { "ElvUI", 1, "Options", "args", "profiles", "args", "private", "handler", "db" },
-      functionName = "SetProfile",
-    },
-    {
-      tablePath = { "ElvUI", 1, "Options", "args", "profiles", "args", "private", "handler", "db" },
-      functionName = "CopyProfile",
-    },
-    {
-      tablePath = { "ElvUI", 1, "Options", "args", "profiles", "args", "private", "handler", "db" },
-      functionName = "DeleteProfile",
+      tableFunc = function()
+        return ElvUI[1].Options.args.profiles.args.private.handler.db
+      end,
+      functionNames = { "SetProfile", "CopyProfile", "DeleteProfile" }
     },
   }
 }

@@ -120,16 +120,10 @@ local m = {
   nonNativeProfileString = true,
   refreshHookList = {
     {
-      tablePath = { "ShadowUF", "db" },
-      functionName = "SetProfile",
-    },
-    {
-      tablePath = { "ShadowUF", "db" },
-      functionName = "CopyProfile",
-    },
-    {
-      tablePath = { "ShadowUF", "db" },
-      functionName = "DeleteProfile",
+      tableFunc = function()
+        return ShadowUF.db
+      end,
+      functionNames = { "SetProfile", "CopyProfile", "DeleteProfile" }
     },
   },
 }

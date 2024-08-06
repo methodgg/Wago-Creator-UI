@@ -281,16 +281,10 @@ local m = {
   areProfileStringsEqual = areProfileStringsEqual,
   refreshHookList = {
     {
-      tablePath = { "Plater", "db" },
-      functionName = "SetProfile",
-    },
-    {
-      tablePath = { "Plater", "db" },
-      functionName = "CopyProfile",
-    },
-    {
-      tablePath = { "Plater", "db" },
-      functionName = "DeleteProfile",
+      tableFunc = function()
+        return Plater.db
+      end,
+      functionNames = { "SetProfile", "CopyProfile", "DeleteProfile" }
     },
   }
 }

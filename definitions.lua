@@ -14,8 +14,8 @@
 ---@field LibSerializeDeserializeAsync fun(self, serialized: string) : table
 
 ---@class RefreshHook : table
----@field tablePath table<number, string | number>
----@field functionName string
+---@field tableFunc fun() : table
+---@field functionNames table<number, string>
 
 ---@class LibAddonProfilesModule : table
 ---@field moduleName string

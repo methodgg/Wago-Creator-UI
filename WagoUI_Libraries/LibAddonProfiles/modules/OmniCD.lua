@@ -153,12 +153,10 @@ local m = {
   areProfileStringsEqual = areProfileStringsEqual,
   refreshHookList = {
     {
-      tablePath = { "OmniCD", 1, "DB" },
-      functionName = "SetProfile",
-    },
-    {
-      tablePath = { "OmniCD", 1, "DB" },
-      functionName = "DeleteProfile",
+      tableFunc = function()
+        return OmniCD[1].DB
+      end,
+      functionNames = { "SetProfile", "DeleteProfile" }
     },
   }
 }

@@ -143,12 +143,16 @@ local m = {
   areProfileStringsEqual = areProfileStringsEqual,
   refreshHookList = {
     {
-      tablePath = { "KuiNameplatesCore" },
-      functionName = "ConfigChanged",
+      tableFunc = function()
+        return KuiNameplatesCore
+      end,
+      functionNames = { "ConfigChanged" },
     },
     {
-      tablePath = { "KuiNameplatesCore", "config" },
-      functionName = "PostProfile",
+      tableFunc = function()
+        return KuiNameplatesCore.config
+      end,
+      functionNames = { "PostProfile" },
     },
   },
 }

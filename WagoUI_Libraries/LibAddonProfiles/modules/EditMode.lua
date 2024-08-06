@@ -162,16 +162,10 @@ local m = {
   areProfileStringsEqual = areProfileStringsEqual,
   refreshHookList = {
     {
-      tablePath = { "EditModeManagerFrame" },
-      functionName = "SaveLayouts",
-    },
-    {
-      tablePath = { "EditModeManagerFrame" },
-      functionName = "Layout",
-    },
-    {
-      tablePath = { "EditModeManagerFrame" },
-      functionName = "SelectLayout",
+      tableFunc = function()
+        return EditModeManagerFrame
+      end,
+      functionNames = { "SaveLayouts", "Layout", "SelectLayout" }
     },
   }
 }

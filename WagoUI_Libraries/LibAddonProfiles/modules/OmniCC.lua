@@ -124,12 +124,10 @@ local m = {
   nonNativeProfileString = true,
   refreshHookList = {
     {
-      tablePath = { "OmniCC", "db" },
-      functionName = "SetProfile",
-    },
-    {
-      tablePath = { "OmniCC", "db" },
-      functionName = "DeleteProfile",
+      tableFunc = function()
+        return OmniCC.db
+      end,
+      functionNames = { "SetProfile", "DeleteProfile" }
     },
   }
 }

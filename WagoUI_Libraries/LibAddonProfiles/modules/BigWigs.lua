@@ -172,12 +172,10 @@ local m = {
   nonNativeProfileString = true,
   refreshHookList = {
     {
-      tablePath = { "BigWigs", "db" },
-      functionName = "SetProfile",
-    },
-    {
-      tablePath = { "BigWigs", "db" },
-      functionName = "DeleteProfile",
+      tableFunc = function()
+        return BigWigs.db
+      end,
+      functionNames = { "SetProfile", "DeleteProfile" }
     },
   },
 }

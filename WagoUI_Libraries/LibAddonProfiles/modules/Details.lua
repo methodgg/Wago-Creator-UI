@@ -210,12 +210,10 @@ local m = {
   areProfileStringsEqual = areProfileStringsEqual,
   refreshHookList = {
     {
-      tablePath = { "Details" },
-      functionName = "ApplyProfile",
-    },
-    {
-      tablePath = { "Details" },
-      functionName = "EraseProfile",
+      tableFunc = function()
+        return Details
+      end,
+      functionNames = { "ApplyProfile", "EraseProfile" }
     },
   }
 }
