@@ -1,8 +1,9 @@
 ---@diagnostic disable: inject-field, undefined-field, param-type-mismatch
 local addonName, addon = ...
 local DF = _G["DetailsFramework"]
+local L = addon.L
 
-local copyPrompt = "Press CTRL + C to copy!"
+local copyPrompt = L["copyInstruction"]
 
 function addon:CreateCopyHelper()
   addon.copyHelper = CreateFrame("Frame", addonName.."CopyHelper", UIParent)
