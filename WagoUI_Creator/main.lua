@@ -191,6 +191,7 @@ function addon:ExportAllProfiles()
   end
   addon:StartProgressBar(countOperations)
   addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 50, L["Saving all profiles..."])
+  addon.SetLockoutFrameShowState(true)
   addon:Async(function()
     local updates = {}
     local removals = {}
@@ -235,6 +236,7 @@ function addon:ExportAllProfiles()
     else
       addon.copyHelper:SmartFadeOut(2, L["No Changes detected"])
     end
+    addon.SetLockoutFrameShowState(false)
     addon:AddDataToDataAddon()
   end, "ExportAllProfiles")
 end
@@ -358,6 +360,15 @@ function addon:RefreshAllProfileDropdowns()
   addon.RefreshContentScrollBox()
 end
 
+---@param show boolean
+function addon.SetLockoutFrameShowState(show)
+  if show then
+    addon.frames.lockoutFrame:Show()
+  else
+    addon.frames.lockoutFrame:Hide()
+  end
+end
+
 function addon:CreateFrames()
   addon:RegisterErrorHandledFunctions()
   local panelOptions = {
@@ -436,6 +447,17 @@ function addon:CreateFrames()
   frameContent:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0, 38)
   frameContent:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 38)
   frame.frameContent = frameContent
+
+  local lockoutFrame = CreateFrame("Frame", "WagoUICreatorLockoutFrame", frame)
+  lockoutFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT")
+  lockoutFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, -20)
+  lockoutFrame:SetFrameStrata("DIALOG")
+  lockoutFrame:EnableMouse(true)
+  lockoutFrame:Hide()
+  local tex = lockoutFrame:CreateTexture(nil, "BACKGROUND")
+  tex:SetAllPoints(lockoutFrame)
+  tex:SetColorTexture(0, 0, 0, 0.7)
+  addon.frames.lockoutFrame = lockoutFrame
 
   addon:CreateFrameContent(frame.frameContent)
 
