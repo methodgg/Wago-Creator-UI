@@ -1,4 +1,5 @@
-local addonName, addon = ...
+---@class WagoUI
+local addon = select(2, ...)
 
 local function hideAddOnPopups()
   for i = 1, 5 do

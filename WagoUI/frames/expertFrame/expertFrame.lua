@@ -1,16 +1,9 @@
-local addonName, addon = ...;
-local DF = _G["DetailsFramework"];
-local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE");
+---@type string
+local addonName = ...
+---@class WagoUI
+local addon = select(2, ...)
 local db
 local L = addon.L
-
-local widths = {
-  options = 60,
-  name = 350,
-  profile = 200,
-  -- version = 100,
-  lastUpdate = 150,
-}
 
 local uiPackDropdown, resolutionDropdown
 

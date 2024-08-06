@@ -1,4 +1,5 @@
-local addonName, addon = ...;
+---@class WagoUI
+local addon = select(2, ...)
 
 ---@type LibAsync
 local LibAsync = LibStub("LibAsync")

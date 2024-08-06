@@ -1,4 +1,7 @@
-local addonName, addon = ...;
+---@type string
+local addonName = ...
+---@class WagoUI
+local addon = select(2, ...)
 
 function addon:AddonPrint(...)
   print("|c"..addon.color..addonName.."|r:", tostringall(...));

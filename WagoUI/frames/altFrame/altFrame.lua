@@ -1,4 +1,7 @@
-local addonName, addon = ...;
+---@type string
+local addonName = ...
+---@class WagoUI
+local addon = select(2, ...)
 local DF = _G["DetailsFramework"];
 local L = addon.L
 local LAP = LibStub:GetLibrary("LibAddonProfiles")

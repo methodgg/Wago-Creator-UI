@@ -1,4 +1,7 @@
-local addonName, addon = ...;
+---@type string
+local addonName = ...
+---@class WagoUI
+local addon = select(2, ...)
 _G[addonName] = addon;
 local DF = _G["DetailsFramework"];
 local init

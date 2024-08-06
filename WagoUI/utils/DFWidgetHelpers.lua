@@ -1,4 +1,5 @@
-local addonName, addon = ...;
+---@class WagoUI
+local addon = select(2, ...)
 local DF = _G["DetailsFramework"];
 local odt = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE");
 local db

@@ -1,5 +1,8 @@
 ---@diagnostic disable: undefined-field, inject-field
-local addonName, addon = ...;
+---@type string
+local addonName = ...
+---@class WagoUI
+local addon = select(2, ...)
 local AceGUI = LibStub("AceGUI-3.0")
 local L = addon.L
 
