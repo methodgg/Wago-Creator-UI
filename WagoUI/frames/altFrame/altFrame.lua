@@ -7,7 +7,8 @@ local L = addon.L
 local LAP = LibStub:GetLibrary("LibAddonProfiles")
 
 local function setAllProfilesAsync()
-  for moduleName, data in pairs(addon.db.importedProfiles) do
+  local target = addon:GetImportedProfilesTarget()
+  for moduleName, data in pairs(target) do
     ---@type LibAddonProfilesModule
     local lap = LAP:GetModule(moduleName)
     if data.profileKey and lap:isLoaded() then

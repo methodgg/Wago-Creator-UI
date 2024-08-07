@@ -117,24 +117,49 @@ do
   end
 end
 
+---@class ImportMetaDataEntry
+---@field lastUpdatedAt number
+
+---@class ImportMetaData
+---@field lastUpdatedAt? number
+---@field profileKey? string
+---@field entries? table<string, ImportMetaData>
+
+---@return table<string, ImportMetaData>>
+function addon:GetImportedProfilesTarget()
+  local currentCharacter = UnitName("player").."-"..GetRealmName()
+  local packKey = addon.db.selectedWagoData
+  local resolution = addon.db.selectedWagoDataResolution
+  addon.db.importedProfiles[currentCharacter] = addon.db.importedProfiles[currentCharacter] or {}
+  addon.db.importedProfiles[currentCharacter][packKey] = addon.db.importedProfiles[currentCharacter][packKey] or {}
+  addon.db.importedProfiles[currentCharacter][packKey][resolution] = addon.db.importedProfiles[currentCharacter]
+      [packKey][resolution] or {}
+  return addon.db.importedProfiles[currentCharacter][packKey][resolution]
+end
+
 -- Important:
 -- We are storing the timestamp of when the profile has been updated by the creator
 -- NOT the time when the user imported the profile
 -- This is to check if the profile has been updated since the user last imported it
+---@param timestamp number
+---@param moduleName string
+---@param profileKey string
+---@param entryName? string
 function addon:StoreImportedProfileData(timestamp, moduleName, profileKey, entryName)
-  if not db.importedProfiles[moduleName] then
-    db.importedProfiles[moduleName] = entryName and
+  local target = addon:GetImportedProfilesTarget()
+  if not target[moduleName] then
+    target[moduleName] = entryName and
         {
           entries = {},
         } or {}
   end
   if entryName then
-    db.importedProfiles[moduleName].entries[entryName] = {
+    target[moduleName].entries[entryName] = {
       lastUpdatedAt = timestamp
     }
   else
-    db.importedProfiles[moduleName].profileKey = profileKey
-    db.importedProfiles[moduleName].lastUpdatedAt = timestamp
+    target[moduleName].profileKey = profileKey
+    target[moduleName].lastUpdatedAt = timestamp
   end
 end
 
@@ -143,15 +168,14 @@ end
 ---@return number | nil lastUpdatedAt Timestamp of when the profile was last updated by the creator
 ---@return string | nil profileKey Profile the imported profile was imported as. The user could have changed the profile key during the intro wizard
 function addon:GetImportedProfileData(moduleName, entryName)
+  local target = addon:GetImportedProfilesTarget()
+  if not target[moduleName] then return end
   if entryName then
-    local data = db.importedProfiles[moduleName]
-        and db.importedProfiles[moduleName].entries
-        and db.importedProfiles[moduleName].entries[entryName]
-        and db.importedProfiles[moduleName].entries[entryName]
+    local data = target[moduleName]
+        and target[moduleName].entries
+        and target[moduleName].entries[entryName]
     if not data then return end
     return data.lastUpdatedAt, data.profileKey
   end
-  local data = db.importedProfiles[moduleName]
-  if not data then return end
-  return data.lastUpdatedAt, data.profileKey
+  return target[moduleName].lastUpdatedAt, target[moduleName].profileKey
 end

@@ -130,7 +130,6 @@ function addon.DF:CreateProfileList(parent, frameWidth, frameHeight)
         end
 
         local importedLastUpdatedAt, importedProfileKey = addon:GetImportedProfileData(info.moduleName, info.entryName)
-        local lastUdatedAt = importedLastUpdatedAt or 0
         local profileKey = importedProfileKey or info.profileKey
         -- profile key
         line.profileKeyLabel:SetText(info.entryName and "" or profileKey);
@@ -142,12 +141,11 @@ function addon.DF:CreateProfileList(parent, frameWidth, frameHeight)
         else
           latestVersion = info.profileMetadata.lastUpdatedAt
         end
-        local updateAvailable = latestVersion > lastUdatedAt
-        local lastUpdatedtext = lastUdatedAt and date("%b %d %H:%M", lastUdatedAt)
-        line.lastUpdateLabel:SetText(lastUpdatedtext);
+        line.lastUpdateLabel:SetText(date("%b %d %H:%M", latestVersion));
 
         -- action button
-        line.actionButton:UpdateAction(info, updateAvailable, lastUdatedAt, profileKey, latestVersion)
+        local updateAvailable = latestVersion > (importedLastUpdatedAt or 0)
+        line.actionButton:UpdateAction(info, updateAvailable, importedLastUpdatedAt, profileKey, latestVersion)
       end
     end
   end
@@ -158,11 +156,11 @@ function addon.DF:CreateProfileList(parent, frameWidth, frameHeight)
   end
 
   local headerTable = {
-    { text = L["Options"],     width = widths.options,                                        offset = 1 },
-    { text = L["Name"],        width = widths.name },
-    { text = L["Action"],      width = widths.action },
-    { text = L["Profile"],     width = widths.profile },
-    { text = L["Last Update"], width = frameWidth - totalHeaderWidth + widths.lastUpdate - 35 },
+    { text = L["Options"],        width = widths.options,                                        offset = 1 },
+    { text = L["Name"],           width = widths.name },
+    { text = L["Action"],         width = widths.action },
+    { text = L["Profile"],        width = widths.profile },
+    { text = L["Latest Version"], width = frameWidth - totalHeaderWidth + widths.lastUpdate - 35 },
   };
   local headerOptions = {
     text_size = 12
