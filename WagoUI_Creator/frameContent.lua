@@ -33,15 +33,15 @@ function addon:CreateProfileList(f, width, height)
     -- hide all lines
     for i = 1, totalLines do
       local line = self:GetLine(i)
-      if not currentUIPack then
-        line:Hide()
+      if not currentUIPack or not data[i + offset] then
         line.icon:Hide()
         line.nameLabel:SetText("")
         line.initializationWarning:Hide()
         line.manageButton:Hide()
         line.profileDropdown:Hide()
+        line.exportButton:Hide()
+        line:SetBackdropColor(unpack({ .8, .8, .8, 0.1 }))
       else
-        line:Show()
         line.icon:Show()
         line.initializationWarning:Show()
         line.manageButton:Show()
@@ -77,10 +77,10 @@ function addon:CreateProfileList(f, width, height)
         end
         line.icon:SetTooltip(lapModule.openConfig and string.format(L["Click to open %s options"], info.name) or nil)
         line.icon:SetScript("OnClick", function()
-          lapModule.openConfig()
+          lapModule:openConfig()
           f.contentScrollbox:Refresh()
         end)
-        if loaded or lapModule.needsInitialization() then
+        if loaded or lapModule:needsInitialization() then
           line.icon:SetEnabled(true)
         else
           line.icon:SetEnabled(false)
@@ -93,12 +93,12 @@ function addon:CreateProfileList(f, width, height)
         else
           line.nameLabel:SetTextColor(1, 1, 1, 1)
         end
-        if lapModule.needsInitialization() then
+        if lapModule:needsInitialization() then
           line.initializationWarning:Show()
           line.initializationWarning:SetScript("OnClick", function()
-            lapModule.openConfig()
+            lapModule:openConfig()
             C_Timer.After(0, function()
-              lapModule.closeConfig()
+              lapModule:closeConfig()
             end)
             f.contentScrollbox:Refresh()
           end)
@@ -149,7 +149,7 @@ function addon:CreateProfileList(f, width, height)
           if not profileKey then line.profileDropdown:NoOptionSelected() end
           -- if profile key is no longer valid
           -- this is only a visual change, we do not want to touch the exported data / profile key here
-          if profileKey and lapModule.isLoaded() and not lapModule.getProfileKeys()[profileKey] then
+          if profileKey and lapModule:isLoaded() and not lapModule:getProfileKeys()[profileKey] then
             line.profileDropdown:NoOptionSelected()
           end
         end
@@ -214,7 +214,7 @@ function addon:CreateProfileList(f, width, height)
             addon:Async(function()
               line.exportButton:Disable()
               line.exportButton:SetText(L["Exporting..."])
-              local exportString = lapModule.exportProfile(profileKeyToExport)
+              local exportString = lapModule:exportProfile(profileKeyToExport)
               if exportString then
                 addon:TextExport(exportString)
               end
@@ -472,7 +472,6 @@ function addon:CreateProfileList(f, width, height)
   contentScrollbox:SetPoint("TOPLEFT", f.contentHeader, "BOTTOMLEFT")
   contentScrollbox.ScrollBar.scrollStep = 60
   DF:ReskinSlider(contentScrollbox)
-
 
   addon.ModuleFunctions:SortModuleConfigs()
   contentScrollbox:SetData(addon.moduleConfigs)

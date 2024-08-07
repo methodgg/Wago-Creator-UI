@@ -371,7 +371,7 @@ end
 local onSuccessfulTestOverride = function(profileString, profileKey)
   local importCallback = function()
     addon:Async(function()
-      lapModule.importProfile(profileString, profileKey, false)
+      lapModule:importProfile(profileString, profileKey, false)
       manageFrame:Show()
       manageFrame.importExportButton:SetText(L["Done"])
       manageFrame.importExportButton:Disable()

@@ -10,16 +10,16 @@ local function setAllProfilesAsync()
   for moduleName, data in pairs(addon.db.importedProfiles) do
     ---@type LibAddonProfilesModule
     local lap = LAP:GetModule(moduleName)
-    if data.profileKey and lap.isLoaded() then
-      if lap.needsInitialization() then
-        lap.openConfig()
+    if data.profileKey and lap:isLoaded() then
+      if lap:needsInitialization() then
+        lap:openConfig()
         C_Timer.After(0, function()
-          lap.closeConfig()
+          lap:closeConfig()
         end)
       end
-      local profileKeys = lap.getProfileKeys()
+      local profileKeys = lap:getProfileKeys()
       if profileKeys[data.profileKey] then
-        lap.setProfile(data.profileKey)
+        lap:setProfile(data.profileKey)
       end
     end
     coroutine.yield()

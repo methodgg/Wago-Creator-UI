@@ -10,8 +10,8 @@ local function dropdownOptions(index)
   -- we cannot hook refresh because the addon is not using AceDB
   -- this way we only show the key of the current character, other profiles are not shown
   -- this is a limitation but it still covers most use cases
-  local profileKeys = lapModule.getProfileKeys()
-  local currentProfileKey = lapModule.getCurrentProfileKey()
+  local profileKeys = lapModule:getProfileKeys()
+  local currentProfileKey = lapModule:getCurrentProfileKey()
   return addon.ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKeys, currentProfileKey)
 end
 

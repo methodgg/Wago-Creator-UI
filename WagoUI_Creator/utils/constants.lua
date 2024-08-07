@@ -2,7 +2,7 @@
 local addonName = ...
 ---@class WagoUICreator
 local addon = select(2, ...)
--- _G[addonName] = addon
+_G[addonName] = addon
 local L = addon.L
 
 addon.moduleConfigs = {}

@@ -84,7 +84,7 @@ function addon.DF:CreateProfileList(parent, frameWidth, frameHeight)
         ---@class LibAddonProfilesModule
         local lap = info.lap
         local line = self:GetLine(i);
-        local loaded = lap.isLoaded()
+        local loaded = lap:isLoaded()
         if loaded then
           line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }));
         else
@@ -100,10 +100,10 @@ function addon.DF:CreateProfileList(parent, frameWidth, frameHeight)
         line.icon:SetHighlightAtlas(lap.openConfig and "bags-glow-white" or "");
         line.icon:SetTooltip(lap.openConfig and string.format(L["Click to open %s options"], info.moduleName) or nil);
         line.icon:SetScript("OnClick", function()
-          lap.openConfig()
+          lap:openConfig()
           contentScrollbox:Refresh()
         end)
-        if loaded or lap.needsInitialization() then
+        if loaded or lap:needsInitialization() then
           line.icon:SetEnabled(true);
         else
           line.icon:SetEnabled(false);
@@ -116,12 +116,12 @@ function addon.DF:CreateProfileList(parent, frameWidth, frameHeight)
         else
           line.nameLabel:SetTextColor(1, 1, 1, 1);
         end
-        if lap.needsInitialization() then
+        if lap:needsInitialization() then
           line.initializationWarning:Show()
           line.initializationWarning:SetScript("OnClick", function()
-            lap.openConfig()
+            lap:openConfig()
             C_Timer.After(0, function()
-              lap.closeConfig()
+              lap:closeConfig()
             end)
             contentScrollbox:Refresh()
           end)

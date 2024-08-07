@@ -3,54 +3,6 @@ local _, loadingAddonNamespace = ...;
 local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal();
 if (not private) then return; end
 
----@return boolean
-local isLoaded = function()
-  local loaded = C_AddOns.IsAddOnLoaded("Kui_Nameplates")
-  return loaded
-end
-
----@return boolean
-local needsInitialization = function()
-  return false
-end
-
----@return nil
-local openConfig = function()
-  local core = SlashCmdList["KUINAMEPLATESCORE"]
-  local lod = SlashCmdList["KUINAMEPLATES_LOD"]
-  if core then core("") elseif lod then lod("") end
-end
-
----@return nil
-local closeConfig = function()
-  SettingsPanel:Hide()
-end
-
----@return table<string, any>
-local getProfileKeys = function()
-  return KuiNameplatesCoreSaved.profiles
-end
-
----@return string
-local getCurrentProfileKey = function()
-  return KuiNameplatesCoreCharacterSaved.profile
-end
-
----@param profileKey string
-local setProfile = function(profileKey)
-  if not profileKey then return end
-  if not getProfileKeys()[profileKey] then return end
-  local config = KuiNameplatesCore.config
-  config:SetProfile(profileKey)
-end
-
----@param profileKey string
----@return boolean
-local isDuplicate = function(profileKey)
-  if not profileKey then return false end
-  return getProfileKeys()[profileKey]
-end
-
 ---@param profileString string
 ---@return table | nil
 local decodeProfileString = function(profileString)
@@ -70,77 +22,95 @@ local decodeProfileString = function(profileString)
   return table
 end
 
----@param profileString string
----@param profileKey string | nil
----@param profileData table | nil
----@param rawData table | nil
----@return string | nil
-local testImport = function(profileString, profileKey, profileData, rawData)
-  if not profileString then return end
-  local table = decodeProfileString(profileString)
-  --very weird export format
-  --need to check in the future if this test causes issues if another addon has a format like this
-  if table then return profileKey end
-end
-
----@param profileString string
----@param profileKey string
-local importProfile = function(profileString, profileKey, fromIntro)
-  if not profileString then return end
-  local table = decodeProfileString(profileString)
-  local config = KuiNameplatesCore.config
-  config.csv.profile = profileKey
-  config:PostProfile(profileKey, table)
-end
-
----@param profileKey string | nil
----@return string | nil
-local exportProfile = function(profileKey)
-  if not profileKey then return end
-  if not getProfileKeys()[profileKey] then return end
-  local kui = LibStub('Kui-1.0')
-  ---@diagnostic disable-next-line: undefined-field
-  local tableToString = kui.table_to_string
-  local config = KuiNameplatesCore.config
-  -- dont use GetProfile, it has unwanted side effects
-  local profile = config.gsv.profiles[profileKey]
-  local encoded = tableToString(profile)
-  local export = profileKey..encoded
-  return export
-end
-
----@param profileStringA string
----@param profileStringB string
----@return boolean
-local areProfileStringsEqual = function(profileStringA, profileStringB)
-  if not profileStringA or not profileStringB then return false end
-  local tableA = decodeProfileString(profileStringA)
-  local tableB = decodeProfileString(profileStringB)
-  if not tableA or not tableB then return false end
-  return private:DeepCompareAsync(tableA, tableB)
-end
-
---TODO
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Kui Nameplates",
   icon = 132177,
   slash = "/knp",
   needReloadOnImport = true,
-  needProfileKey = true,
+  needProfileKey = false,
   preventRename = false,
-  isLoaded = isLoaded,
-  needsInitialization = needsInitialization,
-  openConfig = openConfig,
-  closeConfig = closeConfig,
-  isDuplicate = isDuplicate,
-  testImport = testImport,
-  importProfile = importProfile,
-  exportProfile = exportProfile,
-  getProfileKeys = getProfileKeys,
-  getCurrentProfileKey = getCurrentProfileKey,
-  setProfile = setProfile,
-  areProfileStringsEqual = areProfileStringsEqual,
+  willOverrideProfile = false,
+  nonNativeProfileString = false,
+
+  isLoaded = function(self)
+    local loaded = C_AddOns.IsAddOnLoaded("Kui_Nameplates")
+    return loaded
+  end,
+
+  needsInitialization = function(self)
+    return false
+  end,
+
+  openConfig = function(self)
+    local core = SlashCmdList["KUINAMEPLATESCORE"]
+    local lod = SlashCmdList["KUINAMEPLATES_LOD"]
+    if core then core("") elseif lod then lod("") end
+  end,
+
+  closeConfig = function(self)
+    SettingsPanel:Hide()
+  end,
+
+  getProfileKeys = function(self)
+    return KuiNameplatesCoreSaved.profiles
+  end,
+
+  getCurrentProfileKey = function(self)
+    return KuiNameplatesCoreCharacterSaved.profile
+  end,
+
+  isDuplicate = function(self, profileKey)
+    if not profileKey then return false end
+    return self:getProfileKeys()[profileKey] ~= nil
+  end,
+
+  setProfile = function(self, profileKey)
+    if not profileKey then return end
+    if not self:getProfileKeys()[profileKey] then return end
+    local config = KuiNameplatesCore.config
+    config:SetProfile(profileKey)
+  end,
+
+  testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
+    if not profileString then return end
+    local table = decodeProfileString(profileString)
+    --very weird export format
+    --need to check in the future if this test causes issues if another addon has a format like this
+    if table then return profileKey end
+  end,
+
+  importProfile = function(self, profileString, profileKey, fromIntro)
+    if not profileString then return end
+    local table = decodeProfileString(profileString)
+    local config = KuiNameplatesCore.config
+    config.csv.profile = profileKey
+    config:PostProfile(profileKey, table)
+  end,
+
+  exportProfile = function(self, profileKey)
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
+    local kui = LibStub('Kui-1.0')
+    ---@diagnostic disable-next-line: undefined-field
+    local tableToString = kui.table_to_string
+    local config = KuiNameplatesCore.config
+    -- dont use GetProfile, it has unwanted side effects
+    local profile = config.gsv.profiles[profileKey]
+    local encoded = tableToString(profile)
+    local export = profileKey..encoded
+    return export
+  end,
+
+  areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
+    if not profileStringA or not profileStringB then return false end
+    local decodedTableA = decodeProfileString(profileStringA)
+    local decodedTableB = decodeProfileString(profileStringB)
+    if not decodedTableA or not decodedTableB then return false end
+    return private:DeepCompareAsync(decodedTableA, decodedTableB)
+  end,
+
   refreshHookList = {
     {
       tableFunc = function()
@@ -154,6 +124,7 @@ local m = {
       end,
       functionNames = { "PostProfile" },
     },
-  },
+  }
 }
+
 private.modules[m.moduleName] = m

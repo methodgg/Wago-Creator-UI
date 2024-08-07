@@ -1,9 +1,16 @@
-local loadingAddon, loadingAddonNamespace = ...;
-local MAJOR = "LibAddonProfiles";
-local MINOR = 1;
+---@class LAPLoadingNamespace
+local loadingAddonNamespace = select(2, ...)
+local MAJOR = "LibAddonProfiles"
+local MINOR = 1
+
+---@class LibAddonProfiles
 local LibAddonProfiles = LibStub:NewLibrary(MAJOR, MINOR);
+
 if LibAddonProfiles then
   wipe(LibAddonProfiles)
+
+  ---@class LibAddonProfilesPrivate : table
+  ---@field modules table<string, LibAddonProfilesModule>
   local LibAddonProfilesInternal = {
     modules = {}
   }
@@ -12,23 +19,36 @@ if LibAddonProfiles then
     return LibAddonProfilesInternal
   end
 
+  ---@param moduleName string
+  ---@return LibAddonProfilesModule module
   function LibAddonProfiles:GetModule(moduleName)
     return LibAddonProfilesInternal.modules[moduleName]
   end
 
+  ---@return table<string, LibAddonProfilesModule>
   function LibAddonProfiles:GetAllModules()
     return LibAddonProfilesInternal.modules
   end
 
-  function LibAddonProfiles:GenericEncode(profileKey, profile)
-    return LibAddonProfilesInternal:GenericEncode(profileKey, profile)
+  ---@param profileKey string
+  ---@param profile table
+  ---@param moduleName string
+  ---@return string profileString The encoded profile string
+  function LibAddonProfiles:GenericEncode(profileKey, profile, moduleName)
+    return LibAddonProfilesInternal:GenericEncode(profileKey, profile, moduleName)
   end
 
-  function LibAddonProfiles:GenericDecode(profileKey)
-    return LibAddonProfilesInternal:GenericDecode(profileKey)
+  ---@param profileString string
+  ---@return string | nil profileKey
+  ---@return table | nil profileData
+  ---@return table | nil rawData
+  ---@return string | nil moduleName
+  function LibAddonProfiles:GenericDecode(profileString)
+    return LibAddonProfilesInternal:GenericDecode(profileString)
   end
 
+  ---@param ... any
   function LibAddonProfilesInternal:PrintError(...)
-    print("|cff0092ff"..MAJOR.."|r:", tostringall(...));
+    print("|cff0092ff"..MAJOR.."|r:", tostringall(...))
   end
 end

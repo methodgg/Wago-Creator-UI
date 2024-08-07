@@ -52,7 +52,7 @@ local copyFuncOverride = function(...)
       on_click = function()
         addon:Async(function()
           addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 50, L["Preparing export string..."])
-          WagoUICreatorDB.profiles[moduleName][index] = lapModule.exportProfile(profileKey)
+          WagoUICreatorDB.profiles[moduleName][index] = lapModule:exportProfile(profileKey)
           addon.copyHelper:Hide()
           addon:TextExport(WagoUICreatorDB.profiles[moduleName][index])
         end, "sufChoice1OnClick")
@@ -64,7 +64,7 @@ local copyFuncOverride = function(...)
       on_click = function()
         addon:Async(function()
           addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 50, L["Preparing export string..."])
-          WagoUICreatorDB.profiles[moduleName][index] = lapModule.exportProfile(profileKey)
+          WagoUICreatorDB.profiles[moduleName][index] = lapModule:exportProfile(profileKey)
           local sufExport = writeTable(ShadowedUFDB.profiles[profileKey])
           addon.copyHelper:Hide()
           addon:TextExport(sufExport)
@@ -79,8 +79,8 @@ end
 local function dropdownOptions(index)
   local res = {}
   if not ShadowedUFDB then return res end
-  local profileKeys = lapModule.getProfileKeys()
-  local currentProfileKey = lapModule.getCurrentProfileKey()
+  local profileKeys = lapModule:getProfileKeys()
+  local currentProfileKey = lapModule:getCurrentProfileKey()
   return addon.ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKeys, currentProfileKey)
 end
 

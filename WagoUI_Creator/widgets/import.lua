@@ -10,21 +10,29 @@ local feedbackString = ""
 
 local IMPORT_EXPORT_EDIT_MAX_BYTES = 0 --1024000*4 -- 0 appears to be "no limit"
 
+---@param profileString string
+---@return string | nil moduleName
+---@return LibAddonProfilesModule | nil module
+---@return string | table | nil profileKey
 local function findMatchingModule(profileString)
   local genericPKey, genericProfile, genericRaw, genericModuleName = LAP:GenericDecode(profileString)
-  for moduleName, module in pairs(lapModules) do
-    if module.testImport then
+  for moduleName, lapModule in pairs(lapModules) do
+    if lapModule.testImport then
       feedbackString = feedbackString.."Testing import string for "..moduleName.."...\n"
       importFrame.editbox:SetText(feedbackString)
-      local profileKey = module.testImport(profileString, genericPKey, genericProfile, genericRaw, genericModuleName)
+      local profileKey = lapModule:testImport(profileString, genericPKey, genericProfile, genericRaw, genericModuleName)
       coroutine.yield()
       if profileKey then
-        return moduleName, module, profileKey
+        return moduleName, lapModule, profileKey
       end
     end
   end
 end
 
+---@param profileString string
+---@return string | nil moduleName
+---@return LibAddonProfilesModule | nil module
+---@return string | table | nil profileKey
 local function testImport(profileString)
   local moduleName, module, profileKey = findMatchingModule(profileString)
   if moduleName then
@@ -32,9 +40,14 @@ local function testImport(profileString)
   end
 end
 
-local function onSuccessfulTest(moduleName, module, profileKey, profileString)
-  local isLoaded = module.isLoaded and module.isLoaded()
-  local isDuplicate = isLoaded and module.isDuplicate and module.isDuplicate(profileKey)
+---@param moduleName string
+---@param lapModule LibAddonProfilesModule
+---@param profileKey string | table
+---@param profileString string
+local function onSuccessfulTest(moduleName, lapModule, profileKey, profileString)
+  local isLoaded = lapModule.isLoaded and lapModule:isLoaded()
+  local keyType = type(profileKey)
+  local isDuplicate = isLoaded and keyType == "string" and lapModule.isDuplicate and lapModule:isDuplicate(profileKey)
 
   local moduleConfig = addon.ModuleFunctions:GetModuleByName(moduleName)
   if isLoaded and moduleConfig.onSuccessfulTestOverride then
@@ -56,14 +69,14 @@ local function onSuccessfulTest(moduleName, module, profileKey, profileString)
   local icon = importFrame.icon
   if isLoaded then icon:Enable() else icon:Disable() end
   icon:Show()
-  icon:SetTexture(module.icon)
-  icon:SetPushedTexture(module.icon)
-  icon:SetDisabledTexture(module.icon)
-  icon:SetHighlightAtlas(module.slash and "bags-glow-white" or "")
-  icon:SetTooltip(module.slash and "Click to open "..module.moduleName.." options" or nil)
+  icon:SetTexture(lapModule.icon)
+  icon:SetPushedTexture(lapModule.icon)
+  icon:SetDisabledTexture(lapModule.icon)
+  icon:SetHighlightAtlas(lapModule.slash and "bags-glow-white" or "")
+  icon:SetTooltip(lapModule.slash and "Click to open "..lapModule.moduleName.." options" or nil)
   icon:SetScript("OnClick", function()
-    if module.slash then
-      addon:FireUnprotectedSlashCommand(module.slash)
+    if lapModule.slash then
+      addon:FireUnprotectedSlashCommand(lapModule.slash)
     end
   end)
 
@@ -80,15 +93,15 @@ local function onSuccessfulTest(moduleName, module, profileKey, profileString)
     self:Disable()
     addon:Async(function()
       local tempProfileKey = profileKey
-      if module.needProfileKey or isDuplicate and not module.preventRename then
+      if lapModule.needProfileKey or isDuplicate and not lapModule.preventRename then
         tempProfileKey = importFrame.profileNameInput:GetText()
       end
 
       local importClickCallback = function()
-        module.importProfile(profileString, tempProfileKey, false)
+        lapModule:importProfile(profileString, tempProfileKey, false)
         feedbackString = string.format("\n\n|cFF00FF00Profile %s successfully imported into %s|r", tempProfileKey,
           moduleName)
-        if module.needReloadOnImport then
+        if lapModule.needReloadOnImport then
           feedbackString = feedbackString.."\n\n|cFFFFFF00You need to reload your UI for the changes to take effect|r"
         end
         importFrame.editbox:SetText(feedbackString)
@@ -111,7 +124,7 @@ local function onSuccessfulTest(moduleName, module, profileKey, profileString)
     importFrame.editbox:SetText(feedbackString)
   end
 
-  if module.needProfileKey or (isDuplicate and not module.preventRename) then
+  if lapModule.needProfileKey or (isDuplicate and not lapModule.preventRename) then
     if not isDuplicate then confirmButton:Disable() end
     importFrame.profileNameLabel:Show()
     importFrame.profileNameInput:Show()
@@ -217,7 +230,9 @@ local function createImportFrame()
         feedbackString = ""
         editbox:SetText(string.sub(profileString, 1, 2000))
         local moduleName, module, profileKey = testImport(profileString)
-        if moduleName then
+        if moduleName and module and profileKey then
+          --TODO: No idea why profileKey would not match the type here
+          ---@diagnostic disable-next-line: param-type-mismatch
           onSuccessfulTest(moduleName, module, profileKey, profileString)
         else
           feedbackString = "\n|cFFFF0000Profile string is invalid|r"

@@ -3,128 +3,6 @@ local _, loadingAddonNamespace = ...;
 local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal();
 if (not private) then return; end
 
----@return boolean
-local isLoaded = function()
-  return WeakAuras and true or false
-end
-
----@return boolean
-local needsInitialization = function()
-  return false
-end
-
----@return nil
-local openConfig = function()
-  SlashCmdList["WEAKAURAS"]("")
-end
-
----@return nil
-local closeConfig = function()
-  WeakAurasOptions:Hide()
-end
-
----@param profileKey string
----@return boolean
-local isDuplicate = function(profileKey)
-  return false
-end
-
--- START duplication, code from WA addon
-local function privateAddParents(data)
-  local parent = data.parent
-  if (parent) then
-    local parentData = WeakAuras.GetData(parent)
-    WeakAuras.Add(parentData)
-    privateAddParents(parentData)
-  end
-end
-
-local function privateDuplicateAura(data, newParent, massEdit, targetIndex)
-  local base_id = data.id.." "
-  local num = 2
-
-  -- if the old id ends with a number increment the number
-  local matchName, matchNumber = string.match(data.id, "^(.-)(%d*)$")
-  matchNumber = tonumber(matchNumber)
-  if (matchName ~= "" and matchNumber ~= nil) then
-    base_id = matchName
-    num = matchNumber + 1
-  end
-
-  local new_id = base_id..num
-  while (WeakAuras.GetData(new_id)) do
-    new_id = base_id..num
-    num = num + 1
-  end
-
-  local newData = CopyTable(data)
-  newData.id = new_id
-  newData.parent = nil
-  newData.uid = WeakAuras.GenerateUniqueID()
-  if newData.controlledChildren then
-    newData.controlledChildren = {}
-  end
-  WeakAuras.Add(newData)
-  -- WeakAuras.NewDisplayButton(newData, massEdit)
-  if (newParent or data.parent) then
-    local parentId = newParent or data.parent
-    local parentData = WeakAuras.GetData(parentId)
-    local index
-    if targetIndex then
-      index = targetIndex
-    elseif newParent then
-      index = #parentData.controlledChildren + 1
-    else
-      index = tIndexOf(parentData.controlledChildren, data.id) + 1
-    end
-    if (index) then
-      tinsert(parentData.controlledChildren, index, newData.id)
-      newData.parent = parentId
-      WeakAuras.Add(newData)
-      WeakAuras.Add(parentData)
-      privateAddParents(parentData)
-      -- ignore UI stuff, we don't need
-    end
-  end
-  return newData
-end
-
-local function duplicateGroups(sourceParent, targetParent, mapping)
-  for index, childId in pairs(sourceParent.controlledChildren) do
-    local childData = WeakAuras.GetData(childId)
-    if childData.controlledChildren then
-      local newChildGroup = privateDuplicateAura(childData, targetParent.id)
-      mapping[childData] = newChildGroup
-      duplicateGroups(childData, newChildGroup, mapping)
-    end
-  end
-end
-
-local function duplicateAuras(sourceParent, targetParent, mapping)
-  for index, childId in pairs(sourceParent.controlledChildren) do
-    local childData = WeakAuras.GetData(childId)
-    if childData.controlledChildren then
-      duplicateAuras(childData, mapping[childData], mapping)
-    else
-      privateDuplicateAura(childData, targetParent.id, true, index)
-    end
-  end
-end
-
-local function duplicateDisplay(id)
-  local data = WeakAuras.GetData(id)
-  if (WeakAuras.IsImporting()) then return end;
-  if data.controlledChildren then
-    local newGroup = privateDuplicateAura(data)
-    local mapping = {}
-    -- This builds the group skeleton
-    duplicateGroups(data, newGroup, mapping)
-    -- And this fills in the leafs
-    duplicateAuras(data, newGroup, mapping)
-  end
-end
--- END duplication
-
 local function decodeWeakAuraString(importString)
   local Serializer = LibStub:GetLibrary("AceSerializer-3.0Async")
   local LibDeflate = LibStub:GetLibrary("LibDeflateAsync");
@@ -150,25 +28,6 @@ local function decodeWeakAuraString(importString)
   end
 
   return nil;
-end
-
----@param profileString string
----@param profileKey string | nil
----@param profileData table | nil
----@param rawData table | nil
----@return table | nil --decoded WA table
-local testImport = function(profileString, profileKey, profileData, rawData)
-  local data = decodeWeakAuraString(profileString);
-  if (data and data.d) then
-    return data
-  end
-end
-
----@param profileString string
----@param profileKey string
-local importProfile = function(profileString, profileKey, fromIntro)
-  local data = decodeWeakAuraString(profileString);
-  WeakAuras.Import(data);
 end
 
 local function stripNonTransmissableFields(datum, fieldMap)
@@ -294,7 +153,8 @@ local configForDeflate = { level = 5 }
 local configForLS = {
   errorOnUnserializableType = false
 }
-
+---@param inTable table
+---@return string
 function TableToString(inTable)
   local LibDeflate = LibStub:GetLibrary("LibDeflateAsync");
   local serialized = private:LibSerializeSerializeAsyncEx(configForLS, inTable)
@@ -302,15 +162,6 @@ function TableToString(inTable)
   local encoded = "!WA:2!"
   encoded = encoded..LibDeflate:EncodeForPrint(compressed)
   return encoded
-end
-
-local exportOptions = {
-  purgeWago = false
-}
-local setExportOptions = function(options)
-  for k, v in pairs(options) do
-    exportOptions[k] = v
-  end
 end
 
 local function purgeWago(data)
@@ -322,139 +173,166 @@ local function purgeWago(data)
   end
 end
 
----@param id string | nil
----@return string | nil
-local exportGroup = function(id)
-  local data = WeakAuras.GetData(id);
-
-  if (data) then
-    data.uid = data.uid or GenerateUniqueID()
-    -- Check which transmission version we want to use
-    local version = 1421
-    for child in PTraverseSubGroups(data) do
-      version = 2000
-      break;
-    end
-    local transmitData = CompressDisplay(data, version);
-    local transmit = {
-      m = "d",
-      d = transmitData,
-      v = version,
-      s = WeakAuras.versionString
-    };
-    if (data.controlledChildren) then
-      transmit.c = {};
-      local uids = {}
-      local index = 1
-      for child in PTraverseAllChildren(data) do
-        if child.uid then
-          if uids[child.uid] then
-            child.uid = GenerateUniqueID()
-          else
-            uids[child.uid] = true
-          end
-        else
-          child.uid = GenerateUniqueID()
-        end
-        transmit.c[index] = CompressDisplay(child, version);
-        index = index + 1
-        coroutine.yield()
-      end
-    end
-    if exportOptions.purgeWago then
-      purgeWago(transmit.d)
-      if transmit.c then
-        for _, child in ipairs(transmit.c) do
-          purgeWago(child)
-        end
-      end
-    end
-    return TableToString(transmit);
-  else
-    return nil;
-  end
-end
-
----@param displayIds table | nil
----@return table | nil table of export strings
-local exportAllDisplays = function(displayIds)
-  local exportStrings = {}
-  if displayIds then
-    for id in pairs(displayIds) do
-      local exportString = exportGroup(id)
-      if exportString then
-        exportStrings[id] = exportString
-      end
-    end
-  end
-  return exportStrings
-end
-
----@param profileTableA table
----@param profileTableB table
----@return boolean
----@return table
----@return table
-local areProfileStringsEqual = function(profileTableA, profileTableB)
-  local allEqual = true
-  local changedEntries = {}
-  local removedEntries = {}
-  local inBoth = {}
-
-  if not profileTableA or not profileTableB then
-    return false, profileTableB, removedEntries
-  end
-
-  for groupIdx in pairs(profileTableB) do
-    if profileTableA[groupIdx] then
-      inBoth[groupIdx] = true
-    else
-      allEqual = false
-      changedEntries[groupIdx] = true
-    end
-  end
-
-  for groupIdx in pairs(profileTableA) do
-    if profileTableB[groupIdx] then
-      inBoth[groupIdx] = true
-    else
-      allEqual = false
-      removedEntries[groupIdx] = true
-    end
-  end
-
-  --check in both
-  for groupIdx in pairs(inBoth) do
-    local dataA = decodeWeakAuraString(profileTableA[groupIdx])
-    local dataB = decodeWeakAuraString(profileTableB[groupIdx])
-    if dataA and dataB then
-      if not private:DeepCompareAsync(dataA, dataB) then
-        allEqual = false
-        changedEntries[groupIdx] = true
-      end
-    end
-  end
-
-  return allEqual, changedEntries, removedEntries
-end
-
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "WeakAuras",
   icon = [[Interface\AddOns\WeakAuras\Media\Textures\icon]],
   slash = "/wa",
   needReloadOnImport = false,
-  needsInitialization = needsInitialization,
   needProfileKey = false,
-  isLoaded = isLoaded,
-  openConfig = openConfig,
-  closeConfig = closeConfig,
-  isDuplicate = isDuplicate,
-  testImport = testImport,
-  importProfile = importProfile,
-  exportProfile = exportAllDisplays,
-  setExportOptions = setExportOptions,
-  exportGroup = exportGroup,
-  areProfileStringsEqual = areProfileStringsEqual,
+  preventRename = false,
+  willOverrideProfile = false,
+  nonNativeProfileString = false,
+
+  isLoaded = function(self)
+    return WeakAuras and true or false
+  end,
+
+  needsInitialization = function(self)
+    return false
+  end,
+
+  openConfig = function(self)
+    SlashCmdList["WEAKAURAS"]("")
+  end,
+
+  closeConfig = function(self)
+    WeakAurasOptions:Hide()
+  end,
+
+  isDuplicate = function(self, profileKey)
+    return false
+  end,
+
+  testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
+    local data = decodeWeakAuraString(profileString);
+    if (data and data.d) then
+      return data
+    end
+  end,
+
+  importProfile = function(self, profileString, profileKey, fromIntro)
+    local data = decodeWeakAuraString(profileString);
+    WeakAuras.Import(data);
+  end,
+
+  exportProfile = function(self, profileKey)
+    if type(profileKey) ~= "table" then return end
+    local displayIds = profileKey
+    local exportStrings = {}
+    for id in pairs(displayIds) do
+      local exportString = self:exportGroup(id)
+      if exportString then
+        exportStrings[id] = exportString
+      end
+    end
+    return exportStrings
+  end,
+
+  exportOptions = {
+    purgeWago = false
+  },
+
+  setExportOptions = function(self, options)
+    for k, v in pairs(options) do
+      self.exportOptions[k] = v
+    end
+  end,
+
+  exportGroup = function(self, profileKey)
+    local id = profileKey
+    local data = WeakAuras.GetData(id);
+
+    if (data) then
+      data.uid = data.uid or GenerateUniqueID()
+      -- Check which transmission version we want to use
+      local version = 1421
+      for child in PTraverseSubGroups(data) do
+        version = 2000
+        break;
+      end
+      local transmitData = CompressDisplay(data, version);
+      local transmit = {
+        m = "d",
+        d = transmitData,
+        v = version,
+        s = WeakAuras.versionString
+      };
+      if (data.controlledChildren) then
+        transmit.c = {};
+        local uids = {}
+        local index = 1
+        for child in PTraverseAllChildren(data) do
+          if child.uid then
+            if uids[child.uid] then
+              child.uid = GenerateUniqueID()
+            else
+              uids[child.uid] = true
+            end
+          else
+            child.uid = GenerateUniqueID()
+          end
+          transmit.c[index] = CompressDisplay(child, version);
+          index = index + 1
+          coroutine.yield()
+        end
+      end
+      if self.exportOptions.purgeWago then
+        purgeWago(transmit.d)
+        if transmit.c then
+          for _, child in ipairs(transmit.c) do
+            purgeWago(child)
+          end
+        end
+      end
+      return TableToString(transmit);
+    else
+      return nil;
+    end
+  end,
+
+  areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
+    local allEqual = true
+    local changedEntries = {}
+    local removedEntries = {}
+    local inBoth = {}
+
+    if not tableA or not tableB then
+      return false, tableB, removedEntries
+    end
+
+    for groupIdx in pairs(tableB) do
+      if tableA[groupIdx] then
+        inBoth[groupIdx] = true
+      else
+        allEqual = false
+        changedEntries[groupIdx] = true
+      end
+    end
+
+    for groupIdx in pairs(tableA) do
+      if tableB[groupIdx] then
+        inBoth[groupIdx] = true
+      else
+        allEqual = false
+        removedEntries[groupIdx] = true
+      end
+    end
+
+    --check in both
+    for groupIdx in pairs(inBoth) do
+      local dataA = decodeWeakAuraString(tableA[groupIdx])
+      local dataB = decodeWeakAuraString(tableB[groupIdx])
+      if dataA and dataB then
+        if not private:DeepCompareAsync(dataA, dataB) then
+          allEqual = false
+          changedEntries[groupIdx] = true
+        end
+      end
+    end
+
+    return allEqual, changedEntries, removedEntries
+  end,
 }
+
 private.modules[m.moduleName] = m

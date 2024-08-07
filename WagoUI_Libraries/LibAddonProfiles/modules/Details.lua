@@ -66,148 +66,120 @@ local exportProfileBlacklist = {
   performance_profiles = true,
 }
 
----@return boolean
-local isLoaded = function()
-  return Details and true or false
-end
-
----@return boolean
-local needsInitialization = function()
-  return false
-end
-
----@return nil
-local openConfig = function()
-  SlashCmdList["DETAILS"]("options")
-end
-
----@return nil
-local closeConfig = function()
-  DetailsOptionsWindow:Hide()
-end
-
----@return table<string, any>
-local getProfileKeys = function()
-  return _detalhes_global.__profiles
-end
-
----@return string
-local getCurrentProfileKey = function()
-  return Details:GetCurrentProfileName()
-end
-
----@param profileKey string
-local setProfile = function(profileKey)
-  if not profileKey then return end
-  if not getProfileKeys()[profileKey] then return end
-  Details:ApplyProfile(profileKey)
-end
-
----@param profileKey string
----@return boolean
-local isDuplicate = function(profileKey)
-  if not profileKey then return false end
-  return getProfileKeys()[profileKey]
-end
-
----@param profileString string
----@param profileKey string | nil
----@param profileData table | nil
----@param rawData table | nil
----@return string | nil
-local testImport = function(profileString, profileKey, profileData, rawData)
-  if not profileString then return end
-  if rawData and rawData.profile and rawData.profile.all_in_one_windows and rawData.profile.class_specs_coords then
-    return ""
-  end
-end
-
----@param profileString string
----@param profileKey string
-local importProfile = function(profileString, profileKey, fromIntro)
-  if not profileString then return end
-  Details:ImportProfile(profileString, profileKey, nil, true, true);
-end
-
----@param profileKey string | nil
----@return string | nil
-local exportProfile = function(profileKey)
-  if not profileKey then return end
-  if not getProfileKeys()[profileKey] then return end
-  --functions\profiles.lua
-  --need to call this so changes to the current profile are committed to the Details SavedVariables
-  --TODO: logout still applies some changes to the data, not sure what this is about
-  --      the important profile data is saved here, just might trigger additional versions
-  Details.SaveProfile(profileKey)
-  local profileObject = Details:GetProfile(profileKey)
-  coroutine.yield()
-  --data saved individual for each character
-  local defaultPlayerData = Details.default_player_data
-  local playerData = {}
-  --data saved for the account
-  local defaultGlobalData = Details.default_global_data
-  local globalData = {}
-  --fill player and global data tables
-  for key, _ in pairs(defaultPlayerData) do
-    if (not exportProfileBlacklist[key]) then
-      if (type(Details[key]) == "table") then
-        playerData[key] = DetailsFramework.table.copy({}, Details[key])
-      else
-        playerData[key] = Details[key]
-      end
-    end
-    coroutine.yield()
-  end
-  for key, _ in pairs(defaultGlobalData) do
-    if (not exportProfileBlacklist[key]) then
-      if (type(Details[key]) == "table") then
-        globalData[key] = DetailsFramework.table.copy({}, Details[key])
-      else
-        globalData[key] = Details[key]
-      end
-    end
-    coroutine.yield()
-  end
-  coroutine.yield()
-  local exportedData = {
-    profile = profileObject,
-    playerData = playerData,
-    globaData = globalData, --typo in Details
-    version = 1,
-  }
-  return compressData(exportedData)
-end
-
----@param profileStringA string
----@param profileStringB string
----@return boolean
-local areProfileStringsEqual = function(profileStringA, profileStringB)
-  if not profileStringA or not profileStringB then return false end
-  local _, profileDataA = private:GenericDecode(profileStringA)
-  local _, profileDataB = private:GenericDecode(profileStringB)
-  if not profileDataA or not profileDataB then return false end
-  return private:DeepCompareAsync(profileDataA, profileDataB)
-end
-
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Details",
-  slash = "/details config",
   icon = [[Interface\AddOns\Details\images\minimap]],
+  slash = "/details config",
   needReloadOnImport = false,
-  needsInitialization = needsInitialization,
   needProfileKey = true,
-  isLoaded = isLoaded,
-  openConfig = openConfig,
-  closeConfig = closeConfig,
-  isDuplicate = isDuplicate,
-  testImport = testImport,
-  importProfile = importProfile,
-  exportProfile = exportProfile,
-  getProfileKeys = getProfileKeys,
-  getCurrentProfileKey = getCurrentProfileKey,
-  setProfile = setProfile,
-  areProfileStringsEqual = areProfileStringsEqual,
+  preventRename = false,
+  willOverrideProfile = false,
+  nonNativeProfileString = false,
+
+  isLoaded = function(self)
+    return Details and true or false
+  end,
+
+  needsInitialization = function(self)
+    return false
+  end,
+
+  openConfig = function(self)
+    SlashCmdList["DETAILS"]("options")
+  end,
+
+  closeConfig = function(self)
+    DetailsOptionsWindow:Hide()
+  end,
+
+  getProfileKeys = function(self)
+    return _detalhes_global.__profiles
+  end,
+
+  getCurrentProfileKey = function(self)
+    return Details:GetCurrentProfileName()
+  end,
+
+  isDuplicate = function(self, profileKey)
+    if not profileKey then return false end
+    return self:getProfileKeys()[profileKey]
+  end,
+
+  setProfile = function(self, profileKey)
+    if not profileKey then return end
+    if not self:getProfileKeys()[profileKey] then return end
+    Details:ApplyProfile(profileKey)
+  end,
+
+  testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
+    if not profileString then return end
+    if rawData and rawData.profile and rawData.profile.all_in_one_windows and rawData.profile.class_specs_coords then
+      return ""
+    end
+  end,
+
+  importProfile = function(self, profileString, profileKey, fromIntro)
+    if not profileString then return end
+    Details:ImportProfile(profileString, profileKey, nil, true, true);
+  end,
+
+  exportProfile = function(self, profileKey)
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
+    --functions\profiles.lua
+    --need to call this so changes to the current profile are committed to the Details SavedVariables
+    --TODO: logout still applies some changes to the data, not sure what this is about
+    --      the important profile data is saved here, just might trigger additional versions
+    Details.SaveProfile(profileKey)
+    local profileObject = Details:GetProfile(profileKey)
+    coroutine.yield()
+    --data saved individual for each character
+    local defaultPlayerData = Details.default_player_data
+    local playerData = {}
+    --data saved for the account
+    local defaultGlobalData = Details.default_global_data
+    local globalData = {}
+    --fill player and global data tables
+    for key, _ in pairs(defaultPlayerData) do
+      if (not exportProfileBlacklist[key]) then
+        if (type(Details[key]) == "table") then
+          playerData[key] = DetailsFramework.table.copy({}, Details[key])
+        else
+          playerData[key] = Details[key]
+        end
+      end
+      coroutine.yield()
+    end
+    for key, _ in pairs(defaultGlobalData) do
+      if (not exportProfileBlacklist[key]) then
+        if (type(Details[key]) == "table") then
+          globalData[key] = DetailsFramework.table.copy({}, Details[key])
+        else
+          globalData[key] = Details[key]
+        end
+      end
+      coroutine.yield()
+    end
+    coroutine.yield()
+    local exportedData = {
+      profile = profileObject,
+      playerData = playerData,
+      globaData = globalData, --typo in Details
+      version = 1,
+    }
+    return compressData(exportedData)
+  end,
+
+  areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
+    if not profileStringA or not profileStringB then return false end
+    local _, profileDataA = private:GenericDecode(profileStringA)
+    local _, profileDataB = private:GenericDecode(profileStringB)
+    if not profileDataA or not profileDataB then return false end
+    return private:DeepCompareAsync(profileDataA, profileDataB)
+  end,
+
   refreshHookList = {
     {
       tableFunc = function()

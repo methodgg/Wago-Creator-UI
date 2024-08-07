@@ -21,124 +21,11 @@ local function getLayoutIndexByName(layoutName)
   end
 end
 
----@return boolean
-local isLoaded = function()
-  return true
-end
-
----@return boolean
-local needsInitialization = function()
-  return false
-end
-
----@return nil
-local openConfig = function()
-  SlashCmdList["EDITMODE"]()
-end
-
----@return nil
-local closeConfig = function()
-  EditModeManagerFrame.onCloseCallback()
-end
-
-
----@return table<string, any>
-local getProfileKeys = function()
-  local profileKeys = {}
-  for _, layout in pairs(EditModeManagerFrame:GetLayouts()) do
-    profileKeys[layout.layoutName] = true
-  end
-  return profileKeys
-end
-
----@return string
-local getCurrentProfileKey = function()
-  return EditModeManagerFrame:GetActiveLayoutInfo().layoutName
-end
-
----@param profileKey string
-local setProfile = function(profileKey)
-  if not profileKey then return end
-  if not getProfileKeys()[profileKey] then return end
-  local index
-  for i, layout in pairs(EditModeManagerFrame:GetLayouts()) do
-    if layout.layoutName == profileKey then
-      index = i
-      break
-    end
-  end
-  if index then
-    EditModeManagerFrame:SelectLayout(index)
-  end
-end
-
----@param profileKey string
----@return boolean
-local isDuplicate = function(profileKey)
-  if not profileKey then return false end
-  return getLayoutByName(profileKey) ~= nil
-end
-
----@param profileString string
----@param profileKey string | nil
----@param profileData table | nil
----@param rawData table | nil
----@return string | nil
-local testImport = function(profileString, profileKey, profileData, rawData)
-  if not profileString then return end
-  local t = { strsplit(" ", profileString) }
-  for i = 1, 8 do
-    local v = t[i]
-    if i <= 7 then
-      if not tonumber(v) then
-        return
-      end
-    elseif i == 8 then
-      if type(v) == "string" then
-        return ""
-      end
-    end
-  end
-end
-
 local removeProfile = function(profileKey)
   local layoutIndex = getLayoutIndexByName(profileKey)
   if layoutIndex then
     EditModeManagerFrame:DeleteLayout(layoutIndex)
   end
-end
-
----@param profileString string
----@param profileKey string
-local importProfile = function(profileString, profileKey, fromIntro)
-  if not profileString then return end
-  EditModeManagerFrame:Show()
-  removeProfile(profileKey) --need to remove old profile with same name first for updating to work and not be confusing
-  local newLayoutInfo = C_EditMode.ConvertStringToLayoutInfo(profileString);
-  EditModeManagerFrame:ImportLayout(newLayoutInfo, 1, profileKey)
-  EditModeManagerFrame.CloseButton:Click()
-  -- ignore taint warning
-  if StaticPopup1Button2Text:GetText() == "Ignore" then
-    StaticPopup1Button2:Click()
-  end
-  setProfile(profileKey)
-end
-
----@param profileKey string | nil
----@return string | nil
-local exportProfile = function(profileKey)
-  if not profileKey then return end
-  if not getProfileKeys()[profileKey] then return end
-  local layout = getLayoutByName(profileKey)
-  return C_EditMode.ConvertLayoutInfoToString(layout)
-end
-
----@param profileStringA string
----@param profileStringB string
----@return boolean
-local areProfileStringsEqual = function(profileStringA, profileStringB)
-  if not profileStringA or not profileStringB then return false end
-  return profileStringA == profileStringB
 end
 
 ---@type LibAddonProfilesModule
@@ -147,19 +34,103 @@ local m = {
   icon = 135724,
   slash = "/editmode",
   needReloadOnImport = true,
-  needsInitialization = needsInitialization,
   needProfileKey = true,
-  isLoaded = isLoaded,
-  openConfig = openConfig,
-  closeConfig = closeConfig,
-  isDuplicate = isDuplicate,
-  testImport = testImport,
-  importProfile = importProfile,
-  exportProfile = exportProfile,
-  getProfileKeys = getProfileKeys,
-  getCurrentProfileKey = getCurrentProfileKey,
-  setProfile = setProfile,
-  areProfileStringsEqual = areProfileStringsEqual,
+  preventRename = false,
+  willOverrideProfile = false,
+  nonNativeProfileString = false,
+
+  isLoaded = function(self)
+    return true
+  end,
+
+  needsInitialization = function(self)
+    return false
+  end,
+
+  openConfig = function(self)
+    SlashCmdList["EDITMODE"]()
+  end,
+
+  closeConfig = function(self)
+    EditModeManagerFrame.onCloseCallback()
+  end,
+
+  getProfileKeys = function(self)
+    local profileKeys = {}
+    for _, layout in pairs(EditModeManagerFrame:GetLayouts()) do
+      profileKeys[layout.layoutName] = true
+    end
+    return profileKeys
+  end,
+
+  getCurrentProfileKey = function(self)
+    return EditModeManagerFrame:GetActiveLayoutInfo().layoutName
+  end,
+
+  isDuplicate = function(self, profileKey)
+    if not profileKey then return false end
+    return getLayoutByName(profileKey) ~= nil
+  end,
+
+  setProfile = function(self, profileKey)
+    if not profileKey then return end
+    if not self:getProfileKeys()[profileKey] then return end
+    local index
+    for i, layout in pairs(EditModeManagerFrame:GetLayouts()) do
+      if layout.layoutName == profileKey then
+        index = i
+        break
+      end
+    end
+    if index then
+      EditModeManagerFrame:SelectLayout(index)
+    end
+  end,
+
+  testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
+    if not profileString then return end
+    local t = { strsplit(" ", profileString) }
+    for i = 1, 8 do
+      local v = t[i]
+      if i <= 7 then
+        if not tonumber(v) then
+          return
+        end
+      elseif i == 8 then
+        if type(v) == "string" then
+          return ""
+        end
+      end
+    end
+  end,
+
+  importProfile = function(self, profileString, profileKey, fromIntro)
+    if not profileString then return end
+    EditModeManagerFrame:Show()
+    removeProfile(profileKey) --need to remove old profile with same name first for updating to work and not be confusing
+    local newLayoutInfo = C_EditMode.ConvertStringToLayoutInfo(profileString);
+    EditModeManagerFrame:ImportLayout(newLayoutInfo, 1, profileKey)
+    EditModeManagerFrame.CloseButton:Click()
+    -- ignore taint warning
+    if StaticPopup1Button2Text:GetText() == "Ignore" then
+      StaticPopup1Button2:Click()
+    end
+    self:setProfile(profileKey)
+  end,
+
+  exportProfile = function(self, profileKey)
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
+    local layout = getLayoutByName(profileKey)
+    return C_EditMode.ConvertLayoutInfoToString(layout)
+  end,
+
+  areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
+    if not profileStringA or not profileStringB then return false end
+    return profileStringA == profileStringB
+  end,
+
   refreshHookList = {
     {
       tableFunc = function()
@@ -169,4 +140,5 @@ local m = {
     },
   }
 }
+
 private.modules[m.moduleName] = m

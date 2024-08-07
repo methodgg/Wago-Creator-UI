@@ -139,146 +139,118 @@ local function doProfileImport(profileName, profile, bIsUpdate, bKeepModsNotInUp
   -- ReloadUI()
 end
 
----@return boolean
-local isLoaded = function()
-  return Plater and true or false
-end
-
----@return boolean
-local needsInitialization = function()
-  return false
-end
-
----@return nil
-local openConfig = function()
-  SlashCmdList["PLATER"]("")
-end
-
----@return nil
-local closeConfig = function()
-  PlaterOptionsPanelFrame:Hide()
-end
-
----@return table<string, any>
-local getProfileKeys = function()
-  return PlaterDB.profiles
-end
-
----@return string
-local getCurrentProfileKey = function()
-  return Plater.db:GetCurrentProfile()
-end
-
----@param profileKey string
-local setProfile = function(profileKey)
-  if not profileKey then return end
-  if not getProfileKeys()[profileKey] then return end
-  Plater.db:SetProfile(profileKey)
-  DetailsFrameworkPromptSimple.CloseButton:Click()
-end
-
----@param profileKey string
----@return boolean
-local isDuplicate = function(profileKey)
-  if not profileKey then return false end
-  local profiles = Plater.db:GetProfiles()
-  local profileExists = false
-  for i, existingProfName in ipairs(profiles) do
-    if existingProfName == profileKey then
-      profileExists = true
-      break
-    end
-  end
-  return profileExists
-end
-
----@param profileString string
----@param profileKey string | nil
----@param profileData table | nil
----@param rawData table | nil
----@return string | nil
-local testImport = function(profileString, profileKey, profileData, rawData)
-  if not profileString then return end
-  if rawData and rawData.plate_config and rawData.profile_name then
-    return rawData.profile_name
-  end
-end
-
----@param profileString string
----@param profileKey string
-local importProfile = function(profileString, profileKey, fromIntro)
-  if not profileString then return end
-  local _, _, profile = private:GenericDecode(profileString)
-  if not profile then return end
-  doProfileImport(profileKey, profile, true, false)
-  coroutine.yield()
-  if DetailsFrameworkPromptSimple then DetailsFrameworkPromptSimple:Hide() end
-  C_Timer.After(.5, function()
-    if DetailsFrameworkPromptSimple then DetailsFrameworkPromptSimple:Hide() end
-  end)
-end
-
----@param profileKey string | nil
----@return string | nil
-local exportProfile = function(profileKey)
-  if not profileKey then return end
-  if not getProfileKeys()[profileKey] then return end
-  local LibAceSerializer = LibStub:GetLibrary("AceSerializer-3.0Async")
-  local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
-  --Plater_Comms.lua
-  if not profileKey then return nil end
-  local profile = deepCopyAsync(Plater.db.profiles[profileKey])
-  coroutine.yield()
-  profile.profile_name = profileKey
-  profile.spell_animation_list = nil
-  profile.script_data_trash = {}
-  profile.hook_data_trash = {}
-  profile.plugins_data = {}
-  --cleanup mods HooksTemp (for good)
-  for i = #profile.hook_data, 1, -1 do
-    local scriptObject = profile.hook_data[i]
-    scriptObject.HooksTemp = {}
-  end
-  --convert the profile to string
-  local dataSerialized = LibAceSerializer:Serialize(profile)
-  coroutine.yield()
-  local dataCompressed = LibDeflate:CompressDeflate(dataSerialized, { level = 5 })
-  coroutine.yield()
-  local dataEncoded = LibDeflate:EncodeForPrint(dataCompressed)
-  coroutine.yield()
-  return dataEncoded
-end
-
----@param profileStringA string
----@param profileStringB string
----@return boolean
-local areProfileStringsEqual = function(profileStringA, profileStringB)
-  if not profileStringA or not profileStringB then return false end
-  local _, _, rawProfileDataA = private:GenericDecode(profileStringA)
-  local _, _, rawProfileDataB = private:GenericDecode(profileStringB)
-  if not rawProfileDataA or not rawProfileDataB then return false end
-  return private:DeepCompareAsync(rawProfileDataA, rawProfileDataB, { login_counter = true })
-end
-
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Plater",
   icon = [[Interface\AddOns\Plater\images\cast_bar]],
   slash = "/plater",
   needReloadOnImport = true,
-  needsInitialization = needsInitialization,
   needProfileKey = true,
-  isLoaded = isLoaded,
-  openConfig = openConfig,
-  closeConfig = closeConfig,
-  isDuplicate = isDuplicate,
-  testImport = testImport,
-  importProfile = importProfile,
-  exportProfile = exportProfile,
-  getProfileKeys = getProfileKeys,
-  getCurrentProfileKey = getCurrentProfileKey,
-  setProfile = setProfile,
-  areProfileStringsEqual = areProfileStringsEqual,
+  preventRename = false,
+  willOverrideProfile = false,
+  nonNativeProfileString = false,
+
+  isLoaded = function(self)
+    return Plater and true or false
+  end,
+
+  needsInitialization = function(self)
+    return false
+  end,
+
+  openConfig = function(self)
+    SlashCmdList["PLATER"]("")
+  end,
+
+  closeConfig = function(self)
+    PlaterOptionsPanelFrame:Hide()
+  end,
+
+  getProfileKeys = function(self)
+    return PlaterDB.profiles
+  end,
+
+  getCurrentProfileKey = function(self)
+    return Plater.db:GetCurrentProfile()
+  end,
+
+  isDuplicate = function(self, profileKey)
+    if not profileKey then return false end
+    local profiles = Plater.db:GetProfiles()
+    local profileExists = false
+    for i, existingProfName in ipairs(profiles) do
+      if existingProfName == profileKey then
+        profileExists = true
+        break
+      end
+    end
+    return profileExists
+  end,
+
+  setProfile = function(self, profileKey)
+    if not profileKey then return end
+    if not self:getProfileKeys()[profileKey] then return end
+    Plater.db:SetProfile(profileKey)
+    DetailsFrameworkPromptSimple.CloseButton:Click()
+  end,
+
+  testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
+    if not profileString then return end
+    if rawData and rawData.plate_config and rawData.profile_name then
+      return rawData.profile_name
+    end
+  end,
+
+  importProfile = function(self, profileString, profileKey, fromIntro)
+    if not profileString then return end
+    local _, _, profile = private:GenericDecode(profileString)
+    if not profile then return end
+    doProfileImport(profileKey, profile, true, false)
+    coroutine.yield()
+    if DetailsFrameworkPromptSimple then DetailsFrameworkPromptSimple:Hide() end
+    C_Timer.After(.5, function()
+      if DetailsFrameworkPromptSimple then DetailsFrameworkPromptSimple:Hide() end
+    end)
+  end,
+
+  exportProfile = function(self, profileKey)
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
+    local LibAceSerializer = LibStub:GetLibrary("AceSerializer-3.0Async")
+    local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
+    --Plater_Comms.lua
+    if not profileKey then return nil end
+    local profile = deepCopyAsync(Plater.db.profiles[profileKey])
+    coroutine.yield()
+    profile.profile_name = profileKey
+    profile.spell_animation_list = nil
+    profile.script_data_trash = {}
+    profile.hook_data_trash = {}
+    profile.plugins_data = {}
+    --cleanup mods HooksTemp (for good)
+    for i = #profile.hook_data, 1, -1 do
+      local scriptObject = profile.hook_data[i]
+      scriptObject.HooksTemp = {}
+    end
+    --convert the profile to string
+    local dataSerialized = LibAceSerializer:Serialize(profile)
+    coroutine.yield()
+    local dataCompressed = LibDeflate:CompressDeflate(dataSerialized, { level = 5 })
+    coroutine.yield()
+    local dataEncoded = LibDeflate:EncodeForPrint(dataCompressed)
+    coroutine.yield()
+    return dataEncoded
+  end,
+
+  areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
+    if not profileStringA or not profileStringB then return false end
+    local _, _, rawProfileDataA = private:GenericDecode(profileStringA)
+    local _, _, rawProfileDataB = private:GenericDecode(profileStringB)
+    if not rawProfileDataA or not rawProfileDataB then return false end
+    return private:DeepCompareAsync(rawProfileDataA, rawProfileDataB, { login_counter = true })
+  end,
+
   refreshHookList = {
     {
       tableFunc = function()
@@ -288,4 +260,5 @@ local m = {
     },
   }
 }
+
 private.modules[m.moduleName] = m

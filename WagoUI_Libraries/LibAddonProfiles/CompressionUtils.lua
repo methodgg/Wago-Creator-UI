@@ -1,9 +1,13 @@
-local _, loadingAddonNamespace = ...;
----@type LibAddonProfilesPrivate
+---@class LAPLoadingNamespace
+local loadingAddonNamespace = select(2, ...)
+---@class LibAddonProfilesPrivate
 local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal();
 if (not private) then return; end
-local debug = false
 
+---@param profileKey string
+---@param profile table
+---@param moduleName string
+---@return string profileString The encoded profile string
 function private:GenericEncode(profileKey, profile, moduleName)
   local Serializer = LibStub:GetLibrary("AceSerializer-3.0Async")
   local LibDeflate = LibStub:GetLibrary("LibDeflateAsync");
@@ -21,6 +25,11 @@ function private:GenericEncode(profileKey, profile, moduleName)
   return encoded
 end
 
+---@param profileString string
+---@return string | nil profileKey
+---@return table | nil profileData
+---@return table | nil rawData
+---@return string | nil moduleName
 function private:GenericDecode(profileString)
   local Serializer = LibStub:GetLibrary("AceSerializer-3.0Async")
   local LibDeflate = LibStub:GetLibrary("LibDeflateAsync");
@@ -43,7 +52,12 @@ function private:GenericDecode(profileString)
   end
 end
 
-function private:DeepCompareAsync(tbl1, tbl2, ignoredKeys)
+---@param tbl1 table
+---@param tbl2 table
+---@param ignoredKeys table | nil
+---@param debug boolean | nil If true, print debug messages to chat
+---@return boolean areEqual
+function private:DeepCompareAsync(tbl1, tbl2, ignoredKeys, debug)
   if tbl1 == tbl2 then
     return true
   elseif type(tbl1) == "table" and type(tbl2) == "table" then
@@ -82,6 +96,9 @@ function private:DeepCompareAsync(tbl1, tbl2, ignoredKeys)
   return false
 end
 
+---@param configForLS table | nil
+---@param inTable table
+---@return string serialized
 function private:LibSerializeSerializeAsyncEx(configForLS, inTable)
   local LibSerialize = LibStub("LibSerialize")
   local co_handler = LibSerialize:SerializeAsyncEx(configForLS, inTable)
@@ -92,6 +109,8 @@ function private:LibSerializeSerializeAsyncEx(configForLS, inTable)
   return serialized
 end
 
+---@param serialized string
+---@return table table | nil
 function private:LibSerializeDeserializeAsync(serialized)
   local LibSerialize = LibStub("LibSerialize")
   local co_handler = LibSerialize:DeserializeAsync(serialized)

@@ -75,21 +75,21 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight, en
       if (info) then
         ---@class LibAddonProfilesModule
         local lap = info.lap
-        if lap.needsInitialization() then
-          lap.openConfig()
+        if lap:needsInitialization() then
+          lap:openConfig()
           C_Timer.After(0, function()
-            lap.closeConfig()
+            lap:closeConfig()
             addon:UpdateRegisteredDataConsumers()
           end)
         end
-        local loaded = lap.isLoaded()
+        local loaded = lap:isLoaded()
         info.loaded = loaded
         local updateEnabledState = function()
           if loaded and info.enabled then
             line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }));
             line.nameLabel:SetTextColor(1, 1, 1, 1);
             line.importOverrideWarning:Enable()
-            if not info.lap.willOverrideProfile then
+            if not lap.willOverrideProfile then
               line.textEntry:Enable()
             end
           else
@@ -136,7 +136,7 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight, en
           end
           line.textEntry.func = function()
             local newText = line.textEntry:GetText()
-            if info.lap.isDuplicate(newText) and not info.lap.willOverrideProfile then
+            if lap:isDuplicate(newText) and not lap.willOverrideProfile then
               if info.enabled then
                 line.textEntry.editbox:SetTextColor(1, 0, 0, 1)
               end

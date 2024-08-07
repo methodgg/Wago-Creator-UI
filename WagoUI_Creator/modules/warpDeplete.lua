@@ -7,9 +7,9 @@ local lapModule = LAP:GetModule(moduleName)
 
 local function dropdownOptions(index)
   local res = {}
-  if not lapModule.isLoaded() then return res end
-  local profileKeys = lapModule.getProfileKeys()
-  local currentProfileKey = lapModule.getCurrentProfileKey()
+  if not lapModule:isLoaded() then return res end
+  local profileKeys = lapModule:getProfileKeys()
+  local currentProfileKey = lapModule:getCurrentProfileKey()
   return ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKeys, currentProfileKey)
 end
 

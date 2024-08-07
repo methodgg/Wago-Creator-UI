@@ -1,5 +1,6 @@
 ---@class WagoUICreator
 local addon = select(2, ...)
+local L = addon.L
 
 local exportFrame
 
@@ -22,7 +23,7 @@ function addon:CreateTextExportFrame()
     if (addon.copyHelper:WasControlKeyDown() and key == 'C') then
       exportFrame.editbox:ClearFocus()
       exportFrame:Hide()
-      addon.copyHelper:SmartFadeOut(nil, "copied!")
+      addon.copyHelper:SmartFadeOut(nil, L["copied!"])
       return
     end
   end)

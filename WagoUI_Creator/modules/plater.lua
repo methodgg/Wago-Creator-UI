@@ -7,8 +7,8 @@ local lapModule = LAP:GetModule(moduleName)
 local function dropdownOptions(index)
   local res = {}
   if not PlaterDB then return res end
-  local profileKeys = lapModule.getProfileKeys()
-  local currentProfileKey = lapModule.getCurrentProfileKey()
+  local profileKeys = lapModule:getProfileKeys()
+  local currentProfileKey = lapModule:getCurrentProfileKey()
   return addon.ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKeys, currentProfileKey)
 end
 

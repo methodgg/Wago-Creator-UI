@@ -54,8 +54,8 @@ local function createPage()
       end
       --sort disabled modules to bottom, alphabetically afterwards
       table.sort(filtered, function(a, b)
-        local orderA = (a.lap.isLoaded() or a.lap.needsInitialization()) and 1 or 0
-        local orderB = (b.lap.isLoaded() or b.lap.needsInitialization()) and 1 or 0
+        local orderA = (a.lap:isLoaded() or a.lap:needsInitialization()) and 1 or 0
+        local orderB = (b.lap:isLoaded() or b.lap:needsInitialization()) and 1 or 0
         if orderA == orderB then
           return a.moduleName < b.moduleName
         end
@@ -89,7 +89,7 @@ local function createPage()
         if entry.enabled and entry.loaded then
           ---@type LibAddonProfilesModule
           local lap = entry.lap
-          lap.importProfile(entry.profile, entry.profileKey, true)
+          lap:importProfile(entry.profile, entry.profileKey, true)
           addon:StoreImportedProfileTimestamp(entry.profileMetadata.lastUpdatedAt, entry.moduleName, entry.profileKey)
           if entry.lap.needReloadOnImport then
             addon:ToggleReloadIndicator(true, L["IMPORT_RELOAD_WARNING1"])

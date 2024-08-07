@@ -50,11 +50,12 @@ local function copyExportString(id)
     addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 50, L["Preparing export string..."])
     if addon.db.exportOptions[moduleName] then
       if lapModule.setExportOptions then
-        lapModule.setExportOptions(addon.db.exportOptions[moduleName])
+        lapModule:setExportOptions(addon.db.exportOptions[moduleName])
       end
     end
-    local exportString = lapModule.exportGroup(id)
+    local exportString = lapModule:exportGroup(id)
     addon.copyHelper:Hide()
+    if not exportString then return end
     addon:TextExport(exportString)
   end, "copyWAExportString")
 end
@@ -322,7 +323,7 @@ local function createManageFrame(w, h)
   local purgeWagoCheckbox = DF:CreateSwitch(m,
     function(_, _, value)
       WagoUICreatorDB.exportOptions[moduleName].purgeWago = value
-      lapModule.setExportOptions(WagoUICreatorDB.exportOptions[moduleName])
+      lapModule:setExportOptions(WagoUICreatorDB.exportOptions[moduleName])
     end,
     false, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, DF:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
   purgeWagoCheckbox:SetValue(WagoUICreatorDB.exportOptions[moduleName])

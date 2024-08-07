@@ -32,13 +32,21 @@ function ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKe
   return res
 end
 
-local function exportFunc(moduleName, resolution, exportProfileFunc, timestamp)
+local function exportFunc(moduleName, resolution, timestamp)
   local currentUIPack = addon:GetCurrentPack()
-  local newExport = exportProfileFunc(currentUIPack.profileKeys[resolution][moduleName])
+  lapModule = LAP:GetModule(moduleName)
+  ---@type any
+  local newExport = lapModule:exportProfile(currentUIPack.profileKeys[resolution][moduleName])
+  ---@type any
   local oldExport = currentUIPack.profiles[resolution][moduleName]
   ---@class LibAddonProfilesModule
   local lapModule = LAP:GetModule(moduleName)
-  local areEqual, changedEntries, removedEntries = lapModule.areProfileStringsEqual(oldExport, newExport)
+  local tableA, tableB
+  if lapModule.exportGroup then
+    tableA = oldExport
+    tableB = newExport
+  end
+  local areEqual, changedEntries, removedEntries = lapModule:areProfileStringsEqual(oldExport, newExport, tableA, tableB)
   if areEqual then return false end
   --stuff changed, we need to handle it
   --set the profile, time of export
@@ -65,14 +73,14 @@ end
 --- @param lapModule LibAddonProfilesModule
 local function createProfileDropdownOptions(dropdown, lapModule)
   local res = {}
-  if not lapModule.isLoaded() or not lapModule.getProfileKeys then return res end
-  local profileKeys = lapModule.getProfileKeys()
+  if not lapModule:isLoaded() or not lapModule.getProfileKeys then return res end
+  local profileKeys = lapModule:getProfileKeys()
   for profileKey, _ in pairs(profileKeys) do
     tinsert(res, {
       value = profileKey,
       label = profileKey,
       onclick = function()
-        lapModule.setProfile(profileKey)
+        lapModule:setProfile(profileKey)
       end
     })
   end
@@ -102,7 +110,7 @@ function ModuleFunctions:InsertModuleConfig(m)
       return m.dropdownOptions(1)
     end,
     exportFunc = function(resolution, timestamp)
-      return exportFunc(m.moduleName, resolution, lapModule.exportProfile, timestamp)
+      return exportFunc(m.moduleName, resolution, timestamp)
     end,
     dropdown2Options = function()
       return m.dropdownOptions(2)
@@ -119,9 +127,9 @@ end
 
 function ModuleFunctions:SortModuleConfigs()
   table.sort(addon.moduleConfigs, function(a, b)
-    local aIdx = (a.isLoaded() or a.lapModule.needsInitialization()) and a.sortIndex and 1000 - a.sortIndex or
+    local aIdx = (a.isLoaded() or a.lapModule:needsInitialization()) and a.sortIndex and 1000 - a.sortIndex or
         a.sortIndex or 0
-    local bIdx = (b.isLoaded() or b.lapModule.needsInitialization()) and b.sortIndex and 1000 - b.sortIndex or
+    local bIdx = (b.isLoaded() or b.lapModule:needsInitialization()) and b.sortIndex and 1000 - b.sortIndex or
         b.sortIndex or 0
     return (aIdx > bIdx)
   end)

@@ -148,8 +148,8 @@ function addon:ExportAllProfiles()
   -- set all export options from db
   for moduleName, options in pairs(addon.db.exportOptions) do
     local lapModule = LAP:GetModule(moduleName)
-    if lapModule.setExportOptions then
-      lapModule.setExportOptions(options)
+    if lapModule and lapModule.setExportOptions then
+      lapModule:setExportOptions(options)
     end
   end
   -- delesecting a profile key will instantly set both the key and the profile to nil in the db
@@ -162,11 +162,11 @@ function addon:ExportAllProfiles()
   for _, module in pairs(addon.moduleConfigs) do
     ---@type LibAddonProfilesModule
     local lapModule = module.lapModule
-    if lapModule.isLoaded() or lapModule.needsInitialization() then
+    if lapModule:isLoaded() or lapModule:needsInitialization() then
       local hasAtleastOneExport = false
       for resolution, enabled in pairs(enabledResolutions) do
         local profileKey = currentUIPack.profileKeys[resolution][module.name]
-        local profiles = lapModule.getProfileKeys and lapModule.getProfileKeys()
+        local profiles = lapModule.getProfileKeys and lapModule:getProfileKeys()
         local profileExists = profiles and profiles[profileKey]
         -- exception for modules with groups
         if not profiles then profilesExists = true end
@@ -176,10 +176,10 @@ function addon:ExportAllProfiles()
       end
       if hasAtleastOneExport then
         countOperations = countOperations + 1
-        if lapModule.needsInitialization() then
-          lapModule.openConfig()
+        if lapModule:needsInitialization() then
+          lapModule:openConfig()
           C_Timer.After(0, function()
-            lapModule.closeConfig()
+            lapModule:closeConfig()
           end)
         end
       end
@@ -206,7 +206,7 @@ function addon:ExportAllProfiles()
           local profileKey = currentUIPack.profileKeys[resolution][module.name]
           if enabled and profileKey then
             --handle invalid profile keys
-            local profiles = lapModule.getProfileKeys and lapModule.getProfileKeys()
+            local profiles = lapModule.getProfileKeys and lapModule:getProfileKeys()
             local profileExists = profiles and profiles[profileKey]
             -- exception for modules with groups
             if not lapModule.exportGroup and not profileExists then
@@ -355,8 +355,8 @@ function addon:RefreshAllProfileDropdowns()
   end
   for _, dropdown in pairs(currentProfileDropdowns) do
     if dropdown.info then
-      local lapProfileKey = dropdown.info.lapModule.getCurrentProfileKey()
-      dropdown:Select(dropdown.info.lapModule.getCurrentProfileKey())
+      local lapProfileKey = dropdown.info.lapModule:getCurrentProfileKey()
+      dropdown:Select(dropdown.info.lapModule:getCurrentProfileKey())
     end
   end
   addon.RefreshContentScrollBox()
@@ -474,7 +474,7 @@ function addon:CreateFrames()
           local targetTable = hook.tableFunc()
           for _, functionName in pairs(hook.functionNames) do
             hooksecurefunc(targetTable, functionName, function()
-              C_Timer.After(0.1, function()   --edge case in editmode where the profilelist is not updated instantly
+              C_Timer.After(0.1, function() --edge case in editmode where the profilelist is not updated instantly
                 addon:RefreshAllProfileDropdowns()
               end)
             end)
@@ -486,9 +486,9 @@ function addon:CreateFrames()
     for _, module in pairs(addon.moduleConfigs) do
       ---@type LibAddonProfilesModule
       local lapModule = module.lapModule
-      if lapModule.isLoaded() then
+      if lapModule:isLoaded() then
         executeRefreshHooks(lapModule)
-      elseif lapModule.needsInitialization() then
+      elseif lapModule:needsInitialization() then
         local done = false
         hooksecurefunc(lapModule, "openConfig", function()
           if done then return end

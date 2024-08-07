@@ -48,7 +48,9 @@ end
 local function copyExportString(id)
   addon:Async(function()
     addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 50, L["Preparing export string..."])
-    local exportString = lapModule.exportGroup(id)
+    local exportString = lapModule:exportGroup(id)
+    addon.copyHelper:Hide()
+    if not exportString then return end
     addon:TextExport(exportString)
   end, "copyECHORTExportString")
 end
@@ -349,10 +351,6 @@ local function dropdownOptions()
   return {}
 end
 
-local function hookRefresh()
-
-end
-
 local onSuccessfulTestOverride = function(profileString)
   EchoCooldowns.importStringExternal(profileString)
 end
@@ -363,7 +361,6 @@ local moduleConfig = {
   lapModule = lapModule,
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
-  hookRefresh = hookRefresh,
   copyButtonTooltipText = nil,
   sortIndex = 12,
   hasGroups = true,

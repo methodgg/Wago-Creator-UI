@@ -131,8 +131,8 @@ function addon:CreateExpertFrame(f)
         end
         --sort disabled modules to bottom, alphabetically afterwards
         table.sort(filtered, function(a, b)
-          local orderA = (a.lap.isLoaded() or a.lap.needsInitialization()) and 1 or 0
-          local orderB = (b.lap.isLoaded() or b.lap.needsInitialization()) and 1 or 0
+          local orderA = (a.lap:isLoaded() or a.lap:needsInitialization()) and 1 or 0
+          local orderB = (b.lap:isLoaded() or b.lap:needsInitialization()) and 1 or 0
           if orderA == orderB then
             return a.moduleName < b.moduleName
           end

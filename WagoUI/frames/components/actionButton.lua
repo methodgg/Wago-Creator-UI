@@ -5,7 +5,7 @@ local L = addon.L
 ---@param lapModule LibAddonProfilesModule
 ---@param profileString string
 local function importProfile(lapModule, profileString, profileKey, latestVersion, entryName)
-  lapModule.importProfile(profileString, profileKey, false)
+  lapModule:importProfile(profileString, profileKey, false)
   addon:StoreImportedProfileTimestamp(latestVersion, lapModule.moduleName, profileKey, entryName)
   if lapModule.needReloadOnImport then
     addon:ToggleReloadIndicator(true, L["IMPORT_RELOAD_WARNING3"])
@@ -21,7 +21,7 @@ function addon:CreateActionButton(parent, width, height, fontSize)
   function actionButton:UpdateAction(info, updateAvailable, lastUdatedAt, profileKey, latestVersion)
     ---@class LibAddonProfilesModule
     local lap = info.lap
-    local loaded = lap.isLoaded()
+    local loaded = lap:isLoaded()
     actionButton:SetBackdropColor(1, 1, 1, 0.7)
     local askReimport
 

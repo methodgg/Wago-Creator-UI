@@ -113,151 +113,123 @@ local function UnserializeProfile(data, Hex)
   return false, nil
 end
 
----@return boolean
-local isLoaded = function()
-  return Grid2 and true or false
-end
-
----@return boolean
-local needsInitialization = function()
-  return false
-end
-
----@return nil
-local openConfig = function()
-  SlashCmdList["ACECONSOLE_GRID2"]()
-end
-
----@return nil
-local closeConfig = function()
-  LibStub("AceConfigDialog-3.0"):Close("Grid2")
-end
-
----@return table<string, any>
-local getProfileKeys = function()
-  return Grid2DB.profiles
-end
-
----@return string
-local getCurrentProfileKey = function()
-  local characterName = UnitName("player").." - "..GetRealmName()
-  return Grid2DB.profileKeys and Grid2DB.profileKeys[characterName]
-end
-
----@param profileKey string
-local setProfile = function(profileKey)
-  if not profileKey then return end
-  Grid2.db:SetProfile(profileKey)
-end
-
----@param profileKey string
----@return boolean
-local isDuplicate = function(profileKey)
-  if not profileKey then return false end
-  return getProfileKeys()[profileKey]
-end
-
----@param profileString string
----@param profileKey string | nil
----@param profileData table | nil
----@param rawData table | nil
----@return string | nil
-local testImport = function(profileString, profileKey, profileData, rawData)
-  if not profileString then return end
-  local pKey = profileString:match("%[=== (%w-) profile ===%]")
-  return pKey
-end
-
----@param profileString string
----@param profileKey string
-local importProfile = function(profileString, profileKey, fromIntro)
-  if not profileString then return end
-  local success, data
-  success, data = UnserializeProfile(profileString, true)
-  if not success or not data then return end
-  --dirty hack to initialize Grid2Options
-  if not Grid2Options then
-    openConfig()
-    closeConfig()
-  end
-  if data["@Grid2Layout"] then -- Special ugly case for Custom Layouts
-    local db = Grid2.db:GetNamespace("Grid2Layout", true)
-    if db then
-      local customLayouts = data["@Grid2Layout"].customLayouts
-      if customLayouts then
-        if not db.global.customLayouts then db.global.customLayouts = {} end
-        MoveTableKeys(customLayouts, db.global.customLayouts)
-        Grid2Layout:AddCustomLayouts()
-      end
-    end
-  end
-  local prev_Hook = Grid2.ProfileChanged
-  Grid2.ProfileChanged = function(self)
-    self.ProfileChanged = prev_Hook
-    for key, section in pairs(data) do
-      local db
-      if key == "Grid2" then
-        db = self.db
-      elseif key == "@Grid2Options" then
-        db = Grid2Options.db
-      else
-        db = self:GetModule(key, true) and self.db:GetNamespace(key, true)
-      end
-      if db then
-        MoveTableKeys(section, db.profile)
-      end
-    end
-    self:ProfileChanged()
-    Grid2Options:NotifyChange()
-  end
-  Grid2.db:SetProfile(profileKey)
-  Grid2Options:AddNewCustomLayoutsOptions()
-end
-
----@param profileKey string | nil
----@return string | nil
-local exportProfile = function(profileKey)
-  if not profileKey then return end
-  if not getProfileKeys()[profileKey] then return end
-  --TODO: This should not be here, we already handle this externally
-  if not C_AddOns.IsAddOnLoaded("Grid2Options") then
-    openConfig()
-    closeConfig()
-  end
-  coroutine.yield()
-  return grid2SerializeProfile(profileKey, true, true)
-end
-
----@param profileStringA string
----@param profileStringB string
----@return boolean
-local areProfileStringsEqual = function(profileStringA, profileStringB)
-  if not profileStringA or not profileStringB then return false end
-  local _, profileDataA = UnserializeProfile(profileStringA, true)
-  local _, profileDataB = UnserializeProfile(profileStringB, true)
-  if not profileDataA or not profileDataB then return false end
-  return private:DeepCompareAsync(profileDataA, profileDataB)
-end
-
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Grid2",
   icon = [[Interface\AddOns\Grid2\media\iconsmall]],
   slash = "/grid2",
   needReloadOnImport = true,
-  needsInitialization = needsInitialization,
   needProfileKey = false,
-  isLoaded = isLoaded,
-  openConfig = openConfig,
-  closeConfig = closeConfig,
-  isDuplicate = isDuplicate,
-  testImport = testImport,
-  importProfile = importProfile,
-  exportProfile = exportProfile,
-  getProfileKeys = getProfileKeys,
-  getCurrentProfileKey = getCurrentProfileKey,
-  setProfile = setProfile,
-  areProfileStringsEqual = areProfileStringsEqual,
+  preventRename = false,
+  willOverrideProfile = false,
+  nonNativeProfileString = false,
+
+  isLoaded = function(self)
+    return Grid2 and true or false
+  end,
+
+  needsInitialization = function(self)
+    return false
+  end,
+
+  openConfig = function(self)
+    SlashCmdList["ACECONSOLE_GRID2"]()
+  end,
+
+  closeConfig = function(self)
+    LibStub("AceConfigDialog-3.0"):Close("Grid2")
+  end,
+
+  getProfileKeys = function(self)
+    return Grid2DB.profiles
+  end,
+
+  getCurrentProfileKey = function(self)
+    local characterName = UnitName("player").." - "..GetRealmName()
+    return Grid2DB.profileKeys and Grid2DB.profileKeys[characterName]
+  end,
+
+  isDuplicate = function(self, profileKey)
+    if not profileKey then return false end
+    return self:getProfileKeys()[profileKey] ~= nil
+  end,
+
+  setProfile = function(self, profileKey)
+    if not profileKey then return end
+    Grid2.db:SetProfile(profileKey)
+  end,
+
+  testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
+    if not profileString then return end
+    local pKey = profileString:match("%[=== (%w-) profile ===%]")
+    return pKey
+  end,
+
+  importProfile = function(self, profileString, profileKey, fromIntro)
+    if not profileString then return end
+    local success, data
+    success, data = UnserializeProfile(profileString, true)
+    if not success or not data then return end
+    --dirty hack to initialize Grid2Options
+    if not Grid2Options then
+      self:openConfig()
+      self:closeConfig()
+    end
+    if data["@Grid2Layout"] then -- Special ugly case for Custom Layouts
+      local db = Grid2.db:GetNamespace("Grid2Layout", true)
+      if db then
+        local customLayouts = data["@Grid2Layout"].customLayouts
+        if customLayouts then
+          if not db.global.customLayouts then db.global.customLayouts = {} end
+          MoveTableKeys(customLayouts, db.global.customLayouts)
+          Grid2Layout:AddCustomLayouts()
+        end
+      end
+    end
+    local prev_Hook = Grid2.ProfileChanged
+    Grid2.ProfileChanged = function(self)
+      self.ProfileChanged = prev_Hook
+      for key, section in pairs(data) do
+        local db
+        if key == "Grid2" then
+          db = self.db
+        elseif key == "@Grid2Options" then
+          db = Grid2Options.db
+        else
+          db = self:GetModule(key, true) and self.db:GetNamespace(key, true)
+        end
+        if db then
+          MoveTableKeys(section, db.profile)
+        end
+      end
+      self:ProfileChanged()
+      Grid2Options:NotifyChange()
+    end
+    Grid2.db:SetProfile(profileKey)
+    Grid2Options:AddNewCustomLayoutsOptions()
+  end,
+
+  exportProfile = function(self, profileKey)
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
+    --TODO: This should not be here, we already handle this externally
+    if not C_AddOns.IsAddOnLoaded("Grid2Options") then
+      self:openConfig()
+      self:closeConfig()
+    end
+    coroutine.yield()
+    return grid2SerializeProfile(profileKey, true, true)
+  end,
+
+  areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
+    if not profileStringA or not profileStringB then return false end
+    local _, profileDataA = UnserializeProfile(profileStringA, true)
+    local _, profileDataB = UnserializeProfile(profileStringB, true)
+    if not profileDataA or not profileDataB then return false end
+    return private:DeepCompareAsync(profileDataA, profileDataB)
+  end,
+
   refreshHookList = {
     {
       tableFunc = function()
@@ -267,4 +239,5 @@ local m = {
     },
   }
 }
+
 private.modules[m.moduleName] = m
