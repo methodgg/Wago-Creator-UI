@@ -7,4 +7,5 @@
   <Include file="DFWidgetHelpers.lua"/>
 	<Include file="copyHelper.lua"/>
 	<Include file="errorHandling.lua"/>
+	<Include file="minimapButton.lua"/>
 </Ui>

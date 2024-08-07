@@ -25,6 +25,10 @@ addon.dbDefaults = {
   config = {},
   introEnabled = true,
   importedProfiles = {},
+  minimap = {
+    hide = false,
+    compartmentHide = false,
+  },
 };
 
 addon.state = {}

@@ -5,6 +5,16 @@ local addon = select(2, ...)
 local L = addon.L
 
 local commands = {
+  ["minimap"] = {
+    description = L["Toggle Minimap Button"],
+    func = function(args)
+      if addon.db.minimap.hide then
+        addon:ShowMinimapButton()
+      else
+        addon:HideMinimapButton()
+      end
+    end
+  },
   ["reset"] = {
     description = L["Reset Options"],
     func = function(args)

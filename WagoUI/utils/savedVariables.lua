@@ -62,6 +62,13 @@ do
         eventListener:UnregisterEvent("ADDON_LOADED");
         setUpDB(addon.dbKey, addon.dbCKey);
         handleDBLoad(addon.db, nil, addon.dbDefaults);
+        addon:RegisterMinimapButton()
+        if not addon.db.minimap.hide then
+          addon:ShowMinimapButton()
+        end
+        if not addon.db.minimap.compartmentHide then
+          addon:ShowCompartmentButton()
+        end
         --have to do this on next frame
         C_Timer.After(0, function()
           for _, func in pairs(postDBLoads) do
