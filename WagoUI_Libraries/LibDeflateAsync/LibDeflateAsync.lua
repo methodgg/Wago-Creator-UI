@@ -1,4 +1,4 @@
----@diagnostic disable: need-check-nil, inject-field, redundant-return-value, return-type-mismatch
+---@diagnostic disable: need-check-nil, inject-field, redundant-return-value, return-type-mismatch, undefined-global
 --[[--
 LibDeflate 1.0.2-release <br>
 Pure Lua compressor and decompressor with high compression ratio using
