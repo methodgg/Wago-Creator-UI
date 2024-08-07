@@ -121,7 +121,7 @@ end
 -- We are storing the timestamp of when the profile has been updated by the creator
 -- NOT the time when the user imported the profile
 -- This is to check if the profile has been updated since the user last imported it
-function addon:StoreImportedProfileTimestamp(timestamp, moduleName, profileKey, entryName)
+function addon:StoreImportedProfileData(timestamp, moduleName, profileKey, entryName)
   if not db.importedProfiles[moduleName] then
     db.importedProfiles[moduleName] = entryName and
         {

@@ -90,7 +90,7 @@ local function createPage()
           ---@type LibAddonProfilesModule
           local lap = entry.lap
           lap:importProfile(entry.profile, entry.profileKey, true)
-          addon:StoreImportedProfileTimestamp(entry.profileMetadata.lastUpdatedAt, entry.moduleName, entry.profileKey)
+          addon:StoreImportedProfileData(entry.profileMetadata.lastUpdatedAt, entry.moduleName, entry.profileKey)
           if entry.lap.needReloadOnImport then
             addon:ToggleReloadIndicator(true, L["IMPORT_RELOAD_WARNING1"])
             addon.state.needReload = true

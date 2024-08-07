@@ -6,7 +6,7 @@ local L = addon.L
 ---@param profileString string
 local function importProfile(lapModule, profileString, profileKey, latestVersion, entryName)
   lapModule:importProfile(profileString, profileKey, false)
-  addon:StoreImportedProfileTimestamp(latestVersion, lapModule.moduleName, profileKey, entryName)
+  addon:StoreImportedProfileData(latestVersion, lapModule.moduleName, profileKey, entryName)
   if lapModule.needReloadOnImport then
     addon:ToggleReloadIndicator(true, L["IMPORT_RELOAD_WARNING3"])
     addon.state.needReload = true
