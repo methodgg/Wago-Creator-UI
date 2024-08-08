@@ -94,6 +94,9 @@ function addon:CreateExpertFrame(f)
   end);
 
   local altButton = LWF:CreateButton(expertFrame, 160, 40, L["Alt Character"], 16)
+  if not addon.db.anyInstalled then
+    altButton:Disable()
+  end
   altButton:SetClickFunction(function()
     addon:SetAltFrameHeaderText(L["altFrameHeader3"])
     addon.frames.altFrame:Show()
