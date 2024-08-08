@@ -165,9 +165,7 @@ end
 ---@return table
 function LibWagoFramework:CreateCheckbox(parent, size, switchFunc, defaultValue)
   local checkBox = DF:CreateSwitch(parent,
-    function(_, _, value)
-      if switchFunc then switchFunc(value) end
-    end,
+    switchFunc or function() end,
     false, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, DF:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
   checkBox:SetValue(defaultValue)
   checkBox:SetSize(size, size)
