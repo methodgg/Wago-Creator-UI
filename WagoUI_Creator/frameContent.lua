@@ -215,7 +215,7 @@ function addon:CreateProfileList(f, width, height)
               line.exportButton:Disable()
               line.exportButton:SetText(L["Exporting..."])
               local exportString = lapModule:exportProfile(profileKeyToExport)
-              if exportString then
+              if exportString and type(exportString) == "string" then
                 addon:TextExport(exportString)
               end
               line.exportButton:Enable()
