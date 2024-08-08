@@ -15,6 +15,7 @@ local currentProfileDropdowns = {}
 local LAP = LibStub:GetLibrary("LibAddonProfiles")
 
 local dbDefaults = {
+  debug = false,
   anchorTo = "CENTER",
   anchorFrom = "CENTER",
   xoffset = 0,
@@ -413,24 +414,37 @@ function addon:CreateFrames()
       WagoUICreatorDB.autoStart = value
     end,
     WagoUICreatorDB.autoStart)
+  autoStartCheckbox:Hide()
   autoStartCheckbox:SetPoint("TOPLEFT", frame, "TOPRIGHT", 5, 0)
 
   local autoStartLabel = DF:CreateLabel(frame, "Startup", 16, "white")
   autoStartLabel:SetPoint("LEFT", autoStartCheckbox, "RIGHT", 0, 0)
+  autoStartLabel:Hide()
 
   local resetButton = LWF:CreateButton(frame, 60, 40, "RESET", 16)
   resetButton:SetPoint("TOPLEFT", frame, "TOPRIGHT", 0, -60)
   resetButton:SetClickFunction(function() addon:ResetOptions() end)
+  resetButton:Hide()
 
   local forceErrorButton = LWF:CreateButton(frame, 120, 40, "Force Error", 16)
+  forceErrorButton:Hide()
   forceErrorButton:SetPoint("TOPLEFT", frame, "TOPRIGHT", 0, -110)
   forceErrorButton:SetClickFunction(addon.TestErrorHandling)
 
   local testButton = LWF:CreateButton(frame, 120, 40, "Test Stuff", 16)
+  testButton:Hide()
   testButton:SetPoint("TOPLEFT", frame, "TOPRIGHT", 0, -160)
   testButton:SetClickFunction(function()
     addon.frames.mainFrame.frameContent.contentScrollbox:Refresh()
   end)
+
+  if addon.db.debug then
+    autoStartCheckbox:Show()
+    autoStartLabel:Show()
+    resetButton:Show()
+    forceErrorButton:Show()
+    testButton:Show()
+  end
 
   local frameContent = CreateFrame("Frame", nil, frame)
   frameContent:SetPoint("TOPLEFT", frame.TitleBar, "BOTTOMLEFT", 0, -5)

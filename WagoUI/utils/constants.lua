@@ -2,8 +2,6 @@
 local addon = select(2, ...)
 local L = addon.L
 
-addon.debug = true
-
 addon.color = "FFC1272D";
 addon.colorRGB = {
   193 / 255,
@@ -18,6 +16,7 @@ addon.slashPrefixes = {
 addon.ADDON_WIDTH = 800
 addon.ADDON_HEIGHT = 600
 addon.dbDefaults = {
+  debug = false,
   anchorTo = "CENTER",
   anchorFrom = "CENTER",
   xoffset = 0,

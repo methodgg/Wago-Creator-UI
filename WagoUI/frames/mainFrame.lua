@@ -78,7 +78,7 @@ function addon:CreateMainFrame()
   forceErrorButton:SetClickFunction(addon.TestErrorHandling);
   forceErrorButton:Hide()
 
-  if addon.debug then
+  if addon.db.debug then
     autoStartCheckbox:Show()
     resetButton:Show()
     forceErrorButton:Show()
