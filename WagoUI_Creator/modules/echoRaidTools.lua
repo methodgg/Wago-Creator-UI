@@ -5,6 +5,7 @@ local moduleName = "Echo Raid Tools"
 local LAP = LibStub:GetLibrary("LibAddonProfiles")
 local lapModule = LAP:GetModule(moduleName)
 local DF = _G["DetailsFramework"]
+local LWF = LibStub("LibWagoFramework")
 
 local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
 local m
@@ -230,9 +231,7 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
   end
   groupsScrollBox.onSearchBoxTextChanged = onSearchBoxTextChanged
 
-  local searchBox = DF:CreateTextEntry(groupsScrollBox, function() end, scrollBoxWidth, 20, "ScriptSearchTextEntry", nil,
-    nil,
-    options_dropdown_template)
+  local searchBox = LWF:CreateTextEntry(groupsScrollBox, scrollBoxWidth, 20, function() end)
   searchBox:SetPoint("bottomleft", groupsScrollBox, "topleft", 0, 2)
   groupsScrollBox.searchBox = searchBox
 
@@ -305,10 +304,7 @@ local function createManageFrame(w, h)
     label:SetPoint("BOTTOM", scrollBox, "TOP", 0, 30)
   end
 
-  local okayButton = DF:CreateButton(m, nil, 200, 40, L["Okay"], nil, nil, nil, nil, nil,
-    nil,
-    options_dropdown_template)
-  okayButton.text_overlay:SetFont(okayButton.text_overlay:GetFont(), 16)
+  local okayButton = LWF:CreateButton(m, 200, 40, L["Okay"], 16)
   okayButton:SetClickFunction(function()
     m:Hide()
   end)

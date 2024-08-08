@@ -23,4 +23,5 @@
 	<Include file="LibAddonProfiles\load.xml"/>
 	<Include file="LibSerialize\lib.xml"/>
 	<Include file='LibAsync\LibAsync.xml'/>
+	<Include file='LibWagoFramework\LibWagoFramework.lua'/>
 </Ui>

@@ -62,15 +62,10 @@ function addon:CreateMainFrame()
     reloadIndicator:SetTooltip(text or L["IMPORT_RELOAD_WARNING1"])
   end
 
-  local autoStartCheckbox = DF:CreateSwitch(frame,
-    function(_, _, value)
-      addon.db.autoStart = value
-    end,
-    false, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, DF:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
-  autoStartCheckbox:SetSize(25, 25)
-  autoStartCheckbox:SetAsCheckBox()
+  local autoStartCheckbox = LWF:CreateCheckbox(frame, 25, function(_, _, value)
+    addon.db.autoStart = value
+  end, addon.db.autoStart)
   autoStartCheckbox:SetPoint("TOPLEFT", frame, "TOPRIGHT", 10, 0)
-  autoStartCheckbox:SetValue(addon.db.autoStart)
   autoStartCheckbox:Hide()
 
   local resetButton = LWF:CreateButton(frame, 60, 40, "RESET", 16)

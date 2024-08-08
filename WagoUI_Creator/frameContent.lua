@@ -5,6 +5,7 @@ local addonName = ...
 local addon = select(2, ...)
 local L = addon.L
 local DF = _G["DetailsFramework"]
+local LWF = LibStub("LibWagoFramework")
 local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
 
 local profileDropdowns = {}
@@ -257,17 +258,14 @@ function addon:CreateProfileList(f, width, height)
     line.initializationWarning = initializationWarning
 
     -- profile dropdown
-    local profileDropdown = DF:CreateDropDown(line, function() return {} end, nil, 180, 30, nil, nil,
-      options_dropdown_template)
+    local profileDropdown = LWF:CreateDropdown(line, 180, 30, nil, 1, function() return {} end)
     tinsert(profileDropdowns, profileDropdown)
     line:AddFrameToHeaderAlignment(profileDropdown)
     line.profileDropdown = profileDropdown
 
     -- manage button
-    line.manageButton = DF:CreateButton(line, nil, 180, 30, L["Manage"], nil, nil, nil, nil, nil, nil,
-      options_dropdown_template)
+    line.manageButton = LWF:CreateButton(line, 180, 30, L["Manage"], 16)
     line.manageButton:SetAllPoints(profileDropdown.dropdown)
-    line.manageButton.text_overlay:SetFont(line.manageButton.text_overlay:GetFont(), 16)
 
     -- -- version
     -- local versionLabel = DF:CreateLabel(line, "", 10, "white")
@@ -280,9 +278,7 @@ function addon:CreateProfileList(f, width, height)
     line.lastUpdateLabel = lastUpdateLabel
 
     -- export button
-    line.exportButton = DF:CreateButton(line, nil, 180, 30, "", nil, nil, nil, nil, nil, nil,
-      options_dropdown_template)
-    line.exportButton.text_overlay:SetFont(line.exportButton.text_overlay:GetFont(), 16)
+    line.exportButton = LWF:CreateButton(line, 180, 30, "", 16)
     line:AddFrameToHeaderAlignment(line.exportButton)
 
     line:AlignWithHeader(f.contentHeader, "LEFT")
@@ -321,8 +317,7 @@ function addon:CreateProfileList(f, width, height)
     return packs
   end
 
-  local packDropdown = DF:CreateDropDown(f, getPacksForDropdown, nil, 180, 30, nil, nil,
-    options_dropdown_template)
+  local packDropdown = LWF:CreateDropdown(f, 180, 30, nil, 1, getPacksForDropdown)
   if not db.chosenPack then
     packDropdown:NoOptionSelected()
   else
@@ -330,22 +325,19 @@ function addon:CreateProfileList(f, width, height)
   end
   f.packDropdown = packDropdown
 
-  local newPackEditBox = DF:CreateTextEntry(f, nil, 180, 30, nil, nil, nil, nil, nil, nil, nil, nil,
-    options_dropdown_template)
+  local newPackEditBox = LWF:CreateTextEntry(f, 180, 30, nil)
+  local newPackLabel = DF:CreateLabel(f, L["Pack name:"], 10)
+  newPackLabel:SetPoint("bottomleft", newPackEditBox, "topleft", 0, 2)
 
   addon.GetNewEditBoxText = function()
     return newPackEditBox:GetText()
   end
 
-  local createNewPackButton = DF:CreateButton(f, nil, 150, 40, L["New Pack"], nil, nil, nil, nil, nil, nil,
-    options_dropdown_template)
-  createNewPackButton.text_overlay:SetFont(createNewPackButton.text_overlay:GetFont(), 16)
+  local createNewPackButton = LWF:CreateButton(f, 150, 40, L["New Pack"], 16)
   createNewPackButton:SetClickFunction(addon.CreatePack)
   f.createNewPackButton = createNewPackButton
 
-  local deletePackButton = DF:CreateButton(f, nil, 150, 40, L["Delete"], nil, nil, nil, nil, nil, nil,
-    options_dropdown_template)
-  deletePackButton.text_overlay:SetFont(deletePackButton.text_overlay:GetFont(), 16)
+  local deletePackButton = LWF:CreateButton(f, 150, 40, L["Delete"], 16)
   deletePackButton:SetClickFunction(addon.DeleteCurrentPack)
   f.deletePackButton = deletePackButton
   addLine({ packDropdown, newPackEditBox, createNewPackButton, deletePackButton }, 5, -10)
@@ -382,18 +374,13 @@ function addon:CreateProfileList(f, width, height)
       end
     }
   }
-  local resolutionDropdown = DF:CreateDropDown(f, function() return resolutions end, nil, 180, 30, nil, nil,
-    options_dropdown_template)
-  local resolutionCheckBox = DF:CreateSwitch(f,
-    function(_, _, value)
-      local currentPack = addon:GetCurrentPack()
-      if not currentPack then return end
-      currentPack.resolutions.enabled[currentPack.resolutions.chosen] = value
-      f.contentScrollbox:Refresh()
-    end,
-    false, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, DF:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
-  resolutionCheckBox:SetSize(25, 25)
-  resolutionCheckBox:SetAsCheckBox()
+  local resolutionDropdown = LWF:CreateDropdown(f, 180, 30, nil, 1, function() return resolutions end)
+  local resolutionCheckBox = LWF:CreateCheckbox(f, 25, function(_, _, value)
+    local currentPack = addon:GetCurrentPack()
+    if not currentPack then return end
+    currentPack.resolutions.enabled[currentPack.resolutions.chosen] = value
+    f.contentScrollbox:Refresh()
+  end, false)
   f.resolutionCheckBox = resolutionCheckBox
 
   function addon.UpdatePackSelectedUI()
@@ -437,9 +424,7 @@ function addon:CreateProfileList(f, width, height)
   exportExplainerLabel:SetText(L["exportExplainerLabel"])
   addLine({ exportExplainerLabel }, 5, 0)
 
-  local exportAllButton = DF:CreateButton(f, nil, 250, 40, L["Save All Profiles"], nil, nil, nil, nil, nil, nil,
-    options_dropdown_template)
-  exportAllButton.text_overlay:SetFont(exportAllButton.text_overlay:GetFont(), 16)
+  local exportAllButton = LWF:CreateButton(f, 250, 40, L["Save All Profiles"], 16)
   exportAllButton:SetClickFunction(addon.ExportAllProfiles)
   f.exportAllButton = exportAllButton
   addLine({ exportAllButton }, 5, 0)

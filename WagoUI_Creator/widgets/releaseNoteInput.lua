@@ -2,6 +2,7 @@
 local addon = select(2, ...)
 local L = addon.L
 local DF = _G["DetailsFramework"]
+local LWF = LibStub("LibWagoFramework")
 local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
 
 local releaseNotesFrame
@@ -22,10 +23,7 @@ function addon:CreateReleaseNoteInput()
   addon.exportFrame = releaseNotesFrame
   editbox:SetFontObject(GameFontNormalLarge)
   releaseNotesFrame.scrollframe:SetPoint("BOTTOMRIGHT", releaseNotesFrame, "BOTTOMRIGHT", -23, 80)
-  local reloadButton = DF:CreateButton(releaseNotesFrame, nil, 200, 40, L["Save and Reload"], nil, nil, nil, nil, nil,
-    nil,
-    options_dropdown_template)
-  reloadButton.text_overlay:SetFont(reloadButton.text_overlay:GetFont(), 16)
+  local reloadButton = LWF:CreateButton(releaseNotesFrame, 200, 40, L["Save and Reload"], 16)
   reloadButton:SetClickFunction(function()
     local input = editbox:GetText()
     addon:SaveReleaseNotes(input)

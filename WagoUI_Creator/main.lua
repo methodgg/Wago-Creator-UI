@@ -4,6 +4,7 @@ local addonName = ...
 local addon = select(2, ...)
 local L = addon.L
 local DF = _G["DetailsFramework"]
+local LWF = LibStub("LibWagoFramework")
 
 local metaVersion = C_AddOns.GetAddOnMetadata(addonName, "Version")
 local versiontext = string.gsub(metaVersion, "%.", "")
@@ -407,38 +408,26 @@ function addon:CreateFrames()
   versionString:SetText("v"..metaVersion)
   versionString:SetPoint("LEFT", frame.TitleBar, "LEFT", 2, 0)
 
-  local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
-
-  local autoStartCheckbox = DF:CreateSwitch(frame,
+  local autoStartCheckbox = LWF:CreateCheckbox(frame, 25,
     function(_, _, value)
       WagoUICreatorDB.autoStart = value
     end,
-    false, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, DF:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
-  autoStartCheckbox:SetSize(25, 25)
-  autoStartCheckbox:SetAsCheckBox()
+    WagoUICreatorDB.autoStart)
   autoStartCheckbox:SetPoint("TOPLEFT", frame, "TOPRIGHT", 5, 0)
-  autoStartCheckbox:SetValue(WagoUICreatorDB.autoStart)
 
   local autoStartLabel = DF:CreateLabel(frame, "Startup", 16, "white")
   autoStartLabel:SetPoint("LEFT", autoStartCheckbox, "RIGHT", 0, 0)
 
-  local resetButton = DF:CreateButton(frame, nil, 60, 40, "RESET", nil, nil, nil, nil, nil, nil,
-    options_dropdown_template)
+  local resetButton = LWF:CreateButton(frame, 60, 40, "RESET", 16)
   resetButton:SetPoint("TOPLEFT", frame, "TOPRIGHT", 0, -60)
-  resetButton.text_overlay:SetFont(resetButton.text_overlay:GetFont(), 16)
   resetButton:SetClickFunction(function() addon:ResetOptions() end)
 
-  local forceErrorButton = DF:CreateButton(frame, nil, 120, 40, "Force Error", nil, nil, nil, nil, nil, nil,
-    options_dropdown_template)
+  local forceErrorButton = LWF:CreateButton(frame, 120, 40, "Force Error", 16)
   forceErrorButton:SetPoint("TOPLEFT", frame, "TOPRIGHT", 0, -110)
-  forceErrorButton.text_overlay:SetFont(forceErrorButton.text_overlay:GetFont(), 16)
   forceErrorButton:SetClickFunction(addon.TestErrorHandling)
 
-  local testButton = DF:CreateButton(frame, nil, 120, 40, "Test Stuff", nil, nil, nil, nil, nil,
-    nil,
-    options_dropdown_template)
+  local testButton = LWF:CreateButton(frame, 120, 40, "Test Stuff", 16)
   testButton:SetPoint("TOPLEFT", frame, "TOPRIGHT", 0, -160)
-  testButton.text_overlay:SetFont(testButton.text_overlay:GetFont(), 16)
   testButton:SetClickFunction(function()
     addon.frames.mainFrame.frameContent.contentScrollbox:Refresh()
   end)

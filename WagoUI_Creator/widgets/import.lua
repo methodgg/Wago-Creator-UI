@@ -1,6 +1,7 @@
 ---@class WagoUICreator
 local addon = select(2, ...)
 local DF = _G["DetailsFramework"]
+local LWF = LibStub("LibWagoFramework")
 local LAP = LibStub:GetLibrary("LibAddonProfiles")
 local lapModules = LAP:GetAllModules()
 local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
@@ -151,7 +152,6 @@ local function createImportFrame()
   scrollframe:SetPoint("TOPLEFT", importFrame, "TOPLEFT", 5, -25)
   scrollframe:SetPoint("BOTTOMRIGHT", importFrame, "BOTTOMRIGHT", -23, 90)
 
-  ---@diagnostic disable-next-line: undefined-field
   local instructionLabel = DF:CreateLabel(importFrame, "Paste any profile string", 26, "grey")
   instructionLabel:SetTextColor(0.5, 0.5, 0.5, 1)
   instructionLabel:SetJustifyH("CENTER")
@@ -160,30 +160,23 @@ local function createImportFrame()
 
   local buttonSize = 40
 
-  ---@diagnostic disable-next-line: undefined-field
   local icon = DF:CreateButton(importFrame, nil, 42, 42, "", nil, nil, 134400, nil, nil, nil, nil)
   icon:SetPoint("BOTTOMLEFT", importFrame, "BOTTOMLEFT", 20, 24)
   icon:Hide()
   importFrame.icon = icon
 
-  ---@diagnostic disable-next-line: undefined-field
-  local confirmButton = DF:CreateButton(importFrame, nil, 200, buttonSize, "", nil, nil, nil, nil, nil, nil,
-    options_dropdown_template)
+  local confirmButton = LWF:CreateButton(importFrame, 200, buttonSize, "", 20)
   confirmButton:SetPoint("LEFT", icon, "RIGHT", 10, 0)
-  confirmButton.text_overlay:SetFont(confirmButton.text_overlay:GetFont(), 20)
   confirmButton:Hide()
   importFrame.confirmButton = confirmButton
 
-  ---@diagnostic disable-next-line: undefined-field
   local profileKeyLabel = DF:CreateLabel(importFrame, "", 16, "white")
   profileKeyLabel:SetJustifyH("CENTER")
   profileKeyLabel:SetPoint("LEFT", confirmButton, "RIGHT", 10, 0)
   profileKeyLabel:Hide()
   importFrame.profileKeyLabel = profileKeyLabel
 
-  ---@diagnostic disable-next-line: undefined-field
-  local profileNameInput = DF:CreateTextEntry(importFrame, function() end, 200, 30, "UIMProfileNameInput",
-    nil, nil, options_dropdown_template)
+  local profileNameInput = LWF:CreateTextEntry(importFrame, 200, 20, function() end)
   profileNameInput:SetPoint("LEFT", confirmButton, "RIGHT", 10, 0)
   profileNameInput:Hide()
   profileNameInput:SetScript("OnTextChanged", function(self, isUserInput)
@@ -203,7 +196,6 @@ local function createImportFrame()
   end)
   importFrame.profileNameInput = profileNameInput
 
-  ---@diagnostic disable-next-line: undefined-field
   local profileNameLabel = DF:CreateLabel(importFrame, "Profile Name:",
     DF:GetTemplate("font", "ORANGE_FONT_TEMPLATE"))
   profileNameLabel:SetPoint("bottomleft", profileNameInput, "topleft", 0, 2)

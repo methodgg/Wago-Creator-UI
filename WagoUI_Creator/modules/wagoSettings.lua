@@ -2,6 +2,7 @@
 local addon = select(2, ...)
 local L = addon.L
 local DF = _G["DetailsFramework"]
+local LWF = LibStub("LibWagoFramework")
 local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
 local manageFrame
 local frameWidth = 850
@@ -203,24 +204,18 @@ local function createManageFrame()
   end
 
   for idx, classData in ipairs(specData) do
-    ---@diagnostic disable-next-line: undefined-field
-    local classSwitch = DF:CreateSwitch(manageFrame,
-      function(x, y, value)
-        updateSwitchAndLabelVisual(classIcons[classData.dataName], classLabels[classData.dataName], classData
-          .displayName, classData.dataName, value)
-        for specIdx, specId in ipairs(classData.specs) do
-          db.enabledSpecs[classData.dataName][specIdx] = value
-          specSwitches[specId]:SetValue(value)
-          local _, specName = GetSpecializationInfoByID(specId)
-          updateSwitchAndLabelVisual(specIcons[specId], specLabels[specId], specName,
-            classData.dataName, value)
-        end
-      end,
-      false, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
-      DF:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
+    local classSwitch = LWF:CreateCheckbox(manageFrame, size, function(x, y, value)
+      updateSwitchAndLabelVisual(classIcons[classData.dataName], classLabels[classData.dataName], classData
+        .displayName, classData.dataName, value)
+      for specIdx, specId in ipairs(classData.specs) do
+        db.enabledSpecs[classData.dataName][specIdx] = value
+        specSwitches[specId]:SetValue(value)
+        local _, specName = GetSpecializationInfoByID(specId)
+        updateSwitchAndLabelVisual(specIcons[specId], specLabels[specId], specName,
+          classData.dataName, value)
+      end
+    end, false)
     classSwitches[classData.dataName] = classSwitch
-    classSwitch:SetSize(size, size)
-    classSwitch:SetAsCheckBox()
     local yOffset = -110 + (math.floor((idx - 1) / classesPerRow) * -columnHeight)
     local xOffset = 10 + ((idx - 1) % classesPerRow) * rowWidth
     classSwitch:SetPoint("TOPLEFT", manageFrame, "TOPLEFT", xOffset, yOffset)
@@ -239,21 +234,15 @@ local function createManageFrame()
     classLabels[classData.dataName] = classLabel
 
     for specIdx, specId in ipairs(classData.specs) do
-      ---@diagnostic disable-next-line: undefined-field
-      local specSwitch = DF:CreateSwitch(manageFrame,
-        function(_, _, value)
-          db.enabledSpecs[classData.dataName][specIdx] = value
-          local allSpecsChecked = true
-          for sIdx, _ in ipairs(classData.specs) do
-            allSpecsChecked = allSpecsChecked and db.enabledSpecs[classData.dataName][sIdx]
-          end
-          classSwitch:SetValue(allSpecsChecked)
-        end,
-        false, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
-        DF:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
+      local specSwitch = LWF:CreateCheckbox(manageFrame, size, function(_, _, value)
+        db.enabledSpecs[classData.dataName][specIdx] = value
+        local allSpecsChecked = true
+        for sIdx, _ in ipairs(classData.specs) do
+          allSpecsChecked = allSpecsChecked and db.enabledSpecs[classData.dataName][sIdx]
+        end
+        classSwitch:SetValue(allSpecsChecked)
+      end, false)
       specSwitches[specId] = specSwitch
-      specSwitch:SetSize(size, size)
-      specSwitch:SetAsCheckBox()
       specSwitch:SetPoint("TOPLEFT", manageFrame, "TOPLEFT", xOffset, (-(specIdx * (size + 1))) - 10 + yOffset)
 
       local _, specName, _, iconNumber = GetSpecializationInfoByID(specId)
@@ -293,12 +282,8 @@ local function createManageFrame()
     end
   end
 
-  ---@diagnostic disable-next-line: undefined-field
-  local toggleAllButton = DF:CreateButton(manageFrame, nil, 120, 30, nil, nil, nil, nil, nil, nil, nil,
-    options_dropdown_template)
+  local toggleAllButton = LWF:CreateButton(manageFrame, 120, 30, L["Toggle All"], 16)
   toggleAllButton:SetPoint("BOTTOMLEFT", manageFrame, "BOTTOMLEFT", 10, 10)
-  toggleAllButton:SetText(L["Toggle All"])
-  toggleAllButton.text_overlay:SetFont(toggleAllButton.text_overlay:GetFont(), 16)
   local allChecked = false
   toggleAllButton:SetClickFunction(function()
     allChecked = not allChecked
@@ -321,12 +306,8 @@ local function createManageFrame()
     end
   end)
 
-  ---@diagnostic disable-next-line: undefined-field
-  local closeButton = DF:CreateButton(manageFrame, nil, 90, 30, nil, nil, nil, nil, nil, nil, nil,
-    options_dropdown_template)
+  local closeButton = LWF:CreateButton(manageFrame, 120, 30, L["Okay"], 16)
   closeButton:SetPoint("BOTTOMRIGHT", manageFrame, "BOTTOMRIGHT", -10, 10)
-  closeButton:SetText(L["Okay"])
-  closeButton.text_overlay:SetFont(closeButton.text_overlay:GetFont(), 16)
   closeButton:SetClickFunction(function()
     manageFrame:Hide()
   end)

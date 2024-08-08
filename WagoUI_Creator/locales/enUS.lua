@@ -65,3 +65,5 @@ L["exportButtonWarning"] = "Directly export the selected profile and make it ava
 L["nonNativeExportLabel"] = "(*)"
 L["nonNativeExportTooltip"] = "*This AddOn does not natively provide profile import / export. The profile string will only be compatible with WagoUI"
 L["copied!"] = "copied!"
+L["Cancel"] = "Cancel"
+L["Pack name:"] = "Pack name:"
