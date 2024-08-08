@@ -102,7 +102,9 @@ do
     if (event == "PLAYER_ENTERING_WORLD") then
       addon.frames.eventListener:UnregisterEvent("PLAYER_ENTERING_WORLD")
       if WagoUICreatorDB.autoStart then
-        addon:ShowFrame()
+        C_Timer.After(1, function()
+          addon:ShowFrame()
+        end)
       end
       addon:AddDataToDataAddon()
     elseif (event == "ADDON_LOADED") then
