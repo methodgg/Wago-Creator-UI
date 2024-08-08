@@ -37,3 +37,4 @@ move-folders:
   ../WagoUI_Libraries/AceSerializer-3.0Async: WagoUI/libs/AceSerializer-3.0Async
   ../WagoUI_Libraries/LibAddonProfiles: WagoUI/libs/LibAddonProfiles
   ../WagoUI_Libraries/LibDeflateAsync: WagoUI/libs/LibDeflateAsync
+  ../WagoUI_Libraries/LibWagoFramework: WagoUI/libs/LibWagoFramework
