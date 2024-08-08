@@ -35,13 +35,14 @@ end
 ---@param parent any
 ---@param width number
 ---@param height number
----@param fontSize number
+---@param fontSize number | nil
 ---@param frameScale number
 ---@param dropdownFunc function
 ---@return table
 function LibWagoFramework:CreateDropdown(parent, width, height, fontSize, frameScale, dropdownFunc)
   local dropdown = DF:CreateDropDown(parent, dropdownFunc, nil, width, height, nil, nil, odt)
   dropdown:SetBackdropColor(1, 1, 1, 0.7)
+  dropdown:SetBackdropBorderColor(1, 1, 1, 1)
   dropdown:SetScript("OnEnter", function(self)
     dropdown:SetBackdropColor(1, 1, 1, 0.7)
     dropdown:SetBackdropBorderColor(1, 1, 1, 1)
