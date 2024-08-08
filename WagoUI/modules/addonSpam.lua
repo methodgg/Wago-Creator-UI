@@ -8,6 +8,10 @@ local function hideAddOnPopups()
     if frame then
       frame:Hide()
     end
+    local blizzardPopup = _G["StaticPopup"..i]
+    if blizzardPopup then
+      blizzardPopup:Hide()
+    end
   end
   if PlaterOptionsPanelFrame and PlaterOptionsPanelFrame:IsShown() then PlaterOptionsPanelFrame:Hide() end
 
