@@ -1,6 +1,7 @@
 ---@class WagoUI
 local addon = select(2, ...)
 local DF = _G["DetailsFramework"];
+local LWF = LibStub("LibWagoFramework")
 local L = addon.L
 
 local pageName = "ResolutionPage"
@@ -48,7 +49,7 @@ local onShow = function()
   for i, data in ipairs(availableResolutions) do
     local button = resolutionButtons[data.value]
     if not button then
-      button = addon.DF:CreateResolutionButton(page, data.label)
+      button = LWF:CreateBigChoiceButton(page, data.label)
       resolutionButtons[data.value] = button
     end
     button:SetClickFunction(function()
@@ -60,7 +61,7 @@ local onShow = function()
       if not isCorrect then
         local warning = string.format(L["WRONG_RESOLUTION_WARNING"], data.label, w, h, "")
         -- not supported and "This resolution is not supported!" or "")
-        addon.DF:ShowPrompt(warning, successCallback)
+        addon:ShowPrompt(warning, successCallback)
         return
       end
       successCallback()

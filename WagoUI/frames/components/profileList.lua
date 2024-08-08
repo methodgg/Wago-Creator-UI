@@ -14,7 +14,7 @@ local widths = {
   lastUpdate = 120,
 }
 
-function addon.DF:CreateProfileList(parent, frameWidth, frameHeight)
+function addon:CreateProfileList(parent, frameWidth, frameHeight)
   local header
   local contentScrollbox
 

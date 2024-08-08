@@ -2,6 +2,7 @@
 local addonName = ...
 ---@class WagoUI
 local addon = select(2, ...)
+local LWF = LibStub("LibWagoFramework")
 local db
 local L = addon.L
 
@@ -45,7 +46,7 @@ function addon:CreateExpertFrame(f)
 
 
   local wagoDataDropdownFunc = function() return addon:GetWagoDataForDropdown() end
-  uiPackDropdown = addon.DF:CreateDropdown(expertFrame, 180, 40, 16, 1.2, wagoDataDropdownFunc)
+  uiPackDropdown = LWF:CreateDropdown(expertFrame, 180, 40, 16, 1.2, wagoDataDropdownFunc)
   if not db.selectedWagoData then
     uiPackDropdown:NoOptionSelected()
   else
@@ -53,7 +54,7 @@ function addon:CreateExpertFrame(f)
   end
 
   local resolutionDropdownFunc = function() return addon:GetResolutionsForDropdown() end
-  resolutionDropdown = addon.DF:CreateDropdown(expertFrame, 180, 40, 16, 1.2, resolutionDropdownFunc)
+  resolutionDropdown = LWF:CreateDropdown(expertFrame, 180, 40, 16, 1.2, resolutionDropdownFunc)
   if not db.selectedWagoDataResolution then
     if resolutionDropdown.func()[1] and resolutionDropdown.func()[1].value then
       resolutionDropdown:Select(resolutionDropdown.func()[1].value)
@@ -85,14 +86,14 @@ function addon:CreateExpertFrame(f)
     end
   end
 
-  local introButton = addon.DF:CreateButton(expertFrame, 100, 40, L["Intro"], 16)
+  local introButton = LWF:CreateButton(expertFrame, 100, 40, L["Intro"], 16)
   introButton:SetClickFunction(function()
     addon.frames.introFrame:Show()
     addon.frames.expertFrame:Hide()
     addon.db.introEnabled = true
   end);
 
-  local altButton = addon.DF:CreateButton(expertFrame, 160, 40, L["Alt Character"], 16)
+  local altButton = LWF:CreateButton(expertFrame, 160, 40, L["Alt Character"], 16)
   altButton:SetClickFunction(function()
     addon:SetAltFrameHeaderText(L["altFrameHeader3"])
     addon.frames.altFrame:Show()
@@ -114,11 +115,11 @@ function addon:CreateExpertFrame(f)
   addLine({ uiPackDropdown, resolutionDropdown, introButton, altButton --[[, updateAllButton ]] }, 0, 0)
 
   db.selectedWagoDataTab = db.selectedWagoDataTab or 1
-  local profileTabButton = addon.DF:CreateTabButton(expertFrame, (frameWidth / 2) - 2, 40, L["Profiles"], 16)
-  local weakaurasTabButton = addon.DF:CreateTabButton(expertFrame, (frameWidth / 2) - 2, 40, L["WeakAuras"], 16)
+  local profileTabButton = LWF:CreateTabButton(expertFrame, (frameWidth / 2) - 2, 40, L["Profiles"], 16)
+  local weakaurasTabButton = LWF:CreateTabButton(expertFrame, (frameWidth / 2) - 2, 40, L["WeakAuras"], 16)
   addLine({ profileTabButton, weakaurasTabButton }, 0, 0, 0, 0)
 
-  local profileList = addon.DF:CreateProfileList(expertFrame, frameWidth, frameHeight - totalHeight + 4)
+  local profileList = addon:CreateProfileList(expertFrame, frameWidth, frameHeight - totalHeight + 4)
 
   local updateData = function(data)
     local filtered = {}
@@ -165,7 +166,7 @@ function addon:CreateExpertFrame(f)
     db.selectedWagoDataTab = tabIndex
     addon:UpdateRegisteredDataConsumers()
   end
-  addon.DF:CreateTabStructure({ profileTabButton, weakaurasTabButton }, tabFunction, db.selectedWagoDataTab)
+  LWF:CreateTabStructure({ profileTabButton, weakaurasTabButton }, tabFunction, db.selectedWagoDataTab)
 
   addLine({ profileList.header }, 0, 0)
 

@@ -21,7 +21,7 @@ local function createPage()
   header:SetWidth(page:GetWidth() - 10)
   header:SetPoint("TOPLEFT", page, "TOPLEFT", 0, -15);
 
-  local profileList = addon.DF:CreateProfileList(page, page:GetWidth(), page:GetHeight() - 105)
+  local profileList = addon:CreateProfileList(page, page:GetWidth(), page:GetHeight() - 105)
   local updateData = function(data)
     local filtered = {}
     if data then

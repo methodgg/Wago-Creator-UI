@@ -3,6 +3,7 @@ local addonName = ...
 ---@class WagoUI
 local addon = select(2, ...)
 local DF = _G["DetailsFramework"];
+local LWF = LibStub("LibWagoFramework")
 local L = addon.L
 
 function addon:CreateMainFrame()
@@ -72,12 +73,12 @@ function addon:CreateMainFrame()
   autoStartCheckbox:SetValue(addon.db.autoStart)
   autoStartCheckbox:Hide()
 
-  local resetButton = addon.DF:CreateButton(frame, 60, 40, "RESET", 16)
+  local resetButton = LWF:CreateButton(frame, 60, 40, "RESET", 16)
   resetButton:SetPoint("TOPLEFT", frame, "TOPRIGHT", 0, -30);
   resetButton:SetClickFunction(addon.ShowAddonResetPrompt);
   resetButton:Hide()
 
-  local forceErrorButton = addon.DF:CreateButton(frame, 120, 40, "Force Error", 16)
+  local forceErrorButton = LWF:CreateButton(frame, 120, 40, "Force Error", 16)
   forceErrorButton:SetPoint("TOPLEFT", frame, "TOPRIGHT", 0, -80);
   forceErrorButton:SetClickFunction(addon.TestErrorHandling);
   forceErrorButton:Hide()
@@ -88,13 +89,38 @@ function addon:CreateMainFrame()
     forceErrorButton:Show()
   end
 
+  addon.promptFrame = LWF:CreatePrompFrame(frame, L["Okay"], L["Cancel"])
+
+  ---Show the prompt frame
+  ---@param promptText string
+  ---@param successCallback function | nil
+  ---@param cancelCallback function | nil
+  ---@param okayText string | nil
+  ---@param cancelText string | nil
+  function addon:ShowPrompt(promptText, successCallback, cancelCallback, okayText, cancelText)
+    okayText = okayText or addon.promptFrame.defaultOkayText
+    cancelText = cancelText or addon.promptFrame.defaultCancelText
+    addon.promptFrame.label:SetText(promptText)
+    addon.promptFrame.okayButton:SetText(okayText)
+    addon.promptFrame.okayButton:SetClickFunction(function()
+      addon.promptFrame:Hide()
+      if successCallback then successCallback() end
+    end)
+    addon.promptFrame.cancelButton:SetText(cancelText)
+    addon.promptFrame.cancelButton:SetClickFunction(function()
+      addon.promptFrame:Hide()
+      if cancelCallback then cancelCallback() end
+    end)
+    addon.promptFrame:Show()
+  end
+
   addon.frames.mainFrame = frame;
 
   hooksecurefunc(frame, "Hide", function()
     local promptFunc = function(promptText, successCallback, cancelCallback, okayText, cancelText)
       C_Timer.After(0.1, function()
         frame:Show()
-        addon.DF:ShowPrompt(promptText, successCallback, cancelCallback, okayText, cancelText)
+        addon:ShowPrompt(promptText, successCallback, cancelCallback, okayText, cancelText)
       end)
     end
     local cancelFunc = function()

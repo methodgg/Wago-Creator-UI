@@ -1,6 +1,7 @@
 ---@class WagoUI
 local addon = select(2, ...)
 local DF = _G["DetailsFramework"];
+local LWF = LibStub("LibWagoFramework")
 local L = addon.L
 
 local pageName = "DirectProfilesPage"
@@ -42,7 +43,7 @@ local function createPage()
   header:SetJustifyH("CENTER")
   header:SetPoint("TOPLEFT", page, "TOPLEFT", 0, -15);
 
-  local list = addon.DF:CreateProfileSelectionList(page, page:GetWidth(), page:GetHeight() - 160,
+  local list = addon:CreateProfileSelectionList(page, page:GetWidth(), page:GetHeight() - 160,
     enabledStateCallback)
   local updateData = function(data)
     filtered = {}
@@ -67,7 +68,7 @@ local function createPage()
   addon:RegisterDataConsumer(updateData)
   list.header:SetPoint("TOPLEFT", page, "TOPLEFT", 0, -60)
 
-  installButton = addon.DF:CreateButton(page, 200, 50, L["Install Profiles"], 18)
+  installButton = LWF:CreateButton(page, 200, 50, L["Install Profiles"], 18)
   installButton:SetPoint("BOTTOM", page, "BOTTOM", 0, 10)
   installButton:SetClickFunction(function()
     if InCombatLockdown() then

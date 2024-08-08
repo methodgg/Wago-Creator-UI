@@ -1,6 +1,7 @@
 ---@class WagoUI
 local addon = select(2, ...)
 local DF = _G["DetailsFramework"];
+local LWF = LibStub("LibWagoFramework")
 local L = addon.L
 
 local pageName = "DonePage"
@@ -25,7 +26,7 @@ local function createPage()
   header:SetJustifyH("CENTER")
   header:SetPoint("TOP", page, "TOP", 0, -100);
 
-  reloadButton = addon.DF:CreateButton(page, 250, 70, "", 24)
+  reloadButton = LWF:CreateButton(page, 250, 70, "", 24)
   reloadButton:SetClickFunction(function()
     addon.db.introEnabled = false
     if addon.state.needReload then

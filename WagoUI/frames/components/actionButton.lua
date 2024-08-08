@@ -1,5 +1,6 @@
 ---@class WagoUI
 local addon = select(2, ...)
+local LWF = LibStub("LibWagoFramework")
 local L = addon.L
 
 ---@param lapModule LibAddonProfilesModule
@@ -16,7 +17,7 @@ end
 
 
 function addon:CreateActionButton(parent, width, height, fontSize)
-  local actionButton = addon.DF:CreateButton(parent, width, height, "", fontSize)
+  local actionButton = LWF:CreateButton(parent, width, height, "", fontSize)
 
   function actionButton:UpdateAction(info, updateAvailable, lastUdatedAt, profileKey, latestVersion)
     ---@class LibAddonProfilesModule
@@ -47,7 +48,7 @@ function addon:CreateActionButton(parent, width, height, fontSize)
         end)
       end
       if askReimport then
-        addon.DF:ShowPrompt(L["REIMPORT_PROMPT"], importCallback, nil, L["Re-Import"])
+        addon:ShowPrompt(L["REIMPORT_PROMPT"], importCallback, nil, L["Re-Import"])
       else
         importCallback()
       end

@@ -3,6 +3,7 @@ local addonName = ...
 ---@class WagoUI
 local addon = select(2, ...)
 local DF = _G["DetailsFramework"];
+local LWF = LibStub("LibWagoFramework")
 local L = addon.L
 
 local pageName = "WelcomePage"
@@ -37,7 +38,7 @@ local function createPage()
   end
   if #dropdownData > 1 then
     local dropdownFunc = function() return addon:GetWagoDataForDropdown() end
-    uiPackDropdown = addon.DF:CreateDropdown(page, 250, 40, 20, 1.5, dropdownFunc)
+    uiPackDropdown = LWF:CreateDropdown(page, 250, 40, 20, 1.5, dropdownFunc)
     if not addon.db.selectedWagoData then
       uiPackDropdown:NoOptionSelected()
     else
@@ -53,14 +54,14 @@ local function createPage()
   local logo = DF:CreateImage(page, [[Interface\AddOns\]]..addonName..[[\media\wagoLogo512]], 256, 256)
   logo:SetPoint("TOP", header, "BOTTOM", 0, -20)
 
-  local startButton = addon.DF:CreateButton(page, 230, 50, L["Full Installation"], 22)
+  local startButton = LWF:CreateButton(page, 230, 50, L["Full Installation"], 22)
   startButton:SetPoint("BOTTOMLEFT", page, "BOTTOMLEFT", 140, 80);
   startButton:SetClickFunction(function()
     addon:NextPage()
     addon.db.introEnabled = false
   end);
 
-  local expertButton = addon.DF:CreateButton(page, 230, 50, L["Expert Mode"], 22)
+  local expertButton = LWF:CreateButton(page, 230, 50, L["Expert Mode"], 22)
   expertButton:SetPoint("BOTTOMRIGHT", page, "BOTTOMRIGHT", -140, 80);
   expertButton:SetClickFunction(function()
     addon.frames.introFrame:Hide()

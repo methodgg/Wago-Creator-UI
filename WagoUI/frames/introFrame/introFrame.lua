@@ -3,6 +3,7 @@ local addonName = ...
 ---@class WagoUI
 local addon = select(2, ...)
 local DF = _G["DetailsFramework"];
+local LWF = LibStub("LibWagoFramework")
 local L = addon.L
 
 local currentPage = 1
@@ -73,13 +74,13 @@ function addon:CreateIntroFrame(f)
   introFrame:Hide()
   addon.frames.introFrame = introFrame
 
-  local nextButton = addon.DF:CreateButton(introFrame, 80, 30, "Next >>", 16)
+  local nextButton = LWF:CreateButton(introFrame, 80, 30, "Next >>", 16)
   nextButton:SetPoint("BOTTOMRIGHT", introFrame, "BOTTOMRIGHT", -5, 5);
   nextButton:SetClickFunction(function()
     addon:NextPage()
   end);
 
-  local prevButton = addon.DF:CreateButton(introFrame, 80, 30, "<< Back", 16)
+  local prevButton = LWF:CreateButton(introFrame, 80, 30, "<< Back", 16)
   prevButton:SetPoint("BOTTOMLEFT", introFrame, "BOTTOMLEFT", 5, 5);
   prevButton:SetClickFunction(function()
     addon:PrevPage()

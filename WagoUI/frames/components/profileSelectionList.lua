@@ -1,6 +1,7 @@
 ---@class WagoUI
 local addon = select(2, ...)
 local DF = _G["DetailsFramework"];
+local LWF = LibStub("LibWagoFramework")
 local L = addon.L
 
 local widths = {
@@ -9,7 +10,7 @@ local widths = {
   profile = 150,
 }
 
-function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight, enabledStateCallback)
+function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, enabledStateCallback)
   local header
   local contentScrollbox
 
@@ -29,7 +30,7 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight, en
     line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }));
     DF:Mixin(line, DF.HeaderFunctions);
 
-    local checkBox = addon.DF:CreateCheckbox(line, 40, nil, true)
+    local checkBox = LWF:CreateCheckbox(line, 40, nil, true)
     ---@diagnostic disable-next-line: undefined-field
     line:AddFrameToHeaderAlignment(checkBox);
     line.checkBox = checkBox;
@@ -39,7 +40,7 @@ function addon.DF:CreateProfileSelectionList(parent, frameWidth, frameHeight, en
     line:AddFrameToHeaderAlignment(nameLabel);
     line.nameLabel = nameLabel;
 
-    local textEntry = addon.DF:CreateTextEntry(parent, 150, 20, function() end)
+    local textEntry = LWF:CreateTextEntry(parent, 150, 20, function() end)
     textEntry:SetFrameLevel(150)
     ---@diagnostic disable-next-line: undefined-field
     line:AddFrameToHeaderAlignment(textEntry);
