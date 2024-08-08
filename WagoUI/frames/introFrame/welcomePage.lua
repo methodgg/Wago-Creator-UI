@@ -57,6 +57,7 @@ local function createPage()
   startButton:SetPoint("BOTTOMLEFT", page, "BOTTOMLEFT", 140, 80);
   startButton:SetClickFunction(function()
     addon:NextPage()
+    addon.db.introEnabled = false
   end);
 
   local expertButton = addon.DF:CreateButton(page, 230, 50, L["Expert Mode"], 22)
