@@ -3,6 +3,32 @@ local addon = select(2, ...)
 local LAP = LibStub:GetLibrary("LibAddonProfiles")
 local db
 
+--- We want to get the latest imported profile for a character and module.
+--- This is most likely the profile the user wants to use.
+---@param characterName string Character name in format "Playername - Realm Name"
+---@param moduleName string LibAddonProfiles module name
+---@return string | nil latestProfileKey key of the latest imported profile
+---@return number | nil latestUpdatedAt
+---@return number | nil latestImportedAt
+function addon:GetLatestImportedProfile(characterName, moduleName)
+  local packs = addon.db.importedProfiles[characterName]
+  local latest = 0
+  local latestProfileKey = nil
+  local latestUpdatedAt = nil
+  local latestImportedAt = nil
+  for _, pack in pairs(packs) do
+    for resolutionKey, imports in pairs(pack) do
+      if imports[moduleName] and imports[moduleName].importedAt and imports[moduleName].importedAt > latest then
+        latest = imports[moduleName].importedAt
+        latestProfileKey = imports[moduleName].profileKey
+        latestUpdatedAt = imports[moduleName].lastUpdatedAt
+        latestImportedAt = imports[moduleName].importedAt
+      end
+    end
+  end
+  return latestProfileKey, latestUpdatedAt, latestImportedAt
+end
+
 function addon:SetupWagoData()
   db = addon.db
   if not db.selectedWagoData then
@@ -119,15 +145,17 @@ end
 
 ---@class ImportMetaDataEntry
 ---@field lastUpdatedAt number
+---@field importedAt number
 
 ---@class ImportMetaData
 ---@field lastUpdatedAt? number
+---@field importedAt? number
 ---@field profileKey? string
 ---@field entries? table<string, ImportMetaData>
 
 ---@return table<string, ImportMetaData>>
 function addon:GetImportedProfilesTarget()
-  local currentCharacter = UnitName("player").."-"..GetRealmName()
+  local currentCharacter = UnitName("player").." - "..GetRealmName()
   local packKey = addon.db.selectedWagoData
   local resolution = addon.db.selectedWagoDataResolution
   addon.db.importedProfiles[currentCharacter] = addon.db.importedProfiles[currentCharacter] or {}
@@ -139,8 +167,8 @@ end
 
 -- Important:
 -- We are storing the timestamp of when the profile has been updated by the creator
--- NOT the time when the user imported the profile
 -- This is to check if the profile has been updated since the user last imported it
+-- Additionally we store the timestmap of when the profile was imported by the user
 ---@param timestamp number
 ---@param moduleName string
 ---@param profileKey string
@@ -155,11 +183,13 @@ function addon:StoreImportedProfileData(timestamp, moduleName, profileKey, entry
   end
   if entryName then
     target[moduleName].entries[entryName] = {
-      lastUpdatedAt = timestamp
+      lastUpdatedAt = timestamp,
+      importedAt = GetServerTime()
     }
   else
     target[moduleName].profileKey = profileKey
     target[moduleName].lastUpdatedAt = timestamp
+    target[moduleName].importedAt = GetServerTime()
   end
 end
 
@@ -167,6 +197,7 @@ end
 ---@param entryName? string Name of the profile if the profile is from a module that has multiple profiles (e.g. WeakAuras).
 ---@return number | nil lastUpdatedAt Timestamp of when the profile was last updated by the creator
 ---@return string | nil profileKey Profile the imported profile was imported as. The user could have changed the profile key during the intro wizard
+---@return number | nil importedAt Timestamp of when the profile was imported by the user
 function addon:GetImportedProfileData(moduleName, entryName)
   local target = addon:GetImportedProfilesTarget()
   if not target[moduleName] then return end
@@ -175,7 +206,7 @@ function addon:GetImportedProfileData(moduleName, entryName)
         and target[moduleName].entries
         and target[moduleName].entries[entryName]
     if not data then return end
-    return data.lastUpdatedAt, data.profileKey
+    return data.lastUpdatedAt, data.profileKey, data.importedAt
   end
-  return target[moduleName].lastUpdatedAt, target[moduleName].profileKey
+  return target[moduleName].lastUpdatedAt, target[moduleName].profileKey, target[moduleName].importedAt
 end

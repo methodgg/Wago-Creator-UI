@@ -78,3 +78,4 @@ L["Middle-click to disable Minimap Button"] = "Middle-click to disable Minimap B
 L["WagoUI: Use /wago minimap to show the minimap icon again"] = "WagoUI: Use /wago minimap to show the minimap icon again"
 L["Toggle Minimap Button"] = "Toggle Minimap Button"
 L["Source:"] = "Source:"
+L["Please wait..."] = "Please wait..."
