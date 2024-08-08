@@ -8,6 +8,17 @@ local init
 
 addon.frames = {};
 
+function addon:ResetFramePosition()
+  local defaults = addon.dbDefaults
+  addon.db.anchorTo = defaults.anchorTo
+  addon.db.anchorFrom = defaults.anchorFrom
+  addon.db.xoffset = defaults.xoffset
+  addon.db.yoffset = defaults.yoffset
+  if addon.frames.mainFrame then
+    addon.frames.mainFrame:SetPoint(defaults.anchorTo, UIParent, defaults.anchorFrom, defaults.xoffset, defaults.yoffset)
+  end
+end
+
 function addon.ShowAddonResetPrompt()
   DF:ShowPromptPanel("Reset?"
     , function()
@@ -54,6 +65,7 @@ function init()
     addon:ShowIntroFrame()
   elseif not addon.dbC.hasLoggedIn and addon.db.anyInstalled then
     addon:ShowAltFrame()
+    addon:ResetFramePosition()
   else
     addon:ShowExpertFrame()
   end
