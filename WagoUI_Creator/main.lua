@@ -144,6 +144,8 @@ function addon:ExportAllProfiles()
   -- set current toc version
   local gameVersion = select(4, GetBuildInfo())
   local currentUIPack = addon:GetCurrentPack()
+
+  vdt(currentUIPack, "currentUIPack")
   if not currentUIPack then
     addon:AddonPrintError("No pack selected")
     return
@@ -173,7 +175,7 @@ function addon:ExportAllProfiles()
         local profiles = lapModule.getProfileKeys and lapModule:getProfileKeys()
         local profileExists = profiles and profiles[profileKey]
         -- exception for modules with groups
-        if not profiles then profilesExists = true end
+        if not profiles then profileExists = true end
         if enabled and profileKey and profileExists then
           hasAtleastOneExport = true
         end
