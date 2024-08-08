@@ -18,12 +18,23 @@ function addon.DF:CreateButton(parent, width, height, text, fontSize)
   button:SetScript("OnLeave", function(self)
     button.button:SetBackdropBorderColor(0, 0, 0, 1)
   end)
+  button.button:SetBackdropBorderColor(0, 0, 0, 1)
+  button:SetBackdropColor(1, 1, 1, 0.7)
   button.text_overlay:SetFont(button.text_overlay:GetFont(), fontSize);
   return button
 end
 
 function addon.DF:CreateDropdown(parent, width, height, fontSize, frameScale, dropdownFunc)
   local dropdown = DF:CreateDropDown(parent, dropdownFunc, nil, width, height, nil, nil, odt)
+  dropdown:SetBackdropColor(1, 1, 1, 0.7)
+  dropdown:SetScript("OnEnter", function(self)
+    dropdown:SetBackdropColor(1, 1, 1, 0.7)
+    dropdown:SetBackdropBorderColor(1, 1, 1, 1)
+  end)
+  dropdown:SetScript("OnLeave", function(self)
+    dropdown:SetBackdropColor(1, 1, 1, 0.7)
+    dropdown:SetBackdropBorderColor(0, 0, 0, 1)
+  end)
   if fontSize then
     dropdown.dropdown.text:SetFont(dropdown.dropdown.text:GetFont(), fontSize)
   end
@@ -76,6 +87,7 @@ end
 function addon.DF:CreateResolutionButton(parent, text)
   local button = DF:CreateButton(parent, nil, 250, 80, text, nil, nil, nil, nil, nil, nil,
     odt);
+  button:SetBackdropColor(1, 1, 1, 0.7)
   button:SetScript("OnEnter", function(self)
     button.button:SetBackdropBorderColor(1, 1, 1, 1)
   end)
@@ -138,5 +150,15 @@ end
 
 function addon.DF:CreateTextEntry(parent, width, height, textChangedCallback)
   local textEntry = DF:CreateTextEntry(parent, textChangedCallback, width, height, nil, nil, nil, odt)
+  textEntry:SetBackdropColor(1, 1, 1, 0.7)
+  textEntry:SetBackdropBorderColor(0, 0, 0, 1)
+  textEntry:SetScript("OnEnter", function(self)
+    if textEntry.editbox:IsEnabled() then
+      textEntry:SetBackdropBorderColor(1, 1, 1, 1)
+    end
+  end)
+  textEntry:SetScript("OnLeave", function(self)
+    textEntry:SetBackdropBorderColor(0, 0, 0, 1)
+  end)
   return textEntry
 end

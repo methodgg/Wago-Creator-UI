@@ -22,7 +22,6 @@ function addon:CreateActionButton(parent, width, height, fontSize)
     ---@class LibAddonProfilesModule
     local lap = info.lap
     local loaded = lap:isLoaded()
-    actionButton:SetBackdropColor(1, 1, 1, 0.7)
     local askReimport
 
     if loaded then
