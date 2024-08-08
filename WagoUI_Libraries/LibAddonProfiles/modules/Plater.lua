@@ -195,7 +195,9 @@ local m = {
     if not profileKey then return end
     if not self:getProfileKeys()[profileKey] then return end
     Plater.db:SetProfile(profileKey)
-    DetailsFrameworkPromptSimple.CloseButton:Click()
+    if DetailsFrameworkPromptSimple then
+      DetailsFrameworkPromptSimple.CloseButton:Click()
+    end
   end,
 
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
