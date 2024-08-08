@@ -41,6 +41,10 @@ local m = {
     return ElvPrivateDB.profileKeys and ElvPrivateDB.profileKeys[E.mynameRealm]
   end,
 
+  getProfileAssignments = function(self)
+    return ElvPrivateDB.profileKeys
+  end,
+
   isDuplicate = function(self, profileKey)
     if not profileKey then return false end
     return ElvPrivateDB.profiles[profileKey] and true or false

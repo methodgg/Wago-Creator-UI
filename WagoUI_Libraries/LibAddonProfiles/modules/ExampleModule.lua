@@ -22,6 +22,7 @@ if (not private) then return; end
 ---@field closeConfig fun(self: LibAddonProfilesModule) : nil
 ---@field getProfileKeys? fun(self: LibAddonProfilesModule,) : table<string, any>
 ---@field getCurrentProfileKey? fun(self: LibAddonProfilesModule,) : string
+---@field getProfileAssignments? fun(self: LibAddonProfilesModule) : table<string, string> | nil The key should be in format "Playername - RealmName". The value should be the profile key.
 ---@field isDuplicate fun(self: LibAddonProfilesModule, profileKey: string) : boolean
 ---@field setProfile? fun(self: LibAddonProfilesModule, profileKey: string)
 ---@field testImport fun(self: LibAddonProfilesModule, profileString: string, profileKey: string | nil, profileData: table| nil, rawData: table | nil, moduleName: string | nil) : string | table | nil Test the profile string to see if it can be imported. Return the profile key if it can, nil otherwise. Tests profileData, rawData, and moduleName if they are provided, otherwise decodes the profileString and tests that.

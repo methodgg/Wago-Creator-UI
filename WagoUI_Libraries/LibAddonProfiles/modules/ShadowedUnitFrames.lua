@@ -39,6 +39,10 @@ local m = {
     return ShadowedUFDB.profileKeys and ShadowedUFDB.profileKeys[characterName]
   end,
 
+  getProfileAssignments = function(self)
+    return ShadowedUFDB.profileKeys
+  end,
+
   isDuplicate = function(self, profileKey)
     if not profileKey then return false end
     return ShadowUF.db.profiles[profileKey]

@@ -39,6 +39,10 @@ local m = {
     return WarpDeplete.db:GetCurrentProfile()
   end,
 
+  getProfileAssignments = function(self)
+    return WarpDeplete.db.sv.profileKeys
+  end,
+
   isDuplicate = function(self, profileKey)
     if not profileKey then return false end
     return self:getProfileKeys()[profileKey] ~= nil

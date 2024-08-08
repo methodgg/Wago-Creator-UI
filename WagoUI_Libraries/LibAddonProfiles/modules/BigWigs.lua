@@ -52,6 +52,10 @@ local m = {
     return BigWigs3DB.profileKeys and BigWigs3DB.profileKeys[characterName]
   end,
 
+  getProfileAssignments = function(self)
+    return BigWigs3DB.profileKeys
+  end,
+
   isDuplicate = function(self, profileKey)
     if not profileKey then return false end
     return self:getProfileKeys()[profileKey] ~= nil

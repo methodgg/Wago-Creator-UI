@@ -174,6 +174,10 @@ local m = {
     return Plater.db:GetCurrentProfile()
   end,
 
+  getProfileAssignments = function(self)
+    return PlaterDB.profileKeys
+  end,
+
   isDuplicate = function(self, profileKey)
     if not profileKey then return false end
     local profiles = Plater.db:GetProfiles()

@@ -40,6 +40,10 @@ local m = {
     return Quartz3DB.profileKeys and Quartz3DB.profileKeys[characterName]
   end,
 
+  getProfileAssignments = function(self)
+    return Quartz3DB.profileKeys
+  end,
+
   isDuplicate = function(self, profileKey)
     if not profileKey then return false end
     return self:getProfileKeys()[profileKey] ~= nil

@@ -67,6 +67,11 @@ local m = {
     return EditModeManagerFrame:GetActiveLayoutInfo().layoutName
   end,
 
+  getProfileAssignments = function(self)
+    --stored character specific
+    return nil
+  end,
+
   isDuplicate = function(self, profileKey)
     if not profileKey then return false end
     return getLayoutByName(profileKey) ~= nil

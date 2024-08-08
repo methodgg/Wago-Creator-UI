@@ -39,6 +39,10 @@ local m = {
     return OmniCCDB.profileKeys[characterName]
   end,
 
+  getProfileAssignments = function(self)
+    return OmniCCDB.profileKeys
+  end,
+
   isDuplicate = function(self, profileKey)
     if not profileKey then return false end
     return self:getProfileKeys()[profileKey] ~= nil

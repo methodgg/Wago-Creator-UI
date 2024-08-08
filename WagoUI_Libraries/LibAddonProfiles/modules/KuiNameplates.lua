@@ -60,6 +60,11 @@ local m = {
     return KuiNameplatesCoreCharacterSaved.profile
   end,
 
+  getProfileAssignments = function(self)
+    --stored character specific
+    return nil
+  end,
+
   isDuplicate = function(self, profileKey)
     if not profileKey then return false end
     return self:getProfileKeys()[profileKey] ~= nil
