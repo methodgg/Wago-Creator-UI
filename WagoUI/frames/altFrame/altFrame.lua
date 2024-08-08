@@ -50,14 +50,14 @@ function addon:CreateAltFrame(f)
     addon.frames.expertFrame:Show()
   end);
 
-  local introButton = addon.DF:CreateButton(altFrame, 220, 50, L["Set all Profiles"], 22)
-  introButton:SetPoint("CENTER", altFrame, "CENTER", -160, -180)
-  introButton:SetClickFunction(function()
+  local setProfilesButton = addon.DF:CreateButton(altFrame, 220, 50, L["Set all Profiles"], 22)
+  setProfilesButton:SetPoint("CENTER", altFrame, "CENTER", -160, -180)
+  setProfilesButton:SetClickFunction(function()
     addon:Async(function()
       setAllProfilesAsync()
       header:SetText(L["altFrameHeader2"])
-      introButton:SetText(L["Reload UI"])
-      introButton:SetClickFunction(function()
+      setProfilesButton:SetText(L["Reload UI"])
+      setProfilesButton:SetClickFunction(function()
         ReloadUI()
       end);
     end);
