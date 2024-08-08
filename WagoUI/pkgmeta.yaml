@@ -2,6 +2,7 @@ manual-changelog: CHANGELOG.md
 ignore:
   - README.md
   - definitions.lua
+  - cspell.json
   - WagoUI/pkgmeta.yaml
   - WagoUI_Libraries
   - WagoUI_Storage
