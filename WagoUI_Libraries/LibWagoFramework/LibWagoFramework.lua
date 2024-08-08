@@ -179,7 +179,7 @@ end
 ---@param parent any
 ---@param width number
 ---@param height number
----@param textChangedCallback function
+---@param textChangedCallback function | nil
 ---@return table
 function LibWagoFramework:CreateTextEntry(parent, width, height, textChangedCallback)
   local textEntry = DF:CreateTextEntry(parent, textChangedCallback, width, height, nil, nil, nil, odt)
