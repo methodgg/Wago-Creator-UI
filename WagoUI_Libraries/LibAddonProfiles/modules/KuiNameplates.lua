@@ -5,6 +5,7 @@ if (not private) then return; end
 
 ---@param profileString string
 ---@return table | nil
+---@return string | nil
 local decodeProfileString = function(profileString)
   local decodedName, decodedProfileString
   local firstBracket = strfind(profileString, '{')
@@ -18,7 +19,7 @@ local decodeProfileString = function(profileString)
   ---@diagnostic disable-next-line: undefined-field
   local table, tlen = kui.string_to_table(decodedProfileString)
   if not table or tlen == 0 then return end
-  return table
+  return table, decodedName
 end
 
 ---@type LibAddonProfilesModule
@@ -78,10 +79,10 @@ local m = {
 
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
     if not profileString then return end
-    local table = decodeProfileString(profileString)
+    local table, decodedKey = decodeProfileString(profileString)
     --very weird export format
     --need to check in the future if this test causes issues if another addon has a format like this
-    if table then return profileKey end
+    if table and decodedKey then return decodedKey end
   end,
 
   importProfile = function(self, profileString, profileKey, fromIntro)
