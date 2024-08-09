@@ -175,6 +175,7 @@ local m = {
     success, data = UnserializeProfile(profileString, true)
     if not success or not data then return end
     --dirty hack to initialize Grid2Options
+    --TODO: This should not be here, we should already handle this externally (see needsInitialization)
     if not Grid2Options then
       self:openConfig()
       self:closeConfig()
