@@ -14,7 +14,6 @@ local decodeProfileString = function(profileString)
   else
     decodedName = 'import'
   end
-  profileKey = profileKey or decodedName
   local kui = LibStub('Kui-1.0')
   ---@diagnostic disable-next-line: undefined-field
   local table, tlen = kui.string_to_table(decodedProfileString)

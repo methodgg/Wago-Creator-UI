@@ -34,7 +34,7 @@ end
 
 local function exportFunc(moduleName, resolution, timestamp)
   local currentUIPack = addon:GetCurrentPack()
-  lapModule = LAP:GetModule(moduleName)
+  local lapModule = LAP:GetModule(moduleName)
   ---@type any
   local newExport = lapModule:exportProfile(currentUIPack.profileKeys[resolution][moduleName])
   ---@type any

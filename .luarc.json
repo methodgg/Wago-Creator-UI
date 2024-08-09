@@ -122,7 +122,6 @@
         "ExampleAddon"
     ],
     "diagnostics.disable": [
-        "lowercase-global",
         "need-check-nil"
     ]
 }

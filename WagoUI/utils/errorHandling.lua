@@ -53,6 +53,7 @@ function addon:DisplayErrors(force)
     editBox:HighlightText(0, string.len(text))
     editBox:SetFocus()
     copyButton:SetDisabled(true)
+    ---@diagnostic disable-next-line: invisible
     addon.copyHelper:SmartShow(addon.errorFrame.frame, 0, 0)
   end
 
@@ -66,6 +67,7 @@ function addon:DisplayErrors(force)
   if not addon.errorFrame then
     addon.errorFrame = AceGUI:Create("Frame")
     local errorFrameName = addonName.."ErrorFrame"
+    ---@diagnostic disable-next-line: invisible
     _G[errorFrameName] = addon.errorFrame.frame
     table.insert(UISpecialFrames, errorFrameName)
     local errorFrame = addon.errorFrame

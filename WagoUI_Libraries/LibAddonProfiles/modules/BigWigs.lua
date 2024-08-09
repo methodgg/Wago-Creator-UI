@@ -3,6 +3,8 @@ local _, loadingAddonNamespace = ...;
 local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal();
 if (not private) then return; end
 
+local optionsFrame
+
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "BigWigs",
