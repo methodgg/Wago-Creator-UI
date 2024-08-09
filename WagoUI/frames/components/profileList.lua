@@ -81,7 +81,7 @@ function addon:CreateProfileList(parent, frameWidth, frameHeight)
       local index = i + offset;
       local info = data[index];
       if (info) then
-        ---@class LibAddonProfilesModule
+        ---@type LibAddonProfilesModule
         local lap = info.lap
         local line = self:GetLine(i);
         local loaded = lap:isLoaded()

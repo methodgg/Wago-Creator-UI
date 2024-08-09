@@ -34,13 +34,12 @@ end
 
 local function exportFunc(moduleName, resolution, timestamp)
   local currentUIPack = addon:GetCurrentPack()
+  ---@type LibAddonProfilesModule
   local lapModule = LAP:GetModule(moduleName)
   ---@type any
   local newExport = lapModule:exportProfile(currentUIPack.profileKeys[resolution][moduleName])
   ---@type any
   local oldExport = currentUIPack.profiles[resolution][moduleName]
-  ---@class LibAddonProfilesModule
-  local lapModule = LAP:GetModule(moduleName)
   local tableA, tableB
   if lapModule.exportGroup then
     tableA = oldExport

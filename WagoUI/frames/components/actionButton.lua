@@ -20,7 +20,7 @@ function addon:CreateActionButton(parent, width, height, fontSize)
   local actionButton = LWF:CreateButton(parent, width, height, "", fontSize)
 
   function actionButton:UpdateAction(info, updateAvailable, lastUdatedAt, profileKey, latestVersion)
-    ---@class LibAddonProfilesModule
+    ---@type LibAddonProfilesModule
     local lap = info.lap
     local loaded = lap:isLoaded()
     local askReimport

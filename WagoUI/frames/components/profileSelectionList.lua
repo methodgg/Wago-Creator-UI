@@ -74,7 +74,7 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, enabl
       line.importOverrideWarning:Hide()
       line:SetBackdropColor(unpack({ .8, .8, .8, 0.1 }));
       if (info) then
-        ---@class LibAddonProfilesModule
+        ---@type LibAddonProfilesModule
         local lap = info.lap
         if lap:needsInitialization() then
           lap:openConfig()
