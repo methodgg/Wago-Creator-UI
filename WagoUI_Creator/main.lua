@@ -145,7 +145,6 @@ function addon:ExportAllProfiles()
   local gameVersion = select(4, GetBuildInfo())
   local currentUIPack = addon:GetCurrentPack()
 
-  vdt(currentUIPack, "currentUIPack")
   if not currentUIPack then
     addon:AddonPrintError("No pack selected")
     return
