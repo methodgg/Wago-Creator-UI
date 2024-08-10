@@ -12,10 +12,10 @@ addon.version = tonumber(versiontext)
 addon.frames = {}
 local profileDropdowns = {}
 local currentProfileDropdowns = {}
-local LAP = LibStub:GetLibrary("LibAddonProfiles")
 
 local dbDefaults = {
   debug = false,
+  hasLoggedInEver = false,
   anchorTo = "CENTER",
   anchorFrom = "CENTER",
   xoffset = 0,
@@ -101,8 +101,9 @@ do
   addon.frames.eventListener:SetScript("OnEvent", function(self, event, ...)
     if (event == "PLAYER_ENTERING_WORLD") then
       addon.frames.eventListener:UnregisterEvent("PLAYER_ENTERING_WORLD")
-      if WagoUICreatorDB.autoStart then
+      if addon.db.autoStart or not addon.db.hasLoggedInEver then
         C_Timer.After(1, function()
+          addon.db.hasLoggedInEver = true
           addon:ShowFrame()
         end)
       end
