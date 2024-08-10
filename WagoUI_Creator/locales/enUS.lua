@@ -67,3 +67,5 @@ L["nonNativeExportTooltip"] = "*This AddOn does not natively provide profile imp
 L["copied!"] = "copied!"
 L["Cancel"] = "Cancel"
 L["Pack name:"] = "Pack name:"
+L["autoReleaseNotesExplanation"] = "These are auto generated release notes in Markdown format. Feel free to edit them.\nThe notes show up when users install or update your UI Pack."
+L["Continue the upload through the Wago App after the reload!"] = "Continue the upload through the Wago App after the reload!"

@@ -3,12 +3,11 @@ local addon = select(2, ...)
 local L = addon.L
 local DF = _G["DetailsFramework"]
 local LWF = LibStub("LibWagoFramework")
-local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
 
 local releaseNotesFrame
 
 function addon:CreateReleaseNoteInput()
-  releaseNotesFrame = addon:CreateGenericTextFrame(600, 300, "Release Notes")
+  releaseNotesFrame = addon:CreateGenericTextFrame(600, 350, "Release Notes")
   releaseNotesFrame:SetFrameLevel(105)
   releaseNotesFrame.Close:SetScript("OnClick", function()
     releaseNotesFrame:Hide()
@@ -22,7 +21,11 @@ function addon:CreateReleaseNoteInput()
   end)
   addon.exportFrame = releaseNotesFrame
   editbox:SetFontObject(GameFontNormalLarge)
-  releaseNotesFrame.scrollframe:SetPoint("BOTTOMRIGHT", releaseNotesFrame, "BOTTOMRIGHT", -23, 80)
+  releaseNotesFrame.scrollframe:SetPoint("BOTTOMRIGHT", releaseNotesFrame, "BOTTOMRIGHT", -23, 125)
+
+  local explainerLabel = DF:CreateLabel(releaseNotesFrame, L["autoReleaseNotesExplanation"], 12, "#d0d2d6")
+  explainerLabel:SetPoint("TOPLEFT", releaseNotesFrame.scrollframe, "BOTTOMLEFT", 4, -10)
+
   local reloadButton = LWF:CreateButton(releaseNotesFrame, 200, 40, L["Save and Reload"], 16)
   reloadButton:SetClickFunction(function()
     local input = editbox:GetText()
@@ -36,7 +39,15 @@ function addon:CreateReleaseNoteInput()
   reloadButton:SetScript("OnLeave", function(self)
     reloadButton.button:SetBackdropBorderColor(1, 1, 1, 0)
   end)
-  reloadButton:SetPoint("BOTTOM", releaseNotesFrame, "BOTTOM", 0, 20)
+  reloadButton:SetPoint("BOTTOM", releaseNotesFrame, "BOTTOM", 0, 40)
+
+  local nextStepLabel = DF:CreateLabel(
+    releaseNotesFrame, L["Continue the upload through the Wago App after the reload!"], 14, "white")
+  nextStepLabel:SetPoint("BOTTOM", releaseNotesFrame, "BOTTOM", 0, 15)
+  local warningIconLeft = LWF:CreateIconButton(releaseNotesFrame, 30, "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
+  local warningIconRight = LWF:CreateIconButton(releaseNotesFrame, 30, "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
+  warningIconLeft:SetPoint("RIGHT", nextStepLabel, "LEFT", -5, 0)
+  warningIconRight:SetPoint("LEFT", nextStepLabel, "RIGHT", 5, 0)
 end
 
 function addon:OpenReleaseNoteInput(timestamp, updates, removals)

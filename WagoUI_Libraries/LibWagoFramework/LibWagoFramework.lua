@@ -193,3 +193,17 @@ function LibWagoFramework:CreateTextEntry(parent, width, height, textChangedCall
   end)
   return textEntry
 end
+
+---Simple icon button
+---@param parent any
+---@param size number
+---@param icon string | number
+---@param tooltipText string | nil
+---@return table
+function LibWagoFramework:CreateIconButton(parent, size, icon, tooltipText)
+  local button = DF:CreateButton(parent, nil, size, size, "", nil, nil, icon);
+  if tooltipText then
+    button:SetTooltip(tooltipText);
+  end
+  return button
+end
