@@ -48,25 +48,25 @@ function addon:OpenReleaseNoteInput(timestamp, updates, removals)
   for key, entry in pairs(updates) do
     if type(entry) == "boolean" then
       str = str or ""
-      str = str..key.."\n"
+      str = str.."- "..key.."\n"
     elseif type(entry) == "table" then
       for k in pairs(entry) do
         str = str or ""
-        str = str..key..": "..k.."\n"
+        str = str.."- "..key..": "..k.."\n"
       end
     end
   end
-  str = str and L["Updated / Added"]..":\n"..str or ""
+  str = str and "## "..L["Updated / Added"]..":\n"..str or ""
   --removals
   local removeString
   for module, v in pairs(removals) do
     for entry in pairs(v) do
       removeString = removeString or ""
-      removeString = removeString..module..": "..entry.."\n"
+      removeString = removeString.."- "..module..": "..entry.."\n"
     end
   end
   if removeString then
-    str = str..L["Removed"]..":\n"..removeString
+    str = str.."## "..L["Removed"]..":\n"..removeString
   end
   if addon.importFrame then addon.importFrame.Close:Click() end
   releaseNotesFrame:SetPoint("CENTER", addon.frames.mainFrame, "CENTER")
