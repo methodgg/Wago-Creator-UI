@@ -140,6 +140,13 @@ function addon:DeepCopyAsync(orig)
   return copy
 end
 
+local function getGameFlavorString()
+  local gameVersion = select(4, GetBuildInfo())
+  if gameVersion >= 110000 then return "retail" end
+  if gameVersion >= 40400 then return "cata" end
+  if gameVersion >= 11503 then return "classic" end
+end
+
 function addon:ExportAllProfiles()
   -- set current toc version
   local gameVersion = select(4, GetBuildInfo())
@@ -150,6 +157,7 @@ function addon:ExportAllProfiles()
     return
   end
   currentUIPack.gameVersion = gameVersion
+  currentUIPack.gameFlavor = getGameFlavorString()
   -- set all export options from db
   for moduleName, options in pairs(addon.db.exportOptions) do
     local lapModule = LAP:GetModule(moduleName)
