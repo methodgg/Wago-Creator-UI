@@ -1,3 +1,3 @@
-# v1.0.2 (2024-08-08)
+# v1.0.3 (2024-08-10)
 
-- initial release
+- UX improvements

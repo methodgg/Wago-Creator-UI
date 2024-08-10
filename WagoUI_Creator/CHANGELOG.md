@@ -1,3 +1,5 @@
-# 1.0.2 (2024-08-08)
+# 1.0.3 (2024-08-10)
 
-- initial release
+- Store game flavor in the export
+- Store release notes in Markdown format
+- UX improvements
