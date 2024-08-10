@@ -4,5 +4,6 @@
 	<Include file="async.lua"/>
 	<Include file="moduleFunctions.lua"/>
 	<Include file="DuplicateWeakAura.lua"/>
+	<Include file="exportAllProfiles.lua"/>
 	<Include file="errorHandling.lua"/>
 </Ui>
