@@ -6,7 +6,6 @@ local addon = select(2, ...)
 local L = addon.L
 local DF = _G["DetailsFramework"]
 local LWF = LibStub("LibWagoFramework")
-local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
 
 local profileDropdowns = {}
 local db
@@ -413,7 +412,10 @@ function addon:CreateProfileList(f, width, height)
 
   -- logo
   local logo = DF:CreateImage(f, [[Interface\AddOns\]]..addonName..[[\media\wagoLogo512]], 256, 256)
-  logo:SetPoint("TOPRIGHT", f, "TOPRIGHT", -90, -10)
+  logo:SetPoint("TOPRIGHT", f, "TOPRIGHT", -45, 10)
+
+  local slashLabel = DF:CreateLabel(f, "Slash command: |cFFC1272D/wagoc|r", 20, "white")
+  slashLabel:SetPoint("TOP", logo, "BOTTOM", 0, 25)
 
   addLine({ resolutionDropdown, resolutionCheckBox, resolutionEnabledLabel }, 5, 0)
 
