@@ -1,5 +1,3 @@
-# 1.0.3 (2024-08-10)
+# 1.0.4 (2024-08-10)
 
-- Store game flavor in the export
-- Store release notes in Markdown format
-- UX improvements
+- Auto start on first ever login
