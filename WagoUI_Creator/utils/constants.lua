@@ -26,7 +26,7 @@ addon.colorRGB = { --used by status bar
   b = 0 / 255,
 }
 addon.slashPrefixes = {
-  "/wuic", "/wagouicreator", "/wagoc",
+  "/wuic", "/wagocreator", "/wagoc",
 }
 addon.ADDON_WIDTH = 1000
 addon.ADDON_HEIGHT = 800
