@@ -110,6 +110,7 @@ function addon:ExportAllProfiles()
     end
     if numUpdates > 0 then
       addon.copyHelper:SmartHide()
+      currentUIPack.updatedAt = timestamp
       addon:OpenReleaseNoteInput(timestamp, updates, removals)
     else
       addon.copyHelper:SmartFadeOut(2, L["No Changes detected"])
