@@ -83,6 +83,8 @@ function addon:OpenReleaseNoteInput(timestamp, updates, removals)
   if removeString then
     str = str.."## "..L["Removed"]..":\n"..removeString
   end
+  local dateString = date("%y/%m/%d", timestamp).."\n"
+  str = dateString..str
   if addon.importFrame then addon.importFrame.Close:Click() end
   releaseNotesFrame:SetPoint("CENTER", addon.frames.mainFrame, "CENTER")
   releaseNotesFrame:Show()
