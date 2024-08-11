@@ -108,6 +108,7 @@ function addon:ExportAllProfiles()
     for _ in pairs(updates) do
       numUpdates = numUpdates + 1
     end
+    numUpdates = numUpdates + addon:CountRemovedProfiles(addon.db.chosenPack)
     if numUpdates > 0 then
       addon.copyHelper:SmartHide()
       currentUIPack.updatedAt = timestamp

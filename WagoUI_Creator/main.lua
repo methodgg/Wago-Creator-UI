@@ -27,6 +27,7 @@ local dbDefaults = {
     }
   },
   creatorUI = {},
+  profileRemovals = {},
 }
 
 local function handleDBLoad(database, force, defaults)

@@ -14,6 +14,7 @@ function ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKe
       currentUIPack.profileKeys[currentUIPack.resolutions.chosen][moduleName] = nil
       currentUIPack.profiles[currentUIPack.resolutions.chosen][moduleName] = nil
       addon.UpdatePackSelectedUI()
+      addon:AddProfileRemoval(addon.db.chosenPack, currentUIPack.resolutions.chosen, moduleName)
     end
   })
 

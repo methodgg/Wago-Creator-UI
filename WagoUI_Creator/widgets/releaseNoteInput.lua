@@ -54,6 +54,38 @@ function addon:CreateReleaseNoteInput()
   end)
 end
 
+function addon:AddProfileRemoval(packName, resolution, moduleName)
+  local data = {
+    packName = packName,
+    resolution = resolution,
+    moduleName = moduleName
+  }
+  tinsert(addon.db.profileRemovals, data)
+end
+
+local function getAndClearCurrentProfileRemovals()
+  local removeString
+  for i = #addon.db.profileRemovals, 1, -1 do
+    local data = addon.db.profileRemovals[i]
+    if data.packName == addon.db.chosenPack then
+      removeString = removeString or ""
+      removeString = removeString.."- "..data.moduleName.." ("..data.resolution..")\n"
+      table.remove(addon.db.profileRemovals, i)
+    end
+  end
+  return removeString
+end
+
+function addon:CountRemovedProfiles(packName)
+  local count = 0
+  for i = #addon.db.profileRemovals, 1, -1 do
+    if addon.db.profileRemovals[i].packName == packName then
+      count = count + 1
+    end
+  end
+  return count
+end
+
 function addon:OpenReleaseNoteInput(timestamp, updates, removals)
   if not releaseNotesFrame then addon:CreateReleaseNoteInput() end
   releaseNotesFrame.timestamp = timestamp
@@ -80,10 +112,16 @@ function addon:OpenReleaseNoteInput(timestamp, updates, removals)
       removeString = removeString.."- "..module..": "..entry.."\n"
     end
   end
+  -- profiles removed
+  local removedProfiles = getAndClearCurrentProfileRemovals()
+  if removedProfiles then
+    removeString = removeString or ""
+    removeString = removeString..removedProfiles
+  end
   if removeString then
     str = str.."## "..L["Removed"]..":\n"..removeString
   end
-  local dateString = date("%y/%m/%d", timestamp).."\n"
+  local dateString = "# "..date("%y/%m/%d", timestamp).."\n"
   str = dateString..str
   if addon.importFrame then addon.importFrame.Close:Click() end
   releaseNotesFrame:SetPoint("CENTER", addon.frames.mainFrame, "CENTER")
