@@ -2,7 +2,7 @@
 ## Title: |cFFC1272DWago|rUI Creator
 ## IconTexture: Interface\AddOns\WagoUI_Creator\media\logoSmall.png
 ## Author: The Wago Team
-## Version: 1.0.4
+## Version: 1.0.5
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
 ## SavedVariables: WagoUICreatorDB

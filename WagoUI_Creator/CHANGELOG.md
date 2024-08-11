@@ -1,3 +1,3 @@
-# 1.0.4 (2024-08-10)
+# 1.0.5 (2024-08-11)
 
-- Auto start on first ever login
+- Changelog improvements
