@@ -54,6 +54,10 @@ function addon:CreateReleaseNoteInput()
   end)
 end
 
+function addon:GetResolutionString(resolution)
+  return resolution.."p"
+end
+
 function addon:AddProfileRemoval(packName, resolution, moduleName)
   local data = {
     packName = packName,
@@ -63,13 +67,13 @@ function addon:AddProfileRemoval(packName, resolution, moduleName)
   tinsert(addon.db.profileRemovals, data)
 end
 
-local function getAndClearCurrentProfileRemovals()
+local function getAndClearCurrentProfileRemovals(resolution)
   local removeString
   for i = #addon.db.profileRemovals, 1, -1 do
     local data = addon.db.profileRemovals[i]
-    if data.packName == addon.db.chosenPack then
+    if data.packName == addon.db.chosenPack and data.resolution == resolution then
       removeString = removeString or ""
-      removeString = removeString.."- "..data.moduleName.." ("..data.resolution..")\n"
+      removeString = removeString.."- "..data.moduleName.."\n"
       table.remove(addon.db.profileRemovals, i)
     end
   end
@@ -86,41 +90,69 @@ function addon:CountRemovedProfiles(packName)
   return count
 end
 
+local function getUpdateString(updates)
+  local res
+  for resolution, data in pairs(updates) do
+    local str
+    for key, entry in pairs(data) do
+      if type(entry) == "boolean" then
+        str = str or ("### "..addon:GetResolutionString(resolution).."\n")
+        str = str.."- "..key.."\n"
+      elseif type(entry) == "table" then
+        for k in pairs(entry) do
+          str = str or ("### "..addon:GetResolutionString(resolution).."\n")
+          str = str.."- "..key..": "..k.."\n"
+        end
+      end
+    end
+    if str then
+      res = res or ""
+      res = res..str
+    end
+  end
+  return res
+end
+
+local function getRemovalString(removals)
+  local res
+  for resolution, data in pairs(removals) do
+    local str
+    for module, v in pairs(data) do
+      for entry in pairs(v) do
+        str = str or ("### "..addon:GetResolutionString(resolution).."\n")
+        str = str.."- "..module..": "..entry.."\n"
+      end
+    end
+    local removedProfiles = getAndClearCurrentProfileRemovals(resolution)
+    if removedProfiles then
+      str = str or ("### "..addon:GetResolutionString(resolution).."\n")
+      str = str..removedProfiles
+    end
+    if str then
+      res = res or ""
+      res = res..str
+    end
+  end
+  return res
+end
+
 function addon:OpenReleaseNoteInput(timestamp, updates, removals)
   if not releaseNotesFrame then addon:CreateReleaseNoteInput() end
   releaseNotesFrame.timestamp = timestamp
   addon.copyHelper:Hide()
-  --updates/additions
   local str
-  for key, entry in pairs(updates) do
-    if type(entry) == "boolean" then
-      str = str or ""
-      str = str.."- "..key.."\n"
-    elseif type(entry) == "table" then
-      for k in pairs(entry) do
-        str = str or ""
-        str = str.."- "..key..": "..k.."\n"
-      end
-    end
+
+  local updateString = getUpdateString(updates)
+  if updateString then
+    str = "## "..L["Updated / Added"]..":\n"..updateString
   end
-  str = str and "## "..L["Updated / Added"]..":\n"..str or ""
-  --removals
-  local removeString
-  for module, v in pairs(removals) do
-    for entry in pairs(v) do
-      removeString = removeString or ""
-      removeString = removeString.."- "..module..": "..entry.."\n"
-    end
+
+  local removalString = getRemovalString(removals)
+  if removalString then
+    str = str or ""
+    str = str.."## "..L["Removed"]..":\n"..removalString
   end
-  -- profiles removed
-  local removedProfiles = getAndClearCurrentProfileRemovals()
-  if removedProfiles then
-    removeString = removeString or ""
-    removeString = removeString..removedProfiles
-  end
-  if removeString then
-    str = str.."## "..L["Removed"]..":\n"..removeString
-  end
+
   local dateString = "# "..date("%y/%m/%d", timestamp).."\n"
   str = dateString..str
   if addon.importFrame then addon.importFrame.Close:Click() end

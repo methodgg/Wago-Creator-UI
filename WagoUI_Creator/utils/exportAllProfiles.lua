@@ -79,6 +79,8 @@ function addon:ExportAllProfiles()
       if module.isLoaded() then
         local didExportAtleastOne = false
         for resolution, enabled in pairs(enabledResolutions) do
+          updates[resolution] = updates[resolution] or {}
+          removals[resolution] = removals[resolution] or {}
           local profileKey = currentUIPack.profileKeys[resolution][module.name]
           if enabled and profileKey then
             --handle invalid profile keys
@@ -91,8 +93,8 @@ function addon:ExportAllProfiles()
             else
               local updated, changedEntries, removedEntries = module.exportFunc(resolution, timestamp)
               if updated then
-                updates[module.name] = changedEntries or true
-                removals[module.name] = removedEntries --currently only for group modules
+                updates[resolution][module.name] = changedEntries or true
+                removals[resolution][module.name] = removedEntries
               end
               didExportAtleastOne = true
             end
@@ -105,8 +107,10 @@ function addon:ExportAllProfiles()
     end
     addon.frames.mainFrame.frameContent.contentScrollbox:Refresh()
     local numUpdates = 0
-    for _ in pairs(updates) do
-      numUpdates = numUpdates + 1
+    for _, data in pairs(updates) do
+      for _ in pairs(data) do
+        numUpdates = numUpdates + 1
+      end
     end
     numUpdates = numUpdates + addon:CountRemovedProfiles(addon.db.chosenPack)
     if numUpdates > 0 then
