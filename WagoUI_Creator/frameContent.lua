@@ -40,6 +40,7 @@ function addon:CreateProfileList(f, width, height)
         line.manageButton:Hide()
         line.profileDropdown:Hide()
         line.exportButton:Hide()
+        line.lastUpdateLabel:SetText("")
         line:SetBackdropColor(unpack({ .8, .8, .8, 0.1 }))
       else
         line.icon:Show()
