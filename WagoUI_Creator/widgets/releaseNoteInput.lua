@@ -48,6 +48,10 @@ function addon:CreateReleaseNoteInput()
   local warningIconRight = LWF:CreateIconButton(releaseNotesFrame, 30, "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
   warningIconLeft:SetPoint("RIGHT", nextStepLabel, "LEFT", -5, 0)
   warningIconRight:SetPoint("LEFT", nextStepLabel, "RIGHT", 5, 0)
+
+  releaseNotesFrame:HookScript("OnHide", function()
+    addon.SetLockoutFrameShowState(false)
+  end)
 end
 
 function addon:OpenReleaseNoteInput(timestamp, updates, removals)

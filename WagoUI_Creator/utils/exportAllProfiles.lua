@@ -113,8 +113,8 @@ function addon:ExportAllProfiles()
       addon:OpenReleaseNoteInput(timestamp, updates, removals)
     else
       addon.copyHelper:SmartFadeOut(2, L["No Changes detected"])
+      addon.SetLockoutFrameShowState(false)
     end
-    addon.SetLockoutFrameShowState(false)
     addon:AddDataToDataAddon()
   end, "ExportAllProfiles")
 end
