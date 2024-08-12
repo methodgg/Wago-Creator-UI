@@ -11,10 +11,9 @@ local resolutionButtons = {}
 local hasCheckedAutoClickOnce = false
 
 ---@param selectedResolution string
----@return boolean
----@return number|nil
----@return number|nil
----@return boolean|nil
+---@return boolean resolutionCorrect
+---@return number|nil detectedWidth
+---@return number|nil detectedHeight
 local function isScreenResolutionCorrect(selectedResolution)
   local detectedRes = C_VideoOptions.GetCurrentGameWindowSize()
 
@@ -27,7 +26,7 @@ local function isScreenResolutionCorrect(selectedResolution)
   end
 
   -- resolution does not even exist (should not happen)
-  if not matchedResolution then return false, detectedRes.x, detectedRes.y, false end
+  if not matchedResolution then return false, detectedRes.x, detectedRes.y end
 
   -- "Any Resolution" is always correct
   if not matchedResolution.width or not matchedResolution.height then
@@ -38,11 +37,8 @@ local function isScreenResolutionCorrect(selectedResolution)
   if matchedResolution.width == detectedRes.x and matchedResolution.height == detectedRes.y then
     return true
   end
-  -- resolution does not match
-  local supported = (detectedRes.x == 1920 and detectedRes.y == 1080)
-      or (detectedRes.x == 2560 and detectedRes.y == 1440)
 
-  return false, detectedRes.x, detectedRes.y, supported
+  return false, detectedRes.x, detectedRes.y
 end
 
 ---@alias addButtonToPage function
@@ -75,7 +71,7 @@ local onShow = function()
     end
     button:SetText(data.label)
     button:SetClickFunction(function()
-      local isCorrect, w, h, supported = isScreenResolutionCorrect(data.value)
+      local isCorrect, w, h = isScreenResolutionCorrect(data.value)
       local successCallback = function()
         data.onclick()
         addon:NextPage()
