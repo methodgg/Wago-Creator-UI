@@ -3,6 +3,7 @@ local addonName = ...
 ---@class WagoUI
 local addon = select(2, ...)
 local L = addon.L
+local DF = _G["DetailsFramework"]
 
 local commands = {
   ["minimap"] = {
@@ -25,6 +26,21 @@ local commands = {
     description = L["Show available slash commands"],
     func = function(args)
       addon:PrintAvailableSlashCommands()
+    end
+  },
+  ["debug"] = {
+    description = L["Enable debug mode"],
+    func = function(args)
+      DF:ShowPromptPanel("Toggle Debug and reload?"
+        , function()
+          addon.db.debug = not addon.db.debug
+          if not addon.db.debug then
+            addon.db.autoStart = false
+          end
+          ReloadUI()
+        end,
+        function()
+        end)
     end
   },
 }

@@ -51,6 +51,7 @@ addon.ADDON_WIDTH = 800
 addon.ADDON_HEIGHT = 600
 addon.dbDefaults = {
   debug = false,
+  autoStart = true,
   anchorTo = "CENTER",
   anchorFrom = "CENTER",
   xoffset = 0,
