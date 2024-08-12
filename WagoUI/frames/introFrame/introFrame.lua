@@ -22,6 +22,7 @@ function addon:CreatePageProtoType(pageName)
   pagePrototype.pageName = pageName
   pagePrototype:SetPoint("TOPLEFT", parent, "TOPLEFT", 3, -25)
   pagePrototype:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -3, 40)
+  pagePrototype:Hide()
   return pagePrototype
 end
 
