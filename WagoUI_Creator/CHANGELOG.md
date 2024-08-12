@@ -1,3 +1,3 @@
-# 1.0.5 (2024-08-11)
+# 1.0.6 (2024-08-11)
 
-- Changelog improvements
+- Resolution rework. Breaking change, delete and re-do UI Packs.
