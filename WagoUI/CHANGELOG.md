@@ -1,3 +1,3 @@
-# v1.0.3 (2024-08-10)
+# v1.0.4 (2024-08-12)
 
-- UX improvements
+- Resolution rework. Breaking change, delete and re-do UI Packs.
