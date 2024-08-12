@@ -178,8 +178,9 @@ end
 ---@param width number
 ---@param height number
 ---@param textChangedCallback function | nil
+---@param fontSize number | nil
 ---@return table
-function LibWagoFramework:CreateTextEntry(parent, width, height, textChangedCallback)
+function LibWagoFramework:CreateTextEntry(parent, width, height, textChangedCallback, fontSize)
   local textEntry = DF:CreateTextEntry(parent, textChangedCallback, width, height, nil, nil, nil, odt)
   textEntry:SetBackdropColor(1, 1, 1, 0.7)
   textEntry:SetBackdropBorderColor(0, 0, 0, 1)
@@ -191,6 +192,9 @@ function LibWagoFramework:CreateTextEntry(parent, width, height, textChangedCall
   textEntry:SetScript("OnLeave", function(self)
     textEntry:SetBackdropBorderColor(0, 0, 0, 1)
   end)
+  if fontSize then
+    textEntry:SetFont(textEntry:GetFont(), fontSize, "")
+  end
   return textEntry
 end
 
