@@ -2,11 +2,43 @@
 local addonName = ...
 ---@class WagoUICreator
 local addon = select(2, ...)
+local DF = _G["DetailsFramework"]
+local L = addon.L
+
+local commands = {
+  ["reset"] = {
+    description = L["Reset Options"],
+    func = function(args)
+      addon:ResetOptions()
+    end
+  },
+  ["help"] = {
+    description = L["Show available slash commands"],
+    func = function(args)
+      addon:PrintAvailableSlashCommands()
+    end
+  },
+  ["debug"] = {
+    description = L["Enable debug mode"],
+    func = function(args)
+      DF:ShowPromptPanel("Toggle Debug and reload?"
+        , function()
+          addon.db.debug = not addon.db.debug
+          if not addon.db.debug then
+            addon.db.autoStart = false
+          end
+          ReloadUI()
+        end,
+        function()
+        end)
+    end
+  },
+}
 
 local function slashCommandShow(args, editbox)
   local req, arg = strsplit(' ', args)
-  if req then
-    addon:SlashCommandHandler(req, arg)
+  if req and commands[req] then
+    commands[req].func(arg)
   else
     addon:ToggleFrame()
   end
@@ -16,22 +48,6 @@ for i, command in pairs(addon.slashPrefixes) do
   _G["SLASH_"..strupper(addonName).."SHOW"..i] = command
 end
 SlashCmdList[strupper(addonName).."SHOW"] = slashCommandShow
-
-function addon:SlashCommandHandler(req, arg)
-  if req == "example" then
-    if not InCombatLockdown() then
-      addon:ExampleSlashCommand(arg)
-    else
-      addon:AddonPrint("Example command cannot be invoked in combat!")
-    end
-  elseif req == "reset" then
-    addon:ResetOptions()
-  elseif req == "help" or req == "h" or req == "commands" then
-    addon:PrintAvailableSlashCommands()
-  else
-    addon:ToggleFrame()
-  end
-end
 
 function addon:FireUnprotectedSlashCommand(command)
   local editbox = ChatEdit_ChooseBoxForSend(DEFAULT_CHAT_FRAME) -- Get an editbox

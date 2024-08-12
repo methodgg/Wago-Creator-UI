@@ -71,3 +71,4 @@ L["autoReleaseNotesExplanation"] = "These are auto generated release notes in Ma
 L["Continue the upload through the Wago App after the reload!"] = "Continue the upload through the Wago App after the reload!"
 L["Any Resolution"] = "Any Resolution"
 L["Any"] = "Any"
+L["Enable debug mode"] = "Enable debug mode"

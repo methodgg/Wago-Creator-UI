@@ -15,6 +15,7 @@ local currentProfileDropdowns = {}
 
 local dbDefaults = {
   debug = false,
+  autoStart = false,
   hasLoggedInEver = false,
   anchorTo = "CENTER",
   anchorFrom = "CENTER",
