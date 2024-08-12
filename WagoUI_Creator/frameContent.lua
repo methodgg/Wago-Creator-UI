@@ -317,7 +317,7 @@ function addon:CreateProfileList(f, width, height)
     return packs
   end
 
-  local packDropdown = LWF:CreateDropdown(f, 180, 30, nil, 1, getPacksForDropdown)
+  local packDropdown = LWF:CreateDropdown(f, 200, 40, 16, 1.5, getPacksForDropdown)
   if not db.chosenPack then
     packDropdown:NoOptionSelected()
   else
@@ -325,7 +325,7 @@ function addon:CreateProfileList(f, width, height)
   end
   f.packDropdown = packDropdown
 
-  local newPackEditBox = LWF:CreateTextEntry(f, 180, 30, nil)
+  local newPackEditBox = LWF:CreateTextEntry(f, 200, 40, nil, 16)
   local newPackLabel = DF:CreateLabel(f, L["Pack name:"], 10)
   newPackLabel:SetPoint("bottomleft", newPackEditBox, "topleft", 0, 2)
 
@@ -367,8 +367,8 @@ function addon:CreateProfileList(f, width, height)
     table.insert(resolutions, newRes)
   end
 
-  local resolutionDropdown = LWF:CreateDropdown(f, 180, 30, nil, 1, function() return resolutions end)
-  local resolutionCheckBox = LWF:CreateCheckbox(f, 25, function(_, _, value)
+  local resolutionDropdown = LWF:CreateDropdown(f, 200, 40, 16, 1.5, function() return resolutions end)
+  local resolutionCheckBox = LWF:CreateCheckbox(f, 40, function(_, _, value)
     local currentPack = addon:GetCurrentPack()
     if not currentPack then return end
     currentPack.resolutions.enabled[currentPack.resolutions.chosen] = value
