@@ -105,6 +105,19 @@ function addon:GetWagoDataForDropdown()
   return wagoData
 end
 
+---@param resolution string
+---@param type  "displayNameLong" | "displayNameShort"
+---@return string
+function addon:GetResolutionString(resolution, type)
+  for _, entry in ipairs(addon.resolutions.entries) do
+    if entry.value == resolution then
+      --- @as string
+      return entry[type]
+    end
+  end
+  return ""
+end
+
 function addon:GetResolutionsForDropdown()
   local res = {}
   local selectedWagoUI_Storage = db.selectedWagoData and WagoUI_Storage[db.selectedWagoData]
@@ -115,7 +128,7 @@ function addon:GetResolutionsForDropdown()
       if enabled then
         local entry = {
           value = key,
-          label = key,
+          label = addon:GetResolutionString(key, "displayNameShort"),
           onclick = function()
             db.selectedWagoDataResolution = key
             addon:SetupWagoData()

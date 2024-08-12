@@ -352,28 +352,21 @@ function addon:CreateProfileList(f, width, height)
   addLine({ resExplainerLabel }, 5, -10)
 
   -- resolution
-  local resolutions = {
-    {
-      value = "1080",
-      label = "1080x1920",
+  local resolutions = {}
+  for _, res in ipairs(addon.resolutions.entries) do
+    local newRes = {
+      value = res.value,
+      label = res.displayNameLong,
       onclick = function()
         local currentPack = addon:GetCurrentPack()
         if not currentPack then return end
-        currentPack.resolutions.chosen = "1080"
-        addon.UpdatePackSelectedUI()
-      end
-    },
-    {
-      value = "1440",
-      label = "1440x2560",
-      onclick = function()
-        local currentPack = addon:GetCurrentPack()
-        if not currentPack then return end
-        currentPack.resolutions.chosen = "1440"
+        currentPack.resolutions.chosen = res.value
         addon.UpdatePackSelectedUI()
       end
     }
-  }
+    table.insert(resolutions, newRes)
+  end
+
   local resolutionDropdown = LWF:CreateDropdown(f, 180, 30, nil, 1, function() return resolutions end)
   local resolutionCheckBox = LWF:CreateCheckbox(f, 25, function(_, _, value)
     local currentPack = addon:GetCurrentPack()
@@ -386,6 +379,7 @@ function addon:CreateProfileList(f, width, height)
   function addon.UpdatePackSelectedUI()
     local currentPack = addon:GetCurrentPack()
     if not currentPack then
+      resolutionDropdown:NoOptionSelected()
       resolutionDropdown:Disable()
       resolutionCheckBox:Disable()
       f.exportAllButton:Disable()

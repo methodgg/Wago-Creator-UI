@@ -39,6 +39,18 @@
 ---@field areProfileStringsEqual fun(self: LibAddonProfilesModule, profileStringA: string | nil, profileStringB: string | nil , tableA : table | nil, tableB : table | nil) : areEqual: boolean, changedEntries: table | nil, removedEntries: table | nil Deep compare two profile strings or two tables.
 ---@field refreshHookList table<number, RefreshHook> | nil Defines what functions should be hooked when wanting to monitor additions / deletions of profiles and changes to the currently active profile key.
 
+---@class AddonResolutionEntry
+---@field value string
+---@field displayNameLong string
+---@field displayNameShort string
+---@field width number | nil
+---@field height number | nil
+---@field defaultEnabled boolean
+
+---@class AddonResolutions
+---@field entries table<number, AddonResolutionEntry>
+---@field defaultValue string
+
 ---@class LibDeflateAsync
 ---@field CompressDeflate fun(self: LibDeflateAsync, input: string, options: table): string
 ---@field EncodeForPrint fun(self: LibDeflateAsync, input: string): string)

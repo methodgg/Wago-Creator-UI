@@ -54,8 +54,17 @@ function addon:CreateReleaseNoteInput()
   end)
 end
 
-function addon:GetResolutionString(resolution)
-  return resolution.."p"
+---@param resolution string
+---@param type  "displayNameLong" | "displayNameShort"
+---@return string
+function addon:GetResolutionString(resolution, type)
+  for _, entry in ipairs(addon.resolutions.entries) do
+    if entry.value == resolution then
+      --- @as string
+      return entry[type]
+    end
+  end
+  return ""
 end
 
 function addon:AddProfileRemoval(packName, resolution, moduleName)
@@ -96,11 +105,11 @@ local function getUpdateString(updates)
     local str
     for key, entry in pairs(data) do
       if type(entry) == "boolean" then
-        str = str or ("### "..addon:GetResolutionString(resolution).."\n")
+        str = str or ("### "..addon:GetResolutionString(resolution, "displayNameShort").."\n")
         str = str.."- "..key.."\n"
       elseif type(entry) == "table" then
         for k in pairs(entry) do
-          str = str or ("### "..addon:GetResolutionString(resolution).."\n")
+          str = str or ("### "..addon:GetResolutionString(resolution, "displayNameShort").."\n")
           str = str.."- "..key..": "..k.."\n"
         end
       end
@@ -119,13 +128,13 @@ local function getRemovalString(removals)
     local str
     for module, v in pairs(data) do
       for entry in pairs(v) do
-        str = str or ("### "..addon:GetResolutionString(resolution).."\n")
+        str = str or ("### "..addon:GetResolutionString(resolution, "displayNameShort").."\n")
         str = str.."- "..module..": "..entry.."\n"
       end
     end
     local removedProfiles = getAndClearCurrentProfileRemovals(resolution)
     if removedProfiles then
-      str = str or ("### "..addon:GetResolutionString(resolution).."\n")
+      str = str or ("### "..addon:GetResolutionString(resolution, "displayNameShort").."\n")
       str = str..removedProfiles
     end
     if str then

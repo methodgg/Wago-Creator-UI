@@ -183,27 +183,21 @@ function addon.CreatePack()
   end
   local newPack = {
     localName = newName,
-    profileKeys = {
-      ["1080"] = {},
-      ["1440"] = {},
-    },
-    profiles = {
-      ["1080"] = {},
-      ["1440"] = {},
-    },
-    profileMetadata = {
-      ["1080"] = {},
-      ["1440"] = {},
-    },
+    profileKeys = {},
+    profiles = {},
+    profileMetadata = {},
     releaseNotes = {},
     resolutions = {
-      chosen = "1080",
-      enabled = {
-        ["1080"] = true,
-        ["1440"] = false,
-      },
+      enabled = {},
     }
   }
+  for _, resolution in ipairs(addon.resolutions.entries) do
+    newPack.profileKeys[resolution.value] = {}
+    newPack.profiles[resolution.value] = {}
+    newPack.profileMetadata[resolution.value] = {}
+    newPack.resolutions.enabled[resolution.value] = resolution.defaultEnabled
+  end
+  newPack.resolutions.chosen = addon.resolutions.defaultValue
   addon.db.creatorUI[newName] = newPack
   addon.db.chosenPack = newName
 

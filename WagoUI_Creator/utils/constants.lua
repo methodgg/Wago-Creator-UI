@@ -7,6 +7,37 @@ local L = addon.L
 
 addon.moduleConfigs = {}
 
+---@type AddonResolutions
+addon.resolutions = {
+  entries = {
+    {
+      value = "any",
+      displayNameLong = L["Any Resolution"],
+      displayNameShort = L["Any Resolution"],
+      width = nil,
+      height = nil,
+      defaultEnabled = true,
+    },
+    {
+      value = "1080",
+      displayNameLong = "1920x1080",
+      displayNameShort = "1080p",
+      width = 1920,
+      height = 1080,
+      defaultEnabled = false,
+    },
+    {
+      value = "1440",
+      displayNameLong = "2560x1440",
+      displayNameShort = "1440p",
+      width = 2560,
+      height = 1440,
+      defaultEnabled = false,
+    },
+  },
+  defaultValue = "any"
+}
+
 function addon:SetUpDB()
   WagoUICreatorDB = WagoUICreatorDB or {}
   WagoUICreatorDB.profileKeys = WagoUICreatorDB.profileKeys or {}
