@@ -44,13 +44,14 @@ end
 ---@alias addButtonToPage function
 local function addButtonToPage(button, i, total)
   button:Show()
-  -- 3 buttons next to each other then a new row
   if total == 1 then
     button:SetPoint("CENTER", page, "CENTER", 0, -30)
   elseif total == 2 then
     button:SetPoint("CENTER", page, "CENTER", i == 1 and -150 or 150, -30)
   elseif total == 3 then
     button:SetPoint("CENTER", page, "CENTER", i == 1 and -260 or i == 2 and 0 or 260, -30)
+  elseif total == 4 then
+    button:SetPoint("CENTER", page, "CENTER", i % 2 == 1 and -150 or 150, i <= 2 and -30 or -130)
   end
 end
 

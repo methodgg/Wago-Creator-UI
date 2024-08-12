@@ -34,6 +34,14 @@ addon.resolutions = {
       height = 1440,
       defaultEnabled = false,
     },
+    {
+      value = "3840",
+      displayNameLong = "3840x2160",
+      displayNameShort = "4k",
+      width = 3840,
+      height = 2160,
+      defaultEnabled = false,
+    },
   },
   defaultValue = "any"
 }

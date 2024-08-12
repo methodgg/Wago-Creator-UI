@@ -2,7 +2,7 @@
 local addon = select(2, ...)
 local L = addon.L
 
----If there are more than 3 resolutions here the choice buttons need to be updated
+---If there are more than 4 resolutions here the choice buttons need to be updated
 ---@see addButtonToPage
 
 ---@type AddonResolutions
@@ -30,6 +30,14 @@ addon.resolutions = {
       displayNameShort = "1440p",
       width = 2560,
       height = 1440,
+      defaultEnabled = false,
+    },
+    {
+      value = "3840",
+      displayNameLong = "3840x2160",
+      displayNameShort = "4k",
+      width = 3840,
+      height = 2160,
       defaultEnabled = false,
     },
   },
