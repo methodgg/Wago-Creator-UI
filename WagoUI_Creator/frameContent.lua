@@ -254,7 +254,7 @@ function addon:CreateProfileList(f, width, height)
     local initializationWarning = DF:CreateButton(line, nil, 30, 30, "", nil, nil,
       "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew", nil, nil, nil, nil)
     initializationWarning:SetPoint("LEFT", nameLabel, "RIGHT", 0, 0)
-    initializationWarning:SetTooltip(L["This AddOn needs to be initialized. Click to initialize."])
+    initializationWarning:SetTooltip(L["initializationWarningCreator"])
     line.initializationWarning = initializationWarning
 
     -- profile dropdown
