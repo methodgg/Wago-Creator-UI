@@ -19,11 +19,13 @@ local odt = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE");
 ---@return table
 function LibWagoFramework:CreateButton(parent, width, height, text, fontSize)
   local button = DF:CreateButton(parent, nil, width, height, text, nil, nil, nil, nil, nil, nil, odt);
-  button:SetScript("OnEnter", function(self)
+  button:HookScript("OnEnter", function(self)
     button.button:SetBackdropBorderColor(1, 1, 1, 1)
+    button:SetBackdropColor(1, 1, 1, 0.7)
   end)
-  button:SetScript("OnLeave", function(self)
+  button:HookScript("OnLeave", function(self)
     button.button:SetBackdropBorderColor(0, 0, 0, 1)
+    button:SetBackdropColor(1, 1, 1, 0.7)
   end)
   button.button:SetBackdropBorderColor(0, 0, 0, 1)
   button:SetBackdropColor(1, 1, 1, 0.7)

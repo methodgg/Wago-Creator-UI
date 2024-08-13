@@ -202,6 +202,7 @@ function addon:CreateProfileList(f, width, height)
         else
           line.exportButton:SetTooltip(L["exportButtonWarning"])
         end
+        vdt(line.exportButton)
         if info.hasGroups then
           line.exportButton:Hide()
         else
