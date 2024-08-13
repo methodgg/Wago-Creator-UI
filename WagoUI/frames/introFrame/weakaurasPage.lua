@@ -15,7 +15,7 @@ end
 local function createPage()
   local page = addon:CreatePageProtoType(pageName)
 
-  local text = L["Install the WeakAuras you would like to use.\nYou may and choose from the list below!"]
+  local text = L["Install the WeakAuras you would like to import."]
   local header = DF:CreateLabel(page, text, 22, "white");
   header:SetJustifyH("CENTER")
   header:SetWidth(page:GetWidth() - 10)
