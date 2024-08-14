@@ -1,4 +1,3 @@
-# 1.0.7 (2024-08-13)
+# 1.0.8 (2024-08-14)
 
 - UX improvements.
-- Resolution rework. Breaking change, delete and re-do UI Packs.
