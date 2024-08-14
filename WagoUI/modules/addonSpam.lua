@@ -1,31 +1,49 @@
 ---@class WagoUI
 local addon = select(2, ...)
 
+local frames = {
+  "ElvUI_StaticPopup1",
+  "ElvUI_StaticPopup2",
+  "ElvUI_StaticPopup3",
+  "ElvUI_StaticPopup4",
+  "ElvUI_StaticPopup5",
+  "StaticPopup1",
+  "StaticPopup2",
+  "StaticPopup3",
+  "StaticPopup4",
+  "StaticPopup5",
+  "PlaterOptionsPanelFrame",
+  "DetailsWelcomeWindow",
+  "DetailsNewsWindow",
+  "StreamOverlayWelcomeWindow",
+  "ViragDevToolFrame",
+  "ElvUIInstallFrame",
+  "CellChangelogsFrame",
+  "BugSackFrame",
+  "ScriptErrorsFrame",
+  "DevToolFrame",
+  "DetailsBaseFrame1",
+  "DetailsBaseFrame2",
+}
+
 local function hideAddOnPopups()
-  for i = 1, 5 do
-    local frameName = "ElvUI_StaticPopup"..i
+  for _, frameName in ipairs(frames) do
     local frame = _G[frameName]
     if frame then
       frame:Hide()
-    end
-    local blizzardPopup = _G["StaticPopup"..i]
-    if blizzardPopup then
-      blizzardPopup:Hide()
+      frame.Show = function() end
     end
   end
-  if PlaterOptionsPanelFrame and PlaterOptionsPanelFrame:IsShown() then PlaterOptionsPanelFrame:Hide() end
-
-  if DetailsWelcomeWindow then DetailsWelcomeWindow:Hide(); end
-  if DetailsNewsWindow then DetailsNewsWindow:Hide(); end
-  if StreamOverlayWelcomeWindow then StreamOverlayWelcomeWindow:Hide(); end
-  if ViragDevToolFrame then ViragDevToolFrame:Hide(); end
-  if ElvUIInstallFrame then ElvUIInstallFrame:Hide(); end
   if SplashFrame and SplashFrame.BottomCloseButton then
     if SplashFrame:IsShown() then
       SplashFrame.BottomCloseButton:Click()
     end
   end
-  if CellChangelogsFrame then CellChangelogsFrame:Hide() end
+  if C_AddOns.IsAddOnLoaded("OmniCD") then
+    if OmniCDDB and OmniCDDB.global then
+      OmniCDDB.global.disableElvMsg = true
+    end
+  end
 end
 
 function addon:SuppressAddOnSpam()
