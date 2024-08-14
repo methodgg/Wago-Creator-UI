@@ -30,7 +30,7 @@ end
 
 ---@type LibAddonProfilesModule
 local m = {
-  moduleName = "EditMode",
+  moduleName = "Blizzard Edit Mode",
   icon = 135724,
   slash = "/editmode",
   needReloadOnImport = true,
