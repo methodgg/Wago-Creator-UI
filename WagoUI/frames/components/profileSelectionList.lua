@@ -10,6 +10,20 @@ local widths = {
   profile = 150,
 }
 
+---@param profileKey string
+---@param lap LibAddonProfilesModule
+---@return string newProfileKey
+local findApproriateProfileKey = function(profileKey, lap)
+  if profileKey == "Global" then return profileKey end
+  local newProfileKey = profileKey
+  local i = 1
+  while lap:isDuplicate(newProfileKey) do
+    newProfileKey = profileKey.."_"..i
+    i = i + 1
+  end
+  return newProfileKey
+end
+
 function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, enabledStateCallback)
   local header
   local contentScrollbox
@@ -71,7 +85,6 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, enabl
       line.nameLabel:SetText("");
       line.textEntry:Hide()
       line.fallbackLabel:Hide()
-      line.importOverrideWarning:Hide()
       line:SetBackdropColor(unpack({ .8, .8, .8, 0.1 }));
       if (info) then
         ---@type LibAddonProfilesModule
@@ -89,14 +102,19 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, enabl
           if loaded and info.enabled then
             line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }));
             line.nameLabel:SetTextColor(1, 1, 1, 1);
-            line.importOverrideWarning:Enable()
-            if not lap.willOverrideProfile then
-              line.textEntry:Enable()
+            if lap.willOverrideProfile then
+              line.importOverrideWarning:Show()
+              line.importOverrideWarning:SetTooltip(L["PROFILE_OVERWRITE_WARNING1"]);
+              line.importOverrideWarning:SetClickFunction(function() end)
+            else
+              line.importOverrideWarning:Hide()
             end
+            line.textEntry.editbox:SetTextColor(1, 1, 1, 1)
           else
+            line.textEntry.editbox:SetTextColor(0.4, 0.4, 0.4, 1)
             line:SetBackdropColor(unpack({ .8, .8, .8, 0.1 }));
             line.nameLabel:SetTextColor(0.5, 0.5, 0.5, 1);
-            line.importOverrideWarning:Disable()
+            line.importOverrideWarning:Hide()
             line.textEntry:Disable()
           end
         end
@@ -119,68 +137,21 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, enabl
         labelText = labelText.." "..(info.entryName and info.moduleName..": "..info.entryName or info.moduleName)
         line.nameLabel:SetText(labelText);
 
-        if lap.willOverrideProfile then
-          line.importOverrideWarning:SetTooltip(L["PROFILE_OVERWRITE_WARNING1"]);
-          line.importOverrideWarning:SetClickFunction(function() end)
-          line.importOverrideWarning:Show()
-        else
-          line.importOverrideWarning:Hide()
+        if lap:isLoaded() and not lap.willOverrideProfile then
+          info.profileKey = findApproriateProfileKey(info.profileKey, lap)
         end
-
         line.textEntry:SetText(info.profileKey)
         if loaded then
           line.textEntry:Show()
-          line.textEntry:Enable()
+          line.textEntry:Disable()
           line.fallbackLabel:Hide()
-          if lap.willOverrideProfile then
-            line.textEntry:Disable()
-          end
-          line.textEntry.func = function()
-            local newText = line.textEntry:GetText()
-            if lap:isDuplicate(newText) and not lap.willOverrideProfile then
-              if info.enabled then
-                line.textEntry.editbox:SetTextColor(1, 0, 0, 1)
-              end
-              line.importOverrideWarning:Show()
-              line.importOverrideWarning:SetTooltip(L["PROFILE_OVERWRITE_WARNING2"]);
-              line.importOverrideWarning:SetClickFunction(function()
-                line.textEntry.editbox:SetFocus()
-                line.textEntry.editbox:HighlightText()
-              end)
-              info.invalidProfileKey = true
-              enabledStateCallback()
-            else
-              if info.enabled then
-                line.textEntry.editbox:SetTextColor(1, 1, 1, 1)
-              end
-              if not lap.willOverrideProfile then
-                line.importOverrideWarning:Hide()
-              end
-              info.invalidProfileKey = nil
-              enabledStateCallback()
-            end
-            info.profileKey = newText
-          end
         else
           line.importOverrideWarning:Hide()
           line.textEntry:Hide()
           line.fallbackLabel:Show()
         end
-        line.textEntry.editbox:SetScript("OnTextChanged", function(...)
-          local newText = line.textEntry:GetText()
-          if not newText or newText == "" then
-            return
-          end
-          line.textEntry.func()
-        end)
-        line.textEntry.editbox:SetScript("OnEditFocusLost", function(...)
-          local newText = line.textEntry:GetText()
-          if not newText or newText == "" then
-            line.textEntry:SetText(info.profileKey)
-          end
-        end)
+
         updateEnabledState()
-        line.textEntry.func()
       end
     end
   end
