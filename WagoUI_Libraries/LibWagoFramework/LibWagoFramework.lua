@@ -16,9 +16,7 @@ function LibWagoFramework:ScaleFrameByResolution(frame)
   if detectedRes.x < 1920 then
     scale = 0.8
   elseif detectedRes.x < 2560 then
-    scale = 1
-  else
-    scale = 1.2
+    scale = 0.9
   end
   frame:SetScale(scale)
 end
