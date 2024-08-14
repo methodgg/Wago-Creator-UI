@@ -108,6 +108,9 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
         line.icon:SetTexture(iconSource)
         line.icon:SetPushedTexture(iconSource)
         line.info = info
+        for _, btn in ipairs(line.buttons) do
+          btn:Hide()
+        end
       end
     end
   end
@@ -129,6 +132,12 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
     local icon = DF:CreateButton(line, nil, lineHeight, lineHeight, "", nil, nil, 134400, nil, nil, nil, nil)
     icon:SetPoint("left", line, "left", 0, 0)
     icon:ClearHighlightTexture()
+    icon:HookScript("OnLeave", function(self)
+      if line:IsMouseOver() then return end
+      for _, btn in ipairs(line.buttons) do
+        btn:Hide()
+      end
+    end)
     ---@diagnostic disable-next-line: inject-field
     line.icon = icon
 
@@ -149,13 +158,33 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
     line.buttons = {}
     for idx, buttonData in ipairs(buttonConfig) do
       local button = DF:CreateButton(line, nil, lineHeight, lineHeight, "", nil, nil, buttonData.icon)
+      button:SetTooltip(buttonData.tooltip)
       button:SetPushedTexture(buttonData.icon)
       button:SetPoint("right", line, "right", -(idx - 1) * lineHeight, 0)
       button:SetScript("OnClick", function(self)
         buttonData.onClick(line.info)
       end)
+      button:HookScript("OnLeave", function(self)
+        if line:IsMouseOver() then return end
+        for _, btn in ipairs(line.buttons) do
+          btn:Hide()
+        end
+      end)
+      button:Hide()
       line.buttons[idx] = button
     end
+
+    line:HookScript("OnEnter", function(self)
+      for _, button in ipairs(line.buttons) do
+        button:Show()
+      end
+    end)
+    line:HookScript("OnLeave", function(self)
+      if line:IsMouseOver() then return end
+      for _, button in ipairs(line.buttons) do
+        button:Hide()
+      end
+    end)
 
     line:SetMovable(true)
     line:RegisterForDrag("LeftButton")
@@ -292,30 +321,39 @@ local function createManageFrame(w, h)
 
   local buttonConfigs = {
     [1] = {
+      [1] = {
+        icon = 450908,
+        onClick = function(info)
+          addToData(2, info)
+        end,
+        tooltip = "Add to export list",
+      },
     },
     [2] = {
       [1] = {
         icon = 4200126,
         onClick = function(info)
           removeFromData(2, info)
-        end
+        end,
+        tooltip = "Remove from export list",
       },
       [2] = {
-        icon = 450907,
+        icon = 134327,
         onClick = function(info)
           copyExportString(info.id)
-        end
+        end,
+        tooltip = "Copy export string directly to clipboard",
       },
     },
   }
 
   for idx, buttonConfig in ipairs(buttonConfigs) do
     local scrollBox = createGroupScrollBox(m, buttonConfig, idx)
-    scrollBox:SetPoint("TOPLEFT", m, "TOPLEFT", 60 + ((idx - 1) * (scrollBoxWidth + 110)), -90)
+    scrollBox:SetPoint("TOPLEFT", m, "TOPLEFT", 60 + ((idx - 1) * (scrollBoxWidth + 110)), -95)
     m.scrollBoxes[idx] = scrollBox
     local labelText = idx == 1 and "WeakAuras" or idx == 2 and L["Marked for Export"]
     local label = DF:CreateLabel(scrollBox, labelText, 20, "white")
-    label:SetPoint("BOTTOM", scrollBox, "TOP", 0, 30)
+    label:SetPoint("BOTTOM", scrollBox, "TOP", 0, 40)
   end
 
   local purgeWagoCheckbox = LWF:CreateCheckbox(m, 25,
