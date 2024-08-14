@@ -177,6 +177,8 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, enabl
   contentScrollbox:SetPoint("TOPLEFT", header, "BOTTOMLEFT");
   contentScrollbox.ScrollBar.scrollStep = 60;
   DF:ReskinSlider(contentScrollbox);
+  contentScrollbox.ScrollBar.ScrollUpButton.Highlight:ClearAllPoints(false);
+  contentScrollbox.ScrollBar.ScrollDownButton.Highlight:ClearAllPoints(false);
 
   local function updateData(data)
     contentScrollbox:SetData(data or {})

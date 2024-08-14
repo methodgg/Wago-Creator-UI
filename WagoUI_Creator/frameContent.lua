@@ -471,6 +471,8 @@ function addon:CreateProfileList(f, width, height)
   contentScrollbox:SetPoint("TOPLEFT", f.contentHeader, "BOTTOMLEFT")
   contentScrollbox.ScrollBar.scrollStep = 60
   DF:ReskinSlider(contentScrollbox)
+  contentScrollbox.ScrollBar.ScrollUpButton.Highlight:ClearAllPoints(false);
+  contentScrollbox.ScrollBar.ScrollDownButton.Highlight:ClearAllPoints(false);
 
   addon.ModuleFunctions:SortModuleConfigs()
   contentScrollbox:SetData(addon.moduleConfigs)

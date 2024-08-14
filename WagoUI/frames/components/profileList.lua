@@ -173,6 +173,8 @@ function addon:CreateProfileList(parent, frameWidth, frameHeight)
   contentScrollbox:SetPoint("TOPLEFT", header, "BOTTOMLEFT");
   contentScrollbox.ScrollBar.scrollStep = 60;
   DF:ReskinSlider(contentScrollbox);
+  contentScrollbox.ScrollBar.ScrollUpButton.Highlight:ClearAllPoints(false);
+  contentScrollbox.ScrollBar.ScrollDownButton.Highlight:ClearAllPoints(false);
 
   --TODO: chose resolution with wizard
   local function updateData(data)
