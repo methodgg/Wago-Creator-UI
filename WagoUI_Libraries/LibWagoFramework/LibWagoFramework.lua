@@ -30,6 +30,10 @@ function LibWagoFramework:CreateButton(parent, width, height, text, fontSize)
   button.button:SetBackdropBorderColor(0, 0, 0, 1)
   button:SetBackdropColor(1, 1, 1, 0.7)
   button.text_overlay:SetFont(button.text_overlay:GetFont(), fontSize);
+  -- the default text alignment is off, so we need to adjust it
+  button:HookScript("OnMouseUp", function()
+    button.button.text:SetPoint("center", button.button, "center", 0, -2)
+  end)
   return button
 end
 
