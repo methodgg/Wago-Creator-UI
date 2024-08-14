@@ -39,6 +39,12 @@ function addon:ExportAllProfiles()
     ---@type LibAddonProfilesModule
     local lapModule = module.lapModule
     if lapModule:isLoaded() or lapModule:needsInitialization() then
+      if lapModule:needsInitialization() then
+        lapModule:openConfig()
+        C_Timer.After(0, function()
+          lapModule:closeConfig()
+        end)
+      end
       local hasAtleastOneExport = false
       for resolution, enabled in pairs(enabledResolutions) do
         local profileKey = currentUIPack.profileKeys[resolution][module.name]
@@ -52,12 +58,6 @@ function addon:ExportAllProfiles()
       end
       if hasAtleastOneExport then
         countOperations = countOperations + 1
-        if lapModule:needsInitialization() then
-          lapModule:openConfig()
-          C_Timer.After(0, function()
-            lapModule:closeConfig()
-          end)
-        end
       end
     end
   end
