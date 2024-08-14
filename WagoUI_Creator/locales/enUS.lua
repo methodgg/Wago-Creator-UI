@@ -72,3 +72,5 @@ L["Continue the upload through the Wago App after the reload!"] = "Continue the 
 L["Any Resolution"] = "Any Resolution"
 L["Any"] = "Any"
 L["Enable debug mode"] = "Enable debug mode"
+L["Name too short"] = "Name too short"
+L["Name already exists"] = "Name already exists"

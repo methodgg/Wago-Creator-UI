@@ -201,6 +201,7 @@ function LibWagoFramework:CreateTextEntry(parent, width, height, textChangedCall
   if fontSize then
     textEntry:SetFont(textEntry:GetFont(), fontSize, "")
   end
+  textEntry.editbox:SetHighlightColor(0.1, 0.1, 0.1, 1)
   return textEntry
 end
 

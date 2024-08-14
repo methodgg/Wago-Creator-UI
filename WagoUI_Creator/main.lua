@@ -175,13 +175,14 @@ end
 function addon.CreatePack()
   local newName = addon.GetNewEditBoxText()
   if not newName or string.len(newName) < 5 then
-    addon:AddonPrintError("Name too short")
+    addon:SetNewPackErrorLabel(L["Name too short"])
     return
   end
   if addon.db.creatorUI[newName] then
-    addon:AddonPrintError("Name already exists")
+    addon:SetNewPackErrorLabel(L["Name already exists"])
     return
   end
+  addon:SetNewPackErrorLabel("")
   local newPack = {
     localName = newName,
     profileKeys = {},

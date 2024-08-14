@@ -327,7 +327,24 @@ function addon:CreateProfileList(f, width, height)
 
   local newPackEditBox = LWF:CreateTextEntry(f, 200, 40, nil, 16)
   local newPackLabel = DF:CreateLabel(f, L["Pack name:"], 10)
-  newPackLabel:SetPoint("bottomleft", newPackEditBox, "topleft", 0, 2)
+  newPackLabel:SetPoint("BOTTOMLEFT", newPackEditBox, "TOPLEFT", 0, 2)
+  newPackEditBox:HookScript("OnChar", function()
+    addon:SetNewPackErrorLabel("")
+  end)
+
+  local newPackErrorLabel = DF:CreateLabel(f, "", 10)
+  newPackErrorLabel:SetTextColor(1, 0, 0, 1)
+  newPackErrorLabel:SetPoint("TOPLEFT", newPackEditBox, "BOTTOMLEFT", 6, -2)
+  newPackEditBox:HookScript("OnEnterPressed", function()
+    addon:CreatePack()
+  end)
+  f.newPackErrorLabel = newPackErrorLabel
+  function addon:SetNewPackErrorLabel(text)
+    newPackErrorLabel:SetText(text)
+    if text and text ~= "" then
+      newPackEditBox:SetFocus()
+    end
+  end
 
   addon.GetNewEditBoxText = function()
     return newPackEditBox:GetText()
