@@ -9,6 +9,19 @@ if not DF then return end
 
 local odt = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE");
 
+---@param frame Frame
+function LibWagoFramework:ScaleFrameByResolution(frame)
+  local detectedRes = C_VideoOptions.GetCurrentGameWindowSize()
+  local scale = 1
+  if detectedRes.x < 1920 then
+    scale = 0.8
+  elseif detectedRes.x < 2560 then
+    scale = 1
+  else
+    scale = 1.2
+  end
+  frame:SetScale(scale)
+end
 
 ---A normal grey rectangular button with text
 ---@param parent any

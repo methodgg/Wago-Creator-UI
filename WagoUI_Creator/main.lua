@@ -284,6 +284,7 @@ function addon:CreateFrames()
   frame:SetFrameStrata("HIGH")
   frame:SetFrameLevel(100)
   frame:SetToplevel(true)
+  LWF:ScaleFrameByResolution(frame)
   frame:SetPoint(WagoUICreatorDB.anchorTo, UIParent, WagoUICreatorDB.anchorFrom, WagoUICreatorDB.xoffset,
     WagoUICreatorDB.yoffset)
   hooksecurefunc(frame, "StopMovingOrSizing", function()

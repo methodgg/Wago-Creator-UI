@@ -27,6 +27,7 @@ function addon:CreateMainFrame()
   frame:SetFrameStrata("HIGH");
   frame:SetFrameLevel(100);
   frame:SetToplevel(true)
+  LWF:ScaleFrameByResolution(frame)
   frame:SetPoint(addon.db.anchorTo, UIParent, addon.db.anchorFrom, addon.db.xoffset, addon.db.yoffset)
   hooksecurefunc(frame, "StopMovingOrSizing", function()
     local from, _, to, x, y = frame:GetPoint(nil)
