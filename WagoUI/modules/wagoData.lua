@@ -156,6 +156,20 @@ do
   end
 end
 
+local function wrapStringInCurrentClassColor(name)
+  local res = name
+  local _, class = UnitClass("player")
+  if class ~= "Adventurer" then
+    local _, _, _, classHexString = GetClassColor(class)
+    res = "|c"..classHexString..res.."|r"
+  end
+  return res
+end
+
+function addon:GetClassColoredNameFromDB(name)
+  return addon.db.classColoredCharacters[name] or name
+end
+
 ---@class ImportMetaDataEntry
 ---@field lastUpdatedAt number
 ---@field importedAt number
@@ -175,6 +189,7 @@ function addon:GetImportedProfilesTarget()
   addon.db.importedProfiles[currentCharacter][packKey] = addon.db.importedProfiles[currentCharacter][packKey] or {}
   addon.db.importedProfiles[currentCharacter][packKey][resolution] = addon.db.importedProfiles[currentCharacter]
       [packKey][resolution] or {}
+  addon.db.classColoredCharacters[currentCharacter] = wrapStringInCurrentClassColor(currentCharacter)
   return addon.db.importedProfiles[currentCharacter][packKey][resolution]
 end
 

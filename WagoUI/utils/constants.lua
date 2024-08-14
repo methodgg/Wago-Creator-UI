@@ -70,6 +70,7 @@ addon.dbDefaults = {
     currentPage = "WelcomePage",
   },
   importedProfiles = {},
+  classColoredCharacters = {},
   minimap = {
     hide = false,
     compartmentHide = false,

@@ -62,7 +62,7 @@ local function getImportedProfilesDataForDropdown()
   for key, data in pairs(addon.db.importedProfiles) do
     local entry = {
       value = key,
-      label = key,
+      label = addon:GetClassColoredNameFromDB(key),
       onclick = function()
         currentSelectedCharacter = key
       end
@@ -114,7 +114,10 @@ function addon:CreateAltFrame(f)
   -- label or dropdown, depending on if single or multiple characters exist that we imported profiles to
   local dropdownData = getImportedProfilesDataForDropdown()
   local dropdownFunc = function() return getImportedProfilesDataForDropdown() end
-  local uiPackDropdown = LWF:CreateDropdown(altFrame, 250, 50, 16, 1.5, dropdownFunc)
+  local uiPackDropdown = LWF:CreateDropdown(altFrame, 300, 50, 16, 1.5, dropdownFunc)
+  local fontName, fontSize = uiPackDropdown.dropdown.text:GetFont()
+  uiPackDropdown.dropdown.text:SetFont(fontName, fontSize, "THINOUTLINE")
+
   local value = getMostLikelyProfileSource()
   uiPackDropdown:Select(value)
   currentSelectedCharacter = value
@@ -129,7 +132,7 @@ function addon:CreateAltFrame(f)
     addon.frames.expertFrame:Show()
   end);
 
-  local setProfilesButton = LWF:CreateButton(altFrame, 220, 50, L["Load Profiles"], 22)
+  local setProfilesButton = LWF:CreateButton(altFrame, 300, 50, L["Load Profiles"], 22)
   if not dropdownData[1] then
     setProfilesButton:Disable()
   end
