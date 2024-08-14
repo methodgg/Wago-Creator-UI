@@ -13,6 +13,7 @@ local uiPackDropdown
 local onShow = function()
   addon.db.introState.currentPage = pageName
   addon.state.currentPage = pageName
+  addon.state.hasSetupSplitView = false
   addon:ToggleStatusBar(false)
   addon:ToggleNavigationButton("prev", false)
   addon:ToggleNavigationButton("next", false)

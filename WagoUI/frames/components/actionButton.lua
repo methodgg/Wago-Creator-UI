@@ -15,6 +15,15 @@ local function importProfile(lapModule, profileString, profileKey, latestVersion
   addon:UpdateRegisteredDataConsumers()
 end
 
+local function setupWagoWeakAuraSplitView()
+  if addon.state.hasSetupSplitView then return end
+  if not WeakAurasOptions then return end
+  WeakAurasOptions:ClearAllPoints()
+  WeakAurasOptions:SetPoint("RIGHT", UIParent, "CENTER", -10, 0)
+  addon.frames.mainFrame:ClearAllPoints()
+  addon.frames.mainFrame:SetPoint("LEFT", UIParent, "CENTER", 10, 0)
+  addon.state.hasSetupSplitView = true
+end
 
 function addon:CreateActionButton(parent, width, height, fontSize)
   local actionButton = LWF:CreateButton(parent, width, height, "", fontSize)
@@ -45,7 +54,10 @@ function addon:CreateActionButton(parent, width, height, fontSize)
     actionButton:SetClickFunction(function()
       local importCallback = function()
         addon:Async(function()
-          importProfile(info.lap, info.profile, profileKey, latestVersion, info.entryName)
+          importProfile(lap, info.profile, profileKey, latestVersion, info.entryName)
+          if lap.moduleName == "WeakAuras" then
+            setupWagoWeakAuraSplitView()
+          end
         end)
       end
       if askReimport then

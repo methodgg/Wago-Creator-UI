@@ -13,6 +13,7 @@ local onShow = function()
     uiPackDropdown:Select(addon.db.selectedWagoData)
     resolutionDropdown:Select(addon.db.selectedWagoDataResolution)
   end
+  addon.state.hasSetupSplitView = false
 end
 
 function addon:CreateExpertFrame(f)
