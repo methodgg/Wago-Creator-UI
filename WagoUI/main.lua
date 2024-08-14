@@ -15,6 +15,7 @@ function addon:ResetFramePosition()
   addon.db.xoffset = defaults.xoffset
   addon.db.yoffset = defaults.yoffset
   if addon.frames.mainFrame then
+    addon.frames.mainFrame:ClearAllPoints()
     addon.frames.mainFrame:SetPoint(defaults.anchorTo, UIParent, defaults.anchorFrom, defaults.xoffset, defaults.yoffset)
   end
 end
