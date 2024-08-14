@@ -24,6 +24,7 @@ function addon:CreateActionButton(parent, width, height, fontSize)
     local lap = info.lap
     local loaded = lap:isLoaded()
     local askReimport
+    actionButton:SetBackdropColor(1, 1, 1, 0.7)
 
     if loaded then
       if not lastUdatedAt then
