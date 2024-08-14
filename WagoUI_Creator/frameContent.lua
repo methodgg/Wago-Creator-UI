@@ -39,7 +39,7 @@ function addon:CreateProfileList(f, width, height)
         line.initializationWarning:Hide()
         line.manageButton:Hide()
         line.profileDropdown:Hide()
-        line.exportButton:Hide()
+        -- line.exportButton:Hide()
         line.lastUpdateLabel:SetText("")
         line:SetBackdropColor(unpack({ .8, .8, .8, 0.1 }))
       else
@@ -188,42 +188,42 @@ function addon:CreateProfileList(f, width, height)
         end
 
         --export button
-        local profileKeyToExport = currentUIPack.profileKeys[currentUIPack.resolutions.chosen][info.name]
-        local setExportButtonText = function()
-          local text = L["Export"]
-          if lapModule.nonNativeProfileString then
-            text = text.." "..L["nonNativeExportLabel"]
-          end
-          line.exportButton:SetText(text)
-        end
-        setExportButtonText()
-        if lapModule.nonNativeProfileString then
-          line.exportButton:SetTooltip(L["exportButtonWarning"].."\n\n"..L["nonNativeExportTooltip"])
-        else
-          line.exportButton:SetTooltip(L["exportButtonWarning"])
-        end
-        if info.hasGroups then
-          line.exportButton:Hide()
-        else
-          line.exportButton:Show()
-          if not loaded or not profileKeyToExport then
-            line.exportButton:Disable()
-          else
-            line.exportButton:Enable()
-          end
-          line.exportButton:SetClickFunction(function()
-            addon:Async(function()
-              line.exportButton:Disable()
-              line.exportButton:SetText(L["Exporting..."])
-              local exportString = lapModule:exportProfile(profileKeyToExport)
-              if exportString and type(exportString) == "string" then
-                addon:TextExport(exportString)
-              end
-              line.exportButton:Enable()
-              setExportButtonText()
-            end, "copyProfileString")
-          end)
-        end
+        -- local profileKeyToExport = currentUIPack.profileKeys[currentUIPack.resolutions.chosen][info.name]
+        -- local setExportButtonText = function()
+        --   local text = L["Export"]
+        --   if lapModule.nonNativeProfileString then
+        --     text = text.." "..L["nonNativeExportLabel"]
+        --   end
+        --   line.exportButton:SetText(text)
+        -- end
+        -- setExportButtonText()
+        -- if lapModule.nonNativeProfileString then
+        --   line.exportButton:SetTooltip(L["exportButtonWarning"].."\n\n"..L["nonNativeExportTooltip"])
+        -- else
+        --   line.exportButton:SetTooltip(L["exportButtonWarning"])
+        -- end
+        -- if info.hasGroups then
+        --   line.exportButton:Hide()
+        -- else
+        --   line.exportButton:Show()
+        --   if not loaded or not profileKeyToExport then
+        --     line.exportButton:Disable()
+        --   else
+        --     line.exportButton:Enable()
+        --   end
+        --   line.exportButton:SetClickFunction(function()
+        --     addon:Async(function()
+        --       line.exportButton:Disable()
+        --       line.exportButton:SetText(L["Exporting..."])
+        --       local exportString = lapModule:exportProfile(profileKeyToExport)
+        --       if exportString and type(exportString) == "string" then
+        --         addon:TextExport(exportString)
+        --       end
+        --       line.exportButton:Enable()
+        --       setExportButtonText()
+        --     end, "copyProfileString")
+        --   end)
+        -- end
       end
     end
   end
@@ -278,8 +278,8 @@ function addon:CreateProfileList(f, width, height)
     line.lastUpdateLabel = lastUpdateLabel
 
     -- export button
-    line.exportButton = LWF:CreateButton(line, 180, 30, "", 16)
-    line:AddFrameToHeaderAlignment(line.exportButton)
+    -- line.exportButton = LWF:CreateButton(line, 180, 30, "", 16)
+    -- line:AddFrameToHeaderAlignment(line.exportButton)
 
     line:AlignWithHeader(f.contentHeader, "LEFT")
     return line
@@ -431,7 +431,7 @@ function addon:CreateProfileList(f, width, height)
     name = 350,
     profile = 200,
     lastUpdate = 150,
-    export = 200,
+    -- export = 200,
   }
   local totalHeaderWidth = 0
   for _, w in pairs(widths) do
@@ -439,11 +439,11 @@ function addon:CreateProfileList(f, width, height)
   end
 
   local headerTable = {
-    { text = L["Options"],         width = widths.options,                          offset = 1 },
+    { text = L["Options"],         width = widths.options,                              offset = 1 },
     { text = L["Name"],            width = widths.name },
     { text = L["Profile to Save"], width = widths.profile },
-    { text = L["Last Save"],       width = widths.lastUpdate },
-    { text = L["Export"],          width = width - totalHeaderWidth + widths.export },
+    { text = L["Last Save"],       width = width - totalHeaderWidth + widths.lastUpdate },
+    -- { text = L["Export"],          width = width - totalHeaderWidth + widths.export },
   }
   local lineHeight = 42
   local contentScrollbox = DF:CreateScrollBox(f, nil, contentScrollboxUpdate, {}, width - 17,
