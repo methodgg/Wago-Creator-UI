@@ -194,6 +194,8 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
   local groupsScrollBox = DF:CreateScrollBox(frame, nil, scrollBoxUpdate, {},
     scrollBoxWidth, scrollBoxHeight, 0, lineHeight, createScrollLine, true)
   DF:ReskinSlider(groupsScrollBox)
+  groupsScrollBox.ScrollBar.ScrollUpButton.Highlight:ClearAllPoints(false);
+  groupsScrollBox.ScrollBar.ScrollDownButton.Highlight:ClearAllPoints(false);
 
   groupsScrollBox.ShowHighlight = function()
     groupsScrollBox:SetBackdropColor(.8, .8, .8, 0.5)

@@ -27,6 +27,8 @@ function addon:CreateGenericTextFrame(width, height, title)
   local scrollframe = CreateFrame("ScrollFrame", nil, f, "UIPanelScrollFrameTemplate,BackdropTemplate")
   f.scrollframe = scrollframe
   DF:ReskinSlider(scrollframe)
+  scrollframe.ScrollBar.ScrollUpButton.Highlight:ClearAllPoints(false);
+  scrollframe.ScrollBar.ScrollDownButton.Highlight:ClearAllPoints(false);
   scrollframe:SetBackdrop({ bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]], tileSize = 64, tile = true, })
   scrollframe:SetPoint("TOPLEFT", f, "TOPLEFT", 5, -25)
   scrollframe:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -23, 20)
