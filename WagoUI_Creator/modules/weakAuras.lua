@@ -7,7 +7,6 @@ local lapModule = LAP:GetModule(moduleName)
 local DF = _G["DetailsFramework"]
 local LWF = LibStub("LibWagoFramework")
 
-local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
 local m
 local frameWidth = 750
 local frameHeight = 540
