@@ -9,6 +9,7 @@ local reloadButton
 
 local onShow = function()
   addon.state.currentPage = pageName
+  addon.db.introState.currentPage = pageName
   addon:ToggleNavigationButton("prev", true)
   addon:ToggleNavigationButton("next", false)
   if addon.state.needReload then
@@ -16,6 +17,8 @@ local onShow = function()
   else
     reloadButton:SetText(L["Close"])
   end
+  addon.db.hasLoggedInEver = true
+  addon.db.introEnabled = false
 end
 
 local function createPage()
@@ -28,7 +31,6 @@ local function createPage()
 
   reloadButton = LWF:CreateButton(page, 250, 70, "", 24)
   reloadButton:SetClickFunction(function()
-    addon.db.introEnabled = false
     if addon.state.needReload then
       ReloadUI()
     else

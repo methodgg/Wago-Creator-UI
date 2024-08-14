@@ -56,6 +56,7 @@ local function addButtonToPage(button, i, total)
 end
 
 local onShow = function()
+  addon.db.introState.currentPage = pageName
   addon:ToggleNavigationButton("prev", true)
   addon:ToggleNavigationButton("next", false)
   addon:ToggleStatusBar(true)

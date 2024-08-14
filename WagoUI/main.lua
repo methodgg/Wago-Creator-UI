@@ -63,6 +63,7 @@ function init()
   addon:CreateExpertFrame(mainFrame)
   if addon.db.introEnabled then
     addon:ShowIntroFrame()
+    addon:GotoPage(addon.db.introState.currentPage)
   elseif not addon.dbC.hasLoggedIn and addon.db.anyInstalled then
     addon:ShowAltFrame()
     addon:ResetFramePosition()
@@ -73,5 +74,9 @@ function init()
     addon:SuppressAddOnSpam()
   end
   addon.dbC.hasLoggedIn = true
-  addon.db.hasLoggedInEver = true
+  if not addon.db.hasLoggedInEver then
+    addon.frames.mainFrame:HookScript("OnHide", function()
+      addon.db.hasLoggedInEver = true
+    end)
+  end
 end

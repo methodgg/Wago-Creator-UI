@@ -66,6 +66,9 @@ addon.dbDefaults = {
   yoffset = 0,
   config = {},
   introEnabled = true,
+  introState = {
+    currentPage = "WelcomePage",
+  },
   importedProfiles = {},
   minimap = {
     hide = false,
