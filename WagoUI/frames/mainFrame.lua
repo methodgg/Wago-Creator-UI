@@ -15,7 +15,9 @@ function addon:CreateMainFrame()
     -- UseScaleBar = true, --disable for now might use it later on
     NoCloseButton = false,
   }
-  local frame = DF:CreateSimplePanel(UIParent, addon.ADDON_WIDTH, addon.ADDON_HEIGHT, "WagoUI",
+  local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "Title").." - slash command: "..addon.slashPrefixes[1];
+  local frame = DF:CreateSimplePanel(UIParent, addon.ADDON_WIDTH, addon.ADDON_HEIGHT,
+    addonTitle,
     addonName.."Frame",
     panelOptions, addon.db);
   frame:Hide()
@@ -33,7 +35,8 @@ function addon:CreateMainFrame()
   end)
   frame.__background:SetAlpha(1)
 
-  frame.Title:SetFont(frame.Title:GetFont(), 16);
+  DF:SetFontSize(frame.Title, 20)
+  frame.TitleBar:SetHeight(30)
   frame.Title:SetPoint("CENTER", frame.TitleBar, "CENTER", 0, 1)
 
   local versionString = frame.TitleBar:CreateFontString(addonName.."VersionString", "overlay", "GameFontNormalSmall")
@@ -43,7 +46,7 @@ function addon:CreateMainFrame()
 
   local reloadIndicator = DF:CreateButton(frame, nil, 40, 40, "", nil, nil,
     "UI-RefreshButton", nil, nil, nil, nil);
-  reloadIndicator:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -10, -30)
+  reloadIndicator:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -10, -45)
   reloadIndicator:SetTooltip(L["IMPORT_RELOAD_WARNING1"]);
   reloadIndicator:SetFrameStrata("DIALOG")
   reloadIndicator:Hide()

@@ -96,7 +96,8 @@ end
 
 function addon:CreateAltFrame(f)
   local altFrame = CreateFrame("Frame", addonName.."AltFrame", f)
-  altFrame:SetAllPoints(f)
+  altFrame:SetPoint("TOPLEFT", f, "TOPLEFT", 0, -10)
+  altFrame:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", 0, 0)
   altFrame:Hide()
   addon.frames.altFrame = altFrame
 

@@ -17,7 +17,8 @@ end
 
 function addon:CreateExpertFrame(f)
   local expertFrame = CreateFrame("Frame", addonName.."ExpertFrame", f)
-  expertFrame:SetAllPoints(f)
+  expertFrame:SetPoint("TOPLEFT", f, "TOPLEFT", 0, -10)
+  expertFrame:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", 0, 0)
   expertFrame:Hide()
   addon.frames.expertFrame = expertFrame
   db = addon.db

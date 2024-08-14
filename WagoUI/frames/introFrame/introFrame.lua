@@ -71,7 +71,8 @@ end
 
 function addon:CreateIntroFrame(f)
   local introFrame = CreateFrame("Frame", addonName.."IntroFrame", f)
-  introFrame:SetAllPoints(f)
+  introFrame:SetPoint("TOPLEFT", f, "TOPLEFT", 0, -10)
+  introFrame:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", 0, 0)
   introFrame:Hide()
   addon.frames.introFrame = introFrame
 
