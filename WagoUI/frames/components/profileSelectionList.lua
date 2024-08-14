@@ -85,6 +85,7 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, enabl
       line.nameLabel:SetText("");
       line.textEntry:Hide()
       line.fallbackLabel:Hide()
+      line.importOverrideWarning:Hide()
       line:SetBackdropColor(unpack({ .8, .8, .8, 0.1 }));
       if (info) then
         ---@type LibAddonProfilesModule
