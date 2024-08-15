@@ -107,8 +107,10 @@ function addon:CreateProfileList(parent, frameWidth, frameHeight)
         line.nameLabel:SetText(info.entryName or info.moduleName);
         if not loaded then
           line.nameLabel:SetTextColor(0.5, 0.5, 0.5, 1);
+          line.lastUpdateLabel:SetTextColor(0.5, 0.5, 0.5, 1);
         else
           line.nameLabel:SetTextColor(1, 1, 1, 1);
+          line.lastUpdateLabel:SetTextColor(1, 1, 1, 1);
         end
 
 

@@ -1,6 +1,7 @@
 ---@class WagoUI
 local addon = select(2, ...)
 local LWF = LibStub("LibWagoFramework")
+local LAP = LibStub("LibAddonProfiles")
 local L = addon.L
 
 ---@param lapModule LibAddonProfilesModule
@@ -32,6 +33,7 @@ function addon:CreateActionButton(parent, width, height, fontSize)
     ---@type LibAddonProfilesModule
     local lap = info.lap
     local loaded = lap:isLoaded()
+    local canEnable = LAP:CanEnableAnyAddOn(lap.addonNames)
     local askReimport
     actionButton:SetBackdropColor(1, 1, 1, 0.7)
 
@@ -47,8 +49,16 @@ function addon:CreateActionButton(parent, width, height, fontSize)
         askReimport = true
       end
       actionButton:Enable()
+    elseif canEnable then
+      actionButton:SetText(L["Enable AddOn"])
+      actionButton:Enable()
+      actionButton:SetClickFunction(function()
+        LAP:EnableAddOns(lap.addonNames)
+        ReloadUI()
+      end)
+      return
     else
-      actionButton:SetText(L["Not loaded"])
+      actionButton:SetText(L["AddOn not installed"])
       actionButton:Disable()
     end
     actionButton:SetClickFunction(function()
