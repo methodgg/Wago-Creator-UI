@@ -95,13 +95,6 @@ local onShow = function()
   local needEnableEntries = {}
   for moduleName, data in pairs(introState) do
     local lap = LAP:GetModule(moduleName)
-    if lap:needsInitialization() then
-      lap:openConfig()
-      C_Timer.After(0, function()
-        lap:closeConfig()
-        addon:UpdateRegisteredDataConsumers()
-      end)
-    end
     if data.checked and lap:isLoaded() then
       numChecked = numChecked + 1
       tinsert(checkedEntries, { moduleName = moduleName, profileKey = data.profileKey })

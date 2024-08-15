@@ -20,18 +20,11 @@ local function setAllProfilesAsync()
   -- This is needed when the user "chains" characters
   addon:GetImportedProfilesTarget()
   for _, lapModule in pairs(LAP:GetAllModules()) do
-    if (lapModule:isLoaded() or lapModule:needsInitialization()) and lapModule.getProfileAssignments then
+    if lapModule:isLoaded() and lapModule.getProfileAssignments then
       local profileAssignments = lapModule:getProfileAssignments()
       if profileAssignments then
         -- it should be a retrievable key, the addon stores it in accessible SV
         if profileAssignments[currentSelectedCharacter] then
-          if lapModule:needsInitialization() then
-            lapModule:openConfig()
-            C_Timer.After(0, function()
-              lapModule:closeConfig()
-            end)
-            coroutine.yield()
-          end
           lapModule:setProfile(profileAssignments[currentSelectedCharacter])
           -- vdt(currentSelectedCharacter.." "..profileAssignments[currentSelectedCharacter], lapModule.moduleName)
         end
@@ -40,13 +33,6 @@ local function setAllProfilesAsync()
         local profileKey, updatedAt = addon:GetLatestImportedProfile(currentSelectedCharacter, lapModule.moduleName)
         local profileKeys = lapModule:getProfileKeys()
         if profileKey and updatedAt and profileKeys[profileKey] then
-          if lapModule:needsInitialization() then
-            lapModule:openConfig()
-            C_Timer.After(0, function()
-              lapModule:closeConfig()
-            end)
-            coroutine.yield()
-          end
           lapModule:setProfile(profileKey)
           addon:StoreImportedProfileData(updatedAt, lapModule.moduleName, profileKey)
           -- vdt("FROM WAGO "..currentSelectedCharacter.." "..profileKey, lapModule.moduleName)

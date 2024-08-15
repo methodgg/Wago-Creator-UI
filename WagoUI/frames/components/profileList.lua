@@ -52,12 +52,6 @@ function addon:CreateProfileList(parent, frameWidth, frameHeight)
     ---@diagnostic disable-next-line: undefined-field
     line:AddFrameToHeaderAlignment(line.actionButton);
 
-    local initializationWarning = DF:CreateButton(line, nil, 30, 30, "", nil, nil,
-      "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew", nil, nil, nil, nil);
-    initializationWarning:SetPoint("RIGHT", line.actionButton, "LEFT", -2, -2)
-    initializationWarning:SetTooltip(L["This AddOn needs to be initialized. Click to initialize."]);
-    line.initializationWarning = initializationWarning
-
     -- profile key
     local profileKeyLabel = DF:CreateLabel(line, "Test", 12, "white");
     ---@diagnostic disable-next-line: undefined-field
@@ -103,7 +97,7 @@ function addon:CreateProfileList(parent, frameWidth, frameHeight)
           lap:openConfig()
           contentScrollbox:Refresh()
         end)
-        if loaded or lap:needsInitialization() then
+        if loaded then
           line.icon:SetEnabled(true);
         else
           line.icon:SetEnabled(false);
@@ -116,18 +110,7 @@ function addon:CreateProfileList(parent, frameWidth, frameHeight)
         else
           line.nameLabel:SetTextColor(1, 1, 1, 1);
         end
-        if lap:needsInitialization() then
-          line.initializationWarning:Show()
-          line.initializationWarning:SetScript("OnClick", function()
-            lap:openConfig()
-            C_Timer.After(0, function()
-              lap:closeConfig()
-            end)
-            contentScrollbox:Refresh()
-          end)
-        else
-          line.initializationWarning:Hide()
-        end
+
 
         local importedLastUpdatedAt, importedProfileKey = addon:GetImportedProfileData(info.moduleName, info.entryName)
         local profileKey = importedProfileKey or info.profileKey

@@ -75,13 +75,6 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight)
       if (info) then
         ---@type LibAddonProfilesModule
         local lap = info.lap
-        if lap:needsInitialization() then
-          lap:openConfig()
-          C_Timer.After(0, function()
-            lap:closeConfig()
-            addon:UpdateRegisteredDataConsumers()
-          end)
-        end
         local loaded = lap:isLoaded()
         local canEnable = LAP:CanEnableAnyAddOn(lap.addonNames)
         info.loaded = loaded

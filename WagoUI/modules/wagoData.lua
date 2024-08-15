@@ -68,6 +68,12 @@ function addon:SetupWagoData()
         local profileData = source.profiles[resolution][moduleName]
         local lap = LAP:GetModule(moduleName)
         if profileData and lap then
+          if lap:needsInitialization() then
+            lap:openConfig()
+            C_Timer.After(0, function()
+              lap:closeConfig()
+            end)
+          end
           ---@class IntroImportState
           ---@field checked boolean
           ---@field profileMetadata table
