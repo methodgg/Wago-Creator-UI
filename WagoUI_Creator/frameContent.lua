@@ -404,6 +404,15 @@ function addon:CreateProfileList(f, width, height)
   function addon.UpdatePackSelectedUI()
     local currentPack = addon:GetCurrentPack()
     if not currentPack then
+      local packs = addon:GetAllPacks()
+      for _, pack in pairs(packs) do
+        db.chosenPack = pack.localName
+        addon.UpdatePackSelectedUI()
+        return
+      end
+    end
+
+    if not currentPack then
       resolutionDropdown:NoOptionSelected()
       resolutionDropdown:Disable()
       resolutionCheckBox:Disable()
