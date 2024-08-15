@@ -1,4 +1,3 @@
-# 1.0.9 (2024-08-15)
+# 1.0.10 (2024-08-15)
 
 - Various UX improvements
-- New error label for invalid input on new pack creation
