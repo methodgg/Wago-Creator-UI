@@ -1,4 +1,3 @@
----@diagnostic disable: undefined-field
 ---@type string
 local addonName = ...
 ---@class WagoUICreator
@@ -229,8 +228,6 @@ function addon:CreateProfileList(f, width, height)
   end
 
   local function createScrollLine(self, index)
-    ---@class Line
-    ---@diagnostic disable-next-line: assign-type-mismatch
     local line = CreateFrame("Button", nil, self)
     PixelUtil.SetPoint(line, "TOPLEFT", self, "TOPLEFT", 1, -((index - 1) * (self.LineHeight + 1)) - 1)
     line:SetSize(width - 18, self.LineHeight)
