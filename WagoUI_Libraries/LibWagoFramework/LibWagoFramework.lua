@@ -11,6 +11,7 @@ local odt = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE");
 
 ---@param frame Frame
 function LibWagoFramework:ScaleFrameByResolution(frame)
+  --TODO: This needs to scale based on UIScale, not resolution
   local detectedRes = C_VideoOptions.GetCurrentGameWindowSize()
   local scale = 1
   if detectedRes.x < 1920 then
