@@ -91,3 +91,4 @@ L["The following AddOns need to be enabled:"] = "The following AddOns need to be
 L["Will be enabled:"] = "Will be enabled:"
 L["The following profiles will be installed:"] = "The following profiles will be installed:"
 L["Status"] = "Status"
+L["Import All"] = "Import All"

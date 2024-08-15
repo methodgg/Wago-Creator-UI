@@ -25,7 +25,36 @@ local function createPage()
   header:SetJustifyH("CENTER")
   header:SetPoint("TOPLEFT", page, "TOPLEFT", 0, -15);
 
-  local list = addon:CreateProfileSelectionList(page, page:GetWidth(), page:GetHeight() - 120)
+  local checkboxDefaultValue = true
+  for _, data in pairs(addon.db.introImportState) do
+    if not data.checked then
+      checkboxDefaultValue = false
+      break
+    end
+  end
+  local allCheckbox = LWF:CreateCheckbox(page, 40, function(self, _, value)
+    for _, data in pairs(addon.db.introImportState) do
+      data.checked = value
+    end
+    addon:SetupWagoData()
+    addon:UpdateRegisteredDataConsumers()
+  end, checkboxDefaultValue)
+  allCheckbox:SetPoint("BOTTOMRIGHT", page, "BOTTOM", -37, 10)
+  local checkboxLabel = DF:CreateLabel(page, L["Import All"], 16, "white")
+  checkboxLabel:SetPoint("LEFT", allCheckbox, "RIGHT", 5, 0)
+
+  local updateCheckbox = function()
+    local val = true
+    for _, data in pairs(addon.db.introImportState) do
+      if not data.checked then
+        val = false
+        break
+      end
+    end
+    allCheckbox:SetValue(val)
+  end
+
+  local list = addon:CreateProfileSelectionList(page, page:GetWidth(), page:GetHeight() - 140, updateCheckbox)
   local updateData = function(data)
     filtered = {}
     if data then

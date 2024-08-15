@@ -11,7 +11,7 @@ local widths = {
   profile = 100,
 }
 
-function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight)
+function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, checkedCallback)
   local header
   local contentScrollbox
 
@@ -106,6 +106,7 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight)
             info.enabled = not info.enabled
             addon.db.introImportState[lap.moduleName].checked = info.enabled
             updateEnabledState()
+            checkedCallback()
             contentScrollbox:Refresh()
           end)
         else
