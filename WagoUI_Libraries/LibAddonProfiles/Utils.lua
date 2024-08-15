@@ -6,30 +6,32 @@ if (not private) then return; end
 
 do
   local cache = {}
-  --- Checks if an addon can be enabled. AddOns that can be enabled will be enabled after a UI reload.
-  --- Checks the first entry in the list of supplied AddOn names
-  ---@param addonNames table<number, string> | nil Only first entry is checked
+  --- Checks if any addon from the list can enabled.
+  ---@param addonNames table<number, string> | nil
   ---@return boolean
-  function private:CanEnableAddOn(addonNames)
+  function private:CanEnableAnyAddOn(addonNames)
     if not addonNames then return false end
     --- Check is expensive so we cache it
-    local first = addonNames[1]
-    if not first then return false end
-    if cache[first] then return cache[first].canEnable end
-    for i = 1, C_AddOns.GetNumAddOns() do
-      local name, _, _, loadable, reason = C_AddOns.GetAddOnInfo(i)
-      if name == first then
-        if not loadable and reason == "DISABLED" or reason == "DEP_DISABLED" then
-          cache[first] = {
-            canEnable = true
-          }
-          return true
+    for _, module in pairs(addonNames) do
+      if cache[module] then
+        if cache[module].canEnable == true then return true end
+      else
+        for i = 1, C_AddOns.GetNumAddOns() do
+          local name, _, _, loadable, reason = C_AddOns.GetAddOnInfo(i)
+          if name == module then
+            if not loadable and reason == "DISABLED" or reason == "DEP_DISABLED" then
+              cache[module] = {
+                canEnable = true
+              }
+              return true
+            end
+          end
         end
+        cache[module] = {
+          canEnable = false
+        }
       end
     end
-    cache[first] = {
-      canEnable = false
-    }
     return false
   end
 

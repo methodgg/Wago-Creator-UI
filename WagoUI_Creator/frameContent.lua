@@ -61,7 +61,7 @@ function addon:CreateProfileList(f, width, height)
         local lapModule = info.lapModule
         local res = currentUIPack.resolutions
         local loaded = lapModule:isLoaded() and res.enabled[res.chosen]
-        local canEnable = LAP:CanEnableAddOn(lapModule.addonNames)
+        local canEnable = LAP:CanEnableAnyAddOn(lapModule.addonNames)
         if loaded then
           line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
         else

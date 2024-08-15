@@ -126,7 +126,8 @@ local m = {
   nonNativeProfileString = false,
 
   isLoaded = function(self)
-    return Grid2 and true or false
+    local optionsLoaded = C_AddOns.IsAddOnLoaded("Grid2Options") or C_AddOns.IsAddOnLoadOnDemand("Grid2Options")
+    return Grid2 and C_AddOns.IsAddOnLoaded("Grid2") and optionsLoaded and true or false
   end,
 
   needsInitialization = function(self)

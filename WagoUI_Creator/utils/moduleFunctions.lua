@@ -151,8 +151,8 @@ function ModuleFunctions:SortModuleConfigs()
     local bLoaded = bLap:isLoaded()
     local aNeedsInit = aLap:needsInitialization()
     local bNeedsInit = bLap:needsInitialization()
-    local aLoadable = not aLoaded and LAP:CanEnableAddOn(aLap.addonNames)
-    local bLoadable = not bLoaded and LAP:CanEnableAddOn(bLap.addonNames)
+    local aLoadable = not aLoaded and LAP:CanEnableAnyAddOn(aLap.addonNames)
+    local bLoadable = not bLoaded and LAP:CanEnableAnyAddOn(bLap.addonNames)
     local aSortIndex = a.sortIndex or 0
     local bSortIndex = b.sortIndex or 0
     local aIdx, bIdx = 0, 0
