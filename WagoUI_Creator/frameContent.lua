@@ -36,7 +36,6 @@ function addon:CreateProfileList(f, width, height)
       if not currentUIPack or not data[i + offset] then
         line.icon:Hide()
         line.nameLabel:SetText("")
-        line.initializationWarning:Hide()
         line.manageButton:Hide()
         line.profileDropdown:Hide()
         -- line.exportButton:Hide()
@@ -45,7 +44,6 @@ function addon:CreateProfileList(f, width, height)
         line.notInstalledLabel:SetText("")
       else
         line.icon:Show()
-        line.initializationWarning:Show()
         line.manageButton:Show()
         line.profileDropdown:Show()
       end
@@ -105,7 +103,7 @@ function addon:CreateProfileList(f, width, height)
           line:SetScript("OnClick", nil)
         end
 
-        if loaded or lapModule:needsInitialization() then
+        if loaded then
           line.icon:SetEnabled(true)
           line.notInstalledLabel:SetText("")
         else
@@ -122,18 +120,6 @@ function addon:CreateProfileList(f, width, height)
           line.nameLabel:SetTextColor(0.5, 0.5, 0.5, 1)
         else
           line.nameLabel:SetTextColor(1, 1, 1, 1)
-        end
-        if lapModule:needsInitialization() then
-          line.initializationWarning:Show()
-          line.initializationWarning:SetScript("OnClick", function()
-            lapModule:openConfig()
-            C_Timer.After(0, function()
-              lapModule:closeConfig()
-            end)
-            f.contentScrollbox:Refresh()
-          end)
-        else
-          line.initializationWarning:Hide()
         end
 
         -- profile dropdown
@@ -277,12 +263,6 @@ function addon:CreateProfileList(f, width, height)
     local nameLabel = DF:CreateLabel(line, "", 16, "white")
     line:AddFrameToHeaderAlignment(nameLabel)
     line.nameLabel = nameLabel
-
-    local initializationWarning = DF:CreateButton(line, nil, 30, 30, "", nil, nil,
-      "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew", nil, nil, nil, nil)
-    initializationWarning:SetPoint("LEFT", nameLabel, "RIGHT", 0, 0)
-    initializationWarning:SetTooltip(L["initializationWarningCreator"])
-    line.initializationWarning = initializationWarning
 
     -- profile dropdown
     local profileDropdown = LWF:CreateDropdown(line, 180, 30, nil, 1, function() return {} end)

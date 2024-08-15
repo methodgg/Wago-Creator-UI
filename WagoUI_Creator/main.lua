@@ -383,15 +383,14 @@ function addon:CreateFrames()
     for _, module in pairs(addon.moduleConfigs) do
       ---@type LibAddonProfilesModule
       local lapModule = module.lapModule
+      if lapModule:needsInitialization() then
+        lapModule:openConfig()
+        C_Timer.After(0, function()
+          lapModule:closeConfig()
+        end)
+      end
       if lapModule:isLoaded() then
         executeRefreshHooks(lapModule)
-      elseif lapModule:needsInitialization() then
-        local done = false
-        hooksecurefunc(lapModule, "openConfig", function()
-          if done then return end
-          executeRefreshHooks(lapModule)
-          done = true
-        end)
       end
     end
   end

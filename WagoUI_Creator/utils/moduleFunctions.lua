@@ -149,22 +149,20 @@ function ModuleFunctions:SortModuleConfigs()
 
     local aLoaded = aLap:isLoaded()
     local bLoaded = bLap:isLoaded()
-    local aNeedsInit = aLap:needsInitialization()
-    local bNeedsInit = bLap:needsInitialization()
     local aLoadable = not aLoaded and LAP:CanEnableAnyAddOn(aLap.addonNames)
     local bLoadable = not bLoaded and LAP:CanEnableAnyAddOn(bLap.addonNames)
     local aSortIndex = a.sortIndex or 0
     local bSortIndex = b.sortIndex or 0
     local aIdx, bIdx = 0, 0
 
-    if (aLoaded or aNeedsInit) then
+    if (aLoaded) then
       aIdx = 1000 - aSortIndex
     elseif aLoadable then
       aIdx = 500 - aSortIndex
     else
       aIdx = aIdx - aSortIndex
     end
-    if (bLoaded or bNeedsInit) then
+    if (bLoaded) then
       bIdx = 1000 - bSortIndex
     elseif bLoadable then
       bIdx = 500 - bSortIndex
