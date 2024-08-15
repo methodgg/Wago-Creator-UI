@@ -121,6 +121,6 @@ function addon:ExportAllProfiles()
       addon.copyHelper:SmartFadeOut(2, L["No Changes detected"])
       addon.SetLockoutFrameShowState(false)
     end
-    addon:AddDataToDataAddon()
+    addon:AddDataToStorageAddon()
   end, "ExportAllProfiles")
 end

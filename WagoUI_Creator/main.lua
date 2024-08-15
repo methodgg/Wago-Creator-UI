@@ -109,7 +109,7 @@ do
           addon:ShowFrame()
         end)
       end
-      addon:AddDataToDataAddon()
+      addon:AddDataToStorageAddon()
     elseif (event == "ADDON_LOADED") then
       local loadedAddonName = ...
       if (loadedAddonName == addonName) then
@@ -143,7 +143,7 @@ function addon:DeepCopyAsync(orig)
   return copy
 end
 
-function addon:AddDataToDataAddon()
+function addon:AddDataToStorageAddon()
   if not WagoUI_Storage then return end
   for _, pack in pairs(addon:GetAllPacks()) do
     local data = {
