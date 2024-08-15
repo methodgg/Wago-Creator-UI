@@ -426,7 +426,7 @@ function addon:CreateProfileList(f, width, height)
   local logo = DF:CreateImage(f, [[Interface\AddOns\]]..addonName..[[\media\wagoLogo512]], 256, 256)
   logo:SetPoint("TOPRIGHT", f, "TOPRIGHT", -45, 10)
 
-  local slashLabel = DF:CreateLabel(f, "Slash command: |cFFC1272D/wagoc|r", 20, "white")
+  local slashLabel = DF:CreateLabel(f, "Slash command: |cFFC1272D"..addon.slashPrefixes[1].."|r", 20, "white")
   slashLabel:SetPoint("TOP", logo, "BOTTOM", 0, 25)
 
   addLine({ resolutionDropdown, resolutionCheckBox, resolutionEnabledLabel }, 5, 0)
