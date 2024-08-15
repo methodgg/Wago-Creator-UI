@@ -47,6 +47,12 @@ if LibAddonProfiles then
     return LibAddonProfilesInternal:GenericDecode(profileString)
   end
 
+  ---@param addonName string
+  ---@return boolean
+  function LibAddonProfiles:CanEnableAddOn(addonName)
+    return LibAddonProfilesInternal:CanEnableAddOn(addonName)
+  end
+
   ---@param ... any
   function LibAddonProfilesInternal:PrintError(...)
     print("|cff0092ff"..MAJOR.."|r:", tostringall(...))

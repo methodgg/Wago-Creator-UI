@@ -141,10 +141,37 @@ end
 
 function ModuleFunctions:SortModuleConfigs()
   table.sort(addon.moduleConfigs, function(a, b)
-    local aIdx = (a.isLoaded() or a.lapModule:needsInitialization()) and a.sortIndex and 1000 - a.sortIndex or
-        a.sortIndex or 0
-    local bIdx = (b.isLoaded() or b.lapModule:needsInitialization()) and b.sortIndex and 1000 - b.sortIndex or
-        b.sortIndex or 0
+    ---@type LibAddonProfilesModule
+    local aLap = a.lapModule
+    ---@type LibAddonProfilesModule
+    local bLap = b.lapModule
+    if not aLap or not bLap then return false end
+
+    local aLoaded = aLap:isLoaded()
+    local bLoaded = bLap:isLoaded()
+    local aNeedsInit = aLap:needsInitialization()
+    local bNeedsInit = bLap:needsInitialization()
+    local aLoadable = not aLoaded and LAP:CanEnableAddOn(aLap.moduleName)
+    local bLoadable = not bLoaded and LAP:CanEnableAddOn(bLap.moduleName)
+    local aSortIndex = a.sortIndex or 0
+    local bSortIndex = b.sortIndex or 0
+    local aIdx, bIdx = 0, 0
+
+    if (aLoaded or aNeedsInit) then
+      aIdx = 1000 - aSortIndex
+    elseif aLoadable then
+      aIdx = 500 - aSortIndex
+    else
+      aIdx = aIdx - aSortIndex
+    end
+    if (bLoaded or bNeedsInit) then
+      bIdx = 1000 - bSortIndex
+    elseif bLoadable then
+      bIdx = 500 - bSortIndex
+    else
+      bIdx = bIdx - bSortIndex
+    end
+
     return (aIdx > bIdx)
   end)
 end
