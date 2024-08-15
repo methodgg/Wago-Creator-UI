@@ -6,6 +6,7 @@ if (not private) then return; end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "BugSack",
+  addonNames = { "BugSack", "BugGrabber" },
   icon = [[Interface\AddOns\BugSack\Media\icon]],
   slash = "/bugsack",
   needReloadOnImport = true,

@@ -6,6 +6,7 @@ if (not private) then return; end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "TipTac Reborn",
+  addonNames = { "TipTac", "TipTacItemRef", "TipTacOptions", "TipTacTalents" },
   icon = 134331,
   slash = "/tiptac",
   needReloadOnImport = true,

@@ -6,6 +6,7 @@ if (not private) then return; end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "OmniCD",
+  addonNames = { "OmniCD" },
   icon = [[Interface\AddOns\OmniCD\Config\Libs\Media\omnicd-logo64-c]],
   slash = "/omnicd",
   needReloadOnImport = false,

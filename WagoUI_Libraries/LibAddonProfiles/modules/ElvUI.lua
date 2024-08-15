@@ -7,6 +7,7 @@ local EXPORT_PREFIX = '!E1!'
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "ElvUI",
+  addonNames = { "ElvUI", "ElvUI_Libraries", "ElvUI_Options" },
   icon = [[Interface\AddOns\ElvUI\Core\Media\Textures\LogoAddon]],
   slash = "/ec",
   needReloadOnImport = true,

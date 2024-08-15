@@ -5,7 +5,8 @@ if (not private) then return; end
 
 ---@type LibAddonProfilesModule
 local m = {
-  moduleName = "Talent Loadout Ex",
+  moduleName = "Talent Loadouts Ex",
+  addonNames = { "TalentLoadoutsEx" },
   icon = 134063,
   slash = "/run ToggleTalentFrame()",
   needReloadOnImport = false,

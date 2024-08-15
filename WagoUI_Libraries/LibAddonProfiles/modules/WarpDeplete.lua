@@ -6,6 +6,7 @@ if (not private) then return; end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "WarpDeplete",
+  addonNames = { "WarpDeplete" },
   icon = [[Interface\AddOns\WarpDeplete\logo]],
   slash = "/exampleslash",
   needReloadOnImport = false,

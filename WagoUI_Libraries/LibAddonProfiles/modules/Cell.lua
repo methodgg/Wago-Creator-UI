@@ -139,6 +139,7 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Cell",
+  addonNames = { "Cell" },
   icon = [[Interface\AddOns\Cell\Media\icon]],
   slash = "/cell",
   needReloadOnImport = true,

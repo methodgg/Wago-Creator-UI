@@ -176,6 +176,7 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "WeakAuras",
+  addonNames = { "WeakAuras", "WeakAurasArchive", "WeakAurasModelPaths", "WeakAurasOptions", "WeakAurasTemplates" },
   icon = [[Interface\AddOns\WeakAuras\Media\Textures\icon]],
   slash = "/wa",
   needReloadOnImport = false,

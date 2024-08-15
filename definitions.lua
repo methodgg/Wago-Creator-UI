@@ -14,6 +14,7 @@
 
 ---@class LibAddonProfilesModule : table
 ---@field moduleName string The name of the module. This should be the same as the AddOn name but can be different if the AddOn has multiple modules.
+---@field addonNames table<number, string> | nil The names of the AddOn modules. First entry is used to check if the AddOn can be enabled. Is a list to load all dependencies for modular AddOns.
 ---@field icon number | string The icon to use for the module
 ---@field slash string
 ---@field needReloadOnImport boolean If the AddOn needs to be reloaded after importing a profile

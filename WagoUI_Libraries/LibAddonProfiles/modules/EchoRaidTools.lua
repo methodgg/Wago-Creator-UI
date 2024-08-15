@@ -25,6 +25,7 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Echo Raid Tools",
+  addonNames = { "EchoRaidTools" },
   icon = [[Interface\AddOns\EchoRaidTools\assets\textures\ELp3.tga]],
   slash = "/echort",
   needReloadOnImport = false,

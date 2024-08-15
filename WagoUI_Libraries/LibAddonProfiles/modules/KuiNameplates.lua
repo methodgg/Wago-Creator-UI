@@ -25,6 +25,7 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Kui Nameplates",
+  addonNames = { "Kui_Nameplates", "Kui_Nameplates_Core", "Kui_Nameplates_Core_Config" },
   icon = 132177,
   slash = "/knp",
   needReloadOnImport = true,

@@ -142,6 +142,7 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Plater",
+  addonNames = { "Plater" },
   icon = [[Interface\AddOns\Plater\images\cast_bar]],
   slash = "/plater",
   needReloadOnImport = true,

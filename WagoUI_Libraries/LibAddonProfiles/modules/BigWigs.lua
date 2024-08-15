@@ -8,6 +8,7 @@ local optionsFrame
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "BigWigs",
+  addonNames = { "BigWigs", "BigWigs_Core", "BigWigs_Plugins", "BigWigs_Options" },
   icon = 134337,
   slash = "/bigwigs",
   needReloadOnImport = true,

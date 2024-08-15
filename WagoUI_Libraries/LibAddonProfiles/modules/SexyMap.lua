@@ -6,6 +6,7 @@ if (not private) then return; end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "SexyMap",
+  addonNames = { "SexyMap" },
   icon = 237382,
   slash = "/sexymap",
   needReloadOnImport = true,

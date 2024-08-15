@@ -69,6 +69,7 @@ local exportProfileBlacklist = {
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Details",
+  addonNames = { "Details", "Details_Compare2", "Details_DataStorage" },
   icon = [[Interface\AddOns\Details\images\minimap]],
   slash = "/details config",
   needReloadOnImport = false,

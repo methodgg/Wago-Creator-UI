@@ -3,6 +3,7 @@ local addonName = ...
 ---@class WagoUICreator
 local addon = select(2, ...)
 local L = addon.L
+local LAP = LibStub("LibAddonProfiles")
 local DF = _G["DetailsFramework"]
 local LWF = LibStub("LibWagoFramework")
 
@@ -41,6 +42,7 @@ function addon:CreateProfileList(f, width, height)
         -- line.exportButton:Hide()
         line.lastUpdateLabel:SetText("")
         line:SetBackdropColor(unpack({ .8, .8, .8, 0.1 }))
+        line.notInstalledLabel:SetText("")
       else
         line.icon:Show()
         line.initializationWarning:Show()
@@ -58,11 +60,12 @@ function addon:CreateProfileList(f, width, height)
         ---@type LibAddonProfilesModule
         local lapModule = info.lapModule
         local res = currentUIPack.resolutions
-        local loaded = info.isLoaded() and res.enabled[res.chosen]
+        local loaded = lapModule:isLoaded() and res.enabled[res.chosen]
+        local canEnable = LAP:CanEnableAddOn(lapModule.addonNames)
         if loaded then
           line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
         else
-          line:SetBackdropColor(unpack({ .8, .8, .8, 0.1 }))
+          line:SetBackdropColor(unpack({ .5, .5, .5, 0.1 }))
         end
 
         -- icon
@@ -80,14 +83,36 @@ function addon:CreateProfileList(f, width, height)
           lapModule:openConfig()
           f.contentScrollbox:Refresh()
         end)
+
+        if info.queuedEnable then
+          line.notInstalledLabel:SetTextColor(1, 1, 1, 1)
+        else
+          line.notInstalledLabel:SetTextColor(0.5, 0.5, 0.5, 1)
+        end
+
+        if canEnable then
+          line:SetScript("OnClick", function()
+            LAP:EnableAddOns(lapModule.addonNames)
+            info.queuedEnable = true
+            f.contentScrollbox:Refresh()
+          end)
+        else
+          line:SetScript("OnClick", nil)
+        end
+
         if loaded or lapModule:needsInitialization() then
           line.icon:SetEnabled(true)
+          line.notInstalledLabel:SetText("")
         else
           line.icon:SetEnabled(false)
+          line.notInstalledLabel:SetText(
+            info.queuedEnable and L["Enabled after reload"]
+            or canEnable and L["AddOn disabled - click to enable"]
+            or L["Not Installed"])
         end
 
         -- name
-        line.nameLabel:SetText(info.name)
+        line.nameLabel:SetText(lapModule.moduleName)
         if not loaded then
           line.nameLabel:SetTextColor(0.5, 0.5, 0.5, 1)
         else
@@ -264,10 +289,11 @@ function addon:CreateProfileList(f, width, height)
     line.manageButton = LWF:CreateButton(line, 180, 30, L["Manage"], 16)
     line.manageButton:SetAllPoints(profileDropdown.dropdown)
 
-    -- -- version
-    -- local versionLabel = DF:CreateLabel(line, "", 10, "white")
-    -- line:AddFrameToHeaderAlignment(versionLabel)
-    -- line.versionLabel = versionLabel
+    -- not installed / can enable / enabled after reload
+    local notInstalledLabel = DF:CreateLabel(line, "", 10, "white")
+    notInstalledLabel:SetPoint("RIGHT", profileDropdown.dropdown, "LEFT", -10, 0)
+    notInstalledLabel:SetTextColor(0.5, 0.5, 0.5, 1)
+    line.notInstalledLabel = notInstalledLabel
 
     -- last update
     local lastUpdateLabel = DF:CreateLabel(line, "", 10, "white")

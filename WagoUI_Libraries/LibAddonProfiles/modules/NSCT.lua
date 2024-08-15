@@ -6,6 +6,7 @@ if (not private) then return; end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "NameplateSCT",
+  addonNames = { "NameplateSCT" },
   icon = 4548873,
   slash = "/nsct",
   needReloadOnImport = true,

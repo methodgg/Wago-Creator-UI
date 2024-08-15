@@ -6,6 +6,7 @@ if (not private) then return; end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "ShadowedUnitFrames",
+  addonNames = { "ShadowedUnitFrames", "ShadowedUF_Options" },
   icon = 136200,
   slash = "/suf",
   needReloadOnImport = false,

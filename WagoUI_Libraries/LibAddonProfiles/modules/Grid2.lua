@@ -116,6 +116,7 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Grid2",
+  addonNames = { "Grid2", "Grid2Options", "Grid2LDB", "Grid2RaidDebuffs", "Grid2RaidDebuffsOptions" },
   icon = [[Interface\AddOns\Grid2\media\iconsmall]],
   slash = "/grid2",
   needReloadOnImport = true,

@@ -47,10 +47,18 @@ if LibAddonProfiles then
     return LibAddonProfilesInternal:GenericDecode(profileString)
   end
 
-  ---@param addonName string
+  --- Checks if an addon can be enabled. AddOns that can be enabled will be enabled after a UI reload.
+  --- Checks the first entry in the list of supplied AddOn names
+  ---@param addonNames table<number, string> | nil Only first entry is checked
   ---@return boolean
-  function LibAddonProfiles:CanEnableAddOn(addonName)
-    return LibAddonProfilesInternal:CanEnableAddOn(addonName)
+  function LibAddonProfiles:CanEnableAddOn(addonNames)
+    return LibAddonProfilesInternal:CanEnableAddOn(addonNames)
+  end
+
+  ---Enables a list of AddOns. AddOns that can be enabled will be enabled after a UI reload.
+  ---@param addonNames table<number, string>
+  function LibAddonProfiles:EnableAddOns(addonNames)
+    return LibAddonProfilesInternal:EnableAddOns(addonNames)
   end
 
   ---@param ... any

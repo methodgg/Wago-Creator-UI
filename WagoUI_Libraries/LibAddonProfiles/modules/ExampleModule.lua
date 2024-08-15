@@ -5,7 +5,8 @@ if (not private) then return; end
 
 ---@type LibAddonProfilesModule
 local m = {
-  moduleName = "ExampleModule",
+  moduleName = "Example Module",
+  addonNames = { "ExampleModule", "ExampleModule_Options", "ExampleModule_Core" },
   icon = 9999999,
   slash = "/exampleslash",
   needReloadOnImport = false,

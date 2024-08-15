@@ -6,6 +6,7 @@ if (not private) then return; end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "OmniCC",
+  addonNames = { "OmniCC", "OmniCC_Config" },
   icon = 136106,
   slash = "/omnicc",
   needReloadOnImport = true,
