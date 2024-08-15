@@ -139,7 +139,8 @@ local m = {
   end,
 
   closeConfig = function(self)
-    LibStub("AceConfigDialog-3.0"):Close("Grid2")
+    -- toggle for now
+    SlashCmdList["ACECONSOLE_GRID2"]()
   end,
 
   getProfileKeys = function(self)
