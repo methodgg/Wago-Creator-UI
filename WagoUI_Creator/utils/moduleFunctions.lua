@@ -18,16 +18,28 @@ function ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKe
     end
   })
 
+  local orderedProfileKeys = {}
   for profileKey, _ in pairs(profileKeys) do
-    local coloredProfileKey = profileKey == currentProfileKey and "|cff009ECC"..profileKey.."|r (active)" or profileKey
-    tinsert(res, {
-      value = profileKey,
-      label = coloredProfileKey,
-      onclick = function()
-        currentUIPack.profileKeys[currentUIPack.resolutions.chosen][moduleName] = profileKey
-        addon.UpdatePackSelectedUI()
-      end
+    local isCurrentProfile = profileKey == currentProfileKey
+    tinsert(orderedProfileKeys, {
+      data = {
+        value = profileKey,
+        label = isCurrentProfile and "|cff009ECC"..profileKey.."|r (active)" or profileKey,
+        onclick = function()
+          currentUIPack.profileKeys[currentUIPack.resolutions.chosen][moduleName] = profileKey
+          addon.UpdatePackSelectedUI()
+        end
+      },
+      isCurrentProfile = isCurrentProfile
     })
+  end
+  table.sort(orderedProfileKeys, function(a, b)
+    if a.isCurrentProfile then return true end
+    if b.isCurrentProfile then return false end
+    return a.data.value < b.data.value
+  end)
+  for _, profileKey in ipairs(orderedProfileKeys) do
+    tinsert(res, profileKey.data)
   end
 
   return res
