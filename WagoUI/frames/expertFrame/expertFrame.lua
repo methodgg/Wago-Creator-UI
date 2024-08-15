@@ -48,7 +48,7 @@ function addon:CreateExpertFrame(f)
 
 
   local wagoDataDropdownFunc = function() return addon:GetWagoDataForDropdown() end
-  uiPackDropdown = LWF:CreateDropdown(expertFrame, 180, 40, 16, 1.2, wagoDataDropdownFunc)
+  uiPackDropdown = LWF:CreateDropdown(expertFrame, 250, 40, 16, 1.2, wagoDataDropdownFunc)
   if not db.selectedWagoData then
     uiPackDropdown:NoOptionSelected()
   else
