@@ -358,7 +358,7 @@ function addon:CreateProfileList(f, width, height)
     return newPackEditBox:GetText()
   end
 
-  local createNewPackButton = LWF:CreateButton(f, 150, 40, L["New Pack"], 16)
+  local createNewPackButton = LWF:CreateButton(f, 150, 40, L["Create Pack"], 16)
   createNewPackButton:SetClickFunction(addon.CreatePack)
   f.createNewPackButton = createNewPackButton
 
@@ -430,6 +430,7 @@ function addon:CreateProfileList(f, width, height)
     addon:RefreshDropdown(packDropdown)
     packDropdown:Select(db.chosenPack)
     f.contentScrollbox:Refresh()
+    addon:UpdateNoPackLabel()
   end
 
   function addon.RefreshContentScrollBox()
@@ -504,6 +505,23 @@ function addon:CreateProfileList(f, width, height)
   DF:ReskinSlider(contentScrollbox)
   contentScrollbox.ScrollBar.ScrollUpButton.Highlight:ClearAllPoints(false);
   contentScrollbox.ScrollBar.ScrollDownButton.Highlight:ClearAllPoints(false);
+
+  local noPacksContainer = CreateFrame("Frame", nil, f)
+  noPacksContainer:SetSize(width, height)
+  noPacksContainer:SetAllPoints(contentScrollbox)
+  f.noPacksContainer = noPacksContainer
+  local noPacksLabel = DF:CreateLabel(noPacksContainer, L["Create a new pack to start"], 40, "grey")
+  noPacksLabel:SetTextColor(0.5, 0.5, 0.5, 1)
+  noPacksLabel:SetJustifyH("CENTER")
+  noPacksLabel:SetPoint("CENTER", noPacksContainer, "CENTER", 0, 33)
+
+  function addon:UpdateNoPackLabel()
+    if addon:GetCurrentPack() then
+      noPacksContainer:Hide()
+    else
+      noPacksContainer:Show()
+    end
+  end
 
   addon.ModuleFunctions:SortModuleConfigs()
   contentScrollbox:SetData(addon.moduleConfigs)
