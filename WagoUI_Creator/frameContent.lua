@@ -93,6 +93,11 @@ function addon:CreateProfileList(f, width, height)
         if canEnable then
           line:SetScript("OnClick", function()
             LAP:EnableAddOns(lapModule.addonNames)
+            addon:ShowReloadIndicator()
+            -- set hasLoggedInEver so the AddOn auto starts after reload
+            -- we might want to use another db entry incase we use hasLoggedInEver for other purposes
+            -- for now it's ok
+            addon.db.hasLoggedInEver = false
             info.queuedEnable = true
             f.contentScrollbox:Refresh()
           end)
@@ -465,6 +470,20 @@ function addon:CreateProfileList(f, width, height)
   exportAllButton:SetClickFunction(addon.ExportAllProfiles)
   f.exportAllButton = exportAllButton
   addLine({ exportAllButton }, 5, 0)
+
+  local reloadIndicator = DF:CreateButton(f, nil, 40, 40, "", nil, nil,
+    "UI-RefreshButton", nil, nil, nil, nil);
+  reloadIndicator:SetPoint("TOPRIGHT", f, "TOPRIGHT", -10, -10)
+  reloadIndicator:SetTooltip(L["RELOAD_HINT"]);
+  reloadIndicator:SetFrameStrata("DIALOG")
+  reloadIndicator:Hide()
+  reloadIndicator:SetClickFunction(function()
+    ReloadUI()
+  end)
+
+  function addon:ShowReloadIndicator()
+    reloadIndicator:Show()
+  end
 
   local widths = {
     options = 60,
