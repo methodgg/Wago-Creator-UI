@@ -445,7 +445,7 @@ function addon:CreateProfileList(f, width, height)
 
   local widths = {
     options = 60,
-    name = 350,
+    name = 450,
     profile = 200,
     lastUpdate = 150,
     -- export = 200,
