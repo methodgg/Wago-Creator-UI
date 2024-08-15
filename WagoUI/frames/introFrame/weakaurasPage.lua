@@ -13,6 +13,9 @@ local onShow = function()
   addon:ToggleNavigationButton("next", true)
 end
 
+local onHide = function()
+  addon:EndWeakAuraSplitView()
+end
 
 local function createPage()
   local page = addon:CreatePageProtoType(pageName)
@@ -46,6 +49,7 @@ local function createPage()
   profileList.header:SetPoint("TOPLEFT", page, "TOPLEFT", 0, -80)
 
   page:SetScript("OnShow", onShow)
+  page:SetScript("OnHide", onHide)
   return page
 end
 

@@ -26,6 +26,12 @@ local function setupWagoWeakAuraSplitView()
   addon.state.hasSetupSplitView = true
 end
 
+function addon:EndWeakAuraSplitView()
+  WeakAurasOptions:Hide()
+  addon:ResetFramePosition()
+  addon.state.hasSetupSplitView = false
+end
+
 function addon:CreateActionButton(parent, width, height, fontSize)
   local actionButton = LWF:CreateButton(parent, width, height, "", fontSize)
 
