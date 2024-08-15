@@ -127,11 +127,11 @@ local m = {
 
   isLoaded = function(self)
     local optionsLoaded = C_AddOns.IsAddOnLoaded("Grid2Options") or C_AddOns.IsAddOnLoadOnDemand("Grid2Options")
-    return Grid2 and C_AddOns.IsAddOnLoaded("Grid2") and optionsLoaded and true or false
+    return Grid2Options and Grid2 and C_AddOns.IsAddOnLoaded("Grid2") and optionsLoaded and true or false
   end,
 
   needsInitialization = function(self)
-    return false
+    return Grid2 and not self:isLoaded()
   end,
 
   openConfig = function(self)
@@ -177,12 +177,6 @@ local m = {
     local success, data
     success, data = UnserializeProfile(profileString, true)
     if not success or not data then return end
-    --dirty hack to initialize Grid2Options
-    --TODO: This should not be here, we should already handle this externally (see needsInitialization)
-    if not Grid2Options then
-      self:openConfig()
-      self:closeConfig()
-    end
     if data["@Grid2Layout"] then -- Special ugly case for Custom Layouts
       local db = Grid2.db:GetNamespace("Grid2Layout", true)
       if db then
