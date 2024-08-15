@@ -1,6 +1,8 @@
 ---@class WagoUICreator
 local addon = select(2, ...)
+---@class ModuleFunctions
 addon.ModuleFunctions = {}
+---@class ModuleFunctions
 local ModuleFunctions = addon.ModuleFunctions
 local LAP = LibStub:GetLibrary("LibAddonProfiles")
 
