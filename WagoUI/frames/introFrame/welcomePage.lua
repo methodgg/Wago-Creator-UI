@@ -14,6 +14,7 @@ local onShow = function()
   addon.db.introState.currentPage = pageName
   addon.state.currentPage = pageName
   addon.state.hasSetupSplitView = false
+  addon.db.introEnabled = true
   addon:ToggleStatusBar(false)
   addon:ToggleNavigationButton("prev", false)
   addon:ToggleNavigationButton("next", false)

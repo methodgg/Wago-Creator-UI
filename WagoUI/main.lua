@@ -71,13 +71,14 @@ function init()
   else
     addon:ShowExpertFrame()
   end
-  if not addon.dbC.hasLoggedIn or not addon.db.hasLoggedInEver then
+  if not addon.dbC.hasLoggedIn then
     addon:SuppressAddOnSpam()
   end
   addon.dbC.hasLoggedIn = true
-  if not addon.db.hasLoggedInEver then
+  if addon.db.introEnabled then
+    -- if the user just clicks away the addon disable the intro and dont auto start again
     addon.frames.mainFrame:HookScript("OnHide", function()
-      addon.db.hasLoggedInEver = true
+      addon.db.introEnabled = false
     end)
   end
 end

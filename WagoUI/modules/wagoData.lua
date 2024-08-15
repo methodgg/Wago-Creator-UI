@@ -29,6 +29,21 @@ function addon:GetLatestImportedProfile(characterName, moduleName)
   return latestProfileKey, latestUpdatedAt, latestImportedAt
 end
 
+---@param profileKey string
+---@param lap LibAddonProfilesModule
+---@return string newProfileKey
+local findApproriateProfileKey = function(profileKey, lap)
+  if profileKey == "Global" then return profileKey end
+  if not lap:isLoaded() then return profileKey end
+  local newProfileKey = profileKey
+  local i = 1
+  while lap:isDuplicate(newProfileKey) do
+    newProfileKey = profileKey.."_"..i
+    i = i + 1
+  end
+  return newProfileKey
+end
+
 function addon:SetupWagoData()
   db = addon.db
   if not db.selectedWagoData then
@@ -53,13 +68,27 @@ function addon:SetupWagoData()
         local profileData = source.profiles[resolution][moduleName]
         local lap = LAP:GetModule(moduleName)
         if profileData and lap then
+          ---@class IntroImportState
+          ---@field checked boolean
+          ---@field profileMetadata table
+          ---@field profileKey string
+          ---@field profile string
+
+          addon.db.introImportState[moduleName] = addon.db.introImportState[moduleName] or {
+            checked = true,
+          }
+          addon.db.introImportState[moduleName].profileMetadata = source.profileMetadata[resolution][moduleName]
+          local profileKey = findApproriateProfileKey(moduleData, lap)
+          addon.db.introImportState[moduleName].profileKey = profileKey
+          addon.db.introImportState[moduleName].profile = profileData
+
           tinsert(addon.wagoData[resolution], {
             lap = lap,
             moduleName = moduleName,
-            profileKey = moduleData,
+            profileKey = profileKey,
             profileMetadata = source.profileMetadata[resolution][moduleName],
             profile = profileData,
-            enabled = true,
+            enabled = addon.db.introImportState[moduleName].checked,
           })
         end
       elseif moduleName == "WeakAuras" or moduleName == "Echo Raid Tools" then

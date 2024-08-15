@@ -17,7 +17,6 @@ local onShow = function()
   else
     reloadButton:SetText(L["Close"])
   end
-  addon.db.hasLoggedInEver = true
   addon.db.introEnabled = false
 end
 

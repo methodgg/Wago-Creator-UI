@@ -2,29 +2,16 @@
 local addon = select(2, ...)
 local DF = _G["DetailsFramework"];
 local LWF = LibStub("LibWagoFramework")
+local LAP = LibStub("LibAddonProfiles")
 local L = addon.L
 
 local widths = {
   install = 50,
-  addon = 400,
-  profile = 150,
+  addon = 450,
+  profile = 100,
 }
 
----@param profileKey string
----@param lap LibAddonProfilesModule
----@return string newProfileKey
-local findApproriateProfileKey = function(profileKey, lap)
-  if profileKey == "Global" then return profileKey end
-  local newProfileKey = profileKey
-  local i = 1
-  while lap:isDuplicate(newProfileKey) do
-    newProfileKey = profileKey.."_"..i
-    i = i + 1
-  end
-  return newProfileKey
-end
-
-function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, enabledStateCallback)
+function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight)
   local header
   local contentScrollbox
 
@@ -60,11 +47,9 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, enabl
     line:AddFrameToHeaderAlignment(textEntry);
     line.textEntry = textEntry;
 
-    local fallbackLabel = DF:CreateLabel(line, L["Addon not loaded"], 13, { .8, .8, .8, 0.3 });
-    fallbackLabel:SetWidth(widths.install)
-    fallbackLabel:SetPoint("LEFT", textEntry, "LEFT", 0, 0)
-    fallbackLabel:SetPoint("RIGHT", textEntry, "RIGHT", 0, 0)
-    line.fallbackLabel = fallbackLabel;
+    local notInstalledLabel = DF:CreateLabel(line, "", 12, "white");
+    notInstalledLabel:SetPoint("RIGHT", textEntry, "LEFT", -10, 0)
+    line.notInstalledLabel = notInstalledLabel;
 
     local importOverrideWarning = DF:CreateButton(line, nil, 30, 30, "", nil, nil,
       "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew", nil, nil, nil, nil);
@@ -83,8 +68,8 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, enabl
       local line = self:GetLine(i);
       line.checkBox:Hide()
       line.nameLabel:SetText("");
+      line.notInstalledLabel:SetText("")
       line.textEntry:Hide()
-      line.fallbackLabel:Hide()
       line.importOverrideWarning:Hide()
       line:SetBackdropColor(unpack({ .8, .8, .8, 0.1 }));
       if (info) then
@@ -98,9 +83,10 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, enabl
           end)
         end
         local loaded = lap:isLoaded()
+        local canEnable = LAP:CanEnableAnyAddOn(lap.addonNames)
         info.loaded = loaded
         local updateEnabledState = function()
-          if loaded and info.enabled then
+          if (loaded or canEnable) and info.enabled then
             line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }));
             line.nameLabel:SetTextColor(1, 1, 1, 1);
             if lap.willOverrideProfile then
@@ -120,36 +106,45 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, enabl
           end
         end
 
-        if loaded then
+        if loaded or canEnable then
           line.checkBox:Show()
           line.checkBox:SetChecked(info.enabled)
           line.checkBox:SetSwitchFunction(function()
             info.enabled = not info.enabled
-            enabledStateCallback()
+            addon.db.introImportState[lap.moduleName].checked = info.enabled
             updateEnabledState()
+            contentScrollbox:Refresh()
           end)
         else
           line.checkBox:Hide()
         end
 
+        line.notInstalledLabel:SetTextColor(0.5, 0.5, 0.5, 1)
+        if loaded then
+          line.notInstalledLabel:SetText("")
+        elseif canEnable and info.enabled then
+          line.notInstalledLabel:SetText(L["AddOn will be enabled"])
+          line.notInstalledLabel:SetTextColor(1, 1, 1, 1)
+        elseif canEnable then
+          line.notInstalledLabel:SetText(L["AddOn disabled"])
+        else
+          line.notInstalledLabel:SetText(L["AddOn not installed"])
+        end
+
         -- need to test if the texture exists
         local texturePath = addon:TestTexture(lap.icon) and lap.icon or QUESTION_MARK_ICON
-        local labelText = loaded and "|T"..texturePath..":30|t" or ""
+        local labelText = (loaded or canEnable) and "|T"..texturePath..":30|t" or ""
         labelText = labelText.." "..(info.entryName and info.moduleName..": "..info.entryName or info.moduleName)
         line.nameLabel:SetText(labelText);
 
-        if lap:isLoaded() and not lap.willOverrideProfile then
-          info.profileKey = findApproriateProfileKey(info.profileKey, lap)
-        end
         line.textEntry:SetText(info.profileKey)
-        if loaded then
+        addon.db.introImportState[lap.moduleName].checked = info.enabled
+        if loaded or canEnable then
           line.textEntry:Show()
           line.textEntry:Disable()
-          line.fallbackLabel:Hide()
         else
           line.importOverrideWarning:Hide()
           line.textEntry:Hide()
-          line.fallbackLabel:Show()
         end
 
         updateEnabledState()

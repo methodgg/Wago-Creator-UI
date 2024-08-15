@@ -3,13 +3,15 @@
 	<Include file="components/actionButton.lua"/>
 	<Include file="components/profileList.lua"/>
 	<Include file="components/profileSelectionList.lua"/>
+	<Include file="components/simpleProfileList.lua"/>
 	<Include file="altFrame/altFrame.lua"/>
 	<Include file="expertFrame/expertFrame.lua"/>
 	<Include file="introFrame/introFrame.lua"/>
 	<Include file="introFrame/welcomePage.lua"/>
 	<Include file="introFrame/resolutionPage.lua"/>
+	<Include file="introFrame/weakaurasPage.lua"/>
 	<Include file="introFrame/directProfilesPage.lua"/>
 	<!-- <Include file="introFrame/indirectProfilesPage.lua"/> -->
-	<Include file="introFrame/weakaurasPage.lua"/>
+	<Include file="introFrame/installPage.lua"/>
 	<Include file="introFrame/donePage.lua"/>
 </Ui>

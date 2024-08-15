@@ -34,12 +34,12 @@ local function shouldAutoStart()
   if addon.db.autoStart then
     return true
   end
-  -- first login on this character and user has installed on another character
-  if not addon.dbC.hasLoggedIn and addon.db.anyInstalled then
+  -- intro enabled
+  if addon.db.introEnabled then
     return true
   end
-  -- first login ever
-  if not addon.db.hasLoggedInEver then
+  -- first login on this character and user has installed on another character
+  if not addon.dbC.hasLoggedIn and addon.db.anyInstalled then
     return true
   end
   return false

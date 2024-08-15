@@ -69,6 +69,7 @@ addon.dbDefaults = {
   introState = {
     currentPage = "WelcomePage",
   },
+  introImportState = {},
   importedProfiles = {},
   classColoredCharacters = {},
   minimap = {

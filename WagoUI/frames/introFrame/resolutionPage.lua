@@ -57,6 +57,7 @@ end
 
 local onShow = function()
   addon.db.introState.currentPage = pageName
+  addon.db.introEnabled = true
   addon:ToggleNavigationButton("prev", true)
   addon:ToggleNavigationButton("next", false)
   addon:ToggleStatusBar(true)
