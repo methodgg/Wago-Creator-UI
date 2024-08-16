@@ -2,11 +2,11 @@
 local addonName = ...
 ---@class WagoUI
 local addon = select(2, ...)
-_G[addonName] = addon;
-local DF = _G["DetailsFramework"];
+_G[addonName] = addon
+local DF = _G["DetailsFramework"]
 local init
 
-addon.frames = {};
+addon.frames = {}
 
 function addon:ResetFramePosition()
   local defaults = addon.dbDefaults
@@ -16,13 +16,20 @@ function addon:ResetFramePosition()
   addon.db.yoffset = defaults.yoffset
   if addon.frames.mainFrame then
     addon.frames.mainFrame:ClearAllPoints()
-    addon.frames.mainFrame:SetPoint(defaults.anchorTo, UIParent, defaults.anchorFrom, defaults.xoffset, defaults.yoffset)
+    addon.frames.mainFrame:SetPoint(
+      defaults.anchorTo,
+      UIParent,
+      defaults.anchorFrom,
+      defaults.xoffset,
+      defaults.yoffset
+    )
   end
 end
 
 function addon.ShowAddonResetPrompt()
-  DF:ShowPromptPanel("Reset?"
-    , function()
+  DF:ShowPromptPanel(
+    "Reset?",
+    function()
       DetailsFrameworkPromptSimple:SetHeight(80)
       addon.ResetOptions()
     end,
@@ -30,20 +37,21 @@ function addon.ShowAddonResetPrompt()
       DetailsFrameworkPromptSimple:SetHeight(80)
     end,
     nil,
-    nil)
+    nil
+  )
   DetailsFrameworkPromptSimple:SetHeight(100)
 end
 
 function addon:ToggleFrame()
   if (addon.frames and addon.frames.mainFrame and addon.frames.mainFrame:IsShown()) then
-    addon:HideFrame();
+    addon:HideFrame()
   else
-    addon:ShowFrame();
+    addon:ShowFrame()
   end
 end
 
 function addon:HideFrame()
-  addon.frames.mainFrame:Hide();
+  addon.frames.mainFrame:Hide()
 end
 
 function addon:ShowFrame()
@@ -51,7 +59,7 @@ function addon:ShowFrame()
     init()
     addon.framesCreated = true
   end
-  addon.frames.mainFrame:Show();
+  addon.frames.mainFrame:Show()
 end
 
 function init()
@@ -77,8 +85,11 @@ function init()
   addon.dbC.hasLoggedIn = true
   if addon.db.introEnabled then
     -- if the user just clicks away the addon disable the intro and dont auto start again
-    addon.frames.mainFrame:HookScript("OnHide", function()
-      addon.db.introEnabled = false
-    end)
+    addon.frames.mainFrame:HookScript(
+      "OnHide",
+      function()
+        addon.db.introEnabled = false
+      end
+    )
   end
 end

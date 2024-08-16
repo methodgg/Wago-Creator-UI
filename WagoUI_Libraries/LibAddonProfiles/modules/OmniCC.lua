@@ -1,12 +1,15 @@
-local _, loadingAddonNamespace = ...;
+local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal();
-if (not private) then return; end
+local private =
+  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then
+  return
+end
 
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "OmniCC",
-  addonNames = { "OmniCC", "OmniCC_Config" },
+  addonNames = {"OmniCC", "OmniCC_Config"},
   icon = 136106,
   slash = "/omnicc",
   needReloadOnImport = true,
@@ -14,69 +17,75 @@ local m = {
   preventRename = false,
   willOverrideProfile = false,
   nonNativeProfileString = true,
-
   isLoaded = function(self)
     return OmniCC and true or false
   end,
-
   needsInitialization = function(self)
     return false
   end,
-
   openConfig = function(self)
     SlashCmdList["OmniCC"]()
   end,
-
   closeConfig = function(self)
     LibStub("AceConfigDialog-3.0"):Close("OmniCC")
   end,
-
   getProfileKeys = function(self)
     return OmniCCDB.profiles
   end,
-
   getCurrentProfileKey = function(self)
-    local characterName = UnitName("player").." - "..GetRealmName()
+    local characterName = UnitName("player") .. " - " .. GetRealmName()
     return OmniCCDB.profileKeys[characterName]
   end,
-
   getProfileAssignments = function(self)
     return OmniCCDB.profileKeys
   end,
-
   isDuplicate = function(self, profileKey)
-    if not profileKey then return false end
+    if not profileKey then
+      return false
+    end
     return self:getProfileKeys()[profileKey] ~= nil
   end,
-
   setProfile = function(self, profileKey)
-    if not profileKey then return end
-    if not self:getProfileKeys()[profileKey] then return end
+    if not profileKey then
+      return
+    end
+    if not self:getProfileKeys()[profileKey] then
+      return
+    end
     OmniCC.db:SetProfile(profileKey)
   end,
-
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if not profileString then return end
+    if not profileString then
+      return
+    end
     if profileData and profileData.OmniCC4Config then
       return profileKey
     end
   end,
-
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString then return end
+    if not profileString then
+      return
+    end
     local _, pData = private:GenericDecode(profileString)
-    if not pData then return end
+    if not pData then
+      return
+    end
     OmniCCDB.profileKeys = OmniCCDB.profileKeys or {}
-    OmniCCDB.profileKeys[UnitName("player").." - "..GetRealmName()] = profileKey
+    OmniCCDB.profileKeys[UnitName("player") .. " - " .. GetRealmName()] = profileKey
     OmniCCDB.profiles = OmniCCDB.profiles or {}
     OmniCCDB.profiles[profileKey] = pData.profiles[profileKey]
     OmniCC4Config = pData.OmniCC4Config
   end,
-
   exportProfile = function(self, profileKey)
-    if not profileKey then return end
-    if type(profileKey) ~= "string" then return end
-    if not self:getProfileKeys()[profileKey] then return end
+    if not profileKey then
+      return
+    end
+    if type(profileKey) ~= "string" then
+      return
+    end
+    if not self:getProfileKeys()[profileKey] then
+      return
+    end
     local data = {
       global = OmniCCDB.global,
       profileKeys = {
@@ -85,26 +94,28 @@ local m = {
       profiles = {
         [profileKey] = OmniCCDB.profiles[profileKey]
       },
-      OmniCC4Config = OmniCC4Config,
+      OmniCC4Config = OmniCC4Config
     }
     return private:GenericEncode(profileKey, data, self.moduleName)
   end,
-
   areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
-    if not profileStringA or not profileStringB then return false end
+    if not profileStringA or not profileStringB then
+      return false
+    end
     local _, profileDataA = private:GenericDecode(profileStringA)
     local _, profileDataB = private:GenericDecode(profileStringB)
-    if not profileDataA or not profileDataB then return false end
+    if not profileDataA or not profileDataB then
+      return false
+    end
     return private:DeepCompareAsync(profileDataA, profileDataB)
   end,
-
   refreshHookList = {
     {
       tableFunc = function()
         return OmniCC.db
       end,
-      functionNames = { "SetProfile", "DeleteProfile" }
-    },
+      functionNames = {"SetProfile", "DeleteProfile"}
+    }
   }
 }
 

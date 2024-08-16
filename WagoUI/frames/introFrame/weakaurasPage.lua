@@ -1,6 +1,6 @@
 ---@class WagoUI
 local addon = select(2, ...)
-local DF = _G["DetailsFramework"];
+local DF = _G["DetailsFramework"]
 local LWF = LibStub("LibWagoFramework")
 local L = addon.L
 
@@ -23,10 +23,10 @@ local function createPage()
   local page = addon:CreatePageProtoType(pageName)
 
   local text = L["Install the WeakAuras you would like to use."]
-  local header = DF:CreateLabel(page, text, 22, "white");
+  local header = DF:CreateLabel(page, text, 22, "white")
   header:SetJustifyH("CENTER")
   header:SetWidth(page:GetWidth() - 10)
-  header:SetPoint("TOPLEFT", page, "TOPLEFT", 0, -15);
+  header:SetPoint("TOPLEFT", page, "TOPLEFT", 0, -15)
 
   local profileList = addon:CreateProfileList(page, page:GetWidth(), page:GetHeight() - 105)
   local updateData = function(data)
@@ -38,11 +38,14 @@ local function createPage()
         end
       end
       --sort weakauras on top
-      table.sort(filtered, function(a, b)
-        local orderA = a.moduleName == "WeakAuras" and 1 or 0
-        local orderB = b.moduleName == "WeakAuras" and 1 or 0
-        return orderA > orderB
-      end)
+      table.sort(
+        filtered,
+        function(a, b)
+          local orderA = a.moduleName == "WeakAuras" and 1 or 0
+          local orderB = b.moduleName == "WeakAuras" and 1 or 0
+          return orderA > orderB
+        end
+      )
     end
     profileList.updateData(filtered)
   end

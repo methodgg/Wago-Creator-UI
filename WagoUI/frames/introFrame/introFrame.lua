@@ -2,7 +2,7 @@
 local addonName = ...
 ---@class WagoUI
 local addon = select(2, ...)
-local DF = _G["DetailsFramework"];
+local DF = _G["DetailsFramework"]
 local LWF = LibStub("LibWagoFramework")
 local L = addon.L
 
@@ -17,7 +17,7 @@ end
 
 function addon:CreatePageProtoType(pageName)
   local parent = addon.frames.introFrame
-  local pagePrototype = CreateFrame("Frame", addonName..pageName, parent)
+  local pagePrototype = CreateFrame("Frame", addonName .. pageName, parent)
   ---@diagnostic disable-next-line: inject-field
   pagePrototype.pageName = pageName
   pagePrototype:SetPoint("TOPLEFT", parent, "TOPLEFT", 3, -25)
@@ -28,14 +28,14 @@ end
 
 local function createStatusBar(parent)
   -- parent frame to give the statusbar a background
-  local statusBar = CreateFrame("Frame", addonName.."StatusBar", parent, "BackdropTemplate")
+  local statusBar = CreateFrame("Frame", addonName .. "StatusBar", parent, "BackdropTemplate")
   addon.frames.introFrameStatusBar = statusBar
   statusBar:SetBackdropBorderColor(1, 0, 0, 0)
   statusBar:SetSize(400, 28)
   statusBar:SetFrameStrata("DIALOG")
   statusBar:SetFrameLevel(101)
   statusBar:SetPoint("BOTTOM", parent, "BOTTOM", 0, 6)
-  DF:CreateBorder(statusBar, 1, 0, 0);
+  DF:CreateBorder(statusBar, 1, 0, 0)
 
   -- actual status bar, child of parent above
   ---@diagnostic disable-next-line: inject-field
@@ -47,7 +47,7 @@ local function createStatusBar(parent)
 
   ---@diagnostic disable-next-line: inject-field
   statusBar.bar.text = statusBar.bar:CreateFontString()
-  statusBar.bar.text:SetPoint('CENTER', statusBar, "CENTER")
+  statusBar.bar.text:SetPoint("CENTER", statusBar, "CENTER")
   statusBar.bar.text:SetFontObject("GameFontNormalMed3")
   statusBar.bar.text:SetTextColor(1, 1, 1, 1)
   statusBar.bar.text:SetJustifyH("CENTER")
@@ -62,7 +62,7 @@ local function createStatusBar(parent)
   function addon:UpdateProgressBar(page)
     ---@diagnostic disable-next-line: undefined-field
     statusBar.bar:SetSmoothedValue(page - 1)
-    local text = (page - 1).."/"..#pages - 1
+    local text = (page - 1) .. "/" .. #pages - 1
     statusBar.bar.text:SetText(text)
   end
 
@@ -70,27 +70,33 @@ local function createStatusBar(parent)
 end
 
 function addon:CreateIntroFrame(f)
-  local introFrame = CreateFrame("Frame", addonName.."IntroFrame", f)
+  local introFrame = CreateFrame("Frame", addonName .. "IntroFrame", f)
   introFrame:SetPoint("TOPLEFT", f, "TOPLEFT", 0, -10)
   introFrame:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", 0, 0)
   introFrame:Hide()
   addon.frames.introFrame = introFrame
 
   local nextButton = LWF:CreateButton(introFrame, 80, 30, "Next >>", 16)
-  nextButton:SetPoint("BOTTOMRIGHT", introFrame, "BOTTOMRIGHT", -5, 5);
-  nextButton:SetClickFunction(function()
-    addon:NextPage()
-  end);
+  nextButton:SetPoint("BOTTOMRIGHT", introFrame, "BOTTOMRIGHT", -5, 5)
+  nextButton:SetClickFunction(
+    function()
+      addon:NextPage()
+    end
+  )
 
   local prevButton = LWF:CreateButton(introFrame, 80, 30, "<< Back", 16)
-  prevButton:SetPoint("BOTTOMLEFT", introFrame, "BOTTOMLEFT", 5, 5);
-  prevButton:SetClickFunction(function()
-    addon:PrevPage()
-  end);
+  prevButton:SetPoint("BOTTOMLEFT", introFrame, "BOTTOMLEFT", 5, 5)
+  prevButton:SetClickFunction(
+    function()
+      addon:PrevPage()
+    end
+  )
 
   function addon:ToggleNavigationButton(type, show)
     local button = type == "next" and nextButton or type == "prev" and prevButton
-    if not button then return end
+    if not button then
+      return
+    end
     if show then
       button:Show()
     else
@@ -120,10 +126,14 @@ function addon:CreateIntroFrame(f)
     addon:UpdateProgressBar(currentPage)
   end
 
-  hooksecurefunc(introFrame, "Show", function()
-    updatePages()
-    addon:UpdateProgressBar(currentPage)
-  end)
+  hooksecurefunc(
+    introFrame,
+    "Show",
+    function()
+      updatePages()
+      addon:UpdateProgressBar(currentPage)
+    end
+  )
 
   function addon:NextPage()
     currentPage = math.min(currentPage + 1, #pages)

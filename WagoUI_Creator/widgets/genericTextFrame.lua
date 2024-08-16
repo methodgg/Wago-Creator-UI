@@ -6,13 +6,16 @@ function addon:CreateGenericTextFrame(width, height, title)
   local panelOptions = {
     DontRightClickClose = true,
     NoTUISpecialFrame = false,
-    NoCloseButton = false,
+    NoCloseButton = false
   }
   local f = DF:CreateSimplePanel(addon.frames.mainFrame, width, height, title, nil, panelOptions)
   f:Hide()
-  addon.frames.mainFrame:HookScript("OnHide", function()
-    f.Close:Click()
-  end)
+  addon.frames.mainFrame:HookScript(
+    "OnHide",
+    function()
+      f.Close:Click()
+    end
+  )
   f.frameHeight = height
   f.frameWidth = width
   DF:ApplyStandardBackdrop(f)
@@ -23,13 +26,14 @@ function addon:CreateGenericTextFrame(width, height, title)
   f.__background:SetAlpha(1)
   --capture clicks but dont do anything with them, fixes clicking elements under the frame
   f:SetMouseClickEnabled(true)
-  f.StartMoving = function() end
+  f.StartMoving = function()
+  end
   local scrollframe = CreateFrame("ScrollFrame", nil, f, "UIPanelScrollFrameTemplate,BackdropTemplate")
   f.scrollframe = scrollframe
   DF:ReskinSlider(scrollframe)
-  scrollframe.ScrollBar.ScrollUpButton.Highlight:ClearAllPoints(false);
-  scrollframe.ScrollBar.ScrollDownButton.Highlight:ClearAllPoints(false);
-  scrollframe:SetBackdrop({ bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]], tileSize = 64, tile = true, })
+  scrollframe.ScrollBar.ScrollUpButton.Highlight:ClearAllPoints(false)
+  scrollframe.ScrollBar.ScrollDownButton.Highlight:ClearAllPoints(false)
+  scrollframe:SetBackdrop({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]], tileSize = 64, tile = true})
   scrollframe:SetPoint("TOPLEFT", f, "TOPLEFT", 5, -25)
   scrollframe:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -23, 20)
   local editbox = CreateFrame("EditBox", nil, scrollframe)

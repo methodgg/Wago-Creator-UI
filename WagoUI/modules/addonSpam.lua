@@ -23,7 +23,7 @@ local frames = {
   "ScriptErrorsFrame",
   "DevToolFrame",
   "DetailsBaseFrame1",
-  "DetailsBaseFrame2",
+  "DetailsBaseFrame2"
 }
 
 local function hideAddOnPopups()
@@ -31,7 +31,8 @@ local function hideAddOnPopups()
     local frame = _G[frameName]
     if frame then
       frame:Hide()
-      frame.Show = function() end
+      frame.Show = function()
+      end
     end
   end
   if SplashFrame and SplashFrame.BottomCloseButton then
@@ -47,13 +48,20 @@ local function hideAddOnPopups()
 end
 
 function addon:SuppressAddOnSpam()
-  if _G["_detalhes"] then _G["_detalhes"].is_first_run = false end
-  if _G["_detalhes"] then _G["_detalhes"].is_version_first_run = false end
+  if _G["_detalhes"] then
+    _G["_detalhes"].is_first_run = false
+  end
+  if _G["_detalhes"] then
+    _G["_detalhes"].is_version_first_run = false
+  end
   hideAddOnPopups()
   --keep trying to hide popups for 10 seconds
   for i = 1, 10 do
-    C_Timer.After(i, function()
-      hideAddOnPopups()
-    end)
+    C_Timer.After(
+      i,
+      function()
+        hideAddOnPopups()
+      end
+    )
   end
 end

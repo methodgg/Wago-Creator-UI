@@ -1,6 +1,6 @@
 ---@class WagoUI
 local addon = select(2, ...)
-local DF = _G["DetailsFramework"];
+local DF = _G["DetailsFramework"]
 local LWF = LibStub("LibWagoFramework")
 local L = addon.L
 
@@ -23,21 +23,23 @@ end
 local function createPage()
   local page = addon:CreatePageProtoType(pageName)
 
-  local header = DF:CreateLabel(page, L["INSTALLATION_END_TEXT"], 38, "white");
+  local header = DF:CreateLabel(page, L["INSTALLATION_END_TEXT"], 38, "white")
   header:SetWidth(page:GetWidth() - 10)
   header:SetJustifyH("CENTER")
-  header:SetPoint("TOP", page, "TOP", 0, -100);
+  header:SetPoint("TOP", page, "TOP", 0, -100)
 
   reloadButton = LWF:CreateButton(page, 250, 70, "", 24)
-  reloadButton:SetClickFunction(function()
-    if addon.state.needReload then
-      ReloadUI()
-    else
-      addon.frames.introFrame:Hide()
-      addon.frames.expertFrame:Show()
-      addon.frames.mainFrame:Hide()
+  reloadButton:SetClickFunction(
+    function()
+      if addon.state.needReload then
+        ReloadUI()
+      else
+        addon.frames.introFrame:Hide()
+        addon.frames.expertFrame:Show()
+        addon.frames.mainFrame:Hide()
+      end
     end
-  end)
+  )
   reloadButton:SetPoint("BOTTOM", page, "BOTTOM", 0, 180)
 
   page:SetScript("OnShow", onShow)

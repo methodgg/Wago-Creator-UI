@@ -5,9 +5,15 @@ local LAP = LibStub("LibAddonProfiles")
 
 local function getGameFlavorString()
   local gameVersion = select(4, GetBuildInfo())
-  if gameVersion >= 110000 then return "retail" end
-  if gameVersion >= 40400 then return "cata" end
-  if gameVersion >= 11503 then return "classic" end
+  if gameVersion >= 110000 then
+    return "retail"
+  end
+  if gameVersion >= 40400 then
+    return "cata"
+  end
+  if gameVersion >= 11503 then
+    return "classic"
+  end
 end
 
 function addon:ExportAllProfiles()
@@ -45,7 +51,9 @@ function addon:ExportAllProfiles()
         local profiles = lapModule.getProfileKeys and lapModule:getProfileKeys()
         local profileExists = profiles and profiles[profileKey]
         -- exception for modules with groups
-        if not profiles then profileExists = true end
+        if not profiles then
+          profileExists = true
+        end
         if enabled and profileKey and profileExists then
           hasAtleastOneExport = true
         end
@@ -64,57 +72,60 @@ function addon:ExportAllProfiles()
   addon:StartProgressBar(countOperations)
   addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 50, L["Saving all profiles..."])
   addon.SetLockoutFrameShowState(true)
-  addon:Async(function()
-    local updates = {}
-    local removals = {}
-    for _, module in pairs(addon.moduleConfigs) do
-      ---@type LibAddonProfilesModule
-      local lapModule = module.lapModule
-      if module.isLoaded() then
-        local didExportAtleastOne = false
-        for resolution, enabled in pairs(enabledResolutions) do
-          updates[resolution] = updates[resolution] or {}
-          removals[resolution] = removals[resolution] or {}
-          local profileKey = currentUIPack.profileKeys[resolution][module.name]
-          if enabled and profileKey then
-            --handle invalid profile keys
-            local profiles = lapModule.getProfileKeys and lapModule:getProfileKeys()
-            local profileExists = profiles and profiles[profileKey]
-            -- exception for modules with groups
-            if not lapModule.exportGroup and not profileExists then
-              currentUIPack.profileKeys[currentUIPack.resolutions.chosen][module.name] = nil
-              currentUIPack.profiles[currentUIPack.resolutions.chosen][module.name] = nil
-            else
-              local updated, changedEntries, removedEntries = module.exportFunc(resolution, timestamp)
-              if updated then
-                updates[resolution][module.name] = changedEntries or true
-                removals[resolution][module.name] = removedEntries
+  addon:Async(
+    function()
+      local updates = {}
+      local removals = {}
+      for _, module in pairs(addon.moduleConfigs) do
+        ---@type LibAddonProfilesModule
+        local lapModule = module.lapModule
+        if module.isLoaded() then
+          local didExportAtleastOne = false
+          for resolution, enabled in pairs(enabledResolutions) do
+            updates[resolution] = updates[resolution] or {}
+            removals[resolution] = removals[resolution] or {}
+            local profileKey = currentUIPack.profileKeys[resolution][module.name]
+            if enabled and profileKey then
+              --handle invalid profile keys
+              local profiles = lapModule.getProfileKeys and lapModule:getProfileKeys()
+              local profileExists = profiles and profiles[profileKey]
+              -- exception for modules with groups
+              if not lapModule.exportGroup and not profileExists then
+                currentUIPack.profileKeys[currentUIPack.resolutions.chosen][module.name] = nil
+                currentUIPack.profiles[currentUIPack.resolutions.chosen][module.name] = nil
+              else
+                local updated, changedEntries, removedEntries = module.exportFunc(resolution, timestamp)
+                if updated then
+                  updates[resolution][module.name] = changedEntries or true
+                  removals[resolution][module.name] = removedEntries
+                end
+                didExportAtleastOne = true
               end
-              didExportAtleastOne = true
             end
           end
-        end
-        if didExportAtleastOne then
-          addon:UpdateProgressBar()
+          if didExportAtleastOne then
+            addon:UpdateProgressBar()
+          end
         end
       end
-    end
-    addon.frames.mainFrame.frameContent.contentScrollbox:Refresh()
-    local numUpdates = 0
-    for _, data in pairs(updates) do
-      for _ in pairs(data) do
-        numUpdates = numUpdates + 1
+      addon.frames.mainFrame.frameContent.contentScrollbox:Refresh()
+      local numUpdates = 0
+      for _, data in pairs(updates) do
+        for _ in pairs(data) do
+          numUpdates = numUpdates + 1
+        end
       end
-    end
-    numUpdates = numUpdates + addon:CountRemovedProfiles(addon.db.chosenPack)
-    if numUpdates > 0 then
-      addon.copyHelper:SmartHide()
-      currentUIPack.updatedAt = timestamp
-      addon:OpenReleaseNoteInput(timestamp, updates, removals)
-    else
-      addon.copyHelper:SmartFadeOut(2, L["No Changes detected"])
-      addon.SetLockoutFrameShowState(false)
-    end
-    addon:AddDataToStorageAddon()
-  end, "ExportAllProfiles")
+      numUpdates = numUpdates + addon:CountRemovedProfiles(addon.db.chosenPack)
+      if numUpdates > 0 then
+        addon.copyHelper:SmartHide()
+        currentUIPack.updatedAt = timestamp
+        addon:OpenReleaseNoteInput(timestamp, updates, removals)
+      else
+        addon.copyHelper:SmartFadeOut(2, L["No Changes detected"])
+        addon.SetLockoutFrameShowState(false)
+      end
+      addon:AddDataToStorageAddon()
+    end,
+    "ExportAllProfiles"
+  )
 end

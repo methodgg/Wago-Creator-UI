@@ -6,7 +6,9 @@ local lapModule = LAP:GetModule(moduleName)
 
 local function dropdownOptions(index)
   local res = {}
-  if not SexyMap2DB then return res end
+  if not SexyMap2DB then
+    return res
+  end
   -- we cannot hook refresh because the addon is not using AceDB
   -- this way we only show the key of the current character, other profiles are not shown
   -- this is a limitation but it still covers most use cases
@@ -21,7 +23,7 @@ local moduleConfig = {
   lapModule = lapModule,
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
-  sortIndex = 18,
+  sortIndex = 18
 }
 
 addon.ModuleFunctions:InsertModuleConfig(moduleConfig)

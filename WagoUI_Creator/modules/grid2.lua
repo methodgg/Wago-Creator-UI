@@ -6,7 +6,9 @@ local lapModule = LAP:GetModule(moduleName)
 
 local function dropdownOptions(index)
   local res = {}
-  if not Grid2DB then return res end
+  if not Grid2DB then
+    return res
+  end
   local profileKeys = lapModule:getProfileKeys()
   local currentProfileKey = lapModule:getCurrentProfileKey()
   return addon.ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKeys, currentProfileKey)
@@ -19,7 +21,7 @@ local moduleConfig = {
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
   copyButtonTooltipText = nil,
-  sortIndex = 9,
+  sortIndex = 9
 }
 
 addon.ModuleFunctions:InsertModuleConfig(moduleConfig)

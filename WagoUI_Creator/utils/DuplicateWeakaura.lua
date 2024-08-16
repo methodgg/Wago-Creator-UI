@@ -13,7 +13,7 @@ function PrivateAddParents(data)
 end
 
 local function PrivateDuplicateAura(data, newParent, massEdit, targetIndex)
-  local base_id = data.id.." "
+  local base_id = data.id .. " "
   local num = 2
 
   -- if the old id ends with a number increment the number
@@ -24,9 +24,9 @@ local function PrivateDuplicateAura(data, newParent, massEdit, targetIndex)
     num = matchNumber + 1
   end
 
-  local new_id = base_id..num
+  local new_id = base_id .. num
   while (WeakAuras.GetData(new_id)) do
-    new_id = base_id..num
+    new_id = base_id .. num
     num = num + 1
   end
 
@@ -57,19 +57,19 @@ local function PrivateDuplicateAura(data, newParent, massEdit, targetIndex)
       WeakAuras.Add(parentData)
       PrivateAddParents(parentData)
 
-      -- ignore UI stuff, we don't need
+    -- ignore UI stuff, we don't need
 
-      -- for index, id in pairs(parentData.controlledChildren) do
-      --   local childButton = OptionsPrivate.GetDisplayButton(id)
-      --   childButton:SetGroup(parentData.id, parentData.regionType == "dynamicgroup")
-      --   childButton:SetGroupOrder(index, #parentData.controlledChildren)
-      -- end
+    -- for index, id in pairs(parentData.controlledChildren) do
+    --   local childButton = OptionsPrivate.GetDisplayButton(id)
+    --   childButton:SetGroup(parentData.id, parentData.regionType == "dynamicgroup")
+    --   childButton:SetGroupOrder(index, #parentData.controlledChildren)
+    -- end
 
-      -- if not massEdit then
-      --   local button = OptionsPrivate.GetDisplayButton(parentData.id)
-      --   button.callbacks.UpdateExpandButton()
-      -- end
-      -- OptionsPrivate.ClearOptions(parentData.id)
+    -- if not massEdit then
+    --   local button = OptionsPrivate.GetDisplayButton(parentData.id)
+    --   button.callbacks.UpdateExpandButton()
+    -- end
+    -- OptionsPrivate.ClearOptions(parentData.id)
     end
   end
   return newData
@@ -103,8 +103,19 @@ local function OnDuplicateClick(id)
     print("no data for ", id)
     return
   end
-  if (WeakAuras.IsImporting()) then return end
+  if (WeakAuras.IsImporting()) then
+    return
+  end
   if data.controlledChildren then
+    -- local button = OptionsPrivate.GetDisplayButton(newGroup.id)
+    -- button.callbacks.UpdateExpandButton()
+    -- for old, new in pairs(mapping) do
+    --   local button = OptionsPrivate.GetDisplayButton(new.id)
+    --   button.callbacks.UpdateExpandButton()
+    -- end
+    -- OptionsPrivate.SortDisplayButtons(nil, true)
+    -- OptionsPrivate.PickAndEditDisplay(newGroup.id)
+    -- OptionsPrivate.Private.ResumeAllDynamicGroups(suspended)
     local newGroup = PrivateDuplicateAura(data)
 
     local mapping = {}
@@ -114,28 +125,14 @@ local function OnDuplicateClick(id)
     -- local suspended = OptionsPrivate.Private.PauseAllDynamicGroups()
     -- And this fills in the leafs
     DuplicateAuras(data, newGroup, mapping)
-
-    -- local button = OptionsPrivate.GetDisplayButton(newGroup.id)
-    -- button.callbacks.UpdateExpandButton()
-
-    -- for old, new in pairs(mapping) do
-    --   local button = OptionsPrivate.GetDisplayButton(new.id)
-    --   button.callbacks.UpdateExpandButton()
-    -- end
-
-    -- OptionsPrivate.SortDisplayButtons(nil, true)
-    -- OptionsPrivate.PickAndEditDisplay(newGroup.id)
-
-    -- OptionsPrivate.Private.ResumeAllDynamicGroups(suspended)
   else
     -- local new = OptionsPrivate.DuplicateAura(data)
     -- OptionsPrivate.SortDisplayButtons(nil, true)
     -- OptionsPrivate.PickAndEditDisplay(new.id)
   end
-  print("duplicated ", id, " to ", data.id.." 2")
-  return data.id.." 2"
+  print("duplicated ", id, " to ", data.id .. " 2")
+  return data.id .. " 2"
 end
-
 
 local function convertToTenEighty(auraId)
   local d = WeakAurasSaved.displays
@@ -152,12 +149,11 @@ local function convertToTenEighty(auraId)
     [35] = 26,
     [40] = 30,
     [42] = 32,
-    [60] = 45,
+    [60] = 45
   }
   local groupOffsets = {
     ["NnoggieUI 1080 Health Pots, Potions, Racials, Trinkets"] = -234,
     ["NnoggieUI 1080 Defensive Speed and Externals"] = -190,
-
     ["NnoggieUI 1080 DK"] = 10, --main group yOffset
     ["N10 DK Unholy Runes"] = -202,
     ["N10 DK Frost Runes"] = -202,
@@ -178,7 +174,6 @@ local function convertToTenEighty(auraId)
     ["N10 DK Frost Damage Procs"] = -281,
     ["N10 DK Blood Damage Procs"] = -281,
     ["N10 DK Notifiers"] = -330,
-
     ["NnoggieUI 1080 Warrior"] = 10, --main group yOffset
     ["N10 Warrior Arms Swingtimer"] = -198,
     ["N10 Warrior Arms Rage"] = -207,
@@ -197,7 +192,6 @@ local function convertToTenEighty(auraId)
     ["N10 Warrior Protection Utility Abilities"] = -249,
     ["N10 Warrior Protection Damage Procs"] = -274,
     ["N10 Warrior Notifiers"] = -349.7,
-
     ["NnoggieUI 1080 Warlock"] = 10,
     ["N10 Warlock Mana"] = -201,
     ["N10 Warlock Soul Shards"] = -207,
@@ -210,7 +204,6 @@ local function convertToTenEighty(auraId)
     ["N10 Warlock Destruction Procs"] = -184,
     ["N10 Warlock Destruction Main Abilities"] = -210,
     ["N10 Warlock Notifiers"] = -330,
-
     ["NnoggieUI 1080 Paladin"] = 10,
     ["N10 Paladin Dusk"] = -201,
     ["N10 Paladin Dawn"] = -201,
@@ -225,7 +218,6 @@ local function convertToTenEighty(auraId)
     ["N10 Paladin Protection Procs"] = -184,
     ["N10 Paladin Protection Main Abilities"] = -210,
     ["N10 Paladin Notifiers"] = -330,
-
     ["NnoggieUI 1080 Evoker"] = 10,
     ["N10 Evoker Devastation Mana"] = -201,
     ["N10 Evoker Essences"] = -207,
@@ -234,7 +226,6 @@ local function convertToTenEighty(auraId)
     ["N10 Evoker Devastation Procs"] = -184,
     ["N10 Evoker Devastation Main Abilities"] = -210,
     ["N10 Evoker Notifiers"] = -330,
-
     ["NnoggieUI 1080 Demon Hunter"] = 10,
     ["N10 Demon Hunter Havoc Momentum"] = -201,
     ["N10 Demon Hunter Vengeance Demon Spikes Active"] = -201,
@@ -248,24 +239,22 @@ local function convertToTenEighty(auraId)
     ["N10 Demon Hunter Vengeance Procs"] = -184,
     ["N10 Demon Hunter Vengeance Main Abilities"] = -210,
     ["N10 Demon Hunter Notifiers"] = -330,
-
     ["NnoggieUI 1080 Shaman"] = 10,
     ["N10 Shaman Enhancement Maelstrom"] = -205,
     ["N10 Shaman Damage Procs"] = -279,
     ["N10 Shaman Utility Abilities"] = -254,
     ["N10 Shaman Enhancement Procs"] = -184,
     ["N10 Shaman Enhancement Main Abilities"] = -210,
-    ["N10 Shaman Notifiers"] = -330,
-
+    ["N10 Shaman Notifiers"] = -330
   }
   local groupXOffsets = {
     ["NnoggieUI 1080 Health Pots, Potions, Racials, Trinkets"] = -441,
-    ["NnoggieUI 1080 Defensive Speed and Externals"] = -211,
+    ["NnoggieUI 1080 Defensive Speed and Externals"] = -211
   }
 
   local idMap = {
     ["NnoggieUI 1440"] = "NnoggieUI 1080",
-    ["N14"] = "N10",
+    ["N14"] = "N10"
   }
 
   -- first collect all aura ids that we need to change
@@ -399,7 +388,6 @@ end
 --convertToTenEighty("NnoggieUI 1440 Paladin  2")
 --convertToTenEighty("NnoggieUI 1440 Evoker  2")
 --convertToTenEighty("NnoggieUI 1440 Demon Hunter 2")
-
 
 --convertToTenEighty("NnoggieUI 1440 Health Pots, Potions, Racials, Trinkets 2")
 -- convertToTenEighty("NnoggieUI 1440 Defensive Speed and Externals 2")

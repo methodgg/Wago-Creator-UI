@@ -31,8 +31,9 @@ local commands = {
   ["debug"] = {
     description = L["Enable debug mode"],
     func = function(args)
-      DF:ShowPromptPanel("Toggle Debug and reload?"
-        , function()
+      DF:ShowPromptPanel(
+        "Toggle Debug and reload?",
+        function()
           addon.db.debug = not addon.db.debug
           if not addon.db.debug then
             addon.db.autoStart = false
@@ -40,13 +41,14 @@ local commands = {
           ReloadUI()
         end,
         function()
-        end)
+        end
+      )
     end
-  },
+  }
 }
 
 local function slashCommandShow(args, editbox)
-  local req, arg = strsplit(' ', args)
+  local req, arg = strsplit(" ", args)
   if req and commands[req] then
     commands[req].func(arg)
   else
@@ -55,15 +57,15 @@ local function slashCommandShow(args, editbox)
 end
 
 for i, command in pairs(addon.slashPrefixes) do
-  _G["SLASH_"..strupper(addonName).."SHOW"..i] = command
+  _G["SLASH_" .. strupper(addonName) .. "SHOW" .. i] = command
 end
-SlashCmdList[strupper(addonName).."SHOW"] = slashCommandShow
+SlashCmdList[strupper(addonName) .. "SHOW"] = slashCommandShow
 
 function addon:PrintAvailableSlashCommands()
-  addon:AddonPrint(L["Available slash commands"]..":")
+  addon:AddonPrint(L["Available slash commands"] .. ":")
   local res = ""
   for command, _ in pairs(commands) do
-    res = res.." "..command
-    addon:AddonPrint(addon.slashPrefixes[1].." "..command)
+    res = res .. " " .. command
+    addon:AddonPrint(addon.slashPrefixes[1] .. " " .. command)
   end
 end

@@ -6,7 +6,9 @@ local lapModule = LAP:GetModule(moduleName)
 
 local function dropdownOptions(index)
   local res = {}
-  if not OmniCC then return res end
+  if not OmniCC then
+    return res
+  end
   local profileKeys = lapModule:getProfileKeys()
   local currentProfileKey = lapModule:getCurrentProfileKey()
   return addon.ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKeys, currentProfileKey)
@@ -18,7 +20,7 @@ local moduleConfig = {
   lapModule = lapModule,
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
-  sortIndex = 16,
+  sortIndex = 16
 }
 
 addon.ModuleFunctions:InsertModuleConfig(moduleConfig)

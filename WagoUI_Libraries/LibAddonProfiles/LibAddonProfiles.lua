@@ -4,7 +4,7 @@ local MAJOR = "LibAddonProfiles"
 local MINOR = 1
 
 ---@class LibAddonProfiles
-local LibAddonProfiles = LibStub:NewLibrary(MAJOR, MINOR);
+local LibAddonProfiles = LibStub:NewLibrary(MAJOR, MINOR)
 
 if LibAddonProfiles then
   wipe(LibAddonProfiles)
@@ -62,6 +62,6 @@ if LibAddonProfiles then
 
   ---@param ... any
   function LibAddonProfilesInternal:PrintError(...)
-    print("|cff0092ff"..MAJOR.."|r:", tostringall(...))
+    print("|cff0092ff" .. MAJOR .. "|r:", tostringall(...))
   end
 end

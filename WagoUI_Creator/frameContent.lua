@@ -40,7 +40,7 @@ function addon:CreateProfileList(f, width, height)
         line.profileDropdown:Hide()
         -- line.exportButton:Hide()
         line.lastUpdateLabel:SetText("")
-        line:SetBackdropColor(unpack({ .8, .8, .8, 0.1 }))
+        line:SetBackdropColor(unpack({.8, .8, .8, 0.1}))
         line.notInstalledLabel:SetText("")
       else
         line.icon:Show()
@@ -48,7 +48,9 @@ function addon:CreateProfileList(f, width, height)
         line.profileDropdown:Show()
       end
     end
-    if not currentUIPack then return end
+    if not currentUIPack then
+      return
+    end
     addon.ModuleFunctions:SortModuleConfigs()
     for i = 1, totalLines do
       local index = i + offset
@@ -61,9 +63,9 @@ function addon:CreateProfileList(f, width, height)
         local loaded = lapModule:isLoaded() and res.enabled[res.chosen]
         local canEnable = LAP:CanEnableAnyAddOn(lapModule.addonNames)
         if loaded then
-          line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
+          line:SetBackdropColor(unpack({.8, .8, .8, 0.3}))
         else
-          line:SetBackdropColor(unpack({ .5, .5, .5, 0.1 }))
+          line:SetBackdropColor(unpack({.5, .5, .5, 0.1}))
         end
 
         -- icon
@@ -77,10 +79,13 @@ function addon:CreateProfileList(f, width, height)
           line.icon:ClearHighlightTexture()
         end
         line.icon:SetTooltip(lapModule.openConfig and string.format(L["Click to open %s options"], info.name) or nil)
-        line.icon:SetScript("OnClick", function()
-          lapModule:openConfig()
-          f.contentScrollbox:Refresh()
-        end)
+        line.icon:SetScript(
+          "OnClick",
+          function()
+            lapModule:openConfig()
+            f.contentScrollbox:Refresh()
+          end
+        )
 
         if info.queuedEnable then
           line.notInstalledLabel:SetTextColor(1, 1, 1, 1)
@@ -89,16 +94,19 @@ function addon:CreateProfileList(f, width, height)
         end
 
         if canEnable then
-          line:SetScript("OnClick", function()
-            LAP:EnableAddOns(lapModule.addonNames)
-            addon:ShowReloadIndicator()
-            -- set hasLoggedInEver so the AddOn auto starts after reload
-            -- we might want to use another db entry incase we use hasLoggedInEver for other purposes
-            -- for now it's ok
-            addon.db.hasLoggedInEver = false
-            info.queuedEnable = true
-            f.contentScrollbox:Refresh()
-          end)
+          line:SetScript(
+            "OnClick",
+            function()
+              LAP:EnableAddOns(lapModule.addonNames)
+              addon:ShowReloadIndicator()
+              -- set hasLoggedInEver so the AddOn auto starts after reload
+              -- we might want to use another db entry incase we use hasLoggedInEver for other purposes
+              -- for now it's ok
+              addon.db.hasLoggedInEver = false
+              info.queuedEnable = true
+              f.contentScrollbox:Refresh()
+            end
+          )
         else
           line:SetScript("OnClick", nil)
         end
@@ -109,9 +117,9 @@ function addon:CreateProfileList(f, width, height)
         else
           line.icon:SetEnabled(false)
           line.notInstalledLabel:SetText(
-            info.queuedEnable and L["Enabled after reload"]
-            or canEnable and L["AddOn disabled - click to enable"]
-            or L["Not Installed"])
+            info.queuedEnable and L["Enabled after reload"] or canEnable and L["AddOn disabled - click to enable"] or
+              L["Not Installed"]
+          )
         end
 
         -- name
@@ -126,43 +134,52 @@ function addon:CreateProfileList(f, width, height)
         if info.hasGroups then
           line.manageButton:Show()
           line.profileDropdown:Hide()
-          line.manageButton:SetClickFunction(function()
-            local copyCallback = function()
-              addon:Async(function()
-                if info.copyFuncOverride then
-                  -- TODO: what is this?
-                else
-                  -- TODO: this needs to be fixed to work with the new profile system
-                  addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 50, L["Preparing export string..."])
-                  info.exportFunc()
-                  addon.copyHelper:Hide()
-                  addon:TextExport(WagoUICreatorDB.profiles[info.name][1])
-                end
-              end, "copy1Func")
+          line.manageButton:SetClickFunction(
+            function()
+              local copyCallback = function()
+                addon:Async(
+                  function()
+                    if info.copyFuncOverride then
+                      -- TODO: what is this?
+                    else
+                      -- TODO: this needs to be fixed to work with the new profile system
+                      addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 50, L["Preparing export string..."])
+                      info.exportFunc()
+                      addon.copyHelper:Hide()
+                      addon:TextExport(WagoUICreatorDB.profiles[info.name][1])
+                    end
+                  end,
+                  "copy1Func"
+                )
+              end
+              info.manageFunc(addon.frames.mainFrame, 1, L["Copy"], nil, copyCallback)
             end
-            info.manageFunc(addon.frames.mainFrame, 1, L["Copy"], nil, copyCallback)
-          end)
+          )
         else
           line.manageButton:Hide()
           line.profileDropdown:Show()
         end
         local profileKey = currentUIPack.profileKeys[currentUIPack.resolutions.chosen][info.name]
         local fallbackOptions = function()
-          return profileKey and {
+          return profileKey and
             {
-              value = profileKey,
-              label = profileKey,
-              onclick = function()
-                addon.UpdatePackSelectedUI()
-              end
-            }
-          } or {}
+              {
+                value = profileKey,
+                label = profileKey,
+                onclick = function()
+                  addon.UpdatePackSelectedUI()
+                end
+              }
+            } or
+            {}
         end
         line.profileDropdown.func = loaded and info.dropdown1Options or fallbackOptions
         line.profileDropdown:Refresh()
         if not info.hasGroups then
           line.profileDropdown:Select(profileKey)
-          if not profileKey then line.profileDropdown:NoOptionSelected() end
+          if not profileKey then
+            line.profileDropdown:NoOptionSelected()
+          end
           -- if profile key is no longer valid
           -- this is only a visual change, we do not want to touch the exported data / profile key here
           if profileKey and lapModule:isLoaded() and not lapModule:getProfileKeys()[profileKey] then
@@ -188,7 +205,9 @@ function addon:CreateProfileList(f, width, height)
             lastUpdatedAt = metaData.lastUpdatedAt
           elseif type(metaData.lastUpdatedAt) == "table" then
             for _, v in pairs(metaData.lastUpdatedAt) do
-              if v > lastUpdatedAt then lastUpdatedAt = v end
+              if v > lastUpdatedAt then
+                lastUpdatedAt = v
+              end
             end
           end
           lastUpdatedAtString = lastUpdatedAt and date("%b %d %H:%M", lastUpdatedAt) or ""
@@ -202,43 +221,43 @@ function addon:CreateProfileList(f, width, height)
           line.lastUpdateLabel:SetTextColor(0.5, 0.5, 0.5, 1)
         end
 
-        --export button
-        -- local profileKeyToExport = currentUIPack.profileKeys[currentUIPack.resolutions.chosen][info.name]
-        -- local setExportButtonText = function()
-        --   local text = L["Export"]
-        --   if lapModule.nonNativeProfileString then
-        --     text = text.." "..L["nonNativeExportLabel"]
-        --   end
-        --   line.exportButton:SetText(text)
-        -- end
-        -- setExportButtonText()
-        -- if lapModule.nonNativeProfileString then
-        --   line.exportButton:SetTooltip(L["exportButtonWarning"].."\n\n"..L["nonNativeExportTooltip"])
-        -- else
-        --   line.exportButton:SetTooltip(L["exportButtonWarning"])
-        -- end
-        -- if info.hasGroups then
-        --   line.exportButton:Hide()
-        -- else
-        --   line.exportButton:Show()
-        --   if not loaded or not profileKeyToExport then
-        --     line.exportButton:Disable()
-        --   else
-        --     line.exportButton:Enable()
-        --   end
-        --   line.exportButton:SetClickFunction(function()
-        --     addon:Async(function()
-        --       line.exportButton:Disable()
-        --       line.exportButton:SetText(L["Exporting..."])
-        --       local exportString = lapModule:exportProfile(profileKeyToExport)
-        --       if exportString and type(exportString) == "string" then
-        --         addon:TextExport(exportString)
-        --       end
-        --       line.exportButton:Enable()
-        --       setExportButtonText()
-        --     end, "copyProfileString")
-        --   end)
-        -- end
+      --export button
+      -- local profileKeyToExport = currentUIPack.profileKeys[currentUIPack.resolutions.chosen][info.name]
+      -- local setExportButtonText = function()
+      --   local text = L["Export"]
+      --   if lapModule.nonNativeProfileString then
+      --     text = text.." "..L["nonNativeExportLabel"]
+      --   end
+      --   line.exportButton:SetText(text)
+      -- end
+      -- setExportButtonText()
+      -- if lapModule.nonNativeProfileString then
+      --   line.exportButton:SetTooltip(L["exportButtonWarning"].."\n\n"..L["nonNativeExportTooltip"])
+      -- else
+      --   line.exportButton:SetTooltip(L["exportButtonWarning"])
+      -- end
+      -- if info.hasGroups then
+      --   line.exportButton:Hide()
+      -- else
+      --   line.exportButton:Show()
+      --   if not loaded or not profileKeyToExport then
+      --     line.exportButton:Disable()
+      --   else
+      --     line.exportButton:Enable()
+      --   end
+      --   line.exportButton:SetClickFunction(function()
+      --     addon:Async(function()
+      --       line.exportButton:Disable()
+      --       line.exportButton:SetText(L["Exporting..."])
+      --       local exportString = lapModule:exportProfile(profileKeyToExport)
+      --       if exportString and type(exportString) == "string" then
+      --         addon:TextExport(exportString)
+      --       end
+      --       line.exportButton:Enable()
+      --       setExportButtonText()
+      --     end, "copyProfileString")
+      --   end)
+      -- end
       end
     end
   end
@@ -250,8 +269,8 @@ function addon:CreateProfileList(f, width, height)
     if not line.SetBackdrop then
       Mixin(line, BackdropTemplateMixin)
     end
-    line:SetBackdrop({ bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true })
-    line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
+    line:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+    line:SetBackdropColor(unpack({.8, .8, .8, 0.3}))
     DF:Mixin(line, DF.HeaderFunctions)
 
     -- icon
@@ -265,7 +284,17 @@ function addon:CreateProfileList(f, width, height)
     line.nameLabel = nameLabel
 
     -- profile dropdown
-    local profileDropdown = LWF:CreateDropdown(line, 180, 30, nil, 1, function() return {} end)
+    local profileDropdown =
+      LWF:CreateDropdown(
+      line,
+      180,
+      30,
+      nil,
+      1,
+      function()
+        return {}
+      end
+    )
     tinsert(profileDropdowns, profileDropdown)
     line:AddFrameToHeaderAlignment(profileDropdown)
     line.profileDropdown = profileDropdown
@@ -336,16 +365,22 @@ function addon:CreateProfileList(f, width, height)
   local newPackEditBox = LWF:CreateTextEntry(f, 200, 40, nil, 16)
   local newPackLabel = DF:CreateLabel(f, L["Pack name:"], 10)
   newPackLabel:SetPoint("BOTTOMLEFT", newPackEditBox, "TOPLEFT", 0, 2)
-  newPackEditBox:HookScript("OnChar", function()
-    addon:SetNewPackErrorLabel("")
-  end)
+  newPackEditBox:HookScript(
+    "OnChar",
+    function()
+      addon:SetNewPackErrorLabel("")
+    end
+  )
 
   local newPackErrorLabel = DF:CreateLabel(f, "", 10)
   newPackErrorLabel:SetTextColor(1, 0, 0, 1)
   newPackErrorLabel:SetPoint("TOPLEFT", newPackEditBox, "BOTTOMLEFT", 6, -2)
-  newPackEditBox:HookScript("OnEnterPressed", function()
-    addon:CreatePack()
-  end)
+  newPackEditBox:HookScript(
+    "OnEnterPressed",
+    function()
+      addon:CreatePack()
+    end
+  )
   f.newPackErrorLabel = newPackErrorLabel
   function addon:SetNewPackErrorLabel(text)
     newPackErrorLabel:SetText(text)
@@ -365,16 +400,18 @@ function addon:CreateProfileList(f, width, height)
   local deletePackButton = LWF:CreateButton(f, 150, 40, L["Delete"], 16)
   deletePackButton:SetClickFunction(addon.DeleteCurrentPack)
   f.deletePackButton = deletePackButton
-  addLine({ packDropdown, newPackEditBox, createNewPackButton, deletePackButton }, 5, -10)
+  addLine({packDropdown, newPackEditBox, createNewPackButton, deletePackButton}, 5, -10)
 
   -- resolution explainer
   local resExplainerLabel = DF:CreateLabel(f, "Startup", 16, "white")
   resExplainerLabel:SetWidth((width - 40) / 2)
   resExplainerLabel:SetWordWrap(true)
   resExplainerLabel:SetText(
-    L
-    ["Choose which resolutions you want the UI pack to support. You can provide a separate profile for each resolution and AddOn."])
-  addLine({ resExplainerLabel }, 5, -10)
+    L[
+      "Choose which resolutions you want the UI pack to support. You can provide a separate profile for each resolution and AddOn."
+    ]
+  )
+  addLine({resExplainerLabel}, 5, -10)
 
   -- resolution
   local resolutions = {}
@@ -384,7 +421,9 @@ function addon:CreateProfileList(f, width, height)
       label = res.displayNameLong,
       onclick = function()
         local currentPack = addon:GetCurrentPack()
-        if not currentPack then return end
+        if not currentPack then
+          return
+        end
         currentPack.resolutions.chosen = res.value
         addon.UpdatePackSelectedUI()
       end
@@ -392,13 +431,31 @@ function addon:CreateProfileList(f, width, height)
     table.insert(resolutions, newRes)
   end
 
-  local resolutionDropdown = LWF:CreateDropdown(f, 200, 40, 16, 1.5, function() return resolutions end)
-  local resolutionCheckBox = LWF:CreateCheckbox(f, 40, function(_, _, value)
-    local currentPack = addon:GetCurrentPack()
-    if not currentPack then return end
-    currentPack.resolutions.enabled[currentPack.resolutions.chosen] = value
-    f.contentScrollbox:Refresh()
-  end, false)
+  local resolutionDropdown =
+    LWF:CreateDropdown(
+    f,
+    200,
+    40,
+    16,
+    1.5,
+    function()
+      return resolutions
+    end
+  )
+  local resolutionCheckBox =
+    LWF:CreateCheckbox(
+    f,
+    40,
+    function(_, _, value)
+      local currentPack = addon:GetCurrentPack()
+      if not currentPack then
+        return
+      end
+      currentPack.resolutions.enabled[currentPack.resolutions.chosen] = value
+      f.contentScrollbox:Refresh()
+    end,
+    false
+  )
   f.resolutionCheckBox = resolutionCheckBox
 
   function addon.UpdatePackSelectedUI()
@@ -441,35 +498,36 @@ function addon:CreateProfileList(f, width, height)
   resolutionEnabledLabel:SetText(L["Enable this resolution"])
 
   -- logo
-  local logo = DF:CreateImage(f, [[Interface\AddOns\]]..addonName..[[\media\wagoLogo512]], 256, 256)
+  local logo = DF:CreateImage(f, [[Interface\AddOns\]] .. addonName .. [[\media\wagoLogo512]], 256, 256)
   logo:SetPoint("TOPRIGHT", f, "TOPRIGHT", -45, 10)
 
-  local slashLabel = DF:CreateLabel(f, "Slash command: |cFFC1272D"..addon.slashPrefixes[1].."|r", 20, "white")
+  local slashLabel = DF:CreateLabel(f, "Slash command: |cFFC1272D" .. addon.slashPrefixes[1] .. "|r", 20, "white")
   slashLabel:SetPoint("TOP", logo, "BOTTOM", 0, 25)
 
-  addLine({ resolutionDropdown, resolutionCheckBox, resolutionEnabledLabel }, 5, 0)
+  addLine({resolutionDropdown, resolutionCheckBox, resolutionEnabledLabel}, 5, 0)
 
   -- export explainer
   local exportExplainerLabel = DF:CreateLabel(f, "Startup", 16, "white")
   exportExplainerLabel:SetWidth((width - 40) / 2)
   exportExplainerLabel:SetWordWrap(true)
   exportExplainerLabel:SetText(L["exportExplainerLabel"])
-  addLine({ exportExplainerLabel }, 5, 0)
+  addLine({exportExplainerLabel}, 5, 0)
 
   local exportAllButton = LWF:CreateButton(f, 250, 40, L["Save All Profiles"], 16)
   exportAllButton:SetClickFunction(addon.ExportAllProfiles)
   f.exportAllButton = exportAllButton
-  addLine({ exportAllButton }, 5, 0)
+  addLine({exportAllButton}, 5, 0)
 
-  local reloadIndicator = DF:CreateButton(f, nil, 40, 40, "", nil, nil,
-    "UI-RefreshButton", nil, nil, nil, nil);
+  local reloadIndicator = DF:CreateButton(f, nil, 40, 40, "", nil, nil, "UI-RefreshButton", nil, nil, nil, nil)
   reloadIndicator:SetPoint("TOPRIGHT", f, "TOPRIGHT", -10, -10)
-  reloadIndicator:SetTooltip(L["RELOAD_HINT"]);
+  reloadIndicator:SetTooltip(L["RELOAD_HINT"])
   reloadIndicator:SetFrameStrata("DIALOG")
   reloadIndicator:Hide()
-  reloadIndicator:SetClickFunction(function()
-    ReloadUI()
-  end)
+  reloadIndicator:SetClickFunction(
+    function()
+      ReloadUI()
+    end
+  )
 
   function addon:ShowReloadIndicator()
     reloadIndicator:Show()
@@ -479,7 +537,7 @@ function addon:CreateProfileList(f, width, height)
     options = 60,
     name = 450,
     profile = 200,
-    lastUpdate = 150,
+    lastUpdate = 150
     -- export = 200,
   }
   local totalHeaderWidth = 0
@@ -488,23 +546,34 @@ function addon:CreateProfileList(f, width, height)
   end
 
   local headerTable = {
-    { text = L["Options"],         width = widths.options,                              offset = 1 },
-    { text = L["Name"],            width = widths.name },
-    { text = L["Profile to Save"], width = widths.profile },
-    { text = L["Last Save"],       width = width - totalHeaderWidth + widths.lastUpdate },
+    {text = L["Options"], width = widths.options, offset = 1},
+    {text = L["Name"], width = widths.name},
+    {text = L["Profile to Save"], width = widths.profile},
+    {text = L["Last Save"], width = width - totalHeaderWidth + widths.lastUpdate}
     -- { text = L["Export"],          width = width - totalHeaderWidth + widths.export },
   }
   local lineHeight = 42
-  local contentScrollbox = DF:CreateScrollBox(f, nil, contentScrollboxUpdate, {}, width - 17,
-    height - totalHeight + 4, 0, lineHeight, createScrollLine, true)
-  f.contentHeader = DF:CreateHeader(f, headerTable, nil, addonName.."ContentHeader")
+  local contentScrollbox =
+    DF:CreateScrollBox(
+    f,
+    nil,
+    contentScrollboxUpdate,
+    {},
+    width - 17,
+    height - totalHeight + 4,
+    0,
+    lineHeight,
+    createScrollLine,
+    true
+  )
+  f.contentHeader = DF:CreateHeader(f, headerTable, nil, addonName .. "ContentHeader")
   f.contentScrollbox = contentScrollbox
-  addLine({ f.contentHeader }, 0, 0)
+  addLine({f.contentHeader}, 0, 0)
   contentScrollbox:SetPoint("TOPLEFT", f.contentHeader, "BOTTOMLEFT")
   contentScrollbox.ScrollBar.scrollStep = 60
   DF:ReskinSlider(contentScrollbox)
-  contentScrollbox.ScrollBar.ScrollUpButton.Highlight:ClearAllPoints(false);
-  contentScrollbox.ScrollBar.ScrollDownButton.Highlight:ClearAllPoints(false);
+  contentScrollbox.ScrollBar.ScrollUpButton.Highlight:ClearAllPoints(false)
+  contentScrollbox.ScrollBar.ScrollDownButton.Highlight:ClearAllPoints(false)
 
   local noPacksContainer = CreateFrame("Frame", nil, f)
   noPacksContainer:SetSize(width, height)

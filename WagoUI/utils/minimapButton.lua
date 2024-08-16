@@ -31,35 +31,41 @@ function addon:HideCompartmentButton()
   -- update the checkbox in settings
 end
 
-local LDB = LibStub("LibDataBroker-1.1"):NewDataObject(addonName, {
-  type = "data source",
-  text = addonName,
-  icon = "Interface\\AddOns\\"..addonName.."\\media\\wagoLogo512",
-  OnClick = function(button, buttonPressed)
-    if buttonPressed == "RightButton" then
-      if addon.db.minimap.lock then
-        minimapIcon:Unlock(addonName)
+local LDB =
+  LibStub("LibDataBroker-1.1"):NewDataObject(
+  addonName,
+  {
+    type = "data source",
+    text = addonName,
+    icon = "Interface\\AddOns\\" .. addonName .. "\\media\\wagoLogo512",
+    OnClick = function(button, buttonPressed)
+      if buttonPressed == "RightButton" then
+        if addon.db.minimap.lock then
+          minimapIcon:Unlock(addonName)
+        else
+          minimapIcon:Lock(addonName)
+        end
+      elseif (buttonPressed == "MiddleButton") then
+        if addon.db.minimap.hide then
+          addon:ShowMinimapButton()
+        else
+          addon:HideMinimapButton()
+        end
       else
-        minimapIcon:Lock(addonName)
+        addon:ToggleFrame()
       end
-    elseif (buttonPressed == 'MiddleButton') then
-      if addon.db.minimap.hide then
-        addon:ShowMinimapButton()
-      else
-        addon:HideMinimapButton()
+    end,
+    OnTooltipShow = function(tooltip)
+      if not tooltip or not tooltip.AddLine then
+        return
       end
-    else
-      addon:ToggleFrame()
+      tooltip:AddLine("|c" .. addon.color .. addonName .. "|r")
+      tooltip:AddLine(L["Click to toggle AddOn Window"])
+      tooltip:AddLine(L["Right-click to lock Minimap Button"])
+      tooltip:AddLine(L["Middle-click to disable Minimap Button"])
     end
-  end,
-  OnTooltipShow = function(tooltip)
-    if not tooltip or not tooltip.AddLine then return end
-    tooltip:AddLine("|c"..addon.color..addonName.."|r")
-    tooltip:AddLine(L["Click to toggle AddOn Window"])
-    tooltip:AddLine(L["Right-click to lock Minimap Button"])
-    tooltip:AddLine(L["Middle-click to disable Minimap Button"])
-  end,
-})
+  }
+)
 
 function addon:RegisterMinimapButton()
   minimapIcon:Register(addonName, LDB, addon.db.minimap)

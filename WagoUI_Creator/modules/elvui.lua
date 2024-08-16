@@ -6,7 +6,9 @@ local lapModule = LAP:GetModule(moduleName)
 
 local function dropdownOptions(index)
   local res = {}
-  if not ElvDB then return res end
+  if not ElvDB then
+    return res
+  end
   local profileKeys = lapModule:getProfileKeys()
   local currentProfileKey = lapModule:getCurrentProfileKey()
   return addon.ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKeys, currentProfileKey)
@@ -19,7 +21,7 @@ local moduleConfig = {
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
   copyButtonTooltipText = nil,
-  sortIndex = 4,
+  sortIndex = 4
 }
 
 addon.ModuleFunctions:InsertModuleConfig(moduleConfig)

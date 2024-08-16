@@ -1,10 +1,13 @@
-local _, loadingAddonNamespace = ...;
+local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal();
-if (not private) then return; end
+local private =
+  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then
+  return
+end
 
 local function decodeString(importString)
-  local LibDeflate = LibStub:GetLibrary("LibDeflateAsync");
+  local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
   local Serializer = LibStub:GetLibrary("AceSerializer-3.0Async")
   local _, _, isEcho, module, groupType, encoded = string.find(importString, "^(!ECHO):(.+):(%d+)!(.+)$")
   if isEcho and module == "CD" then
@@ -25,7 +28,7 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Echo Raid Tools",
-  addonNames = { "EchoRaidTools" },
+  addonNames = {"EchoRaidTools"},
   icon = [[Interface\AddOns\EchoRaidTools\assets\textures\ELp3.tga]],
   slash = "/echort",
   needReloadOnImport = false,
@@ -33,46 +36,43 @@ local m = {
   preventRename = false,
   willOverrideProfile = false,
   nonNativeProfileString = false,
-
   isLoaded = function(self)
     local loaded = C_AddOns.IsAddOnLoaded("EchoRaidTools")
     return loaded
   end,
-
   needsInitialization = function(self)
     return false
   end,
-
   openConfig = function(self)
     SlashCmdList["ACECONSOLE_ECHORT"]()
   end,
-
   closeConfig = function(self)
     EchoRaidToolsMainFrame:Hide()
   end,
-
   isDuplicate = function(self, profileKey)
     return true
   end,
-
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
     local _, _, isEcho, module, groupType, encoded = string.find(profileString, "^(!ECHO):(.+):(%d+)!(.+)$")
     return (isEcho and module == "CD" and groupType == "1" or groupType == "2") and "" or nil
   end,
-
   importProfile = function(self, profileString, profileKey, fromIntro)
     EchoCooldowns.importStringExternal(profileString)
   end,
-
   exportGroup = function(self, profileKey)
-    if not profileKey then return end
+    if not profileKey then
+      return
+    end
     return EchoCooldowns.getExportStringForGroupIndex(profileKey)
   end,
-
   exportProfile = function(self, profileKey)
     local groupNames = profileKey
-    if type(groupNames) ~= "table" then return end
-    if not groupNames then return end
+    if type(groupNames) ~= "table" then
+      return
+    end
+    if not groupNames then
+      return
+    end
     local res = {}
     for id, group in pairs(EchoRaidToolsDB.Cooldowns.groups) do
       if groupNames[group.name] then
@@ -84,7 +84,6 @@ local m = {
     end
     return res
   end,
-
   areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
     local allEqual = true
     local changedEntries = {}
@@ -126,7 +125,7 @@ local m = {
     end
 
     return allEqual, changedEntries, removedEntries
-  end,
+  end
 }
 
 private.modules[m.moduleName] = m

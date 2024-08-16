@@ -4,7 +4,8 @@ local addon = select(2, ...)
 addon.L = {}
 local L = addon.L
 
-L["noBuiltInProfileTextImport"] = "%s has no built-in profile text import.\nCopy a string that can be imported with UIManager"
+L["noBuiltInProfileTextImport"] =
+  "%s has no built-in profile text import.\nCopy a string that can be imported with UIManager"
 L["Open an issue on GitHub"] = "Open an issue on GitHub"
 L["Provide feedback in Discord"] = "Provide feedback in Discord"
 L["copiedToClipboard"] = "Copied!"
@@ -33,9 +34,13 @@ L["Reset?"] = "Reset?"
 L["Export done!"] = "Export done!"
 L["Preparing export string..."] = "Preparing export string..."
 L["Manage"] = "Manage"
-L["Choose which resolutions you want the UI pack to support. You can provide a separate profile for each resolution and AddOn."] = "Choose which resolutions you want the UI pack to support. You can provide a separate profile for each resolution and AddOn."
+L[
+    "Choose which resolutions you want the UI pack to support. You can provide a separate profile for each resolution and AddOn."
+  ] =
+  "Choose which resolutions you want the UI pack to support. You can provide a separate profile for each resolution and AddOn."
 L["Enable this resolution"] = "Enable this resolution"
-L["exportExplainerLabel"] = "All chosen profiles for all enabled resolutions will be exported and saved. After a reload a new update can be pushed via the WagoApp."
+L["exportExplainerLabel"] =
+  "All chosen profiles for all enabled resolutions will be exported and saved. After a reload a new update can be pushed via the WagoApp."
 L["Save All Profiles"] = "Save All Profiles"
 L["Profile to Save"] = "Profile to Save"
 L["Drag and drop\nto add WeakAuras"] = "Drag and drop\nto add WeakAuras"
@@ -53,27 +58,32 @@ L["Updated / Added"] = "Updated / Added"
 L["Removed"] = "Removed"
 L["Save and Reload"] = "Save and Reload"
 L["Okay"] = "Okay"
-L["wagoSettingsExplainer"] = "These settings help provide users with information about your UI Pack.\nRemember that the settings are per resolution."
+L["wagoSettingsExplainer"] =
+  "These settings help provide users with information about your UI Pack.\nRemember that the settings are per resolution."
 L["wagoSettingsSpecs"] = "Select the specs that your UI Pack is supporting"
 L["Purge Wago IDs for exports"] = "Purge Wago IDs for exports"
 L["Create Pack"] = "Create Pack"
 L["Delete"] = "Delete"
 L["Exporting..."] = "Exporting..."
 L["Marked for Export"] = "Marked for Export"
-L["exportButtonWarning"] = "Directly export the selected profile and make it available to copy to the clipboard.\nWARNING: This does not save the profile to disk or update the UI pack."
+L["exportButtonWarning"] =
+  "Directly export the selected profile and make it available to copy to the clipboard.\nWARNING: This does not save the profile to disk or update the UI pack."
 L["nonNativeExportLabel"] = "(*)"
-L["nonNativeExportTooltip"] = "*This AddOn does not natively provide profile import / export. The profile string will only be compatible with WagoUI"
+L["nonNativeExportTooltip"] =
+  "*This AddOn does not natively provide profile import / export. The profile string will only be compatible with WagoUI"
 L["copied!"] = "copied!"
 L["Cancel"] = "Cancel"
 L["Pack name:"] = "Pack name:"
-L["autoReleaseNotesExplanation"] = "These are auto generated release notes in Markdown format. Feel free to edit them.\nThe notes show up when users install or update your UI Pack."
-L["Continue the upload through the Wago App after the reload!"] = "Continue the upload through the Wago App after the reload!"
+L["autoReleaseNotesExplanation"] =
+  "These are auto generated release notes in Markdown format. Feel free to edit them.\nThe notes show up when users install or update your UI Pack."
+L["Continue the upload through the Wago App after the reload!"] =
+  "Continue the upload through the Wago App after the reload!"
 L["Any Resolution"] = "Any Resolution"
 L["Any"] = "Any"
 L["Enable debug mode"] = "Enable debug mode"
 L["Name too short"] = "Name too short"
 L["Name already exists"] = "Name already exists"
-L["AddOn disabled - click to enable"]  = "AddOn disabled - click to enable"
+L["AddOn disabled - click to enable"] = "AddOn disabled - click to enable"
 L["Not Installed"] = "Not Installed"
 L["Enabled after reload"] = "Enabled after reload"
 L["RELOAD_HINT"] = "Click to reload the UI"

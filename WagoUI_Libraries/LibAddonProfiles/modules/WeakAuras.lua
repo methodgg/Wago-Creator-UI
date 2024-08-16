@@ -1,33 +1,38 @@
-local _, loadingAddonNamespace = ...;
+local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal();
-if (not private) then return; end
+local private =
+  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then
+  return
+end
 
 local function decodeWeakAuraString(importString)
   local Serializer = LibStub:GetLibrary("AceSerializer-3.0Async")
-  local LibDeflate = LibStub:GetLibrary("LibDeflateAsync");
+  local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
 
-  local _, _, encodeVersion, encoded = importString:find("^(!WA:%d+!)(.+)$");
+  local _, _, encodeVersion, encoded = importString:find("^(!WA:%d+!)(.+)$")
   if (encodeVersion) then
-    encodeVersion = tonumber(encodeVersion:match("%d+"));
+    encodeVersion = tonumber(encodeVersion:match("%d+"))
   else
-    encoded, encodeVersion = importString:gsub("^%!", "");
+    encoded, encodeVersion = importString:gsub("^%!", "")
   end
 
   if (encoded) then
-    local decoded = LibDeflate:DecodeForPrint(encoded);
-    if not decoded then return end
-    local decompressed = LibDeflate:DecompressDeflate(decoded);
-    local _, deserialized;
-    if (encodeVersion == 2) then
-      deserialized = private:LibSerializeDeserializeAsync(decompressed);
-    else
-      _, deserialized = Serializer:Deserialize(decompressed);
+    local decoded = LibDeflate:DecodeForPrint(encoded)
+    if not decoded then
+      return
     end
-    return deserialized;
+    local decompressed = LibDeflate:DecompressDeflate(decoded)
+    local _, deserialized
+    if (encodeVersion == 2) then
+      deserialized = private:LibSerializeDeserializeAsync(decompressed)
+    else
+      _, deserialized = Serializer:Deserialize(decompressed)
+    end
+    return deserialized
   end
 
-  return nil;
+  return nil
 end
 
 local function stripNonTransmissableFields(datum, fieldMap)
@@ -49,14 +54,14 @@ local function CompressDisplay(data, version)
     local trigger, untrigger = triggerData.trigger, triggerData.untrigger
 
     if (trigger and trigger.type ~= "custom") then
-      trigger.custom = nil;
-      trigger.customDuration = nil;
-      trigger.customName = nil;
-      trigger.customIcon = nil;
-      trigger.customTexture = nil;
-      trigger.customStacks = nil;
+      trigger.custom = nil
+      trigger.customDuration = nil
+      trigger.customName = nil
+      trigger.customIcon = nil
+      trigger.customTexture = nil
+      trigger.customStacks = nil
       if (untrigger) then
-        untrigger.custom = nil;
+        untrigger.custom = nil
       end
     end
   end
@@ -84,23 +89,78 @@ local function CompressDisplay(data, version)
   }
 
   local copiedData = CopyTable(data)
-  local non_transmissable_fields = version >= 2000 and p_non_transmissable_fields_v2000
-      or p_non_transmissable_fields
+  local non_transmissable_fields = version >= 2000 and p_non_transmissable_fields_v2000 or p_non_transmissable_fields
   stripNonTransmissableFields(copiedData, non_transmissable_fields)
   copiedData.tocversion = WeakAuras.BuildInfo
-  return copiedData;
+  return copiedData
 end
 
 ---@format disable-next
 local bytetoB64 = {
-  [0]="a","b","c","d","e","f","g","h",
-  "i","j","k","l","m","n","o","p",
-  "q","r","s","t","u","v","w","x",
-  "y","z","A","B","C","D","E","F",
-  "G","H","I","J","K","L","M","N",
-  "O","P","Q","R","S","T","U","V",
-  "W","X","Y","Z","0","1","2","3",
-  "4","5","6","7","8","9","(",")"
+  [0] = "a",
+  "b",
+  "c",
+  "d",
+  "e",
+  "f",
+  "g",
+  "h",
+  "i",
+  "j",
+  "k",
+  "l",
+  "m",
+  "n",
+  "o",
+  "p",
+  "q",
+  "r",
+  "s",
+  "t",
+  "u",
+  "v",
+  "w",
+  "x",
+  "y",
+  "z",
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "I",
+  "J",
+  "K",
+  "L",
+  "M",
+  "N",
+  "O",
+  "P",
+  "Q",
+  "R",
+  "S",
+  "T",
+  "U",
+  "V",
+  "W",
+  "X",
+  "Y",
+  "Z",
+  "0",
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "(",
+  ")"
 }
 
 local function GenerateUniqueID()
@@ -149,18 +209,18 @@ function PTraverseSubGroups(data)
   return coroutine.wrap(TraverseSubGroups), data
 end
 
-local configForDeflate = { level = 5 }
+local configForDeflate = {level = 5}
 local configForLS = {
   errorOnUnserializableType = false
 }
 ---@param inTable table
 ---@return string
 function TableToString(inTable)
-  local LibDeflate = LibStub:GetLibrary("LibDeflateAsync");
+  local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
   local serialized = private:LibSerializeSerializeAsyncEx(configForLS, inTable)
   local compressed = LibDeflate:CompressDeflate(serialized, configForDeflate)
   local encoded = "!WA:2!"
-  encoded = encoded..LibDeflate:EncodeForPrint(compressed)
+  encoded = encoded .. LibDeflate:EncodeForPrint(compressed)
   return encoded
 end
 
@@ -176,7 +236,7 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "WeakAuras",
-  addonNames = { "WeakAuras", "WeakAurasArchive", "WeakAurasModelPaths", "WeakAurasOptions", "WeakAurasTemplates" },
+  addonNames = {"WeakAuras", "WeakAurasArchive", "WeakAurasModelPaths", "WeakAurasOptions", "WeakAurasTemplates"},
   icon = [[Interface\AddOns\WeakAuras\Media\Textures\icon]],
   slash = "/wa",
   needReloadOnImport = false,
@@ -184,41 +244,35 @@ local m = {
   preventRename = false,
   willOverrideProfile = false,
   nonNativeProfileString = false,
-
   isLoaded = function(self)
     return WeakAuras and true or false
   end,
-
   needsInitialization = function(self)
     return false
   end,
-
   openConfig = function(self)
     SlashCmdList["WEAKAURAS"]("")
   end,
-
   closeConfig = function(self)
     WeakAurasOptions:Hide()
   end,
-
   isDuplicate = function(self, profileKey)
     return false
   end,
-
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    local data = decodeWeakAuraString(profileString);
+    local data = decodeWeakAuraString(profileString)
     if (data and data.d) then
       return data
     end
   end,
-
   importProfile = function(self, profileString, profileKey, fromIntro)
-    local data = decodeWeakAuraString(profileString);
-    WeakAuras.Import(data);
+    local data = decodeWeakAuraString(profileString)
+    WeakAuras.Import(data)
   end,
-
   exportProfile = function(self, profileKey)
-    if type(profileKey) ~= "table" then return end
+    if type(profileKey) ~= "table" then
+      return
+    end
     local displayIds = profileKey
     local exportStrings = {}
     for id in pairs(displayIds) do
@@ -229,20 +283,17 @@ local m = {
     end
     return exportStrings
   end,
-
   exportOptions = {
     purgeWago = false
   },
-
   setExportOptions = function(self, options)
     for k, v in pairs(options) do
       self.exportOptions[k] = v
     end
   end,
-
   exportGroup = function(self, profileKey)
     local id = profileKey
-    local data = WeakAuras.GetData(id);
+    local data = WeakAuras.GetData(id)
 
     if (data) then
       data.uid = data.uid or GenerateUniqueID()
@@ -250,17 +301,17 @@ local m = {
       local version = 1421
       for child in PTraverseSubGroups(data) do
         version = 2000
-        break;
+        break
       end
-      local transmitData = CompressDisplay(data, version);
+      local transmitData = CompressDisplay(data, version)
       local transmit = {
         m = "d",
         d = transmitData,
         v = version,
         s = WeakAuras.versionString
-      };
+      }
       if (data.controlledChildren) then
-        transmit.c = {};
+        transmit.c = {}
         local uids = {}
         local index = 1
         for child in PTraverseAllChildren(data) do
@@ -273,7 +324,7 @@ local m = {
           else
             child.uid = GenerateUniqueID()
           end
-          transmit.c[index] = CompressDisplay(child, version);
+          transmit.c[index] = CompressDisplay(child, version)
           index = index + 1
           coroutine.yield()
         end
@@ -286,12 +337,11 @@ local m = {
           end
         end
       end
-      return TableToString(transmit);
+      return TableToString(transmit)
     else
-      return nil;
+      return nil
     end
   end,
-
   areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
     local allEqual = true
     local changedEntries = {}
@@ -333,7 +383,7 @@ local m = {
     end
 
     return allEqual, changedEntries, removedEntries
-  end,
+  end
 }
 
 private.modules[m.moduleName] = m

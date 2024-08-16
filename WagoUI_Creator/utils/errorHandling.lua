@@ -45,9 +45,13 @@ end
 local hasShown = false
 
 function addon:DisplayErrors(force)
-  if not force and hasShown then return end
+  if not force and hasShown then
+    return
+  end
   hasShown = true
-  if #caughtErrors == 0 then return end
+  if #caughtErrors == 0 then
+    return
+  end
 
   local function startCopyAction(editBox, copyButton, text)
     editBox:HighlightText(0, string.len(text))
@@ -65,7 +69,7 @@ function addon:DisplayErrors(force)
   local errorBoxText = ""
   if not addon.errorFrame then
     addon.errorFrame = AceGUI:Create("Frame")
-    local errorFrameName = addonName.."ErrorFrame"
+    local errorFrameName = addonName .. "ErrorFrame"
     ---@diagnostic disable-next-line: invisible
     _G[errorFrameName] = addon.errorFrame.frame
     table.insert(UISpecialFrames, errorFrameName)
@@ -75,46 +79,62 @@ function addon:DisplayErrors(force)
     errorFrame:SetHeight(600)
     errorFrame:EnableResize(false)
     errorFrame:SetLayout("Flow")
-    errorFrame:SetCallback("OnClose", function(widget) end)
+    errorFrame:SetCallback(
+      "OnClose",
+      function(widget)
+      end
+    )
     errorFrame:SetTitle(L["Addon Error"])
     errorFrame.label = AceGUI:Create("Label")
     errorFrame.label:SetWidth(800)
     errorFrame.label:SetFontObject("GameFontNormalLarge")
     errorFrame.label.label:SetTextColor(1, 0, 0)
-    errorFrame.label:SetText(L["Error Label 1"].."\n"..L["Error Label 2"].."\n"..L["Error Label 3"])
+    errorFrame.label:SetText(L["Error Label 1"] .. "\n" .. L["Error Label 2"] .. "\n" .. L["Error Label 3"])
     errorFrame:AddChild(errorFrame.label)
 
     for _, dest in ipairs(addon.externalLinks) do
-      errorFrame[dest.name.."EditBox"] = AceGUI:Create("EditBox")
-      local editBox = errorFrame[dest.name.."EditBox"]
+      errorFrame[dest.name .. "EditBox"] = AceGUI:Create("EditBox")
+      local editBox = errorFrame[dest.name .. "EditBox"]
       local copyButton
-      editBox:SetLabel(dest.name..":")
+      editBox:SetLabel(dest.name .. ":")
       editBox:DisableButton(true)
       editBox:SetText(dest.url)
-      editBox:SetCallback("OnTextChanged", function()
-        editBox:SetText(dest.url)
-      end)
+      editBox:SetCallback(
+        "OnTextChanged",
+        function()
+          editBox:SetText(dest.url)
+        end
+      )
 
       editBox:SetWidth(400)
-      editBox.editbox:HookScript('OnEditFocusLost', function()
-        stopCopyAction(copyButton)
-      end)
-      editBox.editbox:SetScript('OnKeyUp', function(_, key)
-        if (addon.copyHelper:WasControlKeyDown() and key == 'C') then
-          ---@diagnostic disable-next-line: invisible
-          addon.copyHelper:SmartFadeOut(nil, "copied!", addon.errorFrame.frame, 0, 0)
-          editBox:ClearFocus()
-        else
-          addon.copyHelper:SmartHide()
+      editBox.editbox:HookScript(
+        "OnEditFocusLost",
+        function()
+          stopCopyAction(copyButton)
         end
-      end)
-      errorFrame[dest.name.."CopyButton"] = AceGUI:Create("Button")
-      copyButton = errorFrame[dest.name.."CopyButton"]
+      )
+      editBox.editbox:SetScript(
+        "OnKeyUp",
+        function(_, key)
+          if (addon.copyHelper:WasControlKeyDown() and key == "C") then
+            ---@diagnostic disable-next-line: invisible
+            addon.copyHelper:SmartFadeOut(nil, "copied!", addon.errorFrame.frame, 0, 0)
+            editBox:ClearFocus()
+          else
+            addon.copyHelper:SmartHide()
+          end
+        end
+      )
+      errorFrame[dest.name .. "CopyButton"] = AceGUI:Create("Button")
+      copyButton = errorFrame[dest.name .. "CopyButton"]
       copyButton:SetText(L["Copy"])
       copyButton:SetWidth(100)
-      copyButton:SetCallback("OnClick", function(widget, callbackName, value)
-        startCopyAction(editBox, copyButton, dest.url)
-      end)
+      copyButton:SetCallback(
+        "OnClick",
+        function(widget, callbackName, value)
+          startCopyAction(editBox, copyButton, dest.url)
+        end
+      )
       errorFrame:AddChild(editBox)
       errorFrame:AddChild(copyButton)
     end
@@ -123,54 +143,69 @@ function addon:DisplayErrors(force)
     errorFrame.errorBox = AceGUI:Create("MultiLineEditBox")
     errorBox = errorFrame.errorBox
     errorBox:SetWidth(800)
-    errorBox:SetLabel(L["Error Message"]..":")
+    errorBox:SetLabel(L["Error Message"] .. ":")
     errorBox:DisableButton(true)
     errorBox:SetNumLines(20)
-    errorBox:SetCallback("OnTextChanged", function()
-      errorBox:SetText(errorBoxText)
-    end)
-    errorBox.editBox:HookScript('OnEditFocusLost', function()
-      stopCopyAction(errorBoxCopyButton)
-    end)
-    errorBox.editBox:SetScript('OnKeyUp', function(_, key)
-      if (addon.copyHelper:WasControlKeyDown() and key == 'C') then
-        ---@diagnostic disable-next-line: invisible
-        addon.copyHelper:SmartFadeOut(nil, "copied!", addon.errorFrame.frame, 0, 0)
-        errorBox:ClearFocus()
-      else
-        addon.copyHelper:SmartHide()
+    errorBox:SetCallback(
+      "OnTextChanged",
+      function()
+        errorBox:SetText(errorBoxText)
       end
-    end)
+    )
+    errorBox.editBox:HookScript(
+      "OnEditFocusLost",
+      function()
+        stopCopyAction(errorBoxCopyButton)
+      end
+    )
+    errorBox.editBox:SetScript(
+      "OnKeyUp",
+      function(_, key)
+        if (addon.copyHelper:WasControlKeyDown() and key == "C") then
+          ---@diagnostic disable-next-line: invisible
+          addon.copyHelper:SmartFadeOut(nil, "copied!", addon.errorFrame.frame, 0, 0)
+          errorBox:ClearFocus()
+        else
+          addon.copyHelper:SmartHide()
+        end
+      end
+    )
 
     errorFrame.errorBoxCopyButton = AceGUI:Create("Button")
     errorBoxCopyButton = errorFrame.errorBoxCopyButton
     errorBoxCopyButton:SetText(L["Copy error"])
     errorBoxCopyButton:SetHeight(40)
-    errorBoxCopyButton:SetCallback("OnClick", function(widget, callbackName, value)
-      startCopyAction(errorFrame.errorBox, errorBoxCopyButton, errorBoxText)
-    end)
+    errorBoxCopyButton:SetCallback(
+      "OnClick",
+      function(widget, callbackName, value)
+        startCopyAction(errorFrame.errorBox, errorBoxCopyButton, errorBoxText)
+      end
+    )
 
     errorFrame:AddChild(errorFrame.errorBox)
     errorFrame:AddChild(errorFrame.errorBoxCopyButton)
   end
 
   for _, error in ipairs(caughtErrors) do
-    errorBoxText = errorBoxText..error.count.."x: "..error.message.."\n"
+    errorBoxText = errorBoxText .. error.count .. "x: " .. error.message .. "\n"
   end
   --add diagnostics
   local diagnostics = getDiagnostics()
-  errorBoxText = errorBoxText..
-      "\n"..
-      diagnostics.dateString..
-      "\naddon: "..
-      diagnostics.addonVersion..
-      "\nClient: "..
-      diagnostics.gameVersion..
-      " "..diagnostics.locale.."\nCharacter: "..diagnostics.name.."-"..diagnostics.realm.." ("..diagnostics.region..")"
-  errorBoxText = errorBoxText.."\n"..diagnostics.combatState.."\n"..diagnostics.zoneInfo.."\n"
-  errorBoxText = errorBoxText.."\nStacktraces\n\n"
+  errorBoxText =
+    errorBoxText ..
+    "\n" ..
+      diagnostics.dateString ..
+        "\naddon: " ..
+          diagnostics.addonVersion ..
+            "\nClient: " ..
+              diagnostics.gameVersion ..
+                " " ..
+                  diagnostics.locale ..
+                    "\nCharacter: " .. diagnostics.name .. "-" .. diagnostics.realm .. " (" .. diagnostics.region .. ")"
+  errorBoxText = errorBoxText .. "\n" .. diagnostics.combatState .. "\n" .. diagnostics.zoneInfo .. "\n"
+  errorBoxText = errorBoxText .. "\nStacktraces\n\n"
   for _, error in ipairs(caughtErrors) do
-    errorBoxText = errorBoxText..error.stackTrace.."\n"
+    errorBoxText = errorBoxText .. error.stackTrace .. "\n"
   end
 
   addon.errorFrame.errorBox:SetText(errorBoxText)
@@ -183,7 +218,7 @@ local addTrace = false
 local function onError(msg, stackTrace, name)
   numError = numError + 1
   local funcName = name or currentFunc
-  local e = funcName..": "..msg
+  local e = funcName .. ": " .. msg
   -- return early on duplicate errors
   for _, error in pairs(caughtErrors) do
     if error.message == e then
@@ -192,18 +227,26 @@ local function onError(msg, stackTrace, name)
       return false
     end
   end
-  local stackTraceValue = stackTrace and name..":\n"..stackTrace
-  table.insert(caughtErrors, { message = e, stackTrace = stackTraceValue, count = 1 })
+  local stackTraceValue = stackTrace and name .. ":\n" .. stackTrace
+  table.insert(caughtErrors, {message = e, stackTrace = stackTraceValue, count = 1})
   addTrace = true
   local diagnostics = getDiagnostics()
-  local diagnosticString = diagnostics.dateString..
-      "\naddon: "..
-      diagnostics.addonVersion.."\nClient: "..diagnostics.gameVersion.." "..diagnostics.locale.."\n"..diagnostics.region
+  local diagnosticString =
+    diagnostics.dateString ..
+    "\naddon: " ..
+      diagnostics.addonVersion ..
+        "\nClient: " .. diagnostics.gameVersion .. " " .. diagnostics.locale .. "\n" .. diagnostics.region
   -- addon.WagoAnalytics:Error(e..diagnosticString)
-  if addon.errorTimer then addon.errorTimer:Cancel() end
-  addon.errorTimer = C_Timer.NewTimer(0.5, function()
-    addon:DisplayErrors(true)
-  end)
+  if addon.errorTimer then
+    addon.errorTimer:Cancel()
+  end
+  addon.errorTimer =
+    C_Timer.NewTimer(
+    0.5,
+    function()
+      addon:DisplayErrors(true)
+    end
+  )
   --if spam erroring then show errors early otherwise risk error display never showing
   if numError > 100 then
     addon:DisplayErrors(true)
@@ -221,31 +264,35 @@ function addon:GetErrors()
 end
 
 function addon:TestErrorHandling()
-  addon:Async(function()
-    addon:NonExistingFunctionFromAsync()
-  end, 'asyncErrorTest')
+  addon:Async(
+    function()
+      addon:NonExistingFunctionFromAsync()
+    end,
+    "asyncErrorTest"
+  )
   addon:NonExistingFunction()
 end
 
 function addon:RegisterErrorHandledFunctions()
   --register all functions except the ones that have to run as coroutines
   local blacklisted = {
-    ["exampleCoroutineFuncName"] = true,
+    ["exampleCoroutineFuncName"] = true
   }
   local tablesToAdd = {
-    addon, addon.ModuleFunctions
+    addon,
+    addon.ModuleFunctions
   }
   for k, table in pairs(tablesToAdd) do
     for funcName, func in pairs(table) do
       if type(func) == "function" and not blacklisted[funcName] then
         table[funcName] = function(...)
           currentFunc = funcName
-          local results = { xpcall(func, onError, ...) }
+          local results = {xpcall(func, onError, ...)}
           local ok = select(1, unpack(results))
           if not ok then
             if addTrace then
               --add stackTrace to the latest error
-              caughtErrors[#caughtErrors].stackTrace = currentFunc..":\n"..debugstack()
+              caughtErrors[#caughtErrors].stackTrace = currentFunc .. ":\n" .. debugstack()
             end
             return
           end

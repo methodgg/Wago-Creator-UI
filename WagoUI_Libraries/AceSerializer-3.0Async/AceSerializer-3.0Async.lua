@@ -14,7 +14,9 @@
 local MAJOR, MINOR = "AceSerializer-3.0Async", 5
 local AceSerializer, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 
-if not AceSerializer then return end
+if not AceSerializer then
+  return
+end
 
 -- Lua APIs
 local strbyte, strchar, gsub, gmatch, format = string.byte, string.char, string.gsub, string.gmatch, string.format
@@ -26,21 +28,20 @@ local tconcat = table.concat
 -- quick copies of string representations of wonky numbers
 local inf = math.huge
 
-local serNaN -- can't do this in 4.3, see ace3 ticket 268
+local serNaN  -- can't do this in 4.3, see ace3 ticket 268
 local serInf, serInfMac = "1.#INF", "inf"
 local serNegInf, serNegInfMac = "-1.#INF", "-inf"
-
 
 -- Serialization functions
 
 local function SerializeStringHelper(ch) -- Used by SerializeValue for strings
   -- We use \126 ("~") as an escape character for all nonprints plus a few more
   local n = strbyte(ch)
-  if n == 30 then      -- v3 / ticket 115: catch a nonprint that ends up being "~^" when encoded... DOH
+  if n == 30 then -- v3 / ticket 115: catch a nonprint that ends up being "~^" when encoded... DOH
     return "\126\122"
-  elseif n <= 32 then  -- nonprint + space
-    return "\126"..strchar(n + 64)
-  elseif n == 94 then  -- value separator
+  elseif n <= 32 then -- nonprint + space
+    return "\126" .. strchar(n + 64)
+  elseif n == 94 then -- value separator
     return "\126\125"
   elseif n == 126 then -- our own escape character
     return "\126\124"
@@ -76,7 +77,7 @@ local function SerializeValue(v, res, nres)
       res[nres + 1] = "^F"
       res[nres + 2] = format("%.0f", m * 2 ^ 53) -- force mantissa to become integer (it's originally 0.5--0.9999)
       res[nres + 3] = "^f"
-      res[nres + 4] = tostring(e - 53)           -- adjust exponent to counteract mantissa manipulation
+      res[nres + 4] = tostring(e - 53) -- adjust exponent to counteract mantissa manipulation
       nres = nres + 4
     end
   elseif t == "table" then -- ^T...^t = table (list of key,value pairs)
@@ -91,23 +92,21 @@ local function SerializeValue(v, res, nres)
   elseif t == "boolean" then -- ^B = true, ^b = false
     nres = nres + 1
     if v then
-      res[nres] = "^B"   -- true
+      res[nres] = "^B" -- true
     else
-      res[nres] = "^b"   -- false
+      res[nres] = "^b" -- false
     end
   elseif t == "nil" then -- ^Z = nil (zero, "N" was taken :P)
     nres = nres + 1
     res[nres] = "^Z"
   else
-    error(MAJOR..": Cannot serialize a value of type '"..t.."'") -- can't produce error on right level, this is wildly recursive
+    error(MAJOR .. ": Cannot serialize a value of type '" .. t .. "'") -- can't produce error on right level, this is wildly recursive
   end
 
   return nres
 end
 
-
-
-local serializeTbl = { "^1" } -- "^1" = Hi, I'm data serialized by AceSerializer protocol rev 1
+local serializeTbl = {"^1"} -- "^1" = Hi, I'm data serialized by AceSerializer protocol rev 1
 
 --- Serialize the data passed into the function.
 -- Takes a list of values (strings, numbers, booleans, nils, tables)
@@ -141,7 +140,7 @@ local function DeserializeStringHelper(escape)
   elseif escape == "~\125" then
     return "\94"
   end
-  error("DeserializeStringHelper got called for '"..escape.."'?!?") -- can't be reached unless regex is screwed up
+  error("DeserializeStringHelper got called for '" .. escape .. "'?!?") -- can't be reached unless regex is screwed up
 end
 
 local function DeserializeNumberHelper(number)
@@ -187,18 +186,20 @@ local function DeserializeValue(iter, single, ctl, data)
   elseif ctl == "^N" then
     res = DeserializeNumberHelper(data)
     if not res then
-      error("Invalid serialized number: '"..tostring(data).."'")
+      error("Invalid serialized number: '" .. tostring(data) .. "'")
     end
   elseif ctl == "^F" then -- ^F<mantissa>^f<exponent>
     local ctl2, e = iter()
     if ctl2 ~= "^f" then
-      error("Invalid serialized floating-point number, expected '^f', not '"..tostring(ctl2).."'")
+      error("Invalid serialized floating-point number, expected '^f', not '" .. tostring(ctl2) .. "'")
     end
     local m = tonumber(data)
     e = tonumber(e)
     if not (m and e) then
-      error("Invalid serialized floating-point number, expected mantissa and exponent, got '"..
-        tostring(m).."' and '"..tostring(e).."'")
+      error(
+        "Invalid serialized floating-point number, expected mantissa and exponent, got '" ..
+          tostring(m) .. "' and '" .. tostring(e) .. "'"
+      )
     end
     res = m * (2 ^ e)
   elseif ctl == "^B" then -- yeah yeah ignore data portion
@@ -213,7 +214,9 @@ local function DeserializeValue(iter, single, ctl, data)
     local k, v
     while true do
       ctl, data = iter()
-      if ctl == "^t" then break end -- ignore ^t's data
+      if ctl == "^t" then
+        break
+      end -- ignore ^t's data
       k = DeserializeValue(iter, true, ctl, data)
       if k == nil then
         error("Invalid AceSerializer table format (no table end marker)")
@@ -226,7 +229,7 @@ local function DeserializeValue(iter, single, ctl, data)
       res[k] = v
     end
   else
-    error("Invalid AceSerializer control code '"..ctl.."'")
+    error("Invalid AceSerializer control code '" .. ctl .. "'")
   end
 
   if not single then
@@ -241,7 +244,7 @@ end
 -- @param str The serialized data (from :Serialize)
 -- @return true followed by a list of values, OR false followed by an error message
 function AceSerializer:Deserialize(str)
-  str = gsub(str, "[%c ]", "")            -- ignore all control characters; nice for embedding in email and stuff
+  str = gsub(str, "[%c ]", "") -- ignore all control characters; nice for embedding in email and stuff
 
   local iter = gmatch(str, "(^.)([^^]*)") -- Any ^x followed by string of non-^
   local ctl, data = iter()
@@ -257,14 +260,15 @@ end
 -- Base library stuff
 ----------------------------------------
 
-AceSerializer.internals = { -- for test scripts
+AceSerializer.internals = {
+  -- for test scripts
   SerializeValue = SerializeValue,
-  SerializeStringHelper = SerializeStringHelper,
+  SerializeStringHelper = SerializeStringHelper
 }
 
 local mixins = {
   "Serialize",
-  "Deserialize",
+  "Deserialize"
 }
 
 AceSerializer.embeds = AceSerializer.embeds or {}

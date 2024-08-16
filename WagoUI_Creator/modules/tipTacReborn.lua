@@ -6,7 +6,9 @@ local lapModule = LAP:GetModule(moduleName)
 
 local function dropdownOptions(index)
   local res = {}
-  if not TipTac_Config then return res end
+  if not TipTac_Config then
+    return res
+  end
   local profileKeys = lapModule:getProfileKeys()
   local currentProfileKey = lapModule:getCurrentProfileKey()
   return addon.ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKeys, currentProfileKey)
@@ -18,7 +20,7 @@ local moduleConfig = {
   lapModule = lapModule,
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
-  sortIndex = 19,
+  sortIndex = 19
 }
 
 addon.ModuleFunctions:InsertModuleConfig(moduleConfig)

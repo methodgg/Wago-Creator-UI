@@ -1,12 +1,15 @@
-local loadingAddonName, loadingAddonNamespace = ...;
+local loadingAddonName, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal();
-if (not private) then return; end
+local private =
+  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then
+  return
+end
 
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Talent Loadouts Ex",
-  addonNames = { "TalentLoadoutsEx" },
+  addonNames = {"TalentLoadoutsEx"},
   icon = 134063,
   slash = "/run ToggleTalentFrame()",
   needReloadOnImport = false,
@@ -14,41 +17,40 @@ local m = {
   preventRename = true,
   willOverrideProfile = false,
   nonNativeProfileString = false,
-
   isLoaded = function(self)
     return TalentLoadoutsEx and true or false
   end,
-
   needsInitialization = function(self)
     return false
   end,
-
   openConfig = function(self)
     --has nothing, it's the talent frame
   end,
-
   closeConfig = function(self)
-
   end,
-
-
   isDuplicate = function(self, profileKey)
     return false
   end,
-
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if not profileString then return end
+    if not profileString then
+      return
+    end
     if profileData and profileData.TalentLoadoutsEx then
       return profileData.TalentLoadoutsEx --return the data here as we use it in import
     end
   end,
-
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString or not profileKey then return end
-    if type(profileKey) ~= "table" then return end
+    if not profileString or not profileKey then
+      return
+    end
+    if type(profileKey) ~= "table" then
+      return
+    end
     local importFilter = profileKey
     local pKey, data = private:GenericDecode(profileString)
-    if not data or not pKey then return end
+    if not data or not pKey then
+      return
+    end
     --have to sanitize loadout names, user might have duplicates
     --get all user loadout names
     local allLoadoutNames = {}
@@ -67,7 +69,7 @@ local m = {
         if importFilter[class][specIdx] then
           for loadoutName, loadoutCode in pairs(loadouts) do
             if allLoadoutNames[loadoutName] then
-              loadoutName = string.sub(string.sub(pKey, 1, 1)..adjustedLoadoutIdx.." "..loadoutName, 1, 12)
+              loadoutName = string.sub(string.sub(pKey, 1, 1) .. adjustedLoadoutIdx .. " " .. loadoutName, 1, 12)
               adjustedLoadoutIdx = adjustedLoadoutIdx + 1
             end
             TalentLoadoutsEx[class] = TalentLoadoutsEx[class] or {}
@@ -86,24 +88,30 @@ local m = {
             TalentLoadoutsExGUI[class][specIdx] = TalentLoadoutsExGUI[class][specIdx] or {}
             local loadoutName = loadout.name
             if allLoadoutNames[loadoutName] then
-              loadoutName = string.sub(string.sub(pKey, 1, 1)..adjustedLoadoutIdx.." "..loadoutName, 1, 12)
+              loadoutName = string.sub(string.sub(pKey, 1, 1) .. adjustedLoadoutIdx .. " " .. loadoutName, 1, 12)
               adjustedLoadoutIdx = adjustedLoadoutIdx + 1
             end
-            table.insert(TalentLoadoutsExGUI[class][specIdx], {
-              icon = loadout.icon,
-              name = loadoutName,
-            })
+            table.insert(
+              TalentLoadoutsExGUI[class][specIdx],
+              {
+                icon = loadout.icon,
+                name = loadoutName
+              }
+            )
           end
         end
       end
     end
     TLX.Frame.RequestUpdate()
   end,
-
   exportProfile = function(self, profileKey)
-    if type(profileKey) ~= "table" then return end
+    if type(profileKey) ~= "table" then
+      return
+    end
     local config = profileKey
-    if not config then return end
+    if not config then
+      return
+    end
     local data = {
       TalentLoadoutsEx = {},
       TalentLoadoutsExGUI = {}
@@ -127,14 +135,17 @@ local m = {
     local name = UnitName("player")
     return private:GenericEncode(name or "TLE", data, self.moduleName)
   end,
-
   areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
-    if not profileStringA or not profileStringB then return false end
+    if not profileStringA or not profileStringB then
+      return false
+    end
     local _, profileDataA = private:GenericDecode(profileStringA)
     local _, profileDataB = private:GenericDecode(profileStringB)
-    if not profileDataA or not profileDataB then return false end
+    if not profileDataA or not profileDataB then
+      return false
+    end
     return private:DeepCompareAsync(profileDataA, profileDataB)
-  end,
+  end
 }
 
 private.modules[m.moduleName] = m

@@ -17,7 +17,7 @@ local onShow = function()
 end
 
 function addon:CreateExpertFrame(f)
-  local expertFrame = CreateFrame("Frame", addonName.."ExpertFrame", f)
+  local expertFrame = CreateFrame("Frame", addonName .. "ExpertFrame", f)
   expertFrame:SetPoint("TOPLEFT", f, "TOPLEFT", 0, -10)
   expertFrame:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", 0, 0)
   expertFrame:Hide()
@@ -46,8 +46,9 @@ function addon:CreateExpertFrame(f)
     totalHeight = totalHeight + maxHeight + yGap - yOffset
   end
 
-
-  local wagoDataDropdownFunc = function() return addon:GetWagoDataForDropdown() end
+  local wagoDataDropdownFunc = function()
+    return addon:GetWagoDataForDropdown()
+  end
   uiPackDropdown = LWF:CreateDropdown(expertFrame, 250, 40, 16, 1.2, wagoDataDropdownFunc)
   if not db.selectedWagoData then
     uiPackDropdown:NoOptionSelected()
@@ -55,7 +56,9 @@ function addon:CreateExpertFrame(f)
     uiPackDropdown:Select(db.selectedWagoData)
   end
 
-  local resolutionDropdownFunc = function() return addon:GetResolutionsForDropdown() end
+  local resolutionDropdownFunc = function()
+    return addon:GetResolutionsForDropdown()
+  end
   resolutionDropdown = LWF:CreateDropdown(expertFrame, 180, 40, 16, 1.2, resolutionDropdownFunc)
   if not db.selectedWagoDataResolution then
     if resolutionDropdown.func()[1] and resolutionDropdown.func()[1].value then
@@ -69,12 +72,14 @@ function addon:CreateExpertFrame(f)
   end
 
   function addon:RefreshResolutionDropdown()
-    resolutionDropdown:Refresh()                             --update the dropdown options
+    resolutionDropdown:Refresh() --update the dropdown options
     resolutionDropdown:Close()
     resolutionDropdown:Select(db.selectedWagoDataResolution) --selected profile could have been renamed, need to refresh like this
     local values = {}
-    for _, v in pairs(resolutionDropdown.func()) do          --if the selected profile got deleted
-      if v.value then values[v.value] = true end
+    for _, v in pairs(resolutionDropdown.func()) do --if the selected profile got deleted
+      if v.value then
+        values[v.value] = true
+      end
     end
     if not db.selectedWagoDataResolution or not values[db.selectedWagoDataResolution] then
       --pick first one
@@ -89,21 +94,25 @@ function addon:CreateExpertFrame(f)
   end
 
   local introButton = LWF:CreateButton(expertFrame, 100, 40, L["Intro"], 16)
-  introButton:SetClickFunction(function()
-    addon.frames.introFrame:Show()
-    addon.frames.expertFrame:Hide()
-    addon.db.introEnabled = true
-  end);
+  introButton:SetClickFunction(
+    function()
+      addon.frames.introFrame:Show()
+      addon.frames.expertFrame:Hide()
+      addon.db.introEnabled = true
+    end
+  )
 
   local altButton = LWF:CreateButton(expertFrame, 160, 40, L["Alt Character"], 16)
   if not addon.db.anyInstalled then
     altButton:Disable()
   end
-  altButton:SetClickFunction(function()
-    addon:SetAltFrameHeaderText(L["altFrameHeader3"])
-    addon.frames.altFrame:Show()
-    addon.frames.expertFrame:Hide()
-  end);
+  altButton:SetClickFunction(
+    function()
+      addon:SetAltFrameHeaderText(L["altFrameHeader3"])
+      addon.frames.altFrame:Show()
+      addon.frames.expertFrame:Hide()
+    end
+  )
 
   -- TODO: An update all button is not really possible
   -- some modules require user input to continue importing/updating (WA / EchoRT)
@@ -117,12 +126,12 @@ function addon:CreateExpertFrame(f)
   -- end);
   -- f.updateAllButton = updateAllButton
 
-  addLine({ uiPackDropdown, resolutionDropdown, introButton, altButton --[[, updateAllButton ]] }, 0, 0)
+  addLine({uiPackDropdown, resolutionDropdown, introButton, altButton --[[, updateAllButton ]]}, 0, 0)
 
   db.selectedWagoDataTab = db.selectedWagoDataTab or 1
   local profileTabButton = LWF:CreateTabButton(expertFrame, (frameWidth / 2) - 2, 40, L["Profiles"], 16)
   local weakaurasTabButton = LWF:CreateTabButton(expertFrame, (frameWidth / 2) - 2, 40, L["WeakAuras"], 16)
-  addLine({ profileTabButton, weakaurasTabButton }, 0, 0, 0, 0)
+  addLine({profileTabButton, weakaurasTabButton}, 0, 0, 0, 0)
 
   local profileList = addon:CreateProfileList(expertFrame, frameWidth, frameHeight - totalHeight + 4)
 
@@ -136,14 +145,17 @@ function addon:CreateExpertFrame(f)
           end
         end
         --sort disabled modules to bottom, alphabetically afterwards
-        table.sort(filtered, function(a, b)
-          local orderA = (a.lap:isLoaded() or a.lap:needsInitialization()) and 1 or 0
-          local orderB = (b.lap:isLoaded() or b.lap:needsInitialization()) and 1 or 0
-          if orderA == orderB then
-            return a.moduleName < b.moduleName
+        table.sort(
+          filtered,
+          function(a, b)
+            local orderA = (a.lap:isLoaded() or a.lap:needsInitialization()) and 1 or 0
+            local orderB = (b.lap:isLoaded() or b.lap:needsInitialization()) and 1 or 0
+            if orderA == orderB then
+              return a.moduleName < b.moduleName
+            end
+            return orderA > orderB
           end
-          return orderA > orderB
-        end)
+        )
       end
       if db.selectedWagoDataTab == 2 then
         for _, entry in ipairs(data) do
@@ -152,14 +164,17 @@ function addon:CreateExpertFrame(f)
           end
         end
         --sort weakauras on top, alphabetically afterwards
-        table.sort(filtered, function(a, b)
-          local orderA = a.moduleName == "WeakAuras" and 1 or 0
-          local orderB = b.moduleName == "WeakAuras" and 1 or 0
-          if orderA == orderB then
-            return a.entryName < b.entryName
+        table.sort(
+          filtered,
+          function(a, b)
+            local orderA = a.moduleName == "WeakAuras" and 1 or 0
+            local orderB = b.moduleName == "WeakAuras" and 1 or 0
+            if orderA == orderB then
+              return a.entryName < b.entryName
+            end
+            return orderA > orderB
           end
-          return orderA > orderB
-        end)
+        )
       end
     end
     profileList.updateData(filtered)
@@ -171,9 +186,9 @@ function addon:CreateExpertFrame(f)
     db.selectedWagoDataTab = tabIndex
     addon:UpdateRegisteredDataConsumers()
   end
-  LWF:CreateTabStructure({ profileTabButton, weakaurasTabButton }, tabFunction, db.selectedWagoDataTab)
+  LWF:CreateTabStructure({profileTabButton, weakaurasTabButton}, tabFunction, db.selectedWagoDataTab)
 
-  addLine({ profileList.header }, 0, 0)
+  addLine({profileList.header}, 0, 0)
 
   expertFrame:SetScript("OnShow", onShow)
 end

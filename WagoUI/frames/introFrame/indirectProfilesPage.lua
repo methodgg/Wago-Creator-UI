@@ -1,6 +1,6 @@
 ---@class WagoUI
 local addon = select(2, ...)
-local DF = _G["DetailsFramework"];
+local DF = _G["DetailsFramework"]
 local L = addon.L
 
 local pageName = "IndirectProfilesPage"
@@ -13,10 +13,10 @@ end
 local function createPage()
   local page = addon:CreatePageProtoType(pageName)
 
-  local header = DF:CreateLabel(page, "Indirect Profiles", 38, "white");
+  local header = DF:CreateLabel(page, "Indirect Profiles", 38, "white")
   header:SetWidth(page:GetWidth() - 10)
   header:SetJustifyH("CENTER")
-  header:SetPoint("TOP", page, "TOP", 0, -100);
+  header:SetPoint("TOP", page, "TOP", 0, -100)
 
   page:SetScript("OnShow", onShow)
   return page

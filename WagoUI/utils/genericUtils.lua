@@ -4,11 +4,11 @@ local addonName = ...
 local addon = select(2, ...)
 
 function addon:AddonPrint(...)
-  print("|c"..addon.color..addonName.."|r:", tostringall(...));
+  print("|c" .. addon.color .. addonName .. "|r:", tostringall(...))
 end
 
 function addon:AddonPrintError(...)
-  print("|c"..addon.color..addonName.."|r|cffff9117:|r", tostringall(...));
+  print("|c" .. addon.color .. addonName .. "|r|cffff9117:|r", tostringall(...))
 end
 
 do

@@ -19,7 +19,7 @@ local function findMatchingModule(profileString)
   local genericPKey, genericProfile, genericRaw, genericModuleName = LAP:GenericDecode(profileString)
   for moduleName, lapModule in pairs(lapModules) do
     if lapModule.testImport then
-      feedbackString = feedbackString.."Testing import string for "..moduleName.."...\n"
+      feedbackString = feedbackString .. "Testing import string for " .. moduleName .. "...\n"
       importFrame.editbox:SetText(feedbackString)
       local profileKey = lapModule:testImport(profileString, genericPKey, genericProfile, genericRaw, genericModuleName)
       coroutine.yield()
@@ -68,18 +68,25 @@ local function onSuccessfulTest(moduleName, lapModule, profileKey, profileString
   importFrame.editbox:SetText(feedbackString)
 
   local icon = importFrame.icon
-  if isLoaded then icon:Enable() else icon:Disable() end
+  if isLoaded then
+    icon:Enable()
+  else
+    icon:Disable()
+  end
   icon:Show()
   icon:SetTexture(lapModule.icon)
   icon:SetPushedTexture(lapModule.icon)
   icon:SetDisabledTexture(lapModule.icon)
   icon:SetHighlightAtlas(lapModule.slash and "bags-glow-white" or "")
-  icon:SetTooltip(lapModule.slash and "Click to open "..lapModule.moduleName.." options" or nil)
-  icon:SetScript("OnClick", function()
-    if lapModule.slash then
-      addon:FireUnprotectedSlashCommand(lapModule.slash)
+  icon:SetTooltip(lapModule.slash and "Click to open " .. lapModule.moduleName .. " options" or nil)
+  icon:SetScript(
+    "OnClick",
+    function()
+      if lapModule.slash then
+        addon:FireUnprotectedSlashCommand(lapModule.slash)
+      end
     end
-  end)
+  )
 
   local confirmButton = importFrame.confirmButton
   if isLoaded then
@@ -90,43 +97,48 @@ local function onSuccessfulTest(moduleName, lapModule, profileKey, profileString
     confirmButton:SetText("Not Loaded")
   end
   confirmButton:Show()
-  confirmButton:SetClickFunction(function(self)
-    self:Disable()
-    addon:Async(function()
-      local tempProfileKey = profileKey
-      if lapModule.needProfileKey or isDuplicate and not lapModule.preventRename then
-        tempProfileKey = importFrame.profileNameInput:GetText()
-      end
+  confirmButton:SetClickFunction(
+    function(self)
+      self:Disable()
+      addon:Async(
+        function()
+          local tempProfileKey = profileKey
+          if lapModule.needProfileKey or isDuplicate and not lapModule.preventRename then
+            tempProfileKey = importFrame.profileNameInput:GetText()
+          end
 
-      local importClickCallback = function()
-        lapModule:importProfile(profileString, tempProfileKey, false)
-        feedbackString = string.format("\n\n|cFF00FF00Profile %s successfully imported into %s|r", tempProfileKey,
-          moduleName)
-        if lapModule.needReloadOnImport then
-          feedbackString = feedbackString.."\n\n|cFFFFFF00You need to reload your UI for the changes to take effect|r"
-        end
-        importFrame.editbox:SetText(feedbackString)
-        --editmode hides all frames in UISpecialFrames
-        if moduleName == "EditMode" then
-          addon:ShowFrame()
-          importFrame:Show()
-        end
-      end
-      importClickCallback()
-    end, "importFrameConfirmButtonClick")
-  end)
-
+          local importClickCallback = function()
+            lapModule:importProfile(profileString, tempProfileKey, false)
+            feedbackString =
+              string.format("\n\n|cFF00FF00Profile %s successfully imported into %s|r", tempProfileKey, moduleName)
+            if lapModule.needReloadOnImport then
+              feedbackString =
+                feedbackString .. "\n\n|cFFFFFF00You need to reload your UI for the changes to take effect|r"
+            end
+            importFrame.editbox:SetText(feedbackString)
+            --editmode hides all frames in UISpecialFrames
+            if moduleName == "EditMode" then
+              addon:ShowFrame()
+              importFrame:Show()
+            end
+          end
+          importClickCallback()
+        end,
+        "importFrameConfirmButtonClick"
+      )
+    end
+  )
 
   if isDuplicate then
-    feedbackString = feedbackString..
-        string.format(
-          "\n\n|cFFFF0000A profile with name '%s' already exists|r",
-          profileKey)
+    feedbackString =
+      feedbackString .. string.format("\n\n|cFFFF0000A profile with name '%s' already exists|r", profileKey)
     importFrame.editbox:SetText(feedbackString)
   end
 
   if lapModule.needProfileKey or (isDuplicate and not lapModule.preventRename) then
-    if not isDuplicate then confirmButton:Disable() end
+    if not isDuplicate then
+      confirmButton:Disable()
+    end
     importFrame.profileNameLabel:Show()
     importFrame.profileNameInput:Show()
     importFrame.profileNameInput:SetText(profileKey)
@@ -138,7 +150,7 @@ local function onSuccessfulTest(moduleName, lapModule, profileKey, profileString
     importFrame.profileNameLabel:Hide()
     importFrame.profileNameInput:Hide()
     local profileKeyLabel = importFrame.profileKeyLabel
-    profileKeyLabel:SetText(profileKey ~= "" and moduleName..": "..profileKey or "")
+    profileKeyLabel:SetText(profileKey ~= "" and moduleName .. ": " .. profileKey or "")
     profileKeyLabel:Show()
   end
 end
@@ -176,28 +188,40 @@ local function createImportFrame()
   profileKeyLabel:Hide()
   importFrame.profileKeyLabel = profileKeyLabel
 
-  local profileNameInput = LWF:CreateTextEntry(importFrame, 200, 20, function() end)
+  local profileNameInput =
+    LWF:CreateTextEntry(
+    importFrame,
+    200,
+    20,
+    function()
+    end
+  )
   profileNameInput:SetPoint("LEFT", confirmButton, "RIGHT", 10, 0)
   profileNameInput:Hide()
-  profileNameInput:SetScript("OnTextChanged", function(self, isUserInput)
-    if isUserInput then
-      local text = self:GetText()
-      if text and string.len(text) >= 2 then
-        confirmButton:Enable()
-      else
-        confirmButton:Disable()
+  profileNameInput:SetScript(
+    "OnTextChanged",
+    function(self, isUserInput)
+      if isUserInput then
+        local text = self:GetText()
+        if text and string.len(text) >= 2 then
+          confirmButton:Enable()
+        else
+          confirmButton:Disable()
+        end
       end
     end
-  end)
-  profileNameInput:HookScript("OnEnterPressed", function(self)
-    if confirmButton:IsEnabled() then
-      confirmButton:Click()
+  )
+  profileNameInput:HookScript(
+    "OnEnterPressed",
+    function(self)
+      if confirmButton:IsEnabled() then
+        confirmButton:Click()
+      end
     end
-  end)
+  )
   importFrame.profileNameInput = profileNameInput
 
-  local profileNameLabel = DF:CreateLabel(importFrame, "Profile Name:",
-    DF:GetTemplate("font", "ORANGE_FONT_TEMPLATE"))
+  local profileNameLabel = DF:CreateLabel(importFrame, "Profile Name:", DF:GetTemplate("font", "ORANGE_FONT_TEMPLATE"))
   profileNameLabel:SetPoint("bottomleft", profileNameInput, "topleft", 0, 2)
   profileNameLabel:Hide()
   importFrame.profileNameLabel = profileNameLabel
@@ -205,7 +229,7 @@ local function createImportFrame()
   local pasteBuffer, pasteCharCount, isPasting = {}, 0, false
 
   local function clearBuffer(self)
-    self:SetScript('OnUpdate', nil)
+    self:SetScript("OnUpdate", nil)
     editbox:SetMaxBytes(IMPORT_EXPORT_EDIT_MAX_BYTES)
     isPasting = false
     importFrame.icon:Hide()
@@ -215,50 +239,63 @@ local function createImportFrame()
     importFrame.profileNameLabel:Hide()
     if pasteCharCount > 10 then
       local profileString = strtrim(table.concat(pasteBuffer))
-      addon:Async(function()
-        editbox:Disable()
-        editbox:ClearFocus()
-        instructionLabel:Hide()
-        feedbackString = ""
-        editbox:SetText(string.sub(profileString, 1, 2000))
-        local moduleName, module, profileKey = testImport(profileString)
-        if moduleName and module and profileKey then
-          --TODO: No idea why profileKey would not match the type here
-          ---@diagnostic disable-next-line: param-type-mismatch
-          onSuccessfulTest(moduleName, module, profileKey, profileString)
-        else
-          feedbackString = "\n|cFFFF0000Profile string is invalid|r"
-          editbox:SetText(feedbackString)
-          editbox:SetFocus()
-        end
-        editbox:Enable()
-      end, "importBoxOnTextChanged")
+      addon:Async(
+        function()
+          editbox:Disable()
+          editbox:ClearFocus()
+          instructionLabel:Hide()
+          feedbackString = ""
+          editbox:SetText(string.sub(profileString, 1, 2000))
+          local moduleName, module, profileKey = testImport(profileString)
+          if moduleName and module and profileKey then
+            --TODO: No idea why profileKey would not match the type here
+            ---@diagnostic disable-next-line: param-type-mismatch
+            onSuccessfulTest(moduleName, module, profileKey, profileString)
+          else
+            feedbackString = "\n|cFFFF0000Profile string is invalid|r"
+            editbox:SetText(feedbackString)
+            editbox:SetFocus()
+          end
+          editbox:Enable()
+        end,
+        "importBoxOnTextChanged"
+      )
     end
   end
 
-  editbox:SetScript('OnChar', function(self, c)
-    if not isPasting then
-      if editbox:GetMaxBytes() ~= 1 then -- ensure this for performance!
-        editbox:SetMaxBytes(1)
+  editbox:SetScript(
+    "OnChar",
+    function(self, c)
+      if not isPasting then
+        if editbox:GetMaxBytes() ~= 1 then -- ensure this for performance!
+          editbox:SetMaxBytes(1)
+        end
+        pasteBuffer, pasteCharCount, isPasting = {}, 0, true
+        self:SetScript("OnUpdate", clearBuffer) -- clearBuffer on next frame
       end
-      pasteBuffer, pasteCharCount, isPasting = {}, 0, true
-      self:SetScript('OnUpdate', clearBuffer) -- clearBuffer on next frame
+      pasteCharCount = pasteCharCount + 1
+      pasteBuffer[pasteCharCount] = c
     end
-    pasteCharCount = pasteCharCount + 1
-    pasteBuffer[pasteCharCount] = c
-  end)
+  )
 
-  editbox:SetScript('OnKeyUp', function(_, key)
-    if key == "ESCAPE" then
-      importFrame:Hide()
+  editbox:SetScript(
+    "OnKeyUp",
+    function(_, key)
+      if key == "ESCAPE" then
+        importFrame:Hide()
+      end
     end
-  end)
+  )
   addon.importFrame = importFrame
 end
 
 function addon:StartProfileImport()
-  if not importFrame then createImportFrame() end
-  if addon.exportFrame then addon.exportFrame.Close:Click() end
+  if not importFrame then
+    createImportFrame()
+  end
+  if addon.exportFrame then
+    addon.exportFrame.Close:Click()
+  end
   importFrame:SetPoint("CENTER", addon.frames.mainFrame, "CENTER")
   importFrame:Show()
   importFrame.editbox:SetText("")

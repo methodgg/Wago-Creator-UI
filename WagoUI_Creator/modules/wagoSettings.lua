@@ -15,8 +15,12 @@ local frameHeight = 450
 local lapModule = {
   moduleName = "UI Pack Settings",
   icon = 4548874,
-  isLoaded = function() return true end,
-  needsInitialization = function() return false end,
+  isLoaded = function()
+    return true
+  end,
+  needsInitialization = function()
+    return false
+  end
 }
 
 local specData = {
@@ -24,7 +28,7 @@ local specData = {
     specs = {
       [1] = 250,
       [2] = 251,
-      [3] = 252,
+      [3] = 252
     },
     dataName = "DEATHKNIGHT",
     displayName = "Death Knight"
@@ -32,7 +36,7 @@ local specData = {
   [2] = {
     specs = {
       [1] = 577,
-      [2] = 581,
+      [2] = 581
     },
     dataName = "DEMONHUNTER",
     displayName = "Demon Hunter"
@@ -42,7 +46,7 @@ local specData = {
       [1] = 102,
       [2] = 103,
       [3] = 104,
-      [4] = 105,
+      [4] = 105
     },
     dataName = "DRUID",
     displayName = "Druid"
@@ -51,7 +55,7 @@ local specData = {
     specs = {
       [1] = 1467,
       [2] = 1468,
-      [3] = 1473,
+      [3] = 1473
     },
     dataName = "EVOKER",
     displayName = "Evoker"
@@ -60,7 +64,7 @@ local specData = {
     specs = {
       [1] = 253,
       [2] = 254,
-      [3] = 255,
+      [3] = 255
     },
     dataName = "HUNTER",
     displayName = "Hunter"
@@ -69,7 +73,7 @@ local specData = {
     specs = {
       [1] = 62,
       [2] = 63,
-      [3] = 64,
+      [3] = 64
     },
     dataName = "MAGE",
     displayName = "Mage"
@@ -78,7 +82,7 @@ local specData = {
     specs = {
       [1] = 268,
       [2] = 269,
-      [3] = 270,
+      [3] = 270
     },
     dataName = "MONK",
     displayName = "Monk"
@@ -87,7 +91,7 @@ local specData = {
     specs = {
       [1] = 65,
       [2] = 66,
-      [3] = 70,
+      [3] = 70
     },
     dataName = "PALADIN",
     displayName = "Paladin"
@@ -96,7 +100,7 @@ local specData = {
     specs = {
       [1] = 256,
       [2] = 257,
-      [3] = 258,
+      [3] = 258
     },
     dataName = "PRIEST",
     displayName = "Priest"
@@ -105,7 +109,7 @@ local specData = {
     specs = {
       [1] = 259,
       [2] = 260,
-      [3] = 261,
+      [3] = 261
     },
     dataName = "ROGUE",
     displayName = "Rogue"
@@ -114,7 +118,7 @@ local specData = {
     specs = {
       [1] = 262,
       [2] = 263,
-      [3] = 264,
+      [3] = 264
     },
     dataName = "SHAMAN",
     displayName = "Shaman"
@@ -123,7 +127,7 @@ local specData = {
     specs = {
       [1] = 265,
       [2] = 266,
-      [3] = 267,
+      [3] = 267
     },
     dataName = "WARLOCK",
     displayName = "Warlock"
@@ -132,7 +136,7 @@ local specData = {
     specs = {
       [1] = 71,
       [2] = 72,
-      [3] = 73,
+      [3] = 73
     },
     dataName = "WARRIOR",
     displayName = "Warrior"
@@ -149,11 +153,13 @@ local function setupDB()
   local currentUIPack = addon:GetCurrentPack()
   currentUIPack.wagoSettings = currentUIPack.wagoSettings or {}
   currentUIPack.wagoSettings[getChosenResolution()] = currentUIPack.wagoSettings[getChosenResolution()] or {}
-  currentUIPack.wagoSettings[getChosenResolution()].enabledSpecs = currentUIPack.wagoSettings
-      [getChosenResolution()].enabledSpecs or {}
+  currentUIPack.wagoSettings[getChosenResolution()].enabledSpecs =
+    currentUIPack.wagoSettings[getChosenResolution()].enabledSpecs or {}
   db = currentUIPack.wagoSettings[getChosenResolution()]
   for _, classData in ipairs(specData) do
-    if not db.enabledSpecs[classData.dataName] then db.enabledSpecs[classData.dataName] = {} end
+    if not db.enabledSpecs[classData.dataName] then
+      db.enabledSpecs[classData.dataName] = {}
+    end
   end
 end
 
@@ -170,18 +176,24 @@ local function createManageFrame()
   manageFrame:SetMouseClickEnabled(true)
   manageFrame:Hide()
   manageFrame.buttons = {}
-  manageFrame.StartMoving = function() end
-  addon.frames.mainFrame:HookScript("OnHide", function()
-    manageFrame:Hide()
-  end)
-  hooksecurefunc(addon, "UpdatePackSelectedUI", function()
-    manageFrame:Hide()
-  end)
+  manageFrame.StartMoving = function()
+  end
+  addon.frames.mainFrame:HookScript(
+    "OnHide",
+    function()
+      manageFrame:Hide()
+    end
+  )
+  hooksecurefunc(
+    addon,
+    "UpdatePackSelectedUI",
+    function()
+      manageFrame:Hide()
+    end
+  )
 
   local enabledSpecsLabel = DF:CreateLabel(manageFrame, "Startup", 16, "white")
-  enabledSpecsLabel:SetText(
-    L["wagoSettingsExplainer"]..
-    "\n\n"..L["wagoSettingsSpecs"])
+  enabledSpecsLabel:SetText(L["wagoSettingsExplainer"] .. "\n\n" .. L["wagoSettingsSpecs"])
   enabledSpecsLabel:SetPoint("TOPLEFT", manageFrame, "TOPLEFT", 12, -30)
 
   local size = 20
@@ -197,51 +209,66 @@ local function createManageFrame()
 
   local function updateSwitchAndLabelVisual(icon, label, text, className, value)
     local colorString = RAID_CLASS_COLORS[className].colorStr
-    local coloredClassOrSpecName = "|c"..
-        ((not value) and "ff777777" or colorString)..text.."|r"
+    local coloredClassOrSpecName = "|c" .. ((not value) and "ff777777" or colorString) .. text .. "|r"
     icon:SetDesaturated(not value)
     label:SetText(coloredClassOrSpecName)
   end
 
   for idx, classData in ipairs(specData) do
-    local classSwitch = LWF:CreateCheckbox(manageFrame, size, function(x, y, value)
-      updateSwitchAndLabelVisual(classIcons[classData.dataName], classLabels[classData.dataName], classData
-        .displayName, classData.dataName, value)
-      for specIdx, specId in ipairs(classData.specs) do
-        db.enabledSpecs[classData.dataName][specIdx] = value
-        specSwitches[specId]:SetValue(value)
-        local _, specName = GetSpecializationInfoByID(specId)
-        updateSwitchAndLabelVisual(specIcons[specId], specLabels[specId], specName,
-          classData.dataName, value)
-      end
-    end, false)
+    local classSwitch =
+      LWF:CreateCheckbox(
+      manageFrame,
+      size,
+      function(x, y, value)
+        updateSwitchAndLabelVisual(
+          classIcons[classData.dataName],
+          classLabels[classData.dataName],
+          classData.displayName,
+          classData.dataName,
+          value
+        )
+        for specIdx, specId in ipairs(classData.specs) do
+          db.enabledSpecs[classData.dataName][specIdx] = value
+          specSwitches[specId]:SetValue(value)
+          local _, specName = GetSpecializationInfoByID(specId)
+          updateSwitchAndLabelVisual(specIcons[specId], specLabels[specId], specName, classData.dataName, value)
+        end
+      end,
+      false
+    )
     classSwitches[classData.dataName] = classSwitch
     local yOffset = -110 + (math.floor((idx - 1) / classesPerRow) * -columnHeight)
     local xOffset = 10 + ((idx - 1) % classesPerRow) * rowWidth
     classSwitch:SetPoint("TOPLEFT", manageFrame, "TOPLEFT", xOffset, yOffset)
 
     local icon = classSwitch:CreateTexture(nil, "ARTWORK")
-    icon:SetTexture("Interface\\ICONS\\ClassIcon_"..classData.dataName)
+    icon:SetTexture("Interface\\ICONS\\ClassIcon_" .. classData.dataName)
     icon:SetSize(size, size)
     icon:SetPoint("LEFT", classSwitch.widget, "RIGHT", 0, 0)
     classIcons[classData.dataName] = icon
 
     local colorString = RAID_CLASS_COLORS[classData.dataName].colorStr
-    local coloredClassName = "|c"..colorString..classData.displayName.."|r"
+    local coloredClassName = "|c" .. colorString .. classData.displayName .. "|r"
     ---@diagnostic disable-next-line: undefined-field
     local classLabel = DF:CreateLabel(manageFrame, coloredClassName, 10, "white")
     classLabel:SetPoint("LEFT", icon, "RIGHT", 0, 0)
     classLabels[classData.dataName] = classLabel
 
     for specIdx, specId in ipairs(classData.specs) do
-      local specSwitch = LWF:CreateCheckbox(manageFrame, size, function(_, _, value)
-        db.enabledSpecs[classData.dataName][specIdx] = value
-        local allSpecsChecked = true
-        for sIdx, _ in ipairs(classData.specs) do
-          allSpecsChecked = allSpecsChecked and db.enabledSpecs[classData.dataName][sIdx]
-        end
-        classSwitch:SetValue(allSpecsChecked)
-      end, false)
+      local specSwitch =
+        LWF:CreateCheckbox(
+        manageFrame,
+        size,
+        function(_, _, value)
+          db.enabledSpecs[classData.dataName][specIdx] = value
+          local allSpecsChecked = true
+          for sIdx, _ in ipairs(classData.specs) do
+            allSpecsChecked = allSpecsChecked and db.enabledSpecs[classData.dataName][sIdx]
+          end
+          classSwitch:SetValue(allSpecsChecked)
+        end,
+        false
+      )
       specSwitches[specId] = specSwitch
       specSwitch:SetPoint("TOPLEFT", manageFrame, "TOPLEFT", xOffset, (-(specIdx * (size + 1))) - 10 + yOffset)
 
@@ -252,8 +279,7 @@ local function createManageFrame()
       specIcon:SetPoint("LEFT", specSwitch.widget, "RIGHT", 0, 0)
       specIcons[specId] = specIcon
 
-
-      local coloredSpecName = "|c"..colorString..specName.."|r"
+      local coloredSpecName = "|c" .. colorString .. specName .. "|r"
       ---@diagnostic disable-next-line: undefined-field
       local specLabel = DF:CreateLabel(manageFrame, coloredSpecName, 10, "white")
       specLabel:SetPoint("LEFT", specIcon, "RIGHT", 0, 0)
@@ -268,16 +294,26 @@ local function createManageFrame()
         classSwitchedValue = classSwitchedValue and db.enabledSpecs[classData.dataName][specIdx]
       end
       classSwitches[classData.dataName]:SetValue(classSwitchedValue)
-      updateSwitchAndLabelVisual(classIcons[classData.dataName], classLabels[classData.dataName], classData.displayName,
+      updateSwitchAndLabelVisual(
+        classIcons[classData.dataName],
+        classLabels[classData.dataName],
+        classData.displayName,
         classData.dataName,
-        classSwitchedValue)
+        classSwitchedValue
+      )
 
       for specIdx, specId in ipairs(classData.specs) do
         local specSwitchedValue = db.enabledSpecs[classData.dataName][specIdx]
         specSwitches[specId]:SetValue(specSwitchedValue)
 
         local _, specName = GetSpecializationInfoByID(specId)
-        updateSwitchAndLabelVisual(specIcons[specId], specLabels[specId], specName, classData.dataName, specSwitchedValue)
+        updateSwitchAndLabelVisual(
+          specIcons[specId],
+          specLabels[specId],
+          specName,
+          classData.dataName,
+          specSwitchedValue
+        )
       end
     end
   end
@@ -285,32 +321,39 @@ local function createManageFrame()
   local toggleAllButton = LWF:CreateButton(manageFrame, 120, 30, L["Toggle All"], 16)
   toggleAllButton:SetPoint("BOTTOMLEFT", manageFrame, "BOTTOMLEFT", 10, 10)
   local allChecked = false
-  toggleAllButton:SetClickFunction(function()
-    allChecked = not allChecked
-    for _, classData in ipairs(specData) do
-      for specIdx, specId in ipairs(classData.specs) do
-        if specSwitches[specId]:IsEnabled() then
-          db.enabledSpecs[classData.dataName][specIdx] = allChecked
-          specSwitches[specId]:SetValue(allChecked)
+  toggleAllButton:SetClickFunction(
+    function()
+      allChecked = not allChecked
+      for _, classData in ipairs(specData) do
+        for specIdx, specId in ipairs(classData.specs) do
+          if specSwitches[specId]:IsEnabled() then
+            db.enabledSpecs[classData.dataName][specIdx] = allChecked
+            specSwitches[specId]:SetValue(allChecked)
+          end
+          local _, specName = GetSpecializationInfoByID(specId)
+          updateSwitchAndLabelVisual(specIcons[specId], specLabels[specId], specName, classData.dataName, allChecked)
         end
-        local _, specName = GetSpecializationInfoByID(specId)
-        updateSwitchAndLabelVisual(specIcons[specId], specLabels[specId], specName,
-          classData.dataName, allChecked)
-      end
-      if classSwitches[classData.dataName]:IsEnabled() then
-        classSwitches[classData.dataName]:SetValue(allChecked)
-        updateSwitchAndLabelVisual(classIcons[classData.dataName], classLabels[classData.dataName], classData
-          .displayName,
-          classData.dataName, allChecked)
+        if classSwitches[classData.dataName]:IsEnabled() then
+          classSwitches[classData.dataName]:SetValue(allChecked)
+          updateSwitchAndLabelVisual(
+            classIcons[classData.dataName],
+            classLabels[classData.dataName],
+            classData.displayName,
+            classData.dataName,
+            allChecked
+          )
+        end
       end
     end
-  end)
+  )
 
   local closeButton = LWF:CreateButton(manageFrame, 120, 30, L["Okay"], 16)
   closeButton:SetPoint("BOTTOMRIGHT", manageFrame, "BOTTOMRIGHT", -10, 10)
-  closeButton:SetClickFunction(function()
-    manageFrame:Hide()
-  end)
+  closeButton:SetClickFunction(
+    function()
+      manageFrame:Hide()
+    end
+  )
 end
 
 local function showManageFrame(anchor)
@@ -329,12 +372,14 @@ end
 local moduleConfig = {
   moduleName = lapModule.moduleName,
   lapModule = lapModule,
-  dropdownOptions = function() return {} end,
+  dropdownOptions = function()
+    return {}
+  end,
   copyFunc = nil,
   copyButtonTooltipText = nil,
   sortIndex = 0,
   hasGroups = true,
-  manageFunc = showManageFrame,
+  manageFunc = showManageFrame
 }
 -- We don't need this at the moment, we use categories on the website instead
 -- addon.ModuleFunctions:InsertModuleConfig(moduleConfig)

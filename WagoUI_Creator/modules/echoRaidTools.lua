@@ -24,14 +24,14 @@ local setGroupExportState = function(resolution, id, value)
 end
 
 local getGroupExportState = function(resolution, id)
-  addon:GetCurrentPack().profileKeys[resolution][moduleName] = addon:GetCurrentPack().profileKeys[resolution]
-      [moduleName] or {}
+  addon:GetCurrentPack().profileKeys[resolution][moduleName] =
+    addon:GetCurrentPack().profileKeys[resolution][moduleName] or {}
   return addon:GetCurrentPack().profileKeys[resolution][moduleName][id]
 end
 
 local scrollBoxData = {
   [1] = {},
-  [2] = {},
+  [2] = {}
 }
 
 local function addToData(i, info)
@@ -47,13 +47,18 @@ local function addToData(i, info)
 end
 
 local function copyExportString(id)
-  addon:Async(function()
-    addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 50, L["Preparing export string..."])
-    local exportString = lapModule:exportGroup(id)
-    addon.copyHelper:Hide()
-    if not exportString then return end
-    addon:TextExport(exportString)
-  end, "copyECHORTExportString")
+  addon:Async(
+    function()
+      addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 50, L["Preparing export string..."])
+      local exportString = lapModule:exportGroup(id)
+      addon.copyHelper:Hide()
+      if not exportString then
+        return
+      end
+      addon:TextExport(exportString)
+    end,
+    "copyECHORTExportString"
+  )
 end
 
 local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
@@ -109,8 +114,8 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
     if not line.SetBackdrop then
       Mixin(line, BackdropTemplateMixin)
     end
-    line:SetBackdrop({ bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true })
-    line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
+    line:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+    line:SetBackdropColor(unpack({.8, .8, .8, 0.3}))
 
     local icon = DF:CreateButton(line, nil, lineHeight, lineHeight, "", nil, nil, 134400, nil, nil, nil, nil)
     icon:SetPoint("left", line, "left", 0, 0)
@@ -122,12 +127,18 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
     nameLabel:SetWordWrap(true)
     nameLabel:SetWidth(scrollBoxWidth - 80)
     nameLabel:SetPoint("left", icon, "right", 2, 0)
-    line:SetScript("OnEnter", function(self)
-      line:SetBackdropColor(unpack({ .8, .8, .8, 0.5 }))
-    end)
-    line:SetScript("OnLeave", function(self)
-      line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
-    end)
+    line:SetScript(
+      "OnEnter",
+      function(self)
+        line:SetBackdropColor(unpack({.8, .8, .8, 0.5}))
+      end
+    )
+    line:SetScript(
+      "OnLeave",
+      function(self)
+        line:SetBackdropColor(unpack({.8, .8, .8, 0.3}))
+      end
+    )
     ---@diagnostic disable-next-line: inject-field
     line.nameLabel = nameLabel
 
@@ -137,65 +148,88 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
       local button = DF:CreateButton(line, nil, lineHeight, lineHeight, "", nil, nil, buttonData.icon)
       button:SetPushedTexture(buttonData.icon)
       button:SetPoint("right", line, "right", -(idx - 1) * lineHeight, 0)
-      button:SetScript("OnClick", function(self)
-        buttonData.onClick(line.info)
-      end)
+      button:SetScript(
+        "OnClick",
+        function(self)
+          buttonData.onClick(line.info)
+        end
+      )
       line.buttons[idx] = button
     end
 
     line:SetMovable(true)
     line:RegisterForDrag("LeftButton")
-    line:SetScript("OnDragStart", function(self)
-      self:SetScript("OnUpdate", function(self)
+    line:SetScript(
+      "OnDragStart",
+      function(self)
+        self:SetScript(
+          "OnUpdate",
+          function(self)
+            local dropRegionIndex = 1
+            for i = 2, #m.scrollBoxes do
+              if m.scrollBoxes[i]:IsMouseOver() then
+                dropRegionIndex = i
+              end
+            end
+            for i = 2, #m.scrollBoxes do
+              if i == dropRegionIndex then
+                m.scrollBoxes[i].ShowHighlight()
+              else
+                m.scrollBoxes[i].HideHighlight()
+              end
+            end
+          end
+        )
+        self:StartMoving()
+      end
+    )
+    line:SetScript(
+      "OnDragStop",
+      function(self)
+        self:SetScript("OnUpdate", nil)
+        self:StopMovingOrSizing()
+        setLinePoints()
         local dropRegionIndex = 1
         for i = 2, #m.scrollBoxes do
+          m.scrollBoxes[i].HideHighlight()
           if m.scrollBoxes[i]:IsMouseOver() then
             dropRegionIndex = i
+            break
           end
         end
-        for i = 2, #m.scrollBoxes do
-          if i == dropRegionIndex then
-            m.scrollBoxes[i].ShowHighlight()
+        if dropRegionIndex ~= scrollBoxIndex then
+          if dropRegionIndex > 1 then
+            local info = line.info
+            addToData(dropRegionIndex, info)
+            if scrollBoxIndex > 1 then
+              m.removeFromData(scrollBoxIndex, info)
+            end
           else
-            m.scrollBoxes[i].HideHighlight()
+            m.removeFromData(scrollBoxIndex, line.info)
           end
         end
-      end)
-      self:StartMoving()
-    end)
-    line:SetScript("OnDragStop", function(self)
-      self:SetScript("OnUpdate", nil)
-      self:StopMovingOrSizing()
-      setLinePoints()
-      local dropRegionIndex = 1
-      for i = 2, #m.scrollBoxes do
-        m.scrollBoxes[i].HideHighlight()
-        if m.scrollBoxes[i]:IsMouseOver() then
-          dropRegionIndex = i
-          break
-        end
       end
-      if dropRegionIndex ~= scrollBoxIndex then
-        if dropRegionIndex > 1 then
-          local info = line.info
-          addToData(dropRegionIndex, info)
-          if scrollBoxIndex > 1 then
-            m.removeFromData(scrollBoxIndex, info)
-          end
-        else
-          m.removeFromData(scrollBoxIndex, line.info)
-        end
-      end
-    end)
+    )
 
     return line
   end
 
-  local groupsScrollBox = DF:CreateScrollBox(frame, nil, scrollBoxUpdate, {},
-    scrollBoxWidth, scrollBoxHeight, 0, lineHeight, createScrollLine, true)
+  local groupsScrollBox =
+    DF:CreateScrollBox(
+    frame,
+    nil,
+    scrollBoxUpdate,
+    {},
+    scrollBoxWidth,
+    scrollBoxHeight,
+    0,
+    lineHeight,
+    createScrollLine,
+    true
+  )
   DF:ReskinSlider(groupsScrollBox)
-  groupsScrollBox.ScrollBar.ScrollUpButton.Highlight:ClearAllPoints(false);
-  groupsScrollBox.ScrollBar.ScrollDownButton.Highlight:ClearAllPoints(false);
+  groupsScrollBox.ScrollBar.ScrollUpButton.Highlight:ClearAllPoints(false)
+  groupsScrollBox.ScrollBar.ScrollDownButton.Highlight:ClearAllPoints(false)
 
   groupsScrollBox.ShowHighlight = function()
     groupsScrollBox:SetBackdropColor(.8, .8, .8, 0.5)
@@ -226,14 +260,23 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
       widget.previousNumData = #filtered
     end
     -- it still breaks in some cases, but this is the best I can do for now
-    groupsScrollBox:SetData(filtered)           --fix scroll height reflecting the data
-    groupsScrollBox:OnVerticalScroll(0)         --scroll to the top
-    groupsScrollBox:Refresh()                   --update the data displayed
-    if widget then widget.widget:SetFocus() end --regain focus
+    groupsScrollBox:SetData(filtered) --fix scroll height reflecting the data
+    groupsScrollBox:OnVerticalScroll(0) --scroll to the top
+    groupsScrollBox:Refresh() --update the data displayed
+    if widget then
+      widget.widget:SetFocus()
+    end --regain focus
   end
   groupsScrollBox.onSearchBoxTextChanged = onSearchBoxTextChanged
 
-  local searchBox = LWF:CreateTextEntry(groupsScrollBox, scrollBoxWidth, 20, function() end)
+  local searchBox =
+    LWF:CreateTextEntry(
+    groupsScrollBox,
+    scrollBoxWidth,
+    20,
+    function()
+    end
+  )
   searchBox:SetPoint("bottomleft", groupsScrollBox, "topleft", 0, 2)
   groupsScrollBox.searchBox = searchBox
 
@@ -248,7 +291,7 @@ end
 local function createManageFrame(w, h)
   ---@diagnostic disable-next-line: undefined-field
   local panelOptions = {
-    DontRightClickClose = true,
+    DontRightClickClose = true
   }
   m = DF:CreateSimplePanel(UIParent, w, h, "", nil, panelOptions)
   ---@diagnostic disable-next-line: undefined-field
@@ -262,7 +305,8 @@ local function createManageFrame(w, h)
   m:SetTitle(L["Echo Raid Tools Export Settings"])
   m:Hide()
   m.buttons = {}
-  m.StartMoving = function() end
+  m.StartMoving = function()
+  end
 
   m.scrollBoxes = {}
 
@@ -279,8 +323,7 @@ local function createManageFrame(w, h)
   m.removeFromData = removeFromData
 
   local buttonConfigs = {
-    [1] = {
-    },
+    [1] = {},
     [2] = {
       [1] = {
         icon = 4200126,
@@ -293,8 +336,8 @@ local function createManageFrame(w, h)
         onClick = function(info)
           copyExportString(info.id)
         end
-      },
-    },
+      }
+    }
   }
 
   for idx, buttonConfig in ipairs(buttonConfigs) do
@@ -307,22 +350,32 @@ local function createManageFrame(w, h)
   end
 
   local okayButton = LWF:CreateButton(m, 200, 40, L["Okay"], 16)
-  okayButton:SetClickFunction(function()
-    m:Hide()
-  end)
-  okayButton:SetScript("OnEnter", function(self)
-    okayButton.button:SetBackdropBorderColor(1, 1, 1, 1)
-  end)
-  okayButton:SetScript("OnLeave", function(self)
-    okayButton.button:SetBackdropBorderColor(1, 1, 1, 0)
-  end)
+  okayButton:SetClickFunction(
+    function()
+      m:Hide()
+    end
+  )
+  okayButton:SetScript(
+    "OnEnter",
+    function(self)
+      okayButton.button:SetBackdropBorderColor(1, 1, 1, 1)
+    end
+  )
+  okayButton:SetScript(
+    "OnLeave",
+    function(self)
+      okayButton.button:SetBackdropBorderColor(1, 1, 1, 0)
+    end
+  )
   okayButton:SetPoint("BOTTOM", m, "BOTTOM", 0, 20)
 
   return m
 end
 
 local function showManageFrame(anchor)
-  if not m then m = createManageFrame(frameWidth, frameHeight) end
+  if not m then
+    m = createManageFrame(frameWidth, frameHeight)
+  end
   wipe(scrollBoxData[1])
   wipe(scrollBoxData[2])
   for id, group in pairs(EchoRaidToolsDB.Cooldowns.groups) do
@@ -363,7 +416,7 @@ local moduleConfig = {
   sortIndex = 12,
   hasGroups = true,
   manageFunc = showManageFrame,
-  onSuccessfulTestOverride = onSuccessfulTestOverride,
+  onSuccessfulTestOverride = onSuccessfulTestOverride
 }
 
 addon.ModuleFunctions:InsertModuleConfig(moduleConfig)

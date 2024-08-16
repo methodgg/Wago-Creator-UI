@@ -18,7 +18,7 @@ local moduleConfig = {
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
   copyButtonTooltipText = nil,
-  sortIndex = 1,
+  sortIndex = 1
 }
 
 addon.ModuleFunctions:InsertModuleConfig(moduleConfig)

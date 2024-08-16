@@ -3,11 +3,15 @@
 local MAJOR, MINOR = "LibWagoFramework", 1
 ---@class LibWagoFramework
 local LibWagoFramework, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
-if not LibWagoFramework then return end
-local DF = _G["DetailsFramework"];
-if not DF then return end
+if not LibWagoFramework then
+  return
+end
+local DF = _G["DetailsFramework"]
+if not DF then
+  return
+end
 
-local odt = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE");
+local odt = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
 
 ---@param frame Frame
 function LibWagoFramework:ScaleFrameByResolution(frame)
@@ -30,23 +34,32 @@ end
 ---@param fontSize number
 ---@return table
 function LibWagoFramework:CreateButton(parent, width, height, text, fontSize)
-  local button = DF:CreateButton(parent, nil, width, height, text, nil, nil, nil, nil, nil, nil, odt);
-  button:SetScript("OnEnter", function(self)
-    button.button:SetBackdropBorderColor(1, 1, 1, 1)
-    button:ShowTooltip()
-  end)
-  button:SetScript("OnLeave", function(self)
-    button.button:SetBackdropBorderColor(0, 0, 0, 1)
-    button:HideTooltip()
-  end)
+  local button = DF:CreateButton(parent, nil, width, height, text, nil, nil, nil, nil, nil, nil, odt)
+  button:SetScript(
+    "OnEnter",
+    function(self)
+      button.button:SetBackdropBorderColor(1, 1, 1, 1)
+      button:ShowTooltip()
+    end
+  )
+  button:SetScript(
+    "OnLeave",
+    function(self)
+      button.button:SetBackdropBorderColor(0, 0, 0, 1)
+      button:HideTooltip()
+    end
+  )
   button.button:SetBackdropBorderColor(0, 0, 0, 1)
   button:SetBackdropColor(1, 1, 1, 0.7)
-  button.text_overlay:SetFont(button.text_overlay:GetFont(), fontSize);
+  button.text_overlay:SetFont(button.text_overlay:GetFont(), fontSize)
   -- the default text alignment is off, so we need to adjust it
   -- TODO: there is still issues with this, won' fix for now
-  button:HookScript("OnMouseUp", function()
-    button.button.text:SetPoint("center", button.button, "center", 0, -2)
-  end)
+  button:HookScript(
+    "OnMouseUp",
+    function()
+      button.button.text:SetPoint("center", button.button, "center", 0, -2)
+    end
+  )
   return button
 end
 
@@ -62,14 +75,20 @@ function LibWagoFramework:CreateDropdown(parent, width, height, fontSize, frameS
   local dropdown = DF:CreateDropDown(parent, dropdownFunc, nil, width, height, nil, nil, odt)
   dropdown:SetBackdropColor(1, 1, 1, 0.7)
   dropdown:SetBackdropBorderColor(0, 0, 0, 1)
-  dropdown:SetScript("OnEnter", function(self)
-    dropdown:SetBackdropColor(1, 1, 1, 0.7)
-    dropdown:SetBackdropBorderColor(1, 1, 1, 1)
-  end)
-  dropdown:SetScript("OnLeave", function(self)
-    dropdown:SetBackdropColor(1, 1, 1, 0.7)
-    dropdown:SetBackdropBorderColor(0, 0, 0, 1)
-  end)
+  dropdown:SetScript(
+    "OnEnter",
+    function(self)
+      dropdown:SetBackdropColor(1, 1, 1, 0.7)
+      dropdown:SetBackdropBorderColor(1, 1, 1, 1)
+    end
+  )
+  dropdown:SetScript(
+    "OnLeave",
+    function(self)
+      dropdown:SetBackdropColor(1, 1, 1, 0.7)
+      dropdown:SetBackdropBorderColor(0, 0, 0, 1)
+    end
+  )
   if fontSize then
     dropdown.dropdown.text:SetFont(dropdown.dropdown.text:GetFont(), fontSize)
   end
@@ -87,16 +106,22 @@ end
 function LibWagoFramework:CreateTabButton(parent, width, height, text, fontSize)
   local button = LibWagoFramework:CreateButton(parent, width, height, text, fontSize)
   button.disabled_overlay:SetDrawLayer("BORDER")
-  button:SetScript("OnEnter", function(self)
-    button.button:SetBackdropBorderColor(1, 1, 1, 1)
-    button.disabled_overlay:Hide()
-  end)
-  button:SetScript("OnLeave", function(self)
-    button.button:SetBackdropBorderColor(0, 0, 0, 1)
-    if button:IsEnabled() then
-      button.disabled_overlay:Show()
+  button:SetScript(
+    "OnEnter",
+    function(self)
+      button.button:SetBackdropBorderColor(1, 1, 1, 1)
+      button.disabled_overlay:Hide()
     end
-  end)
+  )
+  button:SetScript(
+    "OnLeave",
+    function(self)
+      button.button:SetBackdropBorderColor(0, 0, 0, 1)
+      if button:IsEnabled() then
+        button.disabled_overlay:Show()
+      end
+    end
+  )
   return button
 end
 
@@ -106,18 +131,20 @@ end
 ---@param defaultTab number
 function LibWagoFramework:CreateTabStructure(buttons, tabFunction, defaultTab)
   for i, button in ipairs(buttons) do
-    button:SetClickFunction(function()
-      for j, b in ipairs(buttons) do
-        if i == j then
-          b:Disable()
-          b.disabled_overlay:Hide()
-        else
-          b:Enable()
-          b.disabled_overlay:Show()
+    button:SetClickFunction(
+      function()
+        for j, b in ipairs(buttons) do
+          if i == j then
+            b:Disable()
+            b.disabled_overlay:Hide()
+          else
+            b:Enable()
+            b.disabled_overlay:Show()
+          end
         end
+        tabFunction(i)
       end
-      tabFunction(i)
-    end)
+    )
     if i == defaultTab then
       button:Disable()
       button.disabled_overlay:Hide()
@@ -135,16 +162,21 @@ end
 ---@param text string
 ---@return table
 function LibWagoFramework:CreateBigChoiceButton(parent, text)
-  local button = DF:CreateButton(parent, nil, 250, 80, text, nil, nil, nil, nil, nil, nil,
-    odt);
+  local button = DF:CreateButton(parent, nil, 250, 80, text, nil, nil, nil, nil, nil, nil, odt)
   button:SetBackdropColor(1, 1, 1, 0.7)
-  button:SetScript("OnEnter", function(self)
-    button.button:SetBackdropBorderColor(1, 1, 1, 1)
-  end)
-  button:SetScript("OnLeave", function(self)
-    button.button:SetBackdropBorderColor(1, 1, 1, 0)
-  end)
-  button.text_overlay:SetFont(button.text_overlay:GetFont(), 28);
+  button:SetScript(
+    "OnEnter",
+    function(self)
+      button.button:SetBackdropBorderColor(1, 1, 1, 1)
+    end
+  )
+  button:SetScript(
+    "OnLeave",
+    function(self)
+      button.button:SetBackdropBorderColor(1, 1, 1, 0)
+    end
+  )
+  button.text_overlay:SetFont(button.text_overlay:GetFont(), 28)
   return button
 end
 
@@ -164,10 +196,10 @@ function LibWagoFramework:CreatePrompFrame(parent, okayText, cancelText)
   local tex = promptFrame:CreateTexture(nil, "BACKGROUND")
   tex:SetAllPoints(promptFrame)
   tex:SetColorTexture(0, 0, 0, 0.9)
-  promptFrame.label = DF:CreateLabel(promptFrame, "", 22, "white");
+  promptFrame.label = DF:CreateLabel(promptFrame, "", 22, "white")
   promptFrame.label:SetWidth(promptFrame:GetWidth() - 10)
   promptFrame.label:SetJustifyH("CENTER")
-  promptFrame.label:SetPoint("TOP", promptFrame, "TOP", 0, -120);
+  promptFrame.label:SetPoint("TOP", promptFrame, "TOP", 0, -120)
   promptFrame.okayButton = LibWagoFramework:CreateButton(promptFrame, 180, 40, "", 18)
   promptFrame.okayButton:SetPoint("BOTTOMRIGHT", promptFrame, "BOTTOM", -60, 60)
   promptFrame.cancelButton = LibWagoFramework:CreateButton(promptFrame, 180, 40, "", 18)
@@ -183,9 +215,24 @@ end
 ---@param defaultValue boolean
 ---@return table
 function LibWagoFramework:CreateCheckbox(parent, size, switchFunc, defaultValue)
-  local checkBox = DF:CreateSwitch(parent,
-    switchFunc or function() end,
-    false, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, DF:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
+  local checkBox =
+    DF:CreateSwitch(
+    parent,
+    switchFunc or function()
+      end,
+    false,
+    nil,
+    nil,
+    nil,
+    nil,
+    nil,
+    nil,
+    nil,
+    nil,
+    nil,
+    nil,
+    DF:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE")
+  )
   checkBox:SetValue(defaultValue)
   checkBox:SetSize(size, size)
   checkBox:SetAsCheckBox()
@@ -203,14 +250,20 @@ function LibWagoFramework:CreateTextEntry(parent, width, height, textChangedCall
   local textEntry = DF:CreateTextEntry(parent, textChangedCallback, width, height, nil, nil, nil, odt)
   textEntry:SetBackdropColor(1, 1, 1, 0.7)
   textEntry:SetBackdropBorderColor(0, 0, 0, 1)
-  textEntry:SetScript("OnEnter", function(self)
-    if textEntry.editbox:IsEnabled() then
-      textEntry:SetBackdropBorderColor(1, 1, 1, 1)
+  textEntry:SetScript(
+    "OnEnter",
+    function(self)
+      if textEntry.editbox:IsEnabled() then
+        textEntry:SetBackdropBorderColor(1, 1, 1, 1)
+      end
     end
-  end)
-  textEntry:SetScript("OnLeave", function(self)
-    textEntry:SetBackdropBorderColor(0, 0, 0, 1)
-  end)
+  )
+  textEntry:SetScript(
+    "OnLeave",
+    function(self)
+      textEntry:SetBackdropBorderColor(0, 0, 0, 1)
+    end
+  )
   if fontSize then
     textEntry:SetFont(textEntry:GetFont(), fontSize, "")
   end
@@ -225,9 +278,9 @@ end
 ---@param tooltipText string | nil
 ---@return table
 function LibWagoFramework:CreateIconButton(parent, size, icon, tooltipText)
-  local button = DF:CreateButton(parent, nil, size, size, "", nil, nil, icon);
+  local button = DF:CreateButton(parent, nil, size, size, "", nil, nil, icon)
   if tooltipText then
-    button:SetTooltip(tooltipText);
+    button:SetTooltip(tooltipText)
   end
   return button
 end
@@ -235,7 +288,9 @@ end
 ---@param myFrame Frame
 ---@param otherFrame Frame
 function LibWagoFramework:SetupSplitView(myFrame, otherFrame, mineLeft)
-  if not otherFrame or not otherFrame:IsShown() then return end
+  if not otherFrame or not otherFrame:IsShown() then
+    return
+  end
   otherFrame:ClearAllPoints()
   otherFrame:SetPoint(mineLeft and "LEFT" or "RIGHT", UIParent, "CENTER", -10, 0)
   myFrame:ClearAllPoints()
@@ -245,8 +300,12 @@ end
 ---@param resetFunc function
 ---@param otherFrame Frame
 function LibWagoFramework:EndSplitView(otherFrame, resetFunc)
-  if not otherFrame or not otherFrame:IsShown() then return end
-  if not otherFrame or not otherFrame:IsShown() then return end
+  if not otherFrame or not otherFrame:IsShown() then
+    return
+  end
+  if not otherFrame or not otherFrame:IsShown() then
+    return
+  end
   otherFrame:Hide()
   resetFunc()
 end

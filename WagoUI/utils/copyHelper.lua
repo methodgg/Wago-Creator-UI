@@ -8,15 +8,15 @@ local DF = _G["DetailsFramework"]
 local copyPrompt = L["copyInstruction"]
 
 function addon:CreateCopyHelper()
-  addon.copyHelper = CreateFrame("Frame", addonName.."CopyHelper", UIParent)
+  addon.copyHelper = CreateFrame("Frame", addonName .. "CopyHelper", UIParent)
   addon.copyHelper:SetFrameStrata("TOOLTIP")
   addon.copyHelper:SetFrameLevel(200)
   addon.copyHelper:SetHeight(100)
   addon.copyHelper:SetWidth(300)
   addon.copyHelper.tex = addon.copyHelper:CreateTexture(nil, "BACKGROUND", nil, 0)
   addon.copyHelper.tex:SetAllPoints()
-  addon.copyHelper.tex:SetColorTexture(unpack({ 0.058823399245739, 0.058823399245739, 0.058823399245739, 0.9 }))
-  addon.copyHelper.text = addon.copyHelper:CreateFontString(addonName.."copyHelperText")
+  addon.copyHelper.tex:SetColorTexture(unpack({0.058823399245739, 0.058823399245739, 0.058823399245739, 0.9}))
+  addon.copyHelper.text = addon.copyHelper:CreateFontString(addonName .. "copyHelperText")
   addon.copyHelper.text:SetFontObject("GameFontNormalMed3")
   addon.copyHelper.text:SetJustifyH("CENTER")
   addon.copyHelper.text:SetText(copyPrompt)
@@ -33,8 +33,11 @@ function addon:CreateCopyHelper()
   addon.copyHelper.fadeOutFrame:SetWidth(300)
   addon.copyHelper.fadeOutFrame.tex = addon.copyHelper.fadeOutFrame:CreateTexture(nil, "BACKGROUND", nil, 0)
   addon.copyHelper.fadeOutFrame.tex:SetAllPoints()
-  addon.copyHelper.fadeOutFrame.tex:SetColorTexture(unpack({ 0.058823399245739, 0.058823399245739, 0.058823399245739, 0.9 }))
-  addon.copyHelper.fadeOutFrame.text = addon.copyHelper.fadeOutFrame:CreateFontString(addonName.."copyHelperFadeoutText")
+  addon.copyHelper.fadeOutFrame.tex:SetColorTexture(
+    unpack({0.058823399245739, 0.058823399245739, 0.058823399245739, 0.9})
+  )
+  addon.copyHelper.fadeOutFrame.text =
+    addon.copyHelper.fadeOutFrame:CreateFontString(addonName .. "copyHelperFadeoutText")
   addon.copyHelper.fadeOutFrame.text:SetFontObject("GameFontNormalMed3")
   addon.copyHelper.fadeOutFrame.text:SetJustifyH("CENTER")
   addon.copyHelper.fadeOutFrame.text:SetText(copyPrompt)
@@ -45,22 +48,24 @@ function addon:CreateCopyHelper()
   addon.copyHelper.fadeOutFrame.text:SetTextColor(1, 1, 0)
 
   -- parent frame to give the statusbar a background
-  local statusBar = CreateFrame("Frame", addonName.."StatusBar", UIParent, "BackdropTemplate")
+  local statusBar = CreateFrame("Frame", addonName .. "StatusBar", UIParent, "BackdropTemplate")
   --set a grey backdrop
   ---@diagnostic disable-next-line: missing-fields,param-type-mismatch
-  statusBar:SetBackdrop({
-    bgFile = "Interface\\Buttons\\WHITE8x8",
-    edgeFile = "Interface\\Buttons\\WHITE8x8",
-    tile = false,
-    tileSize = 0,
-    edgeSize = 1,
-    insets = {
-      left = 0,
-      right = 0,
-      top = 0,
-      bottom = 0
+  statusBar:SetBackdrop(
+    {
+      bgFile = "Interface\\Buttons\\WHITE8x8",
+      edgeFile = "Interface\\Buttons\\WHITE8x8",
+      tile = false,
+      tileSize = 0,
+      edgeSize = 1,
+      insets = {
+        left = 0,
+        right = 0,
+        top = 0,
+        bottom = 0
+      }
     }
-  })
+  )
   statusBar:SetBackdropColor(0.4, 0.4, 0.4, 1)
   statusBar:SetBackdropBorderColor(0, 0, 0, 0)
   statusBar:SetSize(280, 20)
@@ -78,7 +83,7 @@ function addon:CreateCopyHelper()
   statusBar.bar:SetPoint("BOTTOMRIGHT", 0, 0)
 
   statusBar.bar.text = statusBar.bar:CreateFontString()
-  statusBar.bar.text:SetPoint('CENTER', statusBar, "CENTER")
+  statusBar.bar.text:SetPoint("CENTER", statusBar, "CENTER")
   statusBar.bar.text:SetFontObject("GameFontNormalMed3")
   statusBar.bar.text:SetTextColor(1, 1, 1, 1)
   statusBar.bar.text:SetJustifyH("CENTER")
@@ -108,7 +113,7 @@ function addon:CreateCopyHelper()
       currentProgress = currentProgress + 1
     end
     statusBar.bar:SetSmoothedValue(currentProgress)
-    local text = currentProgress.."/"..maxProgress
+    local text = currentProgress .. "/" .. maxProgress
     if currentProgress == maxProgress then
       ---@diagnostic disable-next-line: param-type-mismatch
       UIFrameFadeOut(statusBar, 1, 1, 0)
@@ -131,13 +136,19 @@ function addon:CreateCopyHelper()
     UIFrameFadeOut(addon.copyHelper.fadeOutFrame, seconds, 1, 0)
     addon.copyHelper.fadeOutFrame.text:SetText(text)
     addon.copyHelper.fadeOutFrame.text:SetTextColor(1, 1, 1)
-    if addon.copyHelper.hideTimer then addon.copyHelper.hideTimer:Cancel() end
-    addon.copyHelper.hideTimer = C_Timer.NewTimer(seconds, function()
-      addon.copyHelper.fadeOutFrame.text:SetText(copyPrompt)
-      addon.copyHelper.fadeOutFrame.text:SetTextColor(1, 1, 0)
-      addon.copyHelper.fadeOutFrame:Hide()
-      addon.copyHelper.fadeOutFrame.isFading = false
-    end)
+    if addon.copyHelper.hideTimer then
+      addon.copyHelper.hideTimer:Cancel()
+    end
+    addon.copyHelper.hideTimer =
+      C_Timer.NewTimer(
+      seconds,
+      function()
+        addon.copyHelper.fadeOutFrame.text:SetText(copyPrompt)
+        addon.copyHelper.fadeOutFrame.text:SetTextColor(1, 1, 0)
+        addon.copyHelper.fadeOutFrame:Hide()
+        addon.copyHelper.fadeOutFrame.isFading = false
+      end
+    )
   end
 
   function addon.copyHelper:SmartShow(anchorFrame, x, y, text)
@@ -146,11 +157,14 @@ function addon:CreateCopyHelper()
     addon.copyHelper:SetPoint("CENTER", anchorFrame, "CENTER", x, y)
     addon.copyHelper:SetAlpha(1)
     addon.copyHelper:Show()
-    addon.copyHelper:SetScript("OnUpdate", function()
-      if IsControlKeyDown() then
-        addon.lastCtrlDown = GetTime()
+    addon.copyHelper:SetScript(
+      "OnUpdate",
+      function()
+        if IsControlKeyDown() then
+          addon.lastCtrlDown = GetTime()
+        end
       end
-    end)
+    )
     if text then
       addon.copyHelper.text:SetText(text)
       addon.copyHelper.text:SetTextColor(1, 1, 0)
@@ -166,8 +180,12 @@ function addon:CreateCopyHelper()
 
   --ctrl+c works when ctrl was released up to 0.5s before the c key
   function addon.copyHelper:WasControlKeyDown()
-    if IsControlKeyDown() then return true end
-    if not addon.lastCtrlDown then return false end
+    if IsControlKeyDown() then
+      return true
+    end
+    if not addon.lastCtrlDown then
+      return false
+    end
     return (GetTime() - addon.lastCtrlDown) < 0.5
   end
 end

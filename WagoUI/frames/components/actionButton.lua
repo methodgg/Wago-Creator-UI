@@ -42,33 +42,39 @@ function addon:CreateActionButton(parent, width, height, fontSize)
     elseif canEnable then
       actionButton:SetText(L["Enable AddOn"])
       actionButton:Enable()
-      actionButton:SetClickFunction(function()
-        LAP:EnableAddOns(lap.addonNames)
-        ReloadUI()
-      end)
+      actionButton:SetClickFunction(
+        function()
+          LAP:EnableAddOns(lap.addonNames)
+          ReloadUI()
+        end
+      )
       return
     else
       actionButton:SetText(L["AddOn not installed"])
       actionButton:Disable()
     end
-    actionButton:SetClickFunction(function()
-      local importCallback = function()
-        addon:Async(function()
-          importProfile(lap, info.profile, profileKey, latestVersion, info.entryName)
-          if lap.moduleName == "WeakAuras" then
-            if not addon.state.hasSetupSplitView then
-              LWF:SetupSplitView(addon.frames.mainFrame, WeakAurasOptions, false)
-              addon.state.hasSetupSplitView = true
+    actionButton:SetClickFunction(
+      function()
+        local importCallback = function()
+          addon:Async(
+            function()
+              importProfile(lap, info.profile, profileKey, latestVersion, info.entryName)
+              if lap.moduleName == "WeakAuras" then
+                if not addon.state.hasSetupSplitView then
+                  LWF:SetupSplitView(addon.frames.mainFrame, WeakAurasOptions, false)
+                  addon.state.hasSetupSplitView = true
+                end
+              end
             end
-          end
-        end)
+          )
+        end
+        if askReimport then
+          addon:ShowPrompt(L["REIMPORT_PROMPT"], importCallback, nil, L["Re-Import"])
+        else
+          importCallback()
+        end
       end
-      if askReimport then
-        addon:ShowPrompt(L["REIMPORT_PROMPT"], importCallback, nil, L["Re-Import"])
-      else
-        importCallback()
-      end
-    end)
+    )
   end
 
   return actionButton

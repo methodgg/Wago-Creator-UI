@@ -11,7 +11,7 @@ local asyncConfig = {
   maxTimeCombat = 8,
   errorHandler = function(msg, stackTrace, name)
     addon:OnError(msg, stackTrace, name)
-  end,
+  end
 }
 
 addon.asyncHandler = LibAsync:GetHandler(asyncConfig)

@@ -7,7 +7,9 @@ local lapModule = LAP:GetModule(moduleName)
 
 local function dropdownOptions(index)
   local res = {}
-  if not BigWigs3DB then return res end
+  if not BigWigs3DB then
+    return res
+  end
   local profileKeys = lapModule:getProfileKeys()
   local currentProfileKey = lapModule:getCurrentProfileKey()
   return ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKeys, currentProfileKey)
@@ -19,7 +21,7 @@ local moduleConfig = {
   lapModule = lapModule,
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
-  sortIndex = 15,
+  sortIndex = 15
 }
 
 ModuleFunctions:InsertModuleConfig(moduleConfig)

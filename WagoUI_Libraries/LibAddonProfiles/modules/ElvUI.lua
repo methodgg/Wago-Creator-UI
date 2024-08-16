@@ -1,13 +1,16 @@
-local _, loadingAddonNamespace = ...;
+local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal();
-if (not private) then return; end
-local EXPORT_PREFIX = '!E1!'
+local private =
+  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then
+  return
+end
+local EXPORT_PREFIX = "!E1!"
 
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "ElvUI",
-  addonNames = { "ElvUI", "ElvUI_Libraries", "ElvUI_Options" },
+  addonNames = {"ElvUI", "ElvUI_Libraries", "ElvUI_Options"},
   icon = [[Interface\AddOns\ElvUI\Core\Media\Textures\LogoAddon]],
   slash = "/ec",
   needReloadOnImport = true,
@@ -15,64 +18,65 @@ local m = {
   preventRename = false,
   willOverrideProfile = false,
   nonNativeProfileString = false,
-
   isLoaded = function(self)
     return ElvUI and ElvUI[1].Options.args.profiles and true or false
   end,
-
   needsInitialization = function(self)
     return C_AddOns.IsAddOnLoaded("ElvUI") and not self:isLoaded()
   end,
-
   openConfig = function(self)
     SlashCmdList["ACECONSOLE_ELVUI"]()
   end,
-
   closeConfig = function(self)
     local E = ElvUI[1]
     E.Config_CloseWindow()
   end,
-
   getProfileKeys = function(self)
     return ElvDB.profiles
   end,
-
   getCurrentProfileKey = function(self)
     local E = ElvUI[1]
     return ElvDB.profileKeys and ElvDB.profileKeys[E.mynameRealm]
   end,
-
   getProfileAssignments = function(self)
     return ElvDB.profileKeys
   end,
-
   isDuplicate = function(self, profileKey)
-    if not profileKey then return false end
+    if not profileKey then
+      return false
+    end
     return self:getProfileKeys()[profileKey] ~= nil
   end,
-
   setProfile = function(self, profileKey)
-    if not profileKey then return end
-    if not self:getProfileKeys()[profileKey] then return end
+    if not profileKey then
+      return
+    end
+    if not self:getProfileKeys()[profileKey] then
+      return
+    end
     local E = ElvUI[1]
     E.data:SetProfile(profileKey)
   end,
-
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if not profileString then return end
+    if not profileString then
+      return
+    end
     local prefix = strsub(profileString, 1, 4)
-    if prefix ~= EXPORT_PREFIX then return nil end
-    local distributor = ElvUI[1]:GetModule("Distributor");
+    if prefix ~= EXPORT_PREFIX then
+      return nil
+    end
+    local distributor = ElvUI[1]:GetModule("Distributor")
     local profileType, key, data = distributor:Decode(profileString)
     if key and data and profileType == "profile" then
       return key
     end
   end,
-
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString then return end
+    if not profileString then
+      return
+    end
     local E = ElvUI[1]
-    local D = E:GetModule('Distributor')
+    local D = E:GetModule("Distributor")
     local decodedType, decodedKey, decodedData = D:Decode(profileString)
     local force = false -- for now
     -- important to use the supplied profileKey, as the decodedKey might be different
@@ -82,35 +86,42 @@ local m = {
       E:PixelScaleChanged()
     end
   end,
-
   exportProfile = function(self, profileKey)
-    if not profileKey then return end
-    if type(profileKey) ~= "string" then return end
-    if not self:getProfileKeys()[profileKey] then return end
+    if not profileKey then
+      return
+    end
+    if type(profileKey) ~= "string" then
+      return
+    end
+    if not self:getProfileKeys()[profileKey] then
+      return
+    end
     --Core\General\Distributor.lua
     local E = ElvUI[1]
-    local D = E:GetModule('Distributor')
+    local D = E:GetModule("Distributor")
     local _, profileExport = D:GetProfileExport("profile", profileKey, "text")
     return profileExport
   end,
-
   areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
-    if not profileStringA or not profileStringB then return false end
+    if not profileStringA or not profileStringB then
+      return false
+    end
     local E = ElvUI[1]
-    local D = E:GetModule('Distributor')
+    local D = E:GetModule("Distributor")
     local _, _, profileDataA = D:Decode(profileStringA)
     local _, _, profileDataB = D:Decode(profileStringB)
-    if not profileDataA or not profileDataB then return false end
+    if not profileDataA or not profileDataB then
+      return false
+    end
     return private:DeepCompareAsync(profileDataA, profileDataB)
   end,
-
   refreshHookList = {
     {
       tableFunc = function()
         return ElvUI[1].Options.args.profiles.args.profile.handler.db
       end,
-      functionNames = { "SetProfile", "CopyProfile", "DeleteProfile" }
-    },
+      functionNames = {"SetProfile", "CopyProfile", "DeleteProfile"}
+    }
   }
 }
 

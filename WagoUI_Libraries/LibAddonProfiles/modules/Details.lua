@@ -1,7 +1,10 @@
-local loadingAddon, loadingAddonNamespace = ...;
+local loadingAddon, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal();
-if (not private) then return; end
+local private =
+  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then
+  return
+end
 
 local function compressData(data)
   local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
@@ -12,7 +15,7 @@ local function compressData(data)
     local dataSerialized = LibAceSerializer:Serialize(dataCopied)
     coroutine.yield()
     if (dataSerialized) then
-      local dataCompressed = LibDeflate:CompressDeflate(dataSerialized, { level = 5 })
+      local dataCompressed = LibDeflate:CompressDeflate(dataSerialized, {level = 5})
       if (dataCompressed) then
         local dataEncoded = LibDeflate:EncodeForPrint(dataCompressed)
         coroutine.yield()
@@ -63,13 +66,13 @@ local exportProfileBlacklist = {
   installed_skins_cache = true,
   trinket_data = true,
   keystone_cache = true,
-  performance_profiles = true,
+  performance_profiles = true
 }
 
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Details",
-  addonNames = { "Details", "Details_Compare2", "Details_DataStorage" },
+  addonNames = {"Details", "Details_Compare2", "Details_DataStorage"},
   icon = [[Interface\AddOns\Details\images\minimap]],
   slash = "/details config",
   needReloadOnImport = false,
@@ -77,63 +80,67 @@ local m = {
   preventRename = false,
   willOverrideProfile = false,
   nonNativeProfileString = false,
-
   isLoaded = function(self)
     return Details and true or false
   end,
-
   needsInitialization = function(self)
     return false
   end,
-
   openConfig = function(self)
     SlashCmdList["DETAILS"]("options")
   end,
-
   closeConfig = function(self)
     DetailsOptionsWindow:Hide()
   end,
-
   getProfileKeys = function(self)
     return _detalhes_global.__profiles
   end,
-
   getCurrentProfileKey = function(self)
     return Details:GetCurrentProfileName()
   end,
-
   getProfileAssignments = function(self)
     --stored character specific
     return nil
   end,
-
   isDuplicate = function(self, profileKey)
-    if not profileKey then return false end
+    if not profileKey then
+      return false
+    end
     return self:getProfileKeys()[profileKey]
   end,
-
   setProfile = function(self, profileKey)
-    if not profileKey then return end
-    if not self:getProfileKeys()[profileKey] then return end
+    if not profileKey then
+      return
+    end
+    if not self:getProfileKeys()[profileKey] then
+      return
+    end
     Details:ApplyProfile(profileKey)
   end,
-
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if not profileString then return end
+    if not profileString then
+      return
+    end
     if rawData and rawData.profile and rawData.profile.all_in_one_windows and rawData.profile.class_specs_coords then
       return ""
     end
   end,
-
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString then return end
-    Details:ImportProfile(profileString, profileKey, nil, true, true);
+    if not profileString then
+      return
+    end
+    Details:ImportProfile(profileString, profileKey, nil, true, true)
   end,
-
   exportProfile = function(self, profileKey)
-    if not profileKey then return end
-    if type(profileKey) ~= "string" then return end
-    if not self:getProfileKeys()[profileKey] then return end
+    if not profileKey then
+      return
+    end
+    if type(profileKey) ~= "string" then
+      return
+    end
+    if not self:getProfileKeys()[profileKey] then
+      return
+    end
     --functions\profiles.lua
     --need to call this so changes to the current profile are committed to the Details SavedVariables
     --TODO: logout still applies some changes to the data, not sure what this is about
@@ -173,26 +180,28 @@ local m = {
       profile = profileObject,
       playerData = playerData,
       globaData = globalData, --typo in Details
-      version = 1,
+      version = 1
     }
     return compressData(exportedData)
   end,
-
   areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
-    if not profileStringA or not profileStringB then return false end
+    if not profileStringA or not profileStringB then
+      return false
+    end
     local _, profileDataA = private:GenericDecode(profileStringA)
     local _, profileDataB = private:GenericDecode(profileStringB)
-    if not profileDataA or not profileDataB then return false end
+    if not profileDataA or not profileDataB then
+      return false
+    end
     return private:DeepCompareAsync(profileDataA, profileDataB)
   end,
-
   refreshHookList = {
     {
       tableFunc = function()
         return Details
       end,
-      functionNames = { "ApplyProfile", "EraseProfile" }
-    },
+      functionNames = {"ApplyProfile", "EraseProfile"}
+    }
   }
 }
 private.modules[m.moduleName] = m

@@ -9,16 +9,22 @@ local releaseNotesFrame
 function addon:CreateReleaseNoteInput()
   releaseNotesFrame = addon:CreateGenericTextFrame(600, 350, "Release Notes")
   releaseNotesFrame:SetFrameLevel(105)
-  releaseNotesFrame.Close:SetScript("OnClick", function()
-    releaseNotesFrame:Hide()
-  end)
-  local editbox = releaseNotesFrame.editbox
-  editbox:SetAutoFocus(false)
-  editbox:SetScript('OnKeyUp', function(_, key)
-    if key == "ESCAPE" then
+  releaseNotesFrame.Close:SetScript(
+    "OnClick",
+    function()
       releaseNotesFrame:Hide()
     end
-  end)
+  )
+  local editbox = releaseNotesFrame.editbox
+  editbox:SetAutoFocus(false)
+  editbox:SetScript(
+    "OnKeyUp",
+    function(_, key)
+      if key == "ESCAPE" then
+        releaseNotesFrame:Hide()
+      end
+    end
+  )
   addon.exportFrame = releaseNotesFrame
   editbox:SetFontObject(GameFontNormalLarge)
   releaseNotesFrame.scrollframe:SetPoint("BOTTOMRIGHT", releaseNotesFrame, "BOTTOMRIGHT", -23, 125)
@@ -27,31 +33,43 @@ function addon:CreateReleaseNoteInput()
   explainerLabel:SetPoint("TOPLEFT", releaseNotesFrame.scrollframe, "BOTTOMLEFT", 4, -10)
 
   local reloadButton = LWF:CreateButton(releaseNotesFrame, 200, 40, L["Save and Reload"], 16)
-  reloadButton:SetClickFunction(function()
-    local input = editbox:GetText()
-    addon:SaveReleaseNotes(input)
-    ReloadUI()
-  end)
+  reloadButton:SetClickFunction(
+    function()
+      local input = editbox:GetText()
+      addon:SaveReleaseNotes(input)
+      ReloadUI()
+    end
+  )
   reloadButton:SetBackdropColor(0, 0.8, 0, 1)
-  reloadButton:SetScript("OnEnter", function(self)
-    reloadButton.button:SetBackdropBorderColor(1, 1, 1, 1)
-  end)
-  reloadButton:SetScript("OnLeave", function(self)
-    reloadButton.button:SetBackdropBorderColor(1, 1, 1, 0)
-  end)
+  reloadButton:SetScript(
+    "OnEnter",
+    function(self)
+      reloadButton.button:SetBackdropBorderColor(1, 1, 1, 1)
+    end
+  )
+  reloadButton:SetScript(
+    "OnLeave",
+    function(self)
+      reloadButton.button:SetBackdropBorderColor(1, 1, 1, 0)
+    end
+  )
   reloadButton:SetPoint("BOTTOM", releaseNotesFrame, "BOTTOM", 0, 40)
 
-  local nextStepLabel = DF:CreateLabel(
-    releaseNotesFrame, L["Continue the upload through the Wago App after the reload!"], 14, "white")
+  local nextStepLabel =
+    DF:CreateLabel(releaseNotesFrame, L["Continue the upload through the Wago App after the reload!"], 14, "white")
   nextStepLabel:SetPoint("BOTTOM", releaseNotesFrame, "BOTTOM", 0, 15)
   local warningIconLeft = LWF:CreateIconButton(releaseNotesFrame, 30, "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
-  local warningIconRight = LWF:CreateIconButton(releaseNotesFrame, 30, "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
+  local warningIconRight =
+    LWF:CreateIconButton(releaseNotesFrame, 30, "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
   warningIconLeft:SetPoint("RIGHT", nextStepLabel, "LEFT", -5, 0)
   warningIconRight:SetPoint("LEFT", nextStepLabel, "RIGHT", 5, 0)
 
-  releaseNotesFrame:HookScript("OnHide", function()
-    addon.SetLockoutFrameShowState(false)
-  end)
+  releaseNotesFrame:HookScript(
+    "OnHide",
+    function()
+      addon.SetLockoutFrameShowState(false)
+    end
+  )
 end
 
 ---@param resolution string
@@ -82,7 +100,7 @@ local function getAndClearCurrentProfileRemovals(resolution)
     local data = addon.db.profileRemovals[i]
     if data.packName == addon.db.chosenPack and data.resolution == resolution then
       removeString = removeString or ""
-      removeString = removeString.."- "..data.moduleName.."\n"
+      removeString = removeString .. "- " .. data.moduleName .. "\n"
       table.remove(addon.db.profileRemovals, i)
     end
   end
@@ -105,18 +123,18 @@ local function getUpdateString(updates)
     local str
     for key, entry in pairs(data) do
       if type(entry) == "boolean" then
-        str = str or ("### "..addon:GetResolutionString(resolution, "displayNameShort").."\n")
-        str = str.."- "..key.."\n"
+        str = str or ("### " .. addon:GetResolutionString(resolution, "displayNameShort") .. "\n")
+        str = str .. "- " .. key .. "\n"
       elseif type(entry) == "table" then
         for k in pairs(entry) do
-          str = str or ("### "..addon:GetResolutionString(resolution, "displayNameShort").."\n")
-          str = str.."- "..key..": "..k.."\n"
+          str = str or ("### " .. addon:GetResolutionString(resolution, "displayNameShort") .. "\n")
+          str = str .. "- " .. key .. ": " .. k .. "\n"
         end
       end
     end
     if str then
       res = res or ""
-      res = res..str
+      res = res .. str
     end
   end
   return res
@@ -128,43 +146,47 @@ local function getRemovalString(removals)
     local str
     for module, v in pairs(data) do
       for entry in pairs(v) do
-        str = str or ("### "..addon:GetResolutionString(resolution, "displayNameShort").."\n")
-        str = str.."- "..module..": "..entry.."\n"
+        str = str or ("### " .. addon:GetResolutionString(resolution, "displayNameShort") .. "\n")
+        str = str .. "- " .. module .. ": " .. entry .. "\n"
       end
     end
     local removedProfiles = getAndClearCurrentProfileRemovals(resolution)
     if removedProfiles then
-      str = str or ("### "..addon:GetResolutionString(resolution, "displayNameShort").."\n")
-      str = str..removedProfiles
+      str = str or ("### " .. addon:GetResolutionString(resolution, "displayNameShort") .. "\n")
+      str = str .. removedProfiles
     end
     if str then
       res = res or ""
-      res = res..str
+      res = res .. str
     end
   end
   return res
 end
 
 function addon:OpenReleaseNoteInput(timestamp, updates, removals)
-  if not releaseNotesFrame then addon:CreateReleaseNoteInput() end
+  if not releaseNotesFrame then
+    addon:CreateReleaseNoteInput()
+  end
   releaseNotesFrame.timestamp = timestamp
   addon.copyHelper:Hide()
   local str
 
   local updateString = getUpdateString(updates)
   if updateString then
-    str = "## "..L["Updated / Added"]..":\n"..updateString
+    str = "## " .. L["Updated / Added"] .. ":\n" .. updateString
   end
 
   local removalString = getRemovalString(removals)
   if removalString then
     str = str or ""
-    str = str.."## "..L["Removed"]..":\n"..removalString
+    str = str .. "## " .. L["Removed"] .. ":\n" .. removalString
   end
 
-  local dateString = "# "..date("%y/%m/%d", timestamp).."\n"
-  str = dateString..str
-  if addon.importFrame then addon.importFrame.Close:Click() end
+  local dateString = "# " .. date("%y/%m/%d", timestamp) .. "\n"
+  str = dateString .. str
+  if addon.importFrame then
+    addon.importFrame.Close:Click()
+  end
   releaseNotesFrame:SetPoint("CENTER", addon.frames.mainFrame, "CENTER")
   releaseNotesFrame:Show()
   releaseNotesFrame.editbox:SetText(str)

@@ -16,7 +16,7 @@ local specData = {
     specs = {
       [1] = 250,
       [2] = 251,
-      [3] = 252,
+      [3] = 252
     },
     dataName = "DEATHKNIGHT",
     displayName = "Death Knight"
@@ -24,7 +24,7 @@ local specData = {
   [2] = {
     specs = {
       [1] = 577,
-      [2] = 581,
+      [2] = 581
     },
     dataName = "DEMONHUNTER",
     displayName = "Demon Hunter"
@@ -34,7 +34,7 @@ local specData = {
       [1] = 102,
       [2] = 103,
       [3] = 104,
-      [4] = 105,
+      [4] = 105
     },
     dataName = "DRUID",
     displayName = "Druid"
@@ -43,7 +43,7 @@ local specData = {
     specs = {
       [1] = 1467,
       [2] = 1468,
-      [3] = 1473,
+      [3] = 1473
     },
     dataName = "EVOKER",
     displayName = "Evoker"
@@ -52,7 +52,7 @@ local specData = {
     specs = {
       [1] = 253,
       [2] = 254,
-      [3] = 255,
+      [3] = 255
     },
     dataName = "HUNTER",
     displayName = "Hunter"
@@ -61,7 +61,7 @@ local specData = {
     specs = {
       [1] = 62,
       [2] = 63,
-      [3] = 64,
+      [3] = 64
     },
     dataName = "MAGE",
     displayName = "Mage"
@@ -70,7 +70,7 @@ local specData = {
     specs = {
       [1] = 268,
       [2] = 269,
-      [3] = 270,
+      [3] = 270
     },
     dataName = "MONK",
     displayName = "Monk"
@@ -79,7 +79,7 @@ local specData = {
     specs = {
       [1] = 65,
       [2] = 66,
-      [3] = 70,
+      [3] = 70
     },
     dataName = "PALADIN",
     displayName = "Paladin"
@@ -88,7 +88,7 @@ local specData = {
     specs = {
       [1] = 256,
       [2] = 257,
-      [3] = 258,
+      [3] = 258
     },
     dataName = "PRIEST",
     displayName = "Priest"
@@ -97,7 +97,7 @@ local specData = {
     specs = {
       [1] = 259,
       [2] = 260,
-      [3] = 261,
+      [3] = 261
     },
     dataName = "ROGUE",
     displayName = "Rogue"
@@ -106,7 +106,7 @@ local specData = {
     specs = {
       [1] = 262,
       [2] = 263,
-      [3] = 264,
+      [3] = 264
     },
     dataName = "SHAMAN",
     displayName = "Shaman"
@@ -115,7 +115,7 @@ local specData = {
     specs = {
       [1] = 265,
       [2] = 266,
-      [3] = 267,
+      [3] = 267
     },
     dataName = "WARLOCK",
     displayName = "Warlock"
@@ -124,7 +124,7 @@ local specData = {
     specs = {
       [1] = 71,
       [2] = 72,
-      [3] = 73,
+      [3] = 73
     },
     dataName = "WARRIOR",
     displayName = "Warrior"
@@ -149,7 +149,9 @@ local function setDBMode(mode, dbRef)
     db = dbRef
   end
   for _, classData in ipairs(specData) do
-    if not db[classData.dataName] then db[classData.dataName] = {} end
+    if not db[classData.dataName] then
+      db[classData.dataName] = {}
+    end
   end
 end
 
@@ -166,10 +168,14 @@ local function createManageFrame()
   manageFrame:SetMouseClickEnabled(true)
   manageFrame:Hide()
   manageFrame.buttons = {}
-  manageFrame.StartMoving = function() end
-  addon.frames.mainFrame:HookScript("OnHide", function()
-    manageFrame:Hide()
-  end)
+  manageFrame.StartMoving = function()
+  end
+  addon.frames.mainFrame:HookScript(
+    "OnHide",
+    function()
+      manageFrame:Hide()
+    end
+  )
 
   local size = 20
   local classesPerRow = 7
@@ -183,40 +189,51 @@ local function createManageFrame()
   local specIcons = {}
 
   for idx, classData in ipairs(specData) do
-    local classSwitch = LWF:CreateCheckbox(manageFrame, size,
+    local classSwitch =
+      LWF:CreateCheckbox(
+      manageFrame,
+      size,
       function(_, _, value)
         for specIdx, specId in ipairs(classData.specs) do
           db[classData.dataName][specIdx] = value
           specSwitches[specId]:SetValue(value)
         end
-      end, false)
+      end,
+      false
+    )
     classSwitches[classData.dataName] = classSwitch
     local yOffset = -30 + (math.floor((idx - 1) / classesPerRow) * -columnHeight)
     local xOffset = 10 + ((idx - 1) % classesPerRow) * rowWidth
     classSwitch:SetPoint("TOPLEFT", manageFrame, "TOPLEFT", xOffset, yOffset)
 
     local icon = classSwitch:CreateTexture(nil, "ARTWORK")
-    icon:SetTexture("Interface\\ICONS\\ClassIcon_"..classData.dataName)
+    icon:SetTexture("Interface\\ICONS\\ClassIcon_" .. classData.dataName)
     icon:SetSize(size, size)
     icon:SetPoint("LEFT", classSwitch.widget, "RIGHT", 0, 0)
     classIcons[classData.dataName] = icon
 
     local colorString = RAID_CLASS_COLORS[classData.dataName].colorStr
-    local coloredClassName = "|c"..colorString..classData.displayName.."|r"
+    local coloredClassName = "|c" .. colorString .. classData.displayName .. "|r"
     ---@diagnostic disable-next-line: undefined-field
     local classLabel = DF:CreateLabel(manageFrame, coloredClassName, 10, "white")
     classLabel:SetPoint("LEFT", icon, "RIGHT", 0, 0)
     classLabels[classData.dataName] = classLabel
 
     for specIdx, specId in ipairs(classData.specs) do
-      local specSwitch = LWF:CreateCheckbox(manageFrame, size, function(_, _, value)
-        db[classData.dataName][specIdx] = value
-        local allSpecsChecked = true
-        for sIdx, _ in ipairs(classData.specs) do
-          allSpecsChecked = allSpecsChecked and db[classData.dataName][sIdx]
-        end
-        classSwitch:SetValue(allSpecsChecked)
-      end, false)
+      local specSwitch =
+        LWF:CreateCheckbox(
+        manageFrame,
+        size,
+        function(_, _, value)
+          db[classData.dataName][specIdx] = value
+          local allSpecsChecked = true
+          for sIdx, _ in ipairs(classData.specs) do
+            allSpecsChecked = allSpecsChecked and db[classData.dataName][sIdx]
+          end
+          classSwitch:SetValue(allSpecsChecked)
+        end,
+        false
+      )
       specSwitches[specId] = specSwitch
       specSwitch:SetPoint("TOPLEFT", manageFrame, "TOPLEFT", xOffset, (-(specIdx * (size + 1))) - 10 + yOffset)
 
@@ -227,8 +244,7 @@ local function createManageFrame()
       specIcon:SetPoint("LEFT", specSwitch.widget, "RIGHT", 0, 0)
       specIcons[specId] = specIcon
 
-
-      local coloredSpecName = "|c"..colorString..specName.."|r"
+      local coloredSpecName = "|c" .. colorString .. specName .. "|r"
       ---@diagnostic disable-next-line: undefined-field
       local specLabel = DF:CreateLabel(manageFrame, coloredSpecName, 10, "white")
       specLabel:SetPoint("LEFT", specIcon, "RIGHT", 0, 0)
@@ -254,14 +270,14 @@ local function createManageFrame()
       for _, classData in ipairs(specData) do
         classSwitches[classData.dataName]:SetEnabled(true)
         local colorString = RAID_CLASS_COLORS[classData.dataName].colorStr
-        local coloredClassName = "|c"..colorString..classData.displayName.."|r"
+        local coloredClassName = "|c" .. colorString .. classData.displayName .. "|r"
         classLabels[classData.dataName]:SetText(coloredClassName)
         classIcons[classData.dataName]:SetDesaturated(false)
 
         for specIdx, specId in ipairs(classData.specs) do
           specSwitches[specId]:SetEnabled(true)
           local _, specName, _, iconNumber = GetSpecializationInfoByID(specId)
-          local coloredSpecName = "|c"..colorString..specName.."|r"
+          local coloredSpecName = "|c" .. colorString .. specName .. "|r"
           specLabels[specId]:SetText(coloredSpecName)
           specIcons[specId]:SetDesaturated(false)
         end
@@ -274,16 +290,16 @@ local function createManageFrame()
         end
         classSwitches[classData.dataName]:SetEnabled(classSwitchedValue)
         local colorString = RAID_CLASS_COLORS[classData.dataName].colorStr
-        local coloredClassName = "|c"..
-            ((not classSwitchedValue) and "ff777777" or colorString)..classData.displayName.."|r"
+        local coloredClassName =
+          "|c" .. ((not classSwitchedValue) and "ff777777" or colorString) .. classData.displayName .. "|r"
         classLabels[classData.dataName]:SetText(coloredClassName)
         classIcons[classData.dataName]:SetDesaturated(not classSwitchedValue)
 
         for specIdx, specId in ipairs(classData.specs) do
           specSwitches[specId]:SetEnabled(db[classData.dataName][specIdx])
           local _, specName, _, iconNumber = GetSpecializationInfoByID(specId)
-          local coloredSpecName = "|c"..
-              ((not db[classData.dataName][specIdx]) and "ff777777" or colorString)..specName.."|r"
+          local coloredSpecName =
+            "|c" .. ((not db[classData.dataName][specIdx]) and "ff777777" or colorString) .. specName .. "|r"
           specLabels[specId]:SetText(coloredSpecName)
           specIcons[specId]:SetDesaturated(not db[classData.dataName][specIdx])
         end
@@ -294,50 +310,60 @@ local function createManageFrame()
   local toggleAllButton = LWF:CreateButton(manageFrame, 120, 30, L["Toggle All"], 16)
   toggleAllButton:SetPoint("BOTTOMLEFT", manageFrame, "BOTTOMLEFT", 10, 10)
   local allChecked = false
-  toggleAllButton:SetClickFunction(function()
-    allChecked = not allChecked
-    for _, classData in ipairs(specData) do
-      for specIdx, specId in ipairs(classData.specs) do
-        if specSwitches[specId]:IsEnabled() then
-          db[classData.dataName][specIdx] = allChecked
-          specSwitches[specId]:SetValue(allChecked)
+  toggleAllButton:SetClickFunction(
+    function()
+      allChecked = not allChecked
+      for _, classData in ipairs(specData) do
+        for specIdx, specId in ipairs(classData.specs) do
+          if specSwitches[specId]:IsEnabled() then
+            db[classData.dataName][specIdx] = allChecked
+            specSwitches[specId]:SetValue(allChecked)
+          end
+        end
+        if classSwitches[classData.dataName]:IsEnabled() then
+          classSwitches[classData.dataName]:SetValue(allChecked)
         end
       end
-      if classSwitches[classData.dataName]:IsEnabled() then
-        classSwitches[classData.dataName]:SetValue(allChecked)
-      end
     end
-  end)
+  )
 
   local importExportButton = LWF:CreateButton(manageFrame, 120, 30, L["Import"], 16)
   importExportButton:SetPoint("BOTTOM", manageFrame, "BOTTOM", 0, 10)
-  importExportButton:SetClickFunction(function()
-    manageFrame:Hide()
-  end)
+  importExportButton:SetClickFunction(
+    function()
+      manageFrame:Hide()
+    end
+  )
   importExportButton:Hide()
   manageFrame.importExportButton = importExportButton
 
   local closeButton = LWF:CreateButton(manageFrame, 90, 30, L["Close"], 16)
   closeButton:SetPoint("BOTTOMRIGHT", manageFrame, "BOTTOMRIGHT", -10, 10)
-  closeButton:SetClickFunction(function()
-    manageFrame:Hide()
-  end)
+  closeButton:SetClickFunction(
+    function()
+      manageFrame:Hide()
+    end
+  )
 end
 
 local function showManageFrame(anchor, index, mode, dbRef, importExportCallback)
   setDBMode(mode, dbRef)
-  if not manageFrame then createManageFrame() end
+  if not manageFrame then
+    createManageFrame()
+  end
   manageFrame:SetAllValuesFromDB()
   manageFrame:SetEnabledStates(mode)
   manageFrame:ClearAllPoints()
   manageFrame:SetPoint("CENTER", anchor, "CENTER", 0, 0)
-  manageFrame:SetTitle("Talent Loadout Ex - "..(mode))
+  manageFrame:SetTitle("Talent Loadout Ex - " .. (mode))
   manageFrame.importExportButton:SetText(mode)
   manageFrame.importExportButton:Enable()
-  manageFrame.importExportButton:SetClickFunction(function()
-    manageFrame:Hide()
-    importExportCallback()
-  end)
+  manageFrame.importExportButton:SetClickFunction(
+    function()
+      manageFrame:Hide()
+      importExportCallback()
+    end
+  )
   manageFrame:Show()
 end
 
@@ -347,12 +373,15 @@ end
 
 local onSuccessfulTestOverride = function(profileString, profileKey)
   local importCallback = function()
-    addon:Async(function()
-      lapModule:importProfile(profileString, profileKey, false)
-      manageFrame:Show()
-      manageFrame.importExportButton:SetText(L["Done"])
-      manageFrame.importExportButton:Disable()
-    end, "tleImportOverride")
+    addon:Async(
+      function()
+        lapModule:importProfile(profileString, profileKey, false)
+        manageFrame:Show()
+        manageFrame.importExportButton:SetText(L["Done"])
+        manageFrame.importExportButton:Disable()
+      end,
+      "tleImportOverride"
+    )
   end
   showManageFrame(addon.frames.mainFrame, 1, "Import", profileKey, importCallback)
 end
@@ -367,7 +396,7 @@ local moduleConfig = {
   sortIndex = 2,
   hasGroups = true,
   manageFunc = showManageFrame,
-  onSuccessfulTestOverride = onSuccessfulTestOverride,
+  onSuccessfulTestOverride = onSuccessfulTestOverride
 }
 
 addon.ModuleFunctions:InsertModuleConfig(moduleConfig)

@@ -23,7 +23,9 @@ local function createChoiceFrame()
 end
 
 function addon:ShowChoiceFrame(choices, titleText, width, height, anchorFrom, anchor, anchorTo)
-  if not choiceFrame then createChoiceFrame() end
+  if not choiceFrame then
+    createChoiceFrame()
+  end
   choiceFrame:ClearAllPoints()
   choiceFrame:SetPoint(anchorFrom or "CENTER", anchor or addon.frames.mainFrame, anchorTo or "CENTER")
   -- choiceFrame:SetPoint("CENTER", addon.frames.mainFrame, "CENTER")
@@ -46,9 +48,11 @@ function addon:ShowChoiceFrame(choices, titleText, width, height, anchorFrom, an
       choiceFrame.buttons[i] = button
     end
     button:SetText(choice.text)
-    button:SetClickFunction(function()
-      choiceFrame:Hide()
-      choice.on_click()
-    end)
+    button:SetClickFunction(
+      function()
+        choiceFrame:Hide()
+        choice.on_click()
+      end
+    )
   end
 end

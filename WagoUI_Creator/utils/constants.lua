@@ -16,7 +16,7 @@ addon.resolutions = {
       displayNameShort = L["Any Resolution"],
       width = nil,
       height = nil,
-      defaultEnabled = true,
+      defaultEnabled = true
     },
     {
       value = "1080",
@@ -24,7 +24,7 @@ addon.resolutions = {
       displayNameShort = "1080p",
       width = 1920,
       height = 1080,
-      defaultEnabled = false,
+      defaultEnabled = false
     },
     {
       value = "1440",
@@ -32,7 +32,7 @@ addon.resolutions = {
       displayNameShort = "1440p",
       width = 2560,
       height = 1440,
-      defaultEnabled = false,
+      defaultEnabled = false
     },
     {
       value = "2160",
@@ -40,8 +40,8 @@ addon.resolutions = {
       displayNameShort = "4k",
       width = 3840,
       height = 2160,
-      defaultEnabled = false,
-    },
+      defaultEnabled = false
+    }
   },
   defaultValue = "any"
 }
@@ -59,13 +59,16 @@ function addon:SetUpDB()
 end
 
 addon.color = "FFE2CB00"
-addon.colorRGB = { --used by status bar
+addon.colorRGB = {
+  --used by status bar
   r = 201 / 255,
   g = 180 / 255,
-  b = 0 / 255,
+  b = 0 / 255
 }
 addon.slashPrefixes = {
-  "/wagoc", "/wagocreator", "/wuic"
+  "/wagoc",
+  "/wagocreator",
+  "/wuic"
 }
 addon.ADDON_WIDTH = 1000
 addon.ADDON_HEIGHT = 800
@@ -74,11 +77,11 @@ addon.externalLinks = {
   {
     name = "GitHub",
     tooltip = L["Open an issue on GitHub"],
-    url = "<Placeholder GitHub Link>",
+    url = "<Placeholder GitHub Link>"
   },
   {
     name = "Discord",
     tooltip = L["Provide feedback in Discord"],
-    url = "<Placeholder Discord Link>",
-  },
+    url = "<Placeholder Discord Link>"
+  }
 }

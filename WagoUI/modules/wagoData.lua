@@ -33,12 +33,16 @@ end
 ---@param lap LibAddonProfilesModule
 ---@return string newProfileKey
 local findApproriateProfileKey = function(profileKey, lap)
-  if profileKey == "Global" then return profileKey end
-  if not lap:isLoaded() then return profileKey end
+  if profileKey == "Global" then
+    return profileKey
+  end
+  if not lap:isLoaded() then
+    return profileKey
+  end
   local newProfileKey = profileKey
   local i = 1
   while lap:isDuplicate(newProfileKey) do
-    newProfileKey = profileKey.."_"..i
+    newProfileKey = profileKey .. "_" .. i
     i = i + 1
   end
   return newProfileKey
@@ -70,9 +74,12 @@ function addon:SetupWagoData()
         if profileData and lap then
           if lap:needsInitialization() then
             lap:openConfig()
-            C_Timer.After(0, function()
-              lap:closeConfig()
-            end)
+            C_Timer.After(
+              0,
+              function()
+                lap:closeConfig()
+              end
+            )
           end
           ---@class IntroImportState
           ---@field checked boolean
@@ -80,37 +87,45 @@ function addon:SetupWagoData()
           ---@field profileKey string
           ---@field profile string
 
-          addon.db.introImportState[moduleName] = addon.db.introImportState[moduleName] or {
-            checked = true,
-          }
+          addon.db.introImportState[moduleName] =
+            addon.db.introImportState[moduleName] or
+            {
+              checked = true
+            }
           addon.db.introImportState[moduleName].profileMetadata = source.profileMetadata[resolution][moduleName]
           local profileKey = findApproriateProfileKey(moduleData, lap)
           addon.db.introImportState[moduleName].profileKey = profileKey
           addon.db.introImportState[moduleName].profile = profileData
 
-          tinsert(addon.wagoData[resolution], {
-            lap = lap,
-            moduleName = moduleName,
-            profileKey = profileKey,
-            profileMetadata = source.profileMetadata[resolution][moduleName],
-            profile = profileData,
-            enabled = addon.db.introImportState[moduleName].checked,
-          })
+          tinsert(
+            addon.wagoData[resolution],
+            {
+              lap = lap,
+              moduleName = moduleName,
+              profileKey = profileKey,
+              profileMetadata = source.profileMetadata[resolution][moduleName],
+              profile = profileData,
+              enabled = addon.db.introImportState[moduleName].checked
+            }
+          )
         end
       elseif moduleName == "WeakAuras" or moduleName == "Echo Raid Tools" then
         for groupId in pairs(moduleData) do
           local profile = source.profiles[resolution][moduleName] and source.profiles[resolution][moduleName][groupId]
           local lap = LAP:GetModule(moduleName)
           if profile and lap then
-            tinsert(addon.wagoData[resolution], {
-              lap = lap,
-              moduleName = moduleName,
-              entryName = groupId,
-              profileKey = groupId,
-              profileMetadata = source.profileMetadata[resolution][moduleName],
-              profile = profile,
-              enabled = true,
-            })
+            tinsert(
+              addon.wagoData[resolution],
+              {
+                lap = lap,
+                moduleName = moduleName,
+                entryName = groupId,
+                profileKey = groupId,
+                profileMetadata = source.profileMetadata[resolution][moduleName],
+                profile = profile,
+                enabled = true
+              }
+            )
           end
         end
       else
@@ -196,7 +211,7 @@ local function wrapStringInCurrentClassColor(name)
   local _, class = UnitClass("player")
   if class ~= "Adventurer" then
     local _, _, _, classHexString = GetClassColor(class)
-    res = "|c"..classHexString..res.."|r"
+    res = "|c" .. classHexString .. res .. "|r"
   end
   return res
 end
@@ -217,13 +232,13 @@ end
 
 ---@return table<string, ImportMetaData>>
 function addon:GetImportedProfilesTarget()
-  local currentCharacter = UnitName("player").." - "..GetRealmName()
+  local currentCharacter = UnitName("player") .. " - " .. GetRealmName()
   local packKey = addon.db.selectedWagoData
   local resolution = addon.db.selectedWagoDataResolution
   addon.db.importedProfiles[currentCharacter] = addon.db.importedProfiles[currentCharacter] or {}
   addon.db.importedProfiles[currentCharacter][packKey] = addon.db.importedProfiles[currentCharacter][packKey] or {}
-  addon.db.importedProfiles[currentCharacter][packKey][resolution] = addon.db.importedProfiles[currentCharacter]
-      [packKey][resolution] or {}
+  addon.db.importedProfiles[currentCharacter][packKey][resolution] =
+    addon.db.importedProfiles[currentCharacter][packKey][resolution] or {}
   addon.db.classColoredCharacters[currentCharacter] = wrapStringInCurrentClassColor(currentCharacter)
   return addon.db.importedProfiles[currentCharacter][packKey][resolution]
 end
@@ -239,10 +254,12 @@ end
 function addon:StoreImportedProfileData(timestamp, moduleName, profileKey, entryName)
   local target = addon:GetImportedProfilesTarget()
   if not target[moduleName] then
-    target[moduleName] = entryName and
-        {
-          entries = {},
-        } or {}
+    target[moduleName] =
+      entryName and
+      {
+        entries = {}
+      } or
+      {}
   end
   if entryName then
     target[moduleName].entries[entryName] = {
@@ -263,12 +280,14 @@ end
 ---@return number | nil importedAt Timestamp of when the profile was imported by the user
 function addon:GetImportedProfileData(moduleName, entryName)
   local target = addon:GetImportedProfilesTarget()
-  if not target[moduleName] then return end
+  if not target[moduleName] then
+    return
+  end
   if entryName then
-    local data = target[moduleName]
-        and target[moduleName].entries
-        and target[moduleName].entries[entryName]
-    if not data then return end
+    local data = target[moduleName] and target[moduleName].entries and target[moduleName].entries[entryName]
+    if not data then
+      return
+    end
     return data.lastUpdatedAt, data.profileKey, data.importedAt
   end
   return target[moduleName].lastUpdatedAt, target[moduleName].profileKey, target[moduleName].importedAt

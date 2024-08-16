@@ -24,11 +24,11 @@ local dbDefaults = {
   config = {},
   exportOptions = {
     ["WeakAuras"] = {
-      purgeWago = true,
+      purgeWago = true
     }
   },
   creatorUI = {},
-  profileRemovals = {},
+  profileRemovals = {}
 }
 
 local function handleDBLoad(database, force, defaults)
@@ -44,8 +44,9 @@ local function handleDBLoad(database, force, defaults)
 end
 
 function addon:ResetOptions()
-  DF:ShowPromptPanel(L["Reset?"]
-    , function()
+  DF:ShowPromptPanel(
+    L["Reset?"],
+    function()
       WagoUICreatorDB = nil
       handleDBLoad(addon.db, true, dbDefaults)
       DetailsFrameworkPromptSimple:SetHeight(80)
@@ -55,16 +56,17 @@ function addon:ResetOptions()
       DetailsFrameworkPromptSimple:SetHeight(80)
     end,
     nil,
-    nil)
+    nil
+  )
   DetailsFrameworkPromptSimple:SetHeight(100)
 end
 
 function addon:AddonPrint(...)
-  print("|c"..addon.color..addonName.."|r:", tostringall(...))
+  print("|c" .. addon.color .. addonName .. "|r:", tostringall(...))
 end
 
 function addon:AddonPrintError(...)
-  print("|c"..addon.color..addonName.."|r|cffff9117:|r", tostringall(...))
+  print("|c" .. addon.color .. addonName .. "|r|cffff9117:|r", tostringall(...))
 end
 
 function addon:ShowFrame()
@@ -100,38 +102,47 @@ do
     table.insert(postDBLoads, func)
   end
 
-  addon.frames.eventListener:SetScript("OnEvent", function(self, event, ...)
-    if (event == "PLAYER_ENTERING_WORLD") then
-      addon.frames.eventListener:UnregisterEvent("PLAYER_ENTERING_WORLD")
-      if addon.db.autoStart or not addon.db.hasLoggedInEver then
-        C_Timer.After(1, function()
-          addon.db.hasLoggedInEver = true
-          addon:ShowFrame()
-        end)
-      end
-      addon:AddDataToStorageAddon()
-    elseif (event == "ADDON_LOADED") then
-      local loadedAddonName = ...
-      if (loadedAddonName == addonName) then
-        addon:SetUpDB()
-        handleDBLoad(addon.db, nil, dbDefaults)
-        addon.frames.eventListener:UnregisterEvent("ADDON_LOADED")
-        --have to do this on next frame for some reason
-        C_Timer.After(0, function()
-          for _, func in pairs(postDBLoads) do
-            func()
-          end
-        end)
+  addon.frames.eventListener:SetScript(
+    "OnEvent",
+    function(self, event, ...)
+      if (event == "PLAYER_ENTERING_WORLD") then
+        addon.frames.eventListener:UnregisterEvent("PLAYER_ENTERING_WORLD")
+        if addon.db.autoStart or not addon.db.hasLoggedInEver then
+          C_Timer.After(
+            1,
+            function()
+              addon.db.hasLoggedInEver = true
+              addon:ShowFrame()
+            end
+          )
+        end
+        addon:AddDataToStorageAddon()
+      elseif (event == "ADDON_LOADED") then
+        local loadedAddonName = ...
+        if (loadedAddonName == addonName) then
+          addon:SetUpDB()
+          handleDBLoad(addon.db, nil, dbDefaults)
+          addon.frames.eventListener:UnregisterEvent("ADDON_LOADED")
+          --have to do this on next frame for some reason
+          C_Timer.After(
+            0,
+            function()
+              for _, func in pairs(postDBLoads) do
+                func()
+              end
+            end
+          )
+        end
       end
     end
-  end)
+  )
 end
 
 function addon:DeepCopyAsync(orig)
   local orig_type = type(orig)
   local copy
   coroutine.yield()
-  if orig_type == 'table' then
+  if orig_type == "table" then
     copy = {}
     for orig_key, orig_value in next, orig, nil do
       copy[addon:DeepCopyAsync(orig_key)] = addon:DeepCopyAsync(orig_value)
@@ -144,9 +155,11 @@ function addon:DeepCopyAsync(orig)
 end
 
 function addon:AddDataToStorageAddon()
-  if not WagoUI_Storage then return end
+  if not WagoUI_Storage then
+    return
+  end
   for _, pack in pairs(addon:GetAllPacks()) do
-    local packName = pack.localName.." (Local Copy)"
+    local packName = pack.localName .. " (Local Copy)"
     local data = {
       gameVersion = pack.gameVersion,
       localName = packName,
@@ -154,7 +167,7 @@ function addon:AddDataToStorageAddon()
       resolutions = pack.resolutions,
       releaseNotes = pack.releaseNotes,
       profileKeys = pack.profileKeys,
-      profiles = pack.profiles,
+      profiles = pack.profiles
     }
     WagoUI_Storage[packName] = data
   end
@@ -165,7 +178,9 @@ function addon:AddDataToStorageAddon()
 end
 
 function addon:GetCurrentPack()
-  if not addon.db.chosenPack then return end
+  if not addon.db.chosenPack then
+    return
+  end
   return addon.db.creatorUI[addon.db.chosenPack]
 end
 
@@ -191,7 +206,7 @@ function addon.CreatePack()
     profileMetadata = {},
     releaseNotes = {},
     resolutions = {
-      enabled = {},
+      enabled = {}
     }
   }
   for _, resolution in ipairs(addon.resolutions.entries) do
@@ -208,7 +223,9 @@ function addon.CreatePack()
 end
 
 function addon.DeleteCurrentPack()
-  if not addon.db.chosenPack then return end
+  if not addon.db.chosenPack then
+    return
+  end
   addon.db.creatorUI[addon.db.chosenPack] = nil
   addon.db.chosenPack = nil
   addon.UpdatePackSelectedUI()
@@ -221,7 +238,9 @@ function addon:RefreshDropdown(dropdown)
   dropdown:Select(dropdownValue)
   local values = {}
   for _, v in pairs(dropdown.func()) do
-    if v.value then values[v.value] = true end
+    if v.value then
+      values[v.value] = true
+    end
   end
   if not values[dropdownValue] then
     dropdown:NoOptionSelected()
@@ -234,10 +253,12 @@ function addon:RefreshAllProfileDropdowns()
     dropdown:Refresh() --update the dropdown options
     dropdown:Close()
     local dropdownValue = dropdown:GetValue()
-    dropdown:Select(dropdownValue)        --selected profile could have been renamed, need to refresh like this
+    dropdown:Select(dropdownValue) --selected profile could have been renamed, need to refresh like this
     local values = {}
     for _, v in pairs(dropdown.func()) do --if the selected profile got deleted
-      if v.value then values[v.value] = true end
+      if v.value then
+        values[v.value] = true
+      end
     end
     if not values[dropdownValue] then
       dropdown:NoOptionSelected()
@@ -272,12 +293,19 @@ function addon:CreateFrames()
     DontRightClickClose = true,
     NoTUISpecialFrame = false,
     -- UseScaleBar = true, --disable for now might use it later on
-    NoCloseButton = false,
+    NoCloseButton = false
   }
-  local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "Title");
-  local frame = DF:CreateSimplePanel(UIParent, addon.ADDON_WIDTH, addon.ADDON_HEIGHT, addonTitle,
-    addonName.."Frame",
-    panelOptions, WagoUICreatorDB)
+  local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "Title")
+  local frame =
+    DF:CreateSimplePanel(
+    UIParent,
+    addon.ADDON_WIDTH,
+    addon.ADDON_HEIGHT,
+    addonTitle,
+    addonName .. "Frame",
+    panelOptions,
+    WagoUICreatorDB
+  )
   frame:Hide()
   DF:ApplyStandardBackdrop(frame)
   DF:CreateBorder(frame, 1, 0, 0)
@@ -286,28 +314,41 @@ function addon:CreateFrames()
   frame:SetFrameLevel(100)
   frame:SetToplevel(true)
   LWF:ScaleFrameByResolution(frame)
-  frame:SetPoint(WagoUICreatorDB.anchorTo, UIParent, WagoUICreatorDB.anchorFrom, WagoUICreatorDB.xoffset,
-    WagoUICreatorDB.yoffset)
-  hooksecurefunc(frame, "StopMovingOrSizing", function()
-    local from, _, to, x, y = frame:GetPoint(nil)
-    WagoUICreatorDB.anchorFrom, WagoUICreatorDB.anchorTo = from, to
-    WagoUICreatorDB.xoffset, WagoUICreatorDB.yoffset = x, y
-  end)
+  frame:SetPoint(
+    WagoUICreatorDB.anchorTo,
+    UIParent,
+    WagoUICreatorDB.anchorFrom,
+    WagoUICreatorDB.xoffset,
+    WagoUICreatorDB.yoffset
+  )
+  hooksecurefunc(
+    frame,
+    "StopMovingOrSizing",
+    function()
+      local from, _, to, x, y = frame:GetPoint(nil)
+      WagoUICreatorDB.anchorFrom, WagoUICreatorDB.anchorTo = from, to
+      WagoUICreatorDB.xoffset, WagoUICreatorDB.yoffset = x, y
+    end
+  )
   frame.__background:SetAlpha(1)
 
   frame.Title:SetFont(frame.Title:GetFont(), 16)
   frame.Title:SetPoint("CENTER", frame.TitleBar, "CENTER", 0, 1)
 
-  local versionString = frame.TitleBar:CreateFontString(addonName.."VersionString", "overlay", "GameFontNormalSmall")
+  local versionString = frame.TitleBar:CreateFontString(addonName .. "VersionString", "overlay", "GameFontNormalSmall")
   versionString:SetTextColor(.8, .8, .8, 1)
-  versionString:SetText("v"..metaVersion)
+  versionString:SetText("v" .. metaVersion)
   versionString:SetPoint("LEFT", frame.TitleBar, "LEFT", 2, 0)
 
-  local autoStartCheckbox = LWF:CreateCheckbox(frame, 25,
+  local autoStartCheckbox =
+    LWF:CreateCheckbox(
+    frame,
+    25,
     function(_, _, value)
       WagoUICreatorDB.autoStart = value
     end,
-    WagoUICreatorDB.autoStart)
+    WagoUICreatorDB.autoStart
+  )
   autoStartCheckbox:Hide()
   autoStartCheckbox:SetPoint("TOPLEFT", frame, "TOPRIGHT", 5, 0)
 
@@ -317,7 +358,11 @@ function addon:CreateFrames()
 
   local resetButton = LWF:CreateButton(frame, 60, 40, "RESET", 16)
   resetButton:SetPoint("TOPLEFT", frame, "TOPRIGHT", 0, -60)
-  resetButton:SetClickFunction(function() addon:ResetOptions() end)
+  resetButton:SetClickFunction(
+    function()
+      addon:ResetOptions()
+    end
+  )
   resetButton:Hide()
 
   local forceErrorButton = LWF:CreateButton(frame, 120, 40, "Force Error", 16)
@@ -328,9 +373,11 @@ function addon:CreateFrames()
   local testButton = LWF:CreateButton(frame, 120, 40, "Test Stuff", 16)
   testButton:Hide()
   testButton:SetPoint("TOPLEFT", frame, "TOPRIGHT", 0, -160)
-  testButton:SetClickFunction(function()
-    addon.frames.mainFrame.frameContent.contentScrollbox:Refresh()
-  end)
+  testButton:SetClickFunction(
+    function()
+      addon.frames.mainFrame.frameContent.contentScrollbox:Refresh()
+    end
+  )
 
   if addon.db.debug then
     autoStartCheckbox:Show()
@@ -370,11 +417,19 @@ function addon:CreateFrames()
         for _, hook in pairs(lapModule.refreshHookList) do
           local targetTable = hook.tableFunc()
           for _, functionName in pairs(hook.functionNames) do
-            hooksecurefunc(targetTable, functionName, function()
-              C_Timer.After(0.1, function() --edge case in editmode where the profilelist is not updated instantly
-                addon:RefreshAllProfileDropdowns()
-              end)
-            end)
+            hooksecurefunc(
+              targetTable,
+              functionName,
+              function()
+                C_Timer.After(
+                  0.1,
+                  function()
+                    --edge case in editmode where the profilelist is not updated instantly
+                    addon:RefreshAllProfileDropdowns()
+                  end
+                )
+              end
+            )
           end
         end
       end
@@ -385,9 +440,12 @@ function addon:CreateFrames()
       local lapModule = module.lapModule
       if lapModule:needsInitialization() then
         lapModule:openConfig()
-        C_Timer.After(0, function()
-          lapModule:closeConfig()
-        end)
+        C_Timer.After(
+          0,
+          function()
+            lapModule:closeConfig()
+          end
+        )
       end
       if lapModule:isLoaded() then
         executeRefreshHooks(lapModule)

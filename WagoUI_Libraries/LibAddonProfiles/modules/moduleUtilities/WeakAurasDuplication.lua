@@ -9,7 +9,7 @@ local function privateAddParents(data)
 end
 
 local function privateDuplicateAura(data, newParent, massEdit, targetIndex)
-  local base_id = data.id.." "
+  local base_id = data.id .. " "
   local num = 2
 
   -- if the old id ends with a number increment the number
@@ -20,9 +20,9 @@ local function privateDuplicateAura(data, newParent, massEdit, targetIndex)
     num = matchNumber + 1
   end
 
-  local new_id = base_id..num
+  local new_id = base_id .. num
   while (WeakAuras.GetData(new_id)) do
-    new_id = base_id..num
+    new_id = base_id .. num
     num = num + 1
   end
 
@@ -52,7 +52,7 @@ local function privateDuplicateAura(data, newParent, massEdit, targetIndex)
       WeakAuras.Add(newData)
       WeakAuras.Add(parentData)
       privateAddParents(parentData)
-      -- ignore UI stuff, we don't need
+    -- ignore UI stuff, we don't need
     end
   end
   return newData
@@ -82,7 +82,9 @@ end
 
 local function duplicateDisplay(id)
   local data = WeakAuras.GetData(id)
-  if (WeakAuras.IsImporting()) then return end;
+  if (WeakAuras.IsImporting()) then
+    return
+  end
   if data.controlledChildren then
     local newGroup = privateDuplicateAura(data)
     local mapping = {}

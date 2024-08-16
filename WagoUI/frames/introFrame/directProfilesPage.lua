@@ -1,6 +1,6 @@
 ---@class WagoUI
 local addon = select(2, ...)
-local DF = _G["DetailsFramework"];
+local DF = _G["DetailsFramework"]
 local LWF = LibStub("LibWagoFramework")
 local L = addon.L
 
@@ -20,10 +20,10 @@ local function createPage()
   local page = addon:CreatePageProtoType(pageName)
 
   local text = L["Choose the profiles you would like to install."]
-  local header = DF:CreateLabel(page, text, 22, "white");
+  local header = DF:CreateLabel(page, text, 22, "white")
   header:SetWidth(page:GetWidth() - 10)
   header:SetJustifyH("CENTER")
-  header:SetPoint("TOPLEFT", page, "TOPLEFT", 0, -15);
+  header:SetPoint("TOPLEFT", page, "TOPLEFT", 0, -15)
 
   local checkboxDefaultValue = true
   for _, data in pairs(addon.db.introImportState) do
@@ -32,13 +32,19 @@ local function createPage()
       break
     end
   end
-  local allCheckbox = LWF:CreateCheckbox(page, 40, function(self, _, value)
-    for _, data in pairs(addon.db.introImportState) do
-      data.checked = value
-    end
-    addon:SetupWagoData()
-    addon:UpdateRegisteredDataConsumers()
-  end, checkboxDefaultValue)
+  local allCheckbox =
+    LWF:CreateCheckbox(
+    page,
+    40,
+    function(self, _, value)
+      for _, data in pairs(addon.db.introImportState) do
+        data.checked = value
+      end
+      addon:SetupWagoData()
+      addon:UpdateRegisteredDataConsumers()
+    end,
+    checkboxDefaultValue
+  )
   allCheckbox:SetPoint("BOTTOMRIGHT", page, "BOTTOM", -37, 10)
   local checkboxLabel = DF:CreateLabel(page, L["Import All"], 16, "white")
   checkboxLabel:SetPoint("LEFT", allCheckbox, "RIGHT", 5, 0)
@@ -64,14 +70,17 @@ local function createPage()
         end
       end
       --sort disabled modules to bottom, alphabetically afterwards
-      table.sort(filtered, function(a, b)
-        local orderA = (a.lap:isLoaded() or a.lap:needsInitialization()) and 1 or 0
-        local orderB = (b.lap:isLoaded() or b.lap:needsInitialization()) and 1 or 0
-        if orderA == orderB then
-          return a.moduleName < b.moduleName
+      table.sort(
+        filtered,
+        function(a, b)
+          local orderA = (a.lap:isLoaded() or a.lap:needsInitialization()) and 1 or 0
+          local orderB = (b.lap:isLoaded() or b.lap:needsInitialization()) and 1 or 0
+          if orderA == orderB then
+            return a.moduleName < b.moduleName
+          end
+          return orderA > orderB
         end
-        return orderA > orderB
-      end)
+      )
     end
     list.updateData(filtered)
   end
