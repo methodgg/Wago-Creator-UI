@@ -11,7 +11,7 @@ local m
 local frameWidth = 750
 local frameHeight = 540
 local scrollBoxWidth = 250
-local scrollBoxHeight = frameHeight - 165
+local scrollBoxHeight = frameHeight - 210
 local lineHeight = 30
 local openWAButton
 
@@ -79,9 +79,11 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
         end
       end
     else
-      -- for _, display in pairs(initialData) do
-      --   table.insert(filteredData, display)
-      -- end
+      if scrollBoxIndex == 2 then
+        for _, display in pairs(initialData) do
+          table.insert(filteredData, display)
+        end
+      end
     end
     --sort top level groups to the top
     table.sort(
@@ -305,7 +307,7 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
     groupsScrollBox:SetBackdropColor(red, green, blue, alpha)
     groupsScrollBox:SetBackdropBorderColor(0, 0, 0, 1)
   end
-  local instruction = (scrollBoxIndex == 1) and L["Search for your\nWeakAuras"] or L["Drag and drop\nto add WeakAuras"]
+  local instruction = (scrollBoxIndex == 1) and L["Type to search for\nyour WeakAuras"] or L["Add WeakAuras\nto Export"]
   local instructionLabel = DF:CreateLabel(groupsScrollBox, instruction, 20, "grey")
   instructionLabel:SetTextColor(0.5, 0.5, 0.5, 1)
   instructionLabel:SetJustifyH("CENTER")
@@ -337,17 +339,18 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
     LWF:CreateTextEntry(
     groupsScrollBox,
     scrollBoxWidth,
-    20,
+    30,
     function()
-    end
+    end,
+    16
   )
-  searchBox:SetPoint("bottomleft", groupsScrollBox, "topleft", 0, 2)
+  searchBox:SetPoint("BOTTOMLEFT", groupsScrollBox, "TOPLEFT", 0, 2)
   groupsScrollBox.searchBox = searchBox
 
   searchBox:SetHook("OnChar", onSearchBoxTextChanged)
   searchBox:SetHook("OnTextChanged", onSearchBoxTextChanged)
   local searchLabel = DF:CreateLabel(groupsScrollBox, L["Search:"], DF:GetTemplate("font", "ORANGE_FONT_TEMPLATE"))
-  searchLabel:SetPoint("bottomleft", searchBox, "topleft", 0, 2)
+  searchLabel:SetPoint("BOTTOMLEFT", searchBox, "TOPLEFT", 0, 2)
 
   return groupsScrollBox
 end
@@ -376,6 +379,7 @@ local function createManageFrame(w, h)
     "OnShow",
     function()
       LWF:ToggleLockoutFrame(true, addon.frames, addon.frames.mainFrame)
+      m.scrollBoxes[1].searchBox.editbox:SetFocus()
     end
   )
 
@@ -408,7 +412,7 @@ local function createManageFrame(w, h)
         onClick = function(info)
           addToData(2, info)
         end,
-        tooltip = "Add to export list"
+        tooltip = L["Add to export list"]
       }
     },
     [2] = {
@@ -417,25 +421,25 @@ local function createManageFrame(w, h)
         onClick = function(info)
           removeFromData(2, info)
         end,
-        tooltip = "Remove from export list"
+        tooltip = L["Remove from export list"]
       },
       [2] = {
         icon = 134327,
         onClick = function(info)
           copyExportString(info.id)
         end,
-        tooltip = "Copy export string directly to clipboard"
+        tooltip = L["Copy export string directly to clipboard"]
       }
     }
   }
 
   for idx, buttonConfig in ipairs(buttonConfigs) do
     local scrollBox = createGroupScrollBox(m, buttonConfig, idx)
-    scrollBox:SetPoint("TOPLEFT", m, "TOPLEFT", 60 + ((idx - 1) * (scrollBoxWidth + 110)), -95)
+    scrollBox:SetPoint("TOPLEFT", m, "TOPLEFT", 60 + ((idx - 1) * (scrollBoxWidth + 110)), -125)
     m.scrollBoxes[idx] = scrollBox
-    local labelText = idx == 1 and "WeakAuras" or idx == 2 and L["Marked for Export"]
+    local labelText = idx == 1 and L["Your WeakAuras"] or idx == 2 and L["Exported WeakAuras"]
     local label = DF:CreateLabel(scrollBox, labelText, 20, "white")
-    label:SetPoint("BOTTOM", scrollBox, "TOP", 0, 40)
+    label:SetPoint("BOTTOM", scrollBox, "TOP", 0, 55)
   end
 
   local purgeWagoCheckbox =
@@ -449,9 +453,11 @@ local function createManageFrame(w, h)
     WagoUICreatorDB.exportOptions[moduleName]
   )
   purgeWagoCheckbox:SetPoint("BOTTOMLEFT", m, "BOTTOMLEFT", 60, 27)
-  local purgeWagoLabel = DF:CreateLabel(m, "Startup", 12, "white")
+  local purgeWagoLabel = DF:CreateLabel(m, L["Purge Wago IDs for exports"], 12, "white")
   purgeWagoLabel:SetPoint("LEFT", purgeWagoCheckbox, "RIGHT", 10, 0)
-  purgeWagoLabel:SetText(L["Purge Wago IDs for exports"])
+  -- TODO: HIDE THIS FOR NOW
+  purgeWagoCheckbox:Hide()
+  purgeWagoLabel:Hide()
 
   local okayButton = LWF:CreateButton(m, 200, 40, L["Okay"], 16)
   okayButton:SetClickFunction(
@@ -461,7 +467,7 @@ local function createManageFrame(w, h)
   )
   okayButton:SetPoint("BOTTOMRIGHT", m, "BOTTOMRIGHT", -60, 20)
 
-  openWAButton = LWF:CreateButton(m, 200, 40, "Toggle WeakAuras", 16)
+  openWAButton = LWF:CreateButton(m, 200, 40, L["Toggle WA Options"], 16)
   openWAButton:SetClickFunction(
     function()
       if not WeakAurasOptions or not WeakAurasOptions:IsShown() then
@@ -478,7 +484,7 @@ local function createManageFrame(w, h)
       end
     end
   )
-  openWAButton:SetPoint("RIGHT", okayButton, "LEFT", -10, 0)
+  openWAButton:SetPoint("BOTTOMLEFT", m, "BOTTOMLEFT", 60, 20)
 
   return m
 end
