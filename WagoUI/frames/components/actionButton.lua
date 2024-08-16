@@ -27,9 +27,10 @@ local function setupWagoWeakAuraSplitView()
 end
 
 function addon:EndWeakAuraSplitView()
+  addon.state.hasSetupSplitView = false
+  if not WeakAurasOptions or not WeakAurasOptions:IsShown() then return end
   WeakAurasOptions:Hide()
   addon:ResetFramePosition()
-  addon.state.hasSetupSplitView = false
 end
 
 function addon:CreateActionButton(parent, width, height, fontSize)
