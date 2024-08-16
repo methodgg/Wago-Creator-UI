@@ -260,6 +260,24 @@ function addon:RefreshAllProfileDropdowns()
   addon.RefreshContentScrollBox()
 end
 
+function addon:ResetFramePosition()
+  local defaults = addon.dbDefaults
+  addon.db.anchorTo = defaults.anchorTo
+  addon.db.anchorFrom = defaults.anchorFrom
+  addon.db.xoffset = defaults.xoffset
+  addon.db.yoffset = defaults.yoffset
+  if addon.frames.mainFrame then
+    addon.frames.mainFrame:ClearAllPoints()
+    addon.frames.mainFrame:SetPoint(
+      defaults.anchorTo,
+      UIParent,
+      defaults.anchorFrom,
+      defaults.xoffset,
+      defaults.yoffset
+    )
+  end
+end
+
 function addon:CreateFrames()
   addon:RegisterErrorHandledFunctions()
   local panelOptions = {

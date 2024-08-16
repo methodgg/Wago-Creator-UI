@@ -313,14 +313,17 @@ end
 
 ---@param myFrame Frame
 ---@param otherFrame Frame
-function LibWagoFramework:StartSplitView(myFrame, otherFrame, mineLeft)
+---@param mineLeft boolean
+---@param xOffset number | nil
+function LibWagoFramework:StartSplitView(myFrame, otherFrame, mineLeft, xOffset)
   if not otherFrame or not otherFrame:IsShown() then
     return
   end
+  xOffset = (mineLeft and -1 or 1) * (xOffset or 10)
   otherFrame:ClearAllPoints()
-  otherFrame:SetPoint(mineLeft and "LEFT" or "RIGHT", UIParent, "CENTER", -10, 0)
+  otherFrame:SetPoint(mineLeft and "LEFT" or "RIGHT", UIParent, "CENTER", -1 * xOffset, 0)
   myFrame:ClearAllPoints()
-  myFrame:SetPoint(mineLeft and "RIGHT" or "LEFT", UIParent, "CENTER", 10, 0)
+  myFrame:SetPoint(mineLeft and "RIGHT" or "LEFT", UIParent, "CENTER", xOffset, 0)
 end
 
 ---@param resetFunc function

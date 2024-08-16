@@ -375,6 +375,14 @@ local function createManageFrame(w, h)
     "OnShow",
     function()
       LWF:ToggleLockoutFrame(true, addon.frames, addon.frames.mainFrame)
+      local lap = LAP:GetModule(moduleName)
+      if not WeakAurasOptions then
+        lap:openConfig()
+      end
+      if not WeakAurasOptions:IsShown() then
+        WeakAurasOptions:Show()
+      end
+      LWF:StartSplitView(addon.frames.mainFrame, WeakAurasOptions, true, 20)
     end
   )
 
@@ -382,6 +390,7 @@ local function createManageFrame(w, h)
     "OnHide",
     function()
       LWF:ToggleLockoutFrame(false, addon.frames, addon.frames.mainFrame)
+      LWF:EndSplitView(WeakAurasOptions, addon.ResetFramePosition)
     end
   )
 
