@@ -313,7 +313,7 @@ end
 
 ---@param myFrame Frame
 ---@param otherFrame Frame
-function LibWagoFramework:SetupSplitView(myFrame, otherFrame, mineLeft)
+function LibWagoFramework:StartSplitView(myFrame, otherFrame, mineLeft)
   if not otherFrame or not otherFrame:IsShown() then
     return
   end

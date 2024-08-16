@@ -61,7 +61,7 @@ function addon:CreateActionButton(parent, width, height, fontSize)
               importProfile(lap, info.profile, profileKey, latestVersion, info.entryName)
               if lap.moduleName == "WeakAuras" then
                 if not addon.state.hasSetupSplitView then
-                  LWF:SetupSplitView(addon.frames.mainFrame, WeakAurasOptions, false)
+                  LWF:StartSplitView(addon.frames.mainFrame, WeakAurasOptions, false)
                   addon.state.hasSetupSplitView = true
                 end
               end
