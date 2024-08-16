@@ -52,7 +52,7 @@ local setupInstallButton = function(enabled, needEnableAddons, introImportState)
       end
     end
     addon:StartCopyHelperProgressBar(countOperations)
-    addon.copyHelper:SmartShow(UIParent, 0, 0, L["Importing profiles..."])
+    addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 0, L["Importing profiles..."])
     addon:Async(function()
       for moduleName, data in pairs(introImportState) do
         local lap = LAP:GetModule(moduleName)
@@ -73,7 +73,7 @@ local setupInstallButton = function(enabled, needEnableAddons, introImportState)
         addon.frames.mainFrame:Show()
       end
       addon.copyHelper:SmartHide()
-      addon.copyHelper:SmartFadeOut(2, L["Done"], UIParent, 0, 0)
+      addon.copyHelper:SmartFadeOut(2, L["Done"], addon.frames.mainFrame, 0, 0)
       -- TODO: this is the bug that happened when Kwepp logged other char and it didn't pop up
       -- was it even a bug? maybe he didnt import anything??
       addon.db.anyInstalled = true
