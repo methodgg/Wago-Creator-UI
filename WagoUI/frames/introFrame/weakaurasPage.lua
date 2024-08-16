@@ -1,6 +1,7 @@
 ---@class WagoUI
 local addon = select(2, ...)
 local DF = _G["DetailsFramework"];
+local LWF = LibStub("LibWagoFramework")
 local L = addon.L
 
 local pageName = "WeakAurasPage"
@@ -14,7 +15,8 @@ local onShow = function()
 end
 
 local onHide = function()
-  addon:EndWeakAuraSplitView()
+  addon.state.hasSetupSplitView = false
+  LWF:EndSplitView(WeakAurasOptions, addon.ResetFramePosition)
 end
 
 local function createPage()

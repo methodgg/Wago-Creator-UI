@@ -231,3 +231,22 @@ function LibWagoFramework:CreateIconButton(parent, size, icon, tooltipText)
   end
   return button
 end
+
+---@param myFrame Frame
+---@param otherFrame Frame
+function LibWagoFramework:SetupSplitView(myFrame, otherFrame, mineLeft)
+  if not otherFrame or not otherFrame:IsShown() then return end
+  otherFrame:ClearAllPoints()
+  otherFrame:SetPoint(mineLeft and "LEFT" or "RIGHT", UIParent, "CENTER", -10, 0)
+  myFrame:ClearAllPoints()
+  myFrame:SetPoint(mineLeft and "RIGHT" or "LEFT", UIParent, "CENTER", 10, 0)
+end
+
+---@param resetFunc function
+---@param otherFrame Frame
+function LibWagoFramework:EndSplitView(otherFrame, resetFunc)
+  if not otherFrame or not otherFrame:IsShown() then return end
+  if not otherFrame or not otherFrame:IsShown() then return end
+  otherFrame:Hide()
+  resetFunc()
+end
