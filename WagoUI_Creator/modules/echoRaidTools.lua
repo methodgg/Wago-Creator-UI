@@ -7,7 +7,6 @@ local lapModule = LAP:GetModule(moduleName)
 local DF = _G["DetailsFramework"]
 local LWF = LibStub("LibWagoFramework")
 
-local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
 local m
 local frameWidth = 750
 local frameHeight = 540
@@ -289,9 +288,9 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
 end
 
 local function createManageFrame(w, h)
-  ---@diagnostic disable-next-line: undefined-field
   local panelOptions = {
-    DontRightClickClose = true
+    DontRightClickClose = true,
+    NoTUISpecialFrame = false
   }
   m = DF:CreateSimplePanel(UIParent, w, h, "", nil, panelOptions)
   ---@diagnostic disable-next-line: undefined-field

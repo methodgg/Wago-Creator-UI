@@ -352,9 +352,9 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
 end
 
 local function createManageFrame(w, h)
-  ---@diagnostic disable-next-line: undefined-field
   local panelOptions = {
-    DontRightClickClose = true
+    DontRightClickClose = true,
+    NoTUISpecialFrame = false
   }
   m = DF:CreateSimplePanel(UIParent, w, h, "", nil, panelOptions)
   ---@diagnostic disable-next-line: undefined-field

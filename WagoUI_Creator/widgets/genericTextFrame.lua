@@ -2,10 +2,15 @@
 local addon = select(2, ...)
 local DF = _G["DetailsFramework"]
 
-function addon:CreateGenericTextFrame(width, height, title)
+---@param width number
+---@param height number
+---@param title string
+---@param preventEscapeClose boolean | nil
+---@return table
+function addon:CreateGenericTextFrame(width, height, title, preventEscapeClose)
   local panelOptions = {
     DontRightClickClose = true,
-    NoTUISpecialFrame = false,
+    NoTUISpecialFrame = preventEscapeClose or false,
     NoCloseButton = false
   }
   local f = DF:CreateSimplePanel(addon.frames.mainFrame, width, height, title, nil, panelOptions)

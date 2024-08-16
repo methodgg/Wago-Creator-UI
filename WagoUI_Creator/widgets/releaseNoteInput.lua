@@ -7,7 +7,7 @@ local LWF = LibStub("LibWagoFramework")
 local releaseNotesFrame
 
 function addon:CreateReleaseNoteInput()
-  releaseNotesFrame = addon:CreateGenericTextFrame(600, 350, "Release Notes")
+  releaseNotesFrame = addon:CreateGenericTextFrame(600, 350, "Release Notes", true)
   releaseNotesFrame:SetFrameLevel(105)
   releaseNotesFrame.Close:SetScript(
     "OnClick",

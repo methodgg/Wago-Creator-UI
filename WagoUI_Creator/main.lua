@@ -282,7 +282,7 @@ function addon:CreateFrames()
   addon:RegisterErrorHandledFunctions()
   local panelOptions = {
     DontRightClickClose = true,
-    NoTUISpecialFrame = false,
+    NoTUISpecialFrame = true,
     -- UseScaleBar = true, --disable for now might use it later on
     NoCloseButton = false
   }
