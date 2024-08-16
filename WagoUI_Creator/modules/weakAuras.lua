@@ -13,6 +13,7 @@ local frameHeight = 540
 local scrollBoxWidth = 250
 local scrollBoxHeight = frameHeight - 165
 local lineHeight = 30
+local openWAButton
 
 local getChosenResolution = function()
   return addon:GetCurrentPack().resolutions.chosen
@@ -375,14 +376,6 @@ local function createManageFrame(w, h)
     "OnShow",
     function()
       LWF:ToggleLockoutFrame(true, addon.frames, addon.frames.mainFrame)
-      local lap = LAP:GetModule(moduleName)
-      if not WeakAurasOptions then
-        lap:openConfig()
-      end
-      if not WeakAurasOptions:IsShown() then
-        WeakAurasOptions:Show()
-      end
-      LWF:StartSplitView(addon.frames.mainFrame, WeakAurasOptions, true, 20)
     end
   )
 
@@ -455,9 +448,8 @@ local function createManageFrame(w, h)
     end,
     WagoUICreatorDB.exportOptions[moduleName]
   )
-  purgeWagoCheckbox:SetPoint("BOTTOMLEFT", m, "BOTTOMLEFT", 60, 20)
-
-  local purgeWagoLabel = DF:CreateLabel(m, "Startup", 16, "white")
+  purgeWagoCheckbox:SetPoint("BOTTOMLEFT", m, "BOTTOMLEFT", 60, 27)
+  local purgeWagoLabel = DF:CreateLabel(m, "Startup", 12, "white")
   purgeWagoLabel:SetPoint("LEFT", purgeWagoCheckbox, "RIGHT", 10, 0)
   purgeWagoLabel:SetText(L["Purge Wago IDs for exports"])
 
@@ -467,19 +459,26 @@ local function createManageFrame(w, h)
       m:Hide()
     end
   )
-  okayButton:SetScript(
-    "OnEnter",
-    function(self)
-      okayButton.button:SetBackdropBorderColor(1, 1, 1, 1)
-    end
-  )
-  okayButton:SetScript(
-    "OnLeave",
-    function(self)
-      okayButton.button:SetBackdropBorderColor(1, 1, 1, 0)
-    end
-  )
   okayButton:SetPoint("BOTTOMRIGHT", m, "BOTTOMRIGHT", -60, 20)
+
+  openWAButton = LWF:CreateButton(m, 200, 40, "Toggle WeakAuras", 16)
+  openWAButton:SetClickFunction(
+    function()
+      if not WeakAurasOptions or not WeakAurasOptions:IsShown() then
+        local lap = LAP:GetModule(moduleName)
+        if not WeakAurasOptions then
+          lap:openConfig()
+        end
+        if not WeakAurasOptions:IsShown() then
+          WeakAurasOptions:Show()
+        end
+        LWF:StartSplitView(addon.frames.mainFrame, WeakAurasOptions, true, 20)
+      else
+        LWF:EndSplitView(WeakAurasOptions, addon.ResetFramePosition)
+      end
+    end
+  )
+  openWAButton:SetPoint("RIGHT", okayButton, "LEFT", -10, 0)
 
   return m
 end

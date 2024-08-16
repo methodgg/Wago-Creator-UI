@@ -215,7 +215,7 @@ end
 ---@param yOffset number | nil
 function LibWagoFramework:ToggleLockoutFrame(show, storageTable, parent, xOffset, yOffset)
   local lockoutFrame = storageTable.LWFLockoutFrame
-  if not lockoutFrame then
+  if show and not lockoutFrame then
     storageTable.LWFLockoutFrame = CreateFrame("Frame", nil, parent)
     lockoutFrame = storageTable.LWFLockoutFrame
     lockoutFrame:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT")
@@ -230,6 +230,9 @@ function LibWagoFramework:ToggleLockoutFrame(show, storageTable, parent, xOffset
   if show then
     lockoutFrame:Show()
   else
+    if not lockoutFrame then
+      return
+    end
     lockoutFrame:Hide()
   end
 end
