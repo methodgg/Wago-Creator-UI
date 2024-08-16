@@ -249,13 +249,12 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
     groupsScrollBox:SetBackdropColor(red, green, blue, alpha)
     groupsScrollBox:SetBackdropBorderColor(0, 0, 0, 1)
   end
-  if scrollBoxIndex > 1 then
-    local instructionLabel = DF:CreateLabel(groupsScrollBox, L["Drag and drop\nto add WeakAuras"], 20, "grey")
-    instructionLabel:SetTextColor(0.5, 0.5, 0.5, 1)
-    instructionLabel:SetJustifyH("center")
-    instructionLabel:SetPoint("center", groupsScrollBox, "center", 0, 0)
-    groupsScrollBox.instructionLabel = instructionLabel
-  end
+  local instruction = (scrollBoxIndex == 1) and L["Search for your\nWeakAuras"] or L["Drag and drop\nto add WeakAuras"]
+  local instructionLabel = DF:CreateLabel(groupsScrollBox, instruction, 20, "grey")
+  instructionLabel:SetTextColor(0.5, 0.5, 0.5, 1)
+  instructionLabel:SetJustifyH("CENTER")
+  instructionLabel:SetPoint("CENTER", groupsScrollBox, "CENTER", 0, 0)
+  groupsScrollBox.instructionLabel = instructionLabel
 
   local function onSearchBoxTextChanged(...)
     local editBox, _, widget, searchString = ...
