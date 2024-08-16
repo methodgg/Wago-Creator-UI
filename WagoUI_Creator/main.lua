@@ -146,7 +146,7 @@ end
 function addon:AddDataToStorageAddon()
   if not WagoUI_Storage then return end
   for _, pack in pairs(addon:GetAllPacks()) do
-    local packName = pack.localName.." (Local)"
+    local packName = pack.localName.." (Local Copy)"
     local data = {
       gameVersion = pack.gameVersion,
       localName = packName,
