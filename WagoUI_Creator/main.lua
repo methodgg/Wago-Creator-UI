@@ -13,24 +13,6 @@ addon.frames = {}
 local profileDropdowns = {}
 local currentProfileDropdowns = {}
 
-local dbDefaults = {
-  debug = false,
-  autoStart = false,
-  hasLoggedInEver = false,
-  anchorTo = "CENTER",
-  anchorFrom = "CENTER",
-  xoffset = 0,
-  yoffset = 0,
-  config = {},
-  exportOptions = {
-    ["WeakAuras"] = {
-      purgeWago = true
-    }
-  },
-  creatorUI = {},
-  profileRemovals = {}
-}
-
 local function handleDBLoad(database, force, defaults)
   for k, v in pairs(defaults) do
     -- migrate from faulty values
@@ -48,7 +30,7 @@ function addon:ResetOptions()
     L["Reset?"],
     function()
       WagoUICreatorDB = nil
-      handleDBLoad(addon.db, true, dbDefaults)
+      handleDBLoad(addon.db, true, addon.dbDefaults)
       DetailsFrameworkPromptSimple:SetHeight(80)
       ReloadUI()
     end,
@@ -121,7 +103,7 @@ do
         local loadedAddonName = ...
         if (loadedAddonName == addonName) then
           addon:SetUpDB()
-          handleDBLoad(addon.db, nil, dbDefaults)
+          handleDBLoad(addon.db, nil, addon.dbDefaults)
           addon.frames.eventListener:UnregisterEvent("ADDON_LOADED")
           --have to do this on next frame for some reason
           C_Timer.After(

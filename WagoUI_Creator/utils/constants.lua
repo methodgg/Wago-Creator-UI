@@ -46,6 +46,24 @@ addon.resolutions = {
   defaultValue = "any"
 }
 
+addon.dbDefaults = {
+  debug = false,
+  autoStart = false,
+  hasLoggedInEver = false,
+  anchorTo = "CENTER",
+  anchorFrom = "CENTER",
+  xoffset = 0,
+  yoffset = 0,
+  config = {},
+  exportOptions = {
+    ["WeakAuras"] = {
+      purgeWago = true
+    }
+  },
+  creatorUI = {},
+  profileRemovals = {}
+}
+
 function addon:SetUpDB()
   WagoUICreatorDB = WagoUICreatorDB or {}
   WagoUICreatorDB.profileKeys = WagoUICreatorDB.profileKeys or {}
