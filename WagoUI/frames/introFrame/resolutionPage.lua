@@ -103,10 +103,15 @@ end
 local function createPage()
   page = addon:CreatePageProtoType(pageName)
 
-  local header = DF:CreateLabel(page, L["Choose the Resolution that fits your UI and Monitor best"], 28, "white");
+  local header = DF:CreateLabel(page, L["Select the profile set that you wish to install"], 28, "white");
   header:SetWidth(page:GetWidth() - 10)
   header:SetJustifyH("CENTER")
   header:SetPoint("TOP", page, "TOP", 0, -160);
+
+  local specifyLabel = DF:CreateLabel(page, L["This will neither change your resolution nor your UI Scale"], 20, "white");
+  specifyLabel:SetWidth(page:GetWidth() - 10)
+  specifyLabel:SetJustifyH("CENTER")
+  specifyLabel:SetPoint("TOP", header, "BOTTOM", 0, -10);
 
   page:SetScript("OnShow", onShow)
   return page
