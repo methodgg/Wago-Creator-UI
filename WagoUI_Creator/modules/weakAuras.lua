@@ -73,9 +73,9 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
         end
       end
     else
-      for _, display in pairs(initialData) do
-        table.insert(filteredData, display)
-      end
+      -- for _, display in pairs(initialData) do
+      --   table.insert(filteredData, display)
+      -- end
     end
     --sort top level groups to the top
     table.sort(filteredData, function(a, b)
