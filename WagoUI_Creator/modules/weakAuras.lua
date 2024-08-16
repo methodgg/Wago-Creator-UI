@@ -66,6 +66,63 @@ local function copyExportString(id)
   )
 end
 
+local getWeakAuraDepth, clearWeakAuraCaches, getNumTotalControlledChildren
+do
+  local depthCache = {}
+  local numChildrenCache = {}
+
+  function clearWeakAuraCaches()
+    wipe(depthCache)
+    wipe(numChildrenCache)
+  end
+
+  ---@param data table
+  ---@return integer
+  local function getDepth(data)
+    local parentId = data.parent
+    if not parentId then
+      return 0
+    end
+    return 1 + getDepth(WeakAurasSaved.displays[parentId])
+  end
+
+  ---@param id string
+  ---@return integer
+  function getWeakAuraDepth(id)
+    if depthCache[id] then
+      return depthCache[id]
+    end
+    local data = WeakAurasSaved.displays[id]
+    local depth = getDepth(data)
+    depthCache[id] = depth
+    return depth
+  end
+
+  ---@param data table
+  local function getNumControlled(data)
+    if not data.controlledChildren then
+      return 0
+    end
+    local num = 0
+    for _, childId in ipairs(data.controlledChildren) do
+      num = num + 1 + getNumTotalControlledChildren(childId)
+    end
+    return num
+  end
+
+  ---@param id string
+  ---@return integer
+  function getNumTotalControlledChildren(id)
+    if numChildrenCache[id] then
+      return numChildrenCache[id]
+    end
+    local data = WeakAurasSaved.displays[id]
+    local numControlled = getNumControlled(data)
+    numChildrenCache[id] = numControlled
+    return numControlled
+  end
+end
+
 local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
   local filteredData = {}
 
@@ -85,16 +142,25 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
         end
       end
     end
-    --sort top level groups to the top
+    --sort by depth and id
+    --TODO: might just do full tree structure anyway
+    --      use sort and then indent children
+    --      clicks on parents expand/collapse children
+    --      still show a plus sign or whatever for parents with children
     table.sort(
       filteredData,
       function(a, b)
-        local aIdx = a.parent and 0 or 1
-        local bIdx = b.parent and 0 or 1
-        if aIdx == bIdx then
-          return a.id < b.id
+        local aDepth = getWeakAuraDepth(a.id)
+        local bDepth = getWeakAuraDepth(b.id)
+        local aChildren = getNumTotalControlledChildren(a.id)
+        local bChildren = getNumTotalControlledChildren(b.id)
+        if aDepth ~= bDepth then
+          return aDepth < bDepth
         end
-        return (aIdx > bIdx)
+        if aChildren ~= bChildren then
+          return aChildren > bChildren
+        end
+        return (a.id < b.id)
       end
     )
     return filteredData
@@ -495,6 +561,7 @@ local function showManageFrame(anchor)
   end
   wipe(scrollBoxData[1])
   wipe(scrollBoxData[2])
+  clearWeakAuraCaches()
   for id, display in pairs(WeakAurasSaved.displays) do
     table.insert(scrollBoxData[1], display)
     --populate second list
