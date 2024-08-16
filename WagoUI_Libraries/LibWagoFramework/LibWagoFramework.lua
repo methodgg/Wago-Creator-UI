@@ -208,6 +208,32 @@ function LibWagoFramework:CreatePrompFrame(parent, okayText, cancelText)
   return promptFrame
 end
 
+---@param show boolean
+---@param storageTable table
+---@param parent Frame
+---@param xOffset number | nil
+---@param yOffset number | nil
+function LibWagoFramework:ToggleLockoutFrame(show, storageTable, parent, xOffset, yOffset)
+  local lockoutFrame = storageTable.LWFLockoutFrame
+  if not lockoutFrame then
+    storageTable.LWFLockoutFrame = CreateFrame("Frame", nil, parent)
+    lockoutFrame = storageTable.LWFLockoutFrame
+    lockoutFrame:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT")
+    lockoutFrame:SetPoint("TOPLEFT", parent, "TOPLEFT", xOffset or 0, yOffset or -20)
+    lockoutFrame:SetFrameStrata("DIALOG")
+    lockoutFrame:EnableMouse(true)
+    lockoutFrame:Hide()
+    local tex = lockoutFrame:CreateTexture(nil, "BACKGROUND")
+    tex:SetAllPoints(lockoutFrame)
+    tex:SetColorTexture(0, 0, 0, 0.7)
+  end
+  if show then
+    lockoutFrame:Show()
+  else
+    lockoutFrame:Hide()
+  end
+end
+
 ---Simple checkbox
 ---@param parent any
 ---@param size number

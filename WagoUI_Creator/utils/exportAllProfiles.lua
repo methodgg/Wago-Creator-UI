@@ -2,6 +2,7 @@
 local addon = select(2, ...)
 local L = addon.L
 local LAP = LibStub("LibAddonProfiles")
+local LWF = LibStub("LibWagoFramework")
 
 local function getGameFlavorString()
   local gameVersion = select(4, GetBuildInfo())
@@ -71,7 +72,7 @@ function addon:ExportAllProfiles()
   end
   addon:StartProgressBar(countOperations)
   addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 50, L["Saving all profiles..."])
-  addon.SetLockoutFrameShowState(true)
+  LWF:ToggleLockoutFrame(true, addon.frames, addon.frames.mainFrame)
   addon:Async(
     function()
       local updates = {}
@@ -122,7 +123,7 @@ function addon:ExportAllProfiles()
         addon:OpenReleaseNoteInput(timestamp, updates, removals)
       else
         addon.copyHelper:SmartFadeOut(2, L["No Changes detected"])
-        addon.SetLockoutFrameShowState(false)
+        LWF:ToggleLockoutFrame(false, addon.frames, addon.frames.mainFrame)
       end
       addon:AddDataToStorageAddon()
     end,

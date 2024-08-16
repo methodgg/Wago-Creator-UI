@@ -67,7 +67,7 @@ function addon:CreateReleaseNoteInput()
   releaseNotesFrame:HookScript(
     "OnHide",
     function()
-      addon.SetLockoutFrameShowState(false)
+      LWF:ToggleLockoutFrame(false, addon.frames, addon.frames.mainFrame)
     end
   )
 end

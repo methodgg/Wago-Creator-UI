@@ -371,6 +371,20 @@ local function createManageFrame(w, h)
   m.StartMoving = function()
   end
 
+  m:HookScript(
+    "OnShow",
+    function()
+      LWF:ToggleLockoutFrame(true, addon.frames, addon.frames.mainFrame)
+    end
+  )
+
+  m:HookScript(
+    "OnHide",
+    function()
+      LWF:ToggleLockoutFrame(false, addon.frames, addon.frames.mainFrame)
+    end
+  )
+
   m.scrollBoxes = {}
 
   local function removeFromData(i, info)
