@@ -48,11 +48,13 @@ local function hideAddOnPopups()
 end
 
 function addon:SuppressAddOnSpam()
-  if _G["_detalhes"] then
-    _G["_detalhes"].is_first_run = false
-  end
-  if _G["_detalhes"] then
-    _G["_detalhes"].is_version_first_run = false
+  local Details = _G["_detalhes"]
+  if Details then
+    if Details.is_first_run and #Details.custom == 0 then
+      Details:AddDefaultCustomDisplays()
+    end
+    Details.is_first_run = false
+    Details.is_version_first_run = false
   end
   hideAddOnPopups()
   --keep trying to hide popups for 10 seconds
