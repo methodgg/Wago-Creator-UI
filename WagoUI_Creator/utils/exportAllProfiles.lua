@@ -28,6 +28,7 @@ function addon:ExportAllProfiles()
   end
   currentUIPack.gameVersion = gameVersion
   currentUIPack.gameFlavor = getGameFlavorString()
+  currentUIPack.createdBy = UnitName("player") .. "-" .. GetRealmName()
   -- set all export options from db
   for moduleName, options in pairs(addon.db.exportOptions) do
     local lapModule = LAP:GetModule(moduleName)
