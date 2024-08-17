@@ -97,3 +97,4 @@ L["Copy export string directly to clipboard"] = "Copy export string directly to 
 L["Type to search for\nyour WeakAuras"] = "Type to search for\nyour WeakAuras"
 L["Add WeakAuras\nto Export"] = "Add WeakAuras\nto Export"
 L["Toggle WA Options"] = "Toggle WA Options"
+L["Preview UI Installation"] = "Preview UI Installation"

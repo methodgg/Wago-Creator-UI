@@ -499,10 +499,20 @@ function addon:CreateProfileList(f, width, height)
 
   -- logo
   local logo = DF:CreateImage(f, [[Interface\AddOns\]] .. addonName .. [[\media\wagoLogo512]], 256, 256)
-  logo:SetPoint("TOPRIGHT", f, "TOPRIGHT", -45, 10)
+  logo:SetPoint("TOPRIGHT", f, "TOPRIGHT", -45, 24)
 
   local slashLabel = DF:CreateLabel(f, "Slash command: |cFFC1272D" .. addon.slashPrefixes[1] .. "|r", 20, "white")
   slashLabel:SetPoint("TOP", logo, "BOTTOM", 0, 25)
+
+  local previewButton = LWF:CreateButton(f, 250, 40, L["Preview UI Installation"], 16)
+  previewButton:SetClickFunction(
+    function()
+      WagoUI:ToggleFrame()
+      LWF:StartSplitView(addon.frames.mainFrame, WagoUI.frames.mainFrame, true, 30)
+    end
+  )
+  f.previewButton = previewButton
+  previewButton:SetPoint("TOPRIGHT", slashLabel, "BOTTOMRIGHT", 0, -10)
 
   addLine({resolutionDropdown, resolutionCheckBox, resolutionEnabledLabel}, 5, 0)
 
