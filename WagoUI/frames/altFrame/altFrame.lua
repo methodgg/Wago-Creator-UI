@@ -22,22 +22,23 @@ local function setAllProfilesAsync()
   -- This is needed when the user "chains" characters
   addon:GetImportedProfilesTarget()
   for _, lapModule in pairs(LAP:GetAllModules()) do
-    if lapModule:isLoaded() and lapModule.getProfileAssignments then
-      local profileAssignments = lapModule:getProfileAssignments()
+    if lapModule:isLoaded() then
+      local profileAssignments = lapModule.getProfileAssignments and lapModule:getProfileAssignments()
       if profileAssignments then
         -- it should be a retrievable key, the addon stores it in accessible SV
-        if profileAssignments[currentSelectedCharacter] then
-          lapModule:setProfile(profileAssignments[currentSelectedCharacter])
-        -- vdt(currentSelectedCharacter.." "..profileAssignments[currentSelectedCharacter], lapModule.moduleName)
+        local profileKey = profileAssignments[currentSelectedCharacter]
+        if profileKey then
+          lapModule:setProfile(profileKey)
+          addon:AddonPrint(string.format(L["Set Profile %s: %s"], profileKey, lapModule.moduleName))
         end
       else
         -- the place where the keys are stored is not accessible, see if we have imported via WagoUI on that character
         local profileKey, updatedAt = addon:GetLatestImportedProfile(currentSelectedCharacter, lapModule.moduleName)
-        local profileKeys = lapModule:getProfileKeys()
+        local profileKeys = lapModule.getProfileKeys and lapModule:getProfileKeys()
         if profileKey and updatedAt and profileKeys[profileKey] then
           lapModule:setProfile(profileKey)
+          addon:AddonPrint(string.format(L["Set Profile %s: %s"], profileKey, lapModule.moduleName))
           addon:StoreImportedProfileData(updatedAt, lapModule.moduleName, profileKey)
-        -- vdt("FROM WAGO "..currentSelectedCharacter.." "..profileKey, lapModule.moduleName)
         end
       end
       coroutine.yield()
