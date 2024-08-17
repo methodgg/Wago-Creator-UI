@@ -21,7 +21,10 @@ local frames = {
   "CellChangelogsFrame",
   "BugSackFrame",
   "ScriptErrorsFrame",
-  "DevToolFrame",
+  "DevToolFrame"
+}
+
+local detailsFrames = {
   "DetailsBaseFrame1",
   "DetailsBaseFrame2"
 }
@@ -45,6 +48,25 @@ local function hideAddOnPopups()
       OmniCDDB.global.disableElvMsg = true
     end
   end
+
+  local Details = _G["_detalhes"]
+  if Details and Details.is_first_run then
+    for _, frameName in ipairs(detailsFrames) do
+      local frame = _G[frameName]
+      if frame then
+        frame:Hide()
+        frame.Show = function()
+        end
+      end
+    end
+    C_Timer.After(
+      10,
+      function()
+        Details.is_first_run = false
+        Details.is_version_first_run = false
+      end
+    )
+  end
 end
 
 function addon:SuppressAddOnSpam()
@@ -53,8 +75,6 @@ function addon:SuppressAddOnSpam()
     if Details.is_first_run and #Details.custom == 0 then
       Details:AddDefaultCustomDisplays()
     end
-    Details.is_first_run = false
-    Details.is_version_first_run = false
   end
   hideAddOnPopups()
   --keep trying to hide popups for 10 seconds
