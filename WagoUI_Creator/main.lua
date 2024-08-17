@@ -138,7 +138,7 @@ end
 
 function addon:AddDataToStorageAddon()
   if not WagoUI_Storage then
-    return
+    WagoUI_Storage = {}
   end
   for _, pack in pairs(addon:GetAllPacks()) do
     local packName = pack.localName .. " (Local Copy)"
