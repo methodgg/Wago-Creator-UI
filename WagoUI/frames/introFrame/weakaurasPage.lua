@@ -5,9 +5,15 @@ local LWF = LibStub("LibWagoFramework")
 local L = addon.L
 
 local pageName = "WeakAurasPage"
+local hasSkipped = false
+local filtered
 
 local onShow = function()
-  -- TODO: skip if empty
+  if not hasSkipped and #filtered == 0 then
+    addon:NextPage()
+    hasSkipped = true
+    return
+  end
   addon.db.introState.currentPage = pageName
   addon.db.introEnabled = true
   addon:ToggleNavigationButton("prev", true)
@@ -30,7 +36,7 @@ local function createPage()
 
   local profileList = addon:CreateProfileList(page, page:GetWidth(), page:GetHeight() - 105)
   local updateData = function(data)
-    local filtered = {}
+    filtered = {}
     if data then
       for _, entry in ipairs(data) do
         if entry.moduleName == "WeakAuras" or entry.moduleName == "Echo Raid Tools" then
