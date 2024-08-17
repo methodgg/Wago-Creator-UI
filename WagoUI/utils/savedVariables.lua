@@ -37,8 +37,6 @@ local function shouldAutoStart()
   -- do not auto start for creators, they can open up the addon via a button in WagoUI_Creator
   if C_AddOns.IsAddOnLoaded("WagoUI_Creator") then
     addon.db.introEnabled = false
-    addon.dbC.hasLoggedIn = true
-    return false
   end
   -- intro enabled
   if addon.db.introEnabled then
