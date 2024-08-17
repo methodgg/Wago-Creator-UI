@@ -8,7 +8,6 @@ local pageName = "DirectProfilesPage"
 local filtered
 
 local onShow = function()
-  addon.state.currentPage = pageName
   addon.db.introState.currentPage = pageName
   addon.db.introEnabled = true
   addon:ToggleNavigationButton("prev", true)

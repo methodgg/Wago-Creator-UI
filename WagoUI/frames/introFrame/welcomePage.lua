@@ -9,13 +9,48 @@ local L = addon.L
 local pageName = "WelcomePage"
 local noPacksFound = false
 
-local uiPackDropdown
+local page, uiPackDropdown, uiPackLabel, header, logo, startButton, expertButton, noDataLabel
+
+local function updatePage()
+  if not page then
+    return
+  end
+  -- label or dropdown, depending on if single or multiple ui packs available
+  local dropdownData = addon:GetWagoDataForDropdown()
+  if #dropdownData == 0 then
+    noPacksFound = true
+    noDataLabel:Show()
+    startButton:Hide()
+    expertButton:Hide()
+    uiPackDropdown:Hide()
+    uiPackLabel:Hide()
+    logo:Hide()
+    return
+  end
+  noDataLabel:Hide()
+  startButton:Show()
+  expertButton:Show()
+  logo:Show()
+  if #dropdownData > 1 then
+    uiPackDropdown:Show()
+    uiPackLabel:Hide()
+    if not addon.db.selectedWagoData then
+      uiPackDropdown:NoOptionSelected()
+    else
+      uiPackDropdown:Select(addon.db.selectedWagoData)
+    end
+  else
+    uiPackDropdown:Hide()
+    uiPackLabel:Show()
+    uiPackLabel:SetText(dropdownData[1].label)
+  end
+end
 
 local onShow = function()
   addon.db.introState.currentPage = pageName
-  addon.state.currentPage = pageName
   addon:ToggleNavigationButton("prev", false)
   addon:ToggleNavigationButton("next", false)
+  updatePage()
   if noPacksFound then
     addon.db.introEnabled = false
     return
@@ -29,43 +64,33 @@ local onShow = function()
 end
 
 local function createPage()
-  local page = addon:CreatePageProtoType(pageName)
+  page = addon:CreatePageProtoType(pageName)
   page:SetScript("OnShow", onShow)
 
-  local header = DF:CreateLabel(page, string.format(L["Welcome to |c%sWago|rUI:"], addon.color), 38, "white")
+  header = DF:CreateLabel(page, string.format(L["Welcome to |c%sWago|rUI:"], addon.color), 38, "white")
   header:SetJustifyH("CENTER")
   header:SetPoint("TOP", page, "TOP", 0, -75)
 
-  -- label or dropdown, depending on if single or multiple ui packs available
-  local dropdownData = addon:GetWagoDataForDropdown()
-  if #dropdownData == 0 then
-    local noDataLabel = DF:CreateLabel(page, L["No UI Packs found"], 26, "white")
-    noDataLabel:SetJustifyH("CENTER")
-    noDataLabel:SetPoint("TOP", header, "BOTTOM", 0, -70)
-    noPacksFound = true
-    return page
-  end
-  if #dropdownData > 1 then
-    local dropdownFunc = function()
-      return addon:GetWagoDataForDropdown()
-    end
-    uiPackDropdown = LWF:CreateDropdown(page, 250, 40, 20, 1.5, dropdownFunc)
-    if not addon.db.selectedWagoData then
-      uiPackDropdown:NoOptionSelected()
-    else
-      uiPackDropdown:Select(addon.db.selectedWagoData)
-    end
-    uiPackDropdown:SetPoint("TOP", header, "BOTTOM", 0, -10)
-  else
-    local uiPackLabel = DF:CreateLabel(page, dropdownData[1].label, 38, "white")
-    uiPackLabel:SetJustifyH("CENTER")
-    uiPackLabel:SetPoint("TOP", header, "BOTTOM", 0, -10)
-  end
+  local isCreator = C_AddOns.IsAddOnLoaded("WagoUI_Creator")
+  local noDataText = isCreator and L["No UI Packs found Creator"] or L["No UI Packs found"]
+  noDataLabel = DF:CreateLabel(page, noDataText, 26, "white")
+  noDataLabel:SetJustifyH("CENTER")
+  noDataLabel:SetPoint("TOP", header, "BOTTOM", 0, -70)
 
-  local logo = DF:CreateImage(page, [[Interface\AddOns\]] .. addonName .. [[\media\wagoLogo512]], 256, 256)
+  logo = DF:CreateImage(page, [[Interface\AddOns\]] .. addonName .. [[\media\wagoLogo512]], 256, 256)
   logo:SetPoint("TOP", header, "BOTTOM", 0, -20)
 
-  local startButton = LWF:CreateButton(page, 230, 50, L["Full Installation"], 22)
+  local dropdownFunc = function()
+    return addon:GetWagoDataForDropdown()
+  end
+  uiPackDropdown = LWF:CreateDropdown(page, 250, 40, 20, 1.5, dropdownFunc)
+  uiPackDropdown:SetPoint("TOP", header, "BOTTOM", 0, -10)
+
+  uiPackLabel = DF:CreateLabel(page, "", 38, "white")
+  uiPackLabel:SetJustifyH("CENTER")
+  uiPackLabel:SetPoint("TOP", header, "BOTTOM", 0, -10)
+
+  startButton = LWF:CreateButton(page, 230, 50, L["Full Installation"], 22)
   startButton:SetPoint("BOTTOMLEFT", page, "BOTTOMLEFT", 140, 80)
   startButton:SetClickFunction(
     function()
@@ -73,7 +98,7 @@ local function createPage()
     end
   )
 
-  local expertButton = LWF:CreateButton(page, 230, 50, L["Expert Mode"], 22)
+  expertButton = LWF:CreateButton(page, 230, 50, L["Expert Mode"], 22)
   expertButton:SetPoint("BOTTOMRIGHT", page, "BOTTOMRIGHT", -140, 80)
   expertButton:SetClickFunction(
     function()
@@ -86,4 +111,5 @@ local function createPage()
   return page
 end
 
+addon:RegisterDataConsumer(updatePage)
 addon:RegisterPage(createPage)

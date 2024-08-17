@@ -209,6 +209,11 @@ function addon.DeleteCurrentPack()
     return
   end
   addon.db.creatorUI[addon.db.chosenPack] = nil
+  if WagoUI_Storage and WagoUI then
+    WagoUI_Storage[addon.db.chosenPack .. " (Local Copy)"] = nil
+    WagoUI:SetupWagoData()
+    WagoUI:UpdateRegisteredDataConsumers()
+  end
   addon.db.chosenPack = nil
   addon.UpdatePackSelectedUI()
 end

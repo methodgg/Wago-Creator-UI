@@ -507,6 +507,10 @@ function addon:CreateProfileList(f, width, height)
   local previewButton = LWF:CreateButton(f, 250, 40, L["Preview UI Installation"], 16)
   previewButton:SetClickFunction(
     function()
+      if not WagoUI.framesCreated then
+        WagoUI.db.introEnabled = true
+        WagoUI.db.introState.currentPage = "WelcomePage"
+      end
       WagoUI:ToggleFrame()
       LWF:StartSplitView(addon.frames.mainFrame, WagoUI.frames.mainFrame, true, 30)
     end
