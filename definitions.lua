@@ -77,3 +77,8 @@
 ---@field update table
 ---@field CancelAsync fun(self, name: string)
 ---@field Async fun(self, func: function, name: string, singleton: boolean)
+---@class IntroImportState
+---@field checked boolean
+---@field profileMetadata table
+---@field profileKey string
+---@field profile string

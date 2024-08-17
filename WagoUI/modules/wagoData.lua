@@ -65,10 +65,12 @@ function addon:SetupWagoData()
   end
   local source = WagoUI_Storage[db.selectedWagoData]
   addon.wagoData = {}
+  local newIntroImportState = {}
   for resolution, modules in pairs(source.profileKeys) do
     addon.wagoData[resolution] = {}
     for moduleName, moduleData in pairs(modules) do
       if type(moduleData) == "string" then
+        newIntroImportState[moduleName] = {}
         local profileData = source.profiles[resolution][moduleName]
         local lap = LAP:GetModule(moduleName)
         if profileData and lap then
@@ -81,21 +83,21 @@ function addon:SetupWagoData()
               end
             )
           end
-          ---@class IntroImportState
-          ---@field checked boolean
-          ---@field profileMetadata table
-          ---@field profileKey string
-          ---@field profile string
 
-          addon.db.introImportState[moduleName] =
-            addon.db.introImportState[moduleName] or
-            {
-              checked = true
-            }
-          addon.db.introImportState[moduleName].profileMetadata = source.profileMetadata[resolution][moduleName]
+          local previousState = addon.db.introImportState and addon.db.introImportState[moduleName]
+          local newChecked
+          if not previousState then
+            newChecked = true
+          else
+            newChecked = previousState.checked
+          end
           local profileKey = findApproriateProfileKey(moduleData, lap)
-          addon.db.introImportState[moduleName].profileKey = profileKey
-          addon.db.introImportState[moduleName].profile = profileData
+          newIntroImportState[moduleName] = {
+            checked = newChecked,
+            profileMetadata = source.profileMetadata[resolution][moduleName],
+            profileKey = profileKey,
+            profile = profileData
+          }
 
           tinsert(
             addon.wagoData[resolution],
@@ -105,7 +107,7 @@ function addon:SetupWagoData()
               profileKey = profileKey,
               profileMetadata = source.profileMetadata[resolution][moduleName],
               profile = profileData,
-              enabled = addon.db.introImportState[moduleName].checked
+              enabled = newIntroImportState[moduleName].checked
             }
           )
         end
@@ -133,6 +135,7 @@ function addon:SetupWagoData()
       end
     end
   end
+  addon.db.introImportState = newIntroImportState
 end
 
 function addon:GetWagoDataForDropdown()

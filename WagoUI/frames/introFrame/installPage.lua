@@ -6,7 +6,7 @@ local LAP = LibStub("LibAddonProfiles")
 local L = addon.L
 
 local pageName = "InstallPage"
-local installButton, header, simpleList, hasSkipped
+local page, installButton, header, simpleList, hasSkipped
 
 ---@param enabled boolean If there are any profiles to install
 ---@param needEnableAddons boolean If we need to enable some addons before we can install
@@ -90,10 +90,10 @@ local setupInstallButton = function(enabled, needEnableAddons, introImportState)
   )
 end
 
-local onShow = function()
-  addon.db.introState.currentPage = pageName
-  addon.db.introEnabled = true
-  addon:ToggleNavigationButton("prev", true)
+local updatePage = function(updatedData)
+  if not page then
+    return
+  end
   local numChecked = 0
   local numNeedEnable = 0
   ---@type table<string, IntroImportState>
@@ -101,12 +101,20 @@ local onShow = function()
   local checkedEntries = {}
   local needEnableEntries = {}
   for moduleName, data in pairs(introState) do
+    local isDataPresent
+    if updatedData then
+      for _, entry in ipairs(updatedData) do
+        if entry.moduleName == moduleName then
+          isDataPresent = true
+        end
+      end
+    end
     local lap = LAP:GetModule(moduleName)
-    if data.checked and lap:isLoaded() then
+    if data.checked and lap:isLoaded() and isDataPresent then
       numChecked = numChecked + 1
       tinsert(checkedEntries, {moduleName = moduleName, profileKey = data.profileKey})
     end
-    if data.checked and not lap:isLoaded() and LAP:CanEnableAnyAddOn(lap.addonNames) then
+    if data.checked and not lap:isLoaded() and LAP:CanEnableAnyAddOn(lap.addonNames) and isDataPresent then
       numNeedEnable = numNeedEnable + 1
       tinsert(needEnableEntries, {moduleName = moduleName, profileKey = L["AddOn disabled"]})
     end
@@ -114,16 +122,29 @@ local onShow = function()
   setupInstallButton(numChecked > 0, numNeedEnable > 0, introState)
   local headerTwo = simpleList.header.columnHeadersCreated[2].Text
   headerTwo:SetText(numNeedEnable > 0 and L["Status"] or L["Profile to be installed"])
-  addon:ToggleNavigationButton("next", not (numChecked > 0 or numNeedEnable > 0))
+  if addon.db.introState.currentPage == pageName then
+    addon:ToggleNavigationButton("next", not (numChecked > 0 or numNeedEnable > 0))
+  end
+
   if (numChecked == 0 and numNeedEnable == 0) and not hasSkipped then
-    hasSkipped = true
-    addon:NextPage()
+    if addon.db.introState.currentPage == pageName then
+      hasSkipped = true
+      addon:NextPage()
+    end
   end
   simpleList.updateData(numNeedEnable > 0 and needEnableEntries or checkedEntries)
 end
 
+local onShow = function()
+  addon.db.introState.currentPage = pageName
+  addon.db.introEnabled = true
+  addon:ToggleNavigationButton("prev", true)
+  addon:UpdateRegisteredDataConsumers()
+end
+
 local function createPage()
-  local page = addon:CreatePageProtoType(pageName)
+  page = addon:CreatePageProtoType(pageName)
+  page:SetScript("OnShow", onShow)
 
   header = DF:CreateLabel(page, "", 28, "white")
   header:SetWidth(page:GetWidth() - 40)
@@ -138,8 +159,7 @@ local function createPage()
   simpleList = addon:SimpleProfileList(page, page:GetWidth() - 120, page:GetHeight() - 240)
   simpleList.header:SetPoint("TOP", page, "TOP", 0, -80)
 
-  page:SetScript("OnShow", onShow)
   return page
 end
-
+addon:RegisterDataConsumer(updatePage)
 addon:RegisterPage(createPage)
