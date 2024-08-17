@@ -5,9 +5,15 @@ local LWF = LibStub("LibWagoFramework")
 local L = addon.L
 
 local pageName = "DirectProfilesPage"
+local hasSkipped = false
 local filtered
 
 local onShow = function()
+  if not hasSkipped and #filtered == 0 then
+    addon:NextPage()
+    hasSkipped = true
+    return
+  end
   addon.db.introState.currentPage = pageName
   addon.db.introEnabled = true
   addon:ToggleNavigationButton("prev", true)
