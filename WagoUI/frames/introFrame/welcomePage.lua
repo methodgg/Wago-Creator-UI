@@ -7,17 +7,22 @@ local LWF = LibStub("LibWagoFramework")
 local L = addon.L
 
 local pageName = "WelcomePage"
+local noPacksFound = false
 
 local uiPackDropdown
 
 local onShow = function()
   addon.db.introState.currentPage = pageName
   addon.state.currentPage = pageName
+  addon:ToggleNavigationButton("prev", false)
+  addon:ToggleNavigationButton("next", false)
+  if noPacksFound then
+    addon.db.introEnabled = false
+    return
+  end
   addon.state.hasSetupSplitView = false
   addon.db.introEnabled = true
   addon:ToggleStatusBar(false)
-  addon:ToggleNavigationButton("prev", false)
-  addon:ToggleNavigationButton("next", false)
   if uiPackDropdown then
     uiPackDropdown:Select(addon.db.selectedWagoData)
   end
@@ -25,6 +30,7 @@ end
 
 local function createPage()
   local page = addon:CreatePageProtoType(pageName)
+  page:SetScript("OnShow", onShow)
 
   local header = DF:CreateLabel(page, string.format(L["Welcome to |c%sWago|rUI:"], addon.color), 38, "white")
   header:SetJustifyH("CENTER")
@@ -36,6 +42,7 @@ local function createPage()
     local noDataLabel = DF:CreateLabel(page, L["No UI Packs found"], 26, "white")
     noDataLabel:SetJustifyH("CENTER")
     noDataLabel:SetPoint("TOP", header, "BOTTOM", 0, -70)
+    noPacksFound = true
     return page
   end
   if #dropdownData > 1 then
@@ -76,7 +83,6 @@ local function createPage()
     end
   )
 
-  page:SetScript("OnShow", onShow)
   return page
 end
 
