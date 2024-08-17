@@ -34,6 +34,11 @@ local function shouldAutoStart()
   if addon.db.autoStart then
     return true
   end
+  if C_AddOns.IsAddOnLoaded("WagoUI_Creator") then
+    addon.db.introEnabled = false
+    addon.dbC.hasLoggedIn = true
+    return false
+  end
   -- intro enabled
   if addon.db.introEnabled then
     return true
