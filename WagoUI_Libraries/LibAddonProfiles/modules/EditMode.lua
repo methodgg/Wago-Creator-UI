@@ -31,6 +31,17 @@ local removeProfile = function(profileKey)
   end
 end
 
+local areGlobalLayoutsFull = function()
+  local layoutCount = 0
+  local layouts = EditModeManagerFrame:GetLayouts()
+  for _, layout in pairs(layouts) do
+    if layout.layoutType == 1 then
+      layoutCount = layoutCount + 1
+    end
+  end
+  return layoutCount >= 5
+end
+
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Blizzard Edit Mode",
@@ -39,7 +50,7 @@ local m = {
   needReloadOnImport = true,
   needProfileKey = true,
   preventRename = false,
-  willOverrideProfile = false,
+  willOverrideProfile = true,
   nonNativeProfileString = false,
   isLoaded = function(self)
     return true
@@ -114,7 +125,24 @@ local m = {
       return
     end
     EditModeManagerFrame:Show()
-    removeProfile(profileKey) --need to remove old profile with same name first for updating to work and not be confusing
+
+    -- there is a hardcap of 5 profiles (+2 presets)
+    -- we need to remove one if we are at the limit
+    local profileKeys = self:getProfileKeys()
+    local profileCount = 0
+    for _ in pairs(profileKeys) do
+      profileCount = profileCount + 1
+    end
+    if profileKeys[profileKey] then
+      removeProfile(profileKey) --need to remove old profile with same name first for updating to work and not be confusing
+    end
+    if areGlobalLayoutsFull() then
+      -- if people complain find a better solution
+      -- users are warned in the UI
+      EditModeManagerFrame:SelectLayout(3)
+      removeProfile(self:getCurrentProfileKey())
+    end
+
     local newLayoutInfo = C_EditMode.ConvertStringToLayoutInfo(profileString)
     EditModeManagerFrame:ImportLayout(newLayoutInfo, 1, profileKey)
     EditModeManagerFrame.CloseButton:Click()
