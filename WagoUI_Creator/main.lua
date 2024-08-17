@@ -153,7 +153,7 @@ function addon:AddDataToStorageAddon()
     }
     WagoUI_Storage[packName] = data
   end
-  if WagoUI then
+  if WagoUI and WagoUI.framesCreated then
     WagoUI:SetupWagoData()
     WagoUI:UpdateRegisteredDataConsumers()
   end
