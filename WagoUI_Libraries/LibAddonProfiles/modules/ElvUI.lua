@@ -78,8 +78,8 @@ local m = {
     local E = ElvUI[1]
     local D = E:GetModule("Distributor")
     local decodedType, decodedKey, decodedData = D:Decode(profileString)
-    local force = false -- for now
     -- important to use the supplied profileKey, as the decodedKey might be different
+    local force = true
     D:SetImportedProfile(decodedType, profileKey, decodedData, force)
     if fromIntro then
       E.global.general.UIScale = E:PixelBestSize()
