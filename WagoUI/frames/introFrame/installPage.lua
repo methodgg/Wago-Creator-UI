@@ -72,6 +72,8 @@ local setupInstallButton = function(enabled, needEnableAddons, introImportState)
               coroutine.yield()
             end
           end
+          -- Hack to indicate that we did the setup on this character
+          addon:StoreImportedProfileData(GetServerTime(), "INSTALLFLAG", "INSTALLFLAG")
           installButton:SetEnabled(true)
           addon.state.isImporting = false
           if addon.state.needReopen then
