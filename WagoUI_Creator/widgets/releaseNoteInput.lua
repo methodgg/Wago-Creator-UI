@@ -1,3 +1,5 @@
+---@type string
+local addonName = ...
 ---@class WagoUICreator
 local addon = select(2, ...)
 local L = addon.L
@@ -5,9 +7,12 @@ local DF = _G["DetailsFramework"]
 local LWF = LibStub("LibWagoFramework")
 
 local releaseNotesFrame
+local frameWidth = 600
+local frameHeight = 520
+local scrollFrameHeight = 225
 
 function addon:CreateReleaseNoteInput()
-  releaseNotesFrame = addon:CreateGenericTextFrame(600, 350, "Release Notes", true)
+  releaseNotesFrame = addon:CreateGenericTextFrame(frameWidth, frameHeight, "Release Notes", true)
   releaseNotesFrame:SetFrameLevel(105)
   releaseNotesFrame.Close:SetScript(
     "OnClick",
@@ -27,10 +32,30 @@ function addon:CreateReleaseNoteInput()
   )
   addon.exportFrame = releaseNotesFrame
   editbox:SetFontObject(GameFontNormalLarge)
-  releaseNotesFrame.scrollframe:SetPoint("BOTTOMRIGHT", releaseNotesFrame, "BOTTOMRIGHT", -23, 125)
+  releaseNotesFrame.scrollframe:SetPoint(
+    "BOTTOMRIGHT",
+    releaseNotesFrame,
+    "BOTTOMRIGHT",
+    -23,
+    frameHeight - scrollFrameHeight
+  )
 
   local explainerLabel = DF:CreateLabel(releaseNotesFrame, L["autoReleaseNotesExplanation"], 12, "#d0d2d6")
   explainerLabel:SetPoint("TOPLEFT", releaseNotesFrame.scrollframe, "BOTTOMLEFT", 4, -10)
+
+  local logo = DF:CreateImage(releaseNotesFrame, [[Interface\AddOns\]] .. addonName .. [[\media\wagoLogo512]], 256, 256)
+  logo:SetPoint("TOP", releaseNotesFrame.scrollframe, "BOTTOM", 0, 10)
+  releaseNotesFrame.logo = logo
+
+  local nextStepLabel =
+    DF:CreateLabel(releaseNotesFrame, L["Continue the upload through the Wago App after the reload!"], 14, "white")
+  nextStepLabel:SetPoint("BOTTOM", logo, "BOTTOM", 0, 30)
+  local warningIconLeft = LWF:CreateIconButton(releaseNotesFrame, 30, "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
+  local warningIconRight =
+    LWF:CreateIconButton(releaseNotesFrame, 30, "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
+  warningIconLeft:SetPoint("RIGHT", nextStepLabel, "LEFT", -5, 0)
+  warningIconRight:SetPoint("LEFT", nextStepLabel, "RIGHT", 5, 0)
+  releaseNotesFrame.nextStepLabel = nextStepLabel
 
   local reloadButton = LWF:CreateButton(releaseNotesFrame, 200, 40, L["Save and Reload"], 16)
   reloadButton:SetClickFunction(
@@ -53,16 +78,8 @@ function addon:CreateReleaseNoteInput()
       reloadButton.button:SetBackdropBorderColor(1, 1, 1, 0)
     end
   )
-  reloadButton:SetPoint("BOTTOM", releaseNotesFrame, "BOTTOM", 0, 40)
-
-  local nextStepLabel =
-    DF:CreateLabel(releaseNotesFrame, L["Continue the upload through the Wago App after the reload!"], 14, "white")
-  nextStepLabel:SetPoint("BOTTOM", releaseNotesFrame, "BOTTOM", 0, 15)
-  local warningIconLeft = LWF:CreateIconButton(releaseNotesFrame, 30, "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
-  local warningIconRight =
-    LWF:CreateIconButton(releaseNotesFrame, 30, "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
-  warningIconLeft:SetPoint("RIGHT", nextStepLabel, "LEFT", -5, 0)
-  warningIconRight:SetPoint("LEFT", nextStepLabel, "RIGHT", 5, 0)
+  reloadButton:SetPoint("TOP", nextStepLabel, "BOTTOM", 0, -15)
+  releaseNotesFrame.reloadButton = reloadButton
 
   releaseNotesFrame:HookScript(
     "OnHide",
