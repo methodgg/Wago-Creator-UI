@@ -23,7 +23,7 @@ local setWeakAuraExportState = function(resolution, id, value)
   addon:GetCurrentPack().profileKeys[resolution][moduleName][id] = value
 end
 
-local getWeakAuraExportState = function(resolution, id)
+function addon:GetWeakAuraExportState(resolution, id)
   addon:GetCurrentPack().profileKeys[resolution][moduleName] =
     addon:GetCurrentPack().profileKeys[resolution][moduleName] or {}
   return addon:GetCurrentPack().profileKeys[resolution][moduleName][id]
@@ -44,6 +44,7 @@ local function addToData(i, info)
   tinsert(scrollBoxData[i], info)
   setWeakAuraExportState(getChosenResolution(), info.id, true)
   m.scrollBoxes[i].onSearchBoxTextChanged()
+  addon.frames.mainFrame.frameContent.contentScrollbox:Refresh()
 end
 
 local function copyExportString(id)
@@ -468,6 +469,7 @@ local function createManageFrame(w, h)
       end
     end
     m.scrollBoxes[i].onSearchBoxTextChanged()
+    addon.frames.mainFrame.frameContent.contentScrollbox:Refresh()
   end
   m.removeFromData = removeFromData
 
@@ -565,7 +567,7 @@ local function showManageFrame(anchor)
   for id, display in pairs(WeakAurasSaved.displays) do
     table.insert(scrollBoxData[1], display)
     --populate second list
-    if getWeakAuraExportState(getChosenResolution(), id) then
+    if addon:GetWeakAuraExportState(getChosenResolution(), id) then
       table.insert(scrollBoxData[2], display)
     end
   end

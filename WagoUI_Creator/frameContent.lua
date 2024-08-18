@@ -155,6 +155,21 @@ function addon:CreateProfileList(f, width, height)
               info.manageFunc(addon.frames.mainFrame, 1, L["Copy"], nil, copyCallback)
             end
           )
+          --show how many WAs are marked
+          local marked = 0
+          local exportedIds = currentUIPack.profileKeys[currentUIPack.resolutions.chosen][info.name]
+          if exportedIds then
+            for _, id in pairs(exportedIds) do
+              if id then
+                marked = marked + 1
+              end
+            end
+          end
+          if marked > 0 then
+            line.manageButton:SetText(L["Manage"] .. " (" .. marked .. ")")
+          else
+            line.manageButton:SetText(L["Manage"])
+          end
         else
           line.manageButton:Hide()
           line.profileDropdown:Show()
