@@ -97,16 +97,19 @@ function addon:ContinueSetAllProfiles()
 end
 
 local function getImportedProfilesDataForDropdown()
+  local currentCharacter = UnitName("player") .. " - " .. GetRealmName()
   local res = {}
   for key, data in pairs(addon.db.importedProfiles) do
-    local entry = {
-      value = key,
-      label = addon:GetClassColoredNameFromDB(key),
-      onclick = function()
-        currentSelectedCharacter = key
-      end
-    }
-    tinsert(res, entry)
+    if key ~= currentCharacter then
+      local entry = {
+        value = key,
+        label = addon:GetClassColoredNameFromDB(key),
+        onclick = function()
+          currentSelectedCharacter = key
+        end
+      }
+      tinsert(res, entry)
+    end
   end
   return res
 end
