@@ -20,8 +20,8 @@ local frames = {
   "ElvUIInstallFrame",
   "CellChangelogsFrame",
   "BugSackFrame",
-  "ScriptErrorsFrame",
-  "DevToolFrame"
+  "ScriptErrorsFrame"
+  -- "DevToolFrame"
 }
 
 local detailsFrames = {
