@@ -194,7 +194,7 @@ function addon:CreateAltFrame(f)
               local lap = LAP:GetModule(data.moduleName)
               LAP:EnableAddOns(lap.addonNames)
             end
-            header:SetText(L["altFrameHeader3"])
+            header:SetText(L["altFrameHeader5"])
           else
             header:SetText(L["altFrameHeader2"])
           end
