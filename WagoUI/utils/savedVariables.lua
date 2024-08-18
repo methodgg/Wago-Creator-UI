@@ -88,7 +88,14 @@ do
       elseif (event == "PLAYER_ENTERING_WORLD") then
         eventListener:UnregisterEvent("PLAYER_ENTERING_WORLD")
         if shouldAutoStart() then
-          addon:ShowFrame()
+          -- need to wait initialization of other addons to finish
+          -- could not really find a more elegant way to do this
+          C_Timer.After(
+            2,
+            function()
+              addon:ShowFrame()
+            end
+          )
         end
       end
     end
