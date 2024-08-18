@@ -59,39 +59,24 @@ end
 
 function addon:ContinueSetAllProfiles()
   addon:SuppressAddOnSpam()
-  header:SetText(L["altFrameHeader4"])
-  setProfilesButton:SetText(L["Load Profiles"])
+  header:Hide()
+  setProfilesButton:SetText(L["Load remaining and Reload"])
   uiPackDropdown:Hide()
   sourceLabel:Hide()
   setProfilesButton:ClearAllPoints()
   setProfilesButton:SetPoint("CENTER", altFrame, "CENTER", 0, -100)
   setProfilesButton:SetClickFunction(
     function()
-      addon:Async(
-        function()
-          setProfilesButton:Disable()
-          setProfilesButton:SetText(L["Please wait..."])
-          for _, data in ipairs(addon.dbC.needLoad) do
-            ---@type LibAddonProfilesModule
-            local lap = LAP:GetModule(data.moduleName)
-            local profileKeys = lap.getProfileKeys and lap:getProfileKeys()
-            if profileKeys and data.profileKey and profileKeys[data.profileKey] then
-              lap:setProfile(data.profileKey)
-              addon:AddonPrint(string.format(L["Set Profile %s: %s"], data.profileKey, lap.moduleName))
-              coroutine.yield()
-            end
-          end
-          addon.dbC.needLoad = nil
-          header:SetText(L["altFrameHeader2"])
-          setProfilesButton:Enable()
-          setProfilesButton:SetText(L["Reload UI"])
-          setProfilesButton:SetClickFunction(
-            function()
-              ReloadUI()
-            end
-          )
+      for _, data in ipairs(addon.dbC.needLoad) do
+        ---@type LibAddonProfilesModule
+        local lap = LAP:GetModule(data.moduleName)
+        local profileKeys = lap.getProfileKeys and lap:getProfileKeys()
+        if profileKeys and data.profileKey and profileKeys[data.profileKey] then
+          lap:setProfile(data.profileKey)
         end
-      )
+      end
+      addon.dbC.needLoad = nil
+      ReloadUI()
     end
   )
 end
@@ -197,7 +182,7 @@ function addon:CreateAltFrame(f)
               local lap = LAP:GetModule(data.moduleName)
               LAP:EnableAddOns(lap.addonNames)
             end
-            header:SetText(L["altFrameHeader5"])
+            header:SetText(L["altFrameHeader4"])
           else
             header:SetText(L["altFrameHeader2"])
           end
