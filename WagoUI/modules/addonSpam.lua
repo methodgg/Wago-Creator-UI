@@ -49,6 +49,19 @@ local function hideAddOnPopups()
     end
   end
 
+  if CellAnchorFrame and CellAnchorFrame.confirmPopup then
+    CellAnchorFrame.confirmPopup:Hide()
+    CellAnchorFrame.confirmPopup.Show = function()
+    end
+  end
+
+  if ShadowUF and ShadowUF.db.profile then
+    if not ShadowUF.db.profile.locked then
+      ShadowUF.db.profile.locked = true
+      ShadowUF.modules.movers:Update()
+    end
+  end
+
   local Details = _G["_detalhes"]
   if Details and Details.is_first_run then
     for _, frameName in ipairs(detailsFrames) do

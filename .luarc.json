@@ -115,7 +115,8 @@
         "WagoUI",
         "WarpDeplete",
         "Quartz3DB",
-        "ExampleAddon"
+        "ExampleAddon",
+        "CellAnchorFrame"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }

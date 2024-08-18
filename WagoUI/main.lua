@@ -79,7 +79,7 @@ function init()
   else
     addon:ShowExpertFrame()
   end
-  if not addon.dbC.hasLoggedIn then
+  if not addon.dbC.hasLoggedIn or addon.db.introEnabled then
     addon:SuppressAddOnSpam()
   end
   addon.dbC.hasLoggedIn = true
