@@ -12,7 +12,7 @@ local m = {
   addonNames = {"OmniCD"},
   icon = [[Interface\AddOns\OmniCD\Config\Libs\Media\omnicd-logo64-c]],
   slash = "/omnicd",
-  needReloadOnImport = false,
+  needReloadOnImport = true,
   needProfileKey = true,
   preventRename = false,
   willOverrideProfile = false,
@@ -81,18 +81,7 @@ local m = {
     if not profileData then
       return
     end
-    local prefix = "[IMPORT-%s]%s"
-    local n = 1
-    local key
-    while true do
-      key = format(prefix, n, decodedProfileKey)
-      if not OmniCDDB.profiles[key] then
-        decodedProfileKey = key
-        break
-      end
-      n = n + 1
-    end
-    E.ProfileSharing:CopyProfile(profileType, decodedProfileKey, profileData)
+    E.ProfileSharing:CopyProfile(profileType, profileKey, profileData)
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then
