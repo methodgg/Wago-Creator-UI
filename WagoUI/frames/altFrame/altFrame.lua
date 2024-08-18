@@ -9,6 +9,8 @@ local LAP = LibStub:GetLibrary("LibAddonProfiles")
 
 ---@type string | nil
 local currentSelectedCharacter = nil
+local needLoad
+local altFrame, header, dropdownData, uiPackDropdown, sourceLabel, cancelButton, setProfilesButton
 
 --- Set all profiles for the current selected character.
 --- This function will try to lookup matching profiles key in the addon's SV.
@@ -17,6 +19,7 @@ local function setAllProfilesAsync()
   if not currentSelectedCharacter then
     return
   end
+  needLoad = {}
   -- call this so we get and initialized db entry for the current character
   -- Keys that need to be retrieved from WagoUI db need to also be stored in WagoUI db again
   -- This is needed when the user "chains" characters
@@ -41,9 +44,56 @@ local function setAllProfilesAsync()
           addon:StoreImportedProfileData(updatedAt, lapModule.moduleName, profileKey)
         end
       end
-      coroutine.yield()
+    elseif LAP:CanEnableAnyAddOn(lapModule.addonNames) then
+      -- check if we have imported via WagoUI on that character and the module is not loaded
+      -- we need to load the addon, reload UI and continue setting the profile
+      local profileKey, updatedAt = addon:GetLatestImportedProfile(currentSelectedCharacter, lapModule.moduleName)
+      if profileKey then
+        addon:AddonPrint(string.format("Module %s is not loaded, but imported profile found", lapModule.moduleName))
+        tinsert(needLoad, {moduleName = lapModule.moduleName, profileKey = profileKey})
+      end
     end
+    coroutine.yield()
   end
+end
+
+function addon:ContinueSetAllProfiles()
+  addon:SuppressAddOnSpam()
+  header:SetText(L["altFrameHeader4"])
+  setProfilesButton:SetText(L["Load Profiles"])
+  uiPackDropdown:Hide()
+  sourceLabel:Hide()
+  setProfilesButton:ClearAllPoints()
+  setProfilesButton:SetPoint("CENTER", altFrame, "CENTER", 0, -100)
+  setProfilesButton:SetClickFunction(
+    function()
+      addon:Async(
+        function()
+          setProfilesButton:Disable()
+          setProfilesButton:SetText(L["Please wait..."])
+          for _, data in ipairs(addon.dbC.needLoad) do
+            ---@type LibAddonProfilesModule
+            local lap = LAP:GetModule(data.moduleName)
+            local profileKeys = lap.getProfileKeys and lap:getProfileKeys()
+            if profileKeys and data.profileKey and profileKeys[data.profileKey] then
+              lap:setProfile(data.profileKey)
+              addon:AddonPrint(string.format(L["Set Profile %s: %s"], data.profileKey, lap.moduleName))
+              coroutine.yield()
+            end
+          end
+          addon.dbC.needLoad = nil
+          header:SetText(L["altFrameHeader2"])
+          setProfilesButton:Enable()
+          setProfilesButton:SetText(L["Reload UI"])
+          setProfilesButton:SetClickFunction(
+            function()
+              ReloadUI()
+            end
+          )
+        end
+      )
+    end
+  )
 end
 
 local function getImportedProfilesDataForDropdown()
@@ -83,7 +133,7 @@ local function getMostLikelyProfileSource()
 end
 
 function addon:CreateAltFrame(f)
-  local altFrame = CreateFrame("Frame", addonName .. "AltFrame", f)
+  altFrame = CreateFrame("Frame", addonName .. "AltFrame", f)
   altFrame:SetPoint("TOPLEFT", f, "TOPLEFT", 0, -10)
   altFrame:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", 0, 0)
   altFrame:Hide()
@@ -93,18 +143,18 @@ function addon:CreateAltFrame(f)
   logo:SetPoint("TOP", altFrame, "TOP", 0, -15)
 
   local text = L["altFrameHeader"]
-  local header = DF:CreateLabel(altFrame, text, 22, "white")
+  header = DF:CreateLabel(altFrame, text, 22, "white")
   header:SetWidth(altFrame:GetWidth() - 100)
   header:SetJustifyH("CENTER")
   header:SetPoint("TOP", logo, "BOTTOM", 0, 5)
   addon.frames.altFrame.header = header
 
   -- label or dropdown, depending on if single or multiple characters exist that we imported profiles to
-  local dropdownData = getImportedProfilesDataForDropdown()
+  dropdownData = getImportedProfilesDataForDropdown()
   local dropdownFunc = function()
     return getImportedProfilesDataForDropdown()
   end
-  local uiPackDropdown = LWF:CreateDropdown(altFrame, 300, 50, 16, 1.5, dropdownFunc)
+  uiPackDropdown = LWF:CreateDropdown(altFrame, 300, 50, 16, 1.5, dropdownFunc)
   local fontName, fontSize = uiPackDropdown.dropdown.text:GetFont()
   uiPackDropdown.dropdown.text:SetFont(fontName, fontSize, "THINOUTLINE")
 
@@ -112,10 +162,10 @@ function addon:CreateAltFrame(f)
   uiPackDropdown:Select(value)
   currentSelectedCharacter = value
   uiPackDropdown:SetPoint("RIGHT", altFrame, "CENTER", -10, -100)
-  local sourceLabel = DF:CreateLabel(altFrame, L["Source:"], 14)
+  sourceLabel = DF:CreateLabel(altFrame, L["Source:"], 14)
   sourceLabel:SetPoint("BOTTOMLEFT", uiPackDropdown, "TOPLEFT", 0, 2)
 
-  local cancelButton = LWF:CreateButton(altFrame, 200, 40, L["Cancel"], 18)
+  cancelButton = LWF:CreateButton(altFrame, 200, 40, L["Cancel"], 18)
   cancelButton:SetPoint("BOTTOM", altFrame, "BOTTOM", 0, 40)
   cancelButton:SetClickFunction(
     function()
@@ -124,7 +174,7 @@ function addon:CreateAltFrame(f)
     end
   )
 
-  local setProfilesButton = LWF:CreateButton(altFrame, 300, 50, L["Load Profiles"], 22)
+  setProfilesButton = LWF:CreateButton(altFrame, 300, 50, L["Load Profiles"], 22)
   if not dropdownData[1] then
     setProfilesButton:Disable()
   end
@@ -138,7 +188,16 @@ function addon:CreateAltFrame(f)
           setProfilesButton:SetText(L["Please wait..."])
           cancelButton:Disable()
           setAllProfilesAsync()
-          header:SetText(L["altFrameHeader2"])
+          if #needLoad > 0 then
+            addon.dbC.needLoad = needLoad
+            for _, data in ipairs(needLoad) do
+              local lap = LAP:GetModule(data.moduleName)
+              LAP:EnableAddOns(lap.addonNames)
+            end
+            header:SetText(L["altFrameHeader3"])
+          else
+            header:SetText(L["altFrameHeader2"])
+          end
           if uiPackDropdown then
             uiPackDropdown:Hide()
           end

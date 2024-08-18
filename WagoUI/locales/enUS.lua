@@ -105,3 +105,5 @@ L["This will neither change your resolution nor your UI Scale"] =
   "This will neither change your resolution nor your UI Scale"
 L["Imported %s: %s"] = "Imported %s: %s"
 L["Set Profile %s: %s"] = "Set Profile %s: %s"
+L["altFrameHeader3"] = "A few Addons have been enabled. Reload to continue"
+L["altFrameHeader4"] = "Load the remaining profiles"

@@ -92,4 +92,10 @@ function init()
       end
     )
   end
+  if addon.dbC.needLoad then
+    addon.frames.introFrame:Hide()
+    addon.frames.expertFrame:Hide()
+    addon:ShowAltFrame()
+    addon:ContinueSetAllProfiles()
+  end
 end
