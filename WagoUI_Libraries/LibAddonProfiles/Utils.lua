@@ -26,7 +26,13 @@ do
         for i = 1, C_AddOns.GetNumAddOns() do
           local name, _, _, loadable, reason = C_AddOns.GetAddOnInfo(i)
           if name == module then
-            if not loadable and reason == "DISABLED" or reason == "DEP_DISABLED" then
+            if loadable then
+              cache[module] = {
+                canEnable = true
+              }
+              return true
+            end
+            if not loadable and (reason == "DISABLED" or reason == "DEP_DISABLED" or reason == "DEMAND_LOADED") then
               cache[module] = {
                 canEnable = true
               }
