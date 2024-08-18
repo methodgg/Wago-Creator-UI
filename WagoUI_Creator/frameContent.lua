@@ -323,15 +323,22 @@ function addon:CreateProfileList(f, width, height)
   end
 
   local totalHeight = 0
-  local function addLine(widgets, xOffset, yOffset)
+
+  ---comment
+  ---@param widgets table<number, Frame>
+  ---@param xOffset number | nil
+  ---@param yOffset number | nil
+  ---@param xGap number | nil
+  local function addLine(widgets, xOffset, yOffset, xGap)
     xOffset = xOffset or 0
     yOffset = yOffset or 0
+    xGap = xGap or 10
     local maxHeight = 0
     for i, widget in ipairs(widgets) do
       if i == 1 then
         widget:SetPoint("TOPLEFT", f, "TOPLEFT", xOffset, 0 - totalHeight + yOffset)
       else
-        widget:SetPoint("LEFT", widgets[i - 1], "RIGHT", 10 + xOffset, 0)
+        widget:SetPoint("LEFT", widgets[i - 1], "RIGHT", xGap + xOffset, 0)
       end
       maxHeight = math.max(maxHeight, widget:GetHeight())
     end
@@ -504,20 +511,6 @@ function addon:CreateProfileList(f, width, height)
   local slashLabel = DF:CreateLabel(f, "Slash command: |cFFC1272D" .. addon.slashPrefixes[1] .. "|r", 20, "white")
   slashLabel:SetPoint("TOP", logo, "BOTTOM", 0, 25)
 
-  local previewButton = LWF:CreateButton(f, 250, 40, L["Preview UI Installation"], 16)
-  previewButton:SetClickFunction(
-    function()
-      if not WagoUI.framesCreated then
-        WagoUI.db.introEnabled = true
-        WagoUI.db.introState.currentPage = "WelcomePage"
-      end
-      WagoUI:ToggleFrame()
-      LWF:StartSplitView(addon.frames.mainFrame, WagoUI.frames.mainFrame, true, 30)
-    end
-  )
-  f.previewButton = previewButton
-  previewButton:SetPoint("TOPRIGHT", slashLabel, "BOTTOMRIGHT", 0, -10)
-
   addLine({resolutionDropdown, resolutionCheckBox, resolutionEnabledLabel}, 5, 0)
 
   -- export explainer
@@ -530,7 +523,21 @@ function addon:CreateProfileList(f, width, height)
   local exportAllButton = LWF:CreateButton(f, 250, 40, L["Save All Profiles"], 16)
   exportAllButton:SetClickFunction(addon.ExportAllProfiles)
   f.exportAllButton = exportAllButton
-  addLine({exportAllButton}, 5, 0)
+
+  local previewButton = LWF:CreateButton(f, 150, 40, L["Preview"], 16)
+  previewButton:SetClickFunction(
+    function()
+      if not WagoUI.framesCreated then
+        WagoUI.db.introEnabled = true
+        WagoUI.db.introState.currentPage = "WelcomePage"
+      end
+      WagoUI:ToggleFrame()
+      LWF:StartSplitView(addon.frames.mainFrame, WagoUI.frames.mainFrame, true, 30)
+    end
+  )
+  f.previewButton = previewButton
+
+  addLine({exportAllButton, previewButton}, 5, 0, 160)
 
   local reloadIndicator = DF:CreateButton(f, nil, 40, 40, "", nil, nil, "UI-RefreshButton", nil, nil, nil, nil)
   reloadIndicator:SetPoint("TOPRIGHT", f, "TOPRIGHT", -10, -10)
