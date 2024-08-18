@@ -375,12 +375,11 @@ function addon:CreateProfileList(f, width, height)
   newPackEditBox:HookScript(
     "OnChar",
     function()
-      addon:SetNewPackErrorLabel("")
+      addon:ResetNewPackErrorLabel()
     end
   )
 
   local newPackErrorLabel = DF:CreateLabel(f, "", 10)
-  newPackErrorLabel:SetTextColor(1, 0, 0, 1)
   newPackErrorLabel:SetPoint("TOPLEFT", newPackEditBox, "BOTTOMLEFT", 6, -2)
   newPackEditBox:HookScript(
     "OnEnterPressed",
@@ -389,12 +388,23 @@ function addon:CreateProfileList(f, width, height)
     end
   )
   f.newPackErrorLabel = newPackErrorLabel
-  function addon:SetNewPackErrorLabel(text)
+  ---@param text string
+  ---@param error boolean
+  function addon:SetNewPackErrorLabel(text, error)
     newPackErrorLabel:SetText(text)
+    if error then
+      newPackErrorLabel:SetTextColor(1, 0, 0, 1)
+    else
+      newPackErrorLabel:SetTextColor(1, 1, 1, 1)
+    end
     if text and text ~= "" then
       newPackEditBox:SetFocus()
     end
   end
+  function addon:ResetNewPackErrorLabel()
+    addon:SetNewPackErrorLabel(L["Use the same name as you did on the website"], false)
+  end
+  addon:ResetNewPackErrorLabel()
 
   addon.GetNewEditBoxText = function()
     return newPackEditBox:GetText()
