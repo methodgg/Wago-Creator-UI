@@ -79,8 +79,6 @@ local setupInstallButton = function(enabled, needEnableAddons, introImportState)
           end
           addon.copyHelper:SmartHide()
           addon.copyHelper:SmartFadeOut(2, L["Done"], addon.frames.mainFrame, 0, 0)
-          -- TODO: this is the bug that happened when Kwepp logged other char and it didn't pop up
-          -- was it even a bug? maybe he didnt import anything??
           addon.db.anyInstalled = true
           addon:NextPage()
         end,
