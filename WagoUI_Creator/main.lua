@@ -425,6 +425,7 @@ function addon:CreateFrames()
       end
     end
 
+    local didInitialize
     for _, module in pairs(addon.moduleConfigs) do
       ---@type LibAddonProfilesModule
       local lapModule = module.lapModule
@@ -436,10 +437,20 @@ function addon:CreateFrames()
             lapModule:closeConfig()
           end
         )
+        didInitialize = true
       end
       if lapModule:isLoaded() then
         executeRefreshHooks(lapModule)
       end
+    end
+    if didInitialize then
+      --need to refresh UI after potential initialization
+      C_Timer.After(
+        0.1,
+        function()
+          addon.frames.mainFrame.frameContent.contentScrollbox:Refresh()
+        end
+      )
     end
   end
 
