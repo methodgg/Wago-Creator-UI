@@ -146,11 +146,11 @@ local specData = {
 local db
 
 local getChosenResolution = function()
-  return addon:GetCurrentPack().resolutions.chosen
+  return addon:GetCurrentPackStashed().resolutions.chosen
 end
 
 local function setupDB()
-  local currentUIPack = addon:GetCurrentPack()
+  local currentUIPack = addon:GetCurrentPackStashed()
   currentUIPack.wagoSettings = currentUIPack.wagoSettings or {}
   currentUIPack.wagoSettings[getChosenResolution()] = currentUIPack.wagoSettings[getChosenResolution()] or {}
   currentUIPack.wagoSettings[getChosenResolution()].enabledSpecs =

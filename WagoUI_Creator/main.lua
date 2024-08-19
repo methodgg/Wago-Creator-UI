@@ -78,6 +78,7 @@ do
   addon.frames.eventListener = CreateFrame("Frame")
   addon.frames.eventListener:RegisterEvent("PLAYER_ENTERING_WORLD")
   addon.frames.eventListener:RegisterEvent("ADDON_LOADED")
+  addon.frames.eventListener:RegisterEvent("PLAYER_LOGOUT")
 
   local postDBLoads = {}
   function addon:RegisterPostDBLoad(func)
@@ -104,6 +105,7 @@ do
         if (loadedAddonName == addonName) then
           addon:SetUpDB()
           handleDBLoad(addon.db, nil, addon.dbDefaults)
+          addon:SetupExportStash()
           addon.frames.eventListener:UnregisterEvent("ADDON_LOADED")
           --have to do this on next frame for some reason
           C_Timer.After(
@@ -115,6 +117,8 @@ do
             end
           )
         end
+      elseif (event == "PLAYER_LOGOUT") then
+        addon:CommitExportStash()
       end
     end
   )
@@ -140,7 +144,7 @@ function addon:AddDataToStorageAddon()
   if not WagoUI_Storage then
     WagoUI_Storage = {}
   end
-  for _, pack in pairs(addon:GetAllPacks()) do
+  for _, pack in pairs(addon:GetAllPacksStashed()) do
     local packName = pack.localName .. " (Local Copy)"
     local data = {
       gameVersion = pack.gameVersion,
@@ -159,24 +163,24 @@ function addon:AddDataToStorageAddon()
   end
 end
 
-function addon:GetCurrentPack()
+function addon:GetCurrentPackStashed()
   if not addon.db.chosenPack then
     return
   end
-  return addon.db.creatorUI[addon.db.chosenPack]
+  return addon.exportStash[addon.db.chosenPack]
 end
 
-function addon:GetAllPacks()
-  return addon.db.creatorUI
+function addon:GetAllPacksStashed()
+  return addon.exportStash
 end
 
-function addon.CreatePack()
+function addon.CreatePackStashed()
   local newName = addon.GetNewEditBoxText()
   if not newName or string.len(newName) < 5 then
     addon:SetNewPackErrorLabel(L["Name too short"], true)
     return
   end
-  if addon.db.creatorUI[newName] then
+  if addon.exportStash[newName] then
     addon:SetNewPackErrorLabel(L["Name already exists"], true)
     return
   end
@@ -198,17 +202,18 @@ function addon.CreatePack()
     newPack.resolutions.enabled[resolution.value] = resolution.defaultEnabled
   end
   newPack.resolutions.chosen = addon.resolutions.defaultValue
+  addon.exportStash[newName] = newPack
   addon.db.creatorUI[newName] = newPack
   addon.db.chosenPack = newName
 
   addon.UpdatePackSelectedUI()
 end
 
-function addon.DeleteCurrentPack()
+function addon.DeleteCurrentPackStashed()
   if not addon.db.chosenPack then
     return
   end
-  addon.db.creatorUI[addon.db.chosenPack] = nil
+  addon.exportStash[addon.db.chosenPack] = nil
   if WagoUI_Storage and WagoUI then
     WagoUI_Storage[addon.db.chosenPack .. " (Local Copy)"] = nil
     WagoUI:SetupWagoData()

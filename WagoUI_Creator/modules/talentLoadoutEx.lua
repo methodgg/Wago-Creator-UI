@@ -136,15 +136,15 @@ local specData = {
 local db
 
 local getChosenResolution = function()
-  return addon:GetCurrentPack().resolutions.chosen
+  return addon:GetCurrentPackStashed().resolutions.chosen
 end
 
 local function setDBMode(mode, dbRef)
   if mode == "Copy" then
-    if not addon:GetCurrentPack().profileKeys[getChosenResolution()][moduleName] then
-      addon:GetCurrentPack().profileKeys[getChosenResolution()][moduleName] = {}
+    if not addon:GetCurrentPackStashed().profileKeys[getChosenResolution()][moduleName] then
+      addon:GetCurrentPackStashed().profileKeys[getChosenResolution()][moduleName] = {}
     end
-    db = addon:GetCurrentPack().profileKeys[getChosenResolution()][moduleName]
+    db = addon:GetCurrentPackStashed().profileKeys[getChosenResolution()][moduleName]
   elseif mode == "Import" then
     db = dbRef
   end

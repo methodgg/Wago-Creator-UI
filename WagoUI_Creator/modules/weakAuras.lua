@@ -16,17 +16,17 @@ local lineHeight = 30
 local openWAButton
 
 local getChosenResolution = function()
-  return addon:GetCurrentPack().resolutions.chosen
+  return addon:GetCurrentPackStashed().resolutions.chosen
 end
 
 local setWeakAuraExportState = function(resolution, id, value)
-  addon:GetCurrentPack().profileKeys[resolution][moduleName][id] = value
+  addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id] = value
 end
 
 function addon:GetWeakAuraExportState(resolution, id)
-  addon:GetCurrentPack().profileKeys[resolution][moduleName] =
-    addon:GetCurrentPack().profileKeys[resolution][moduleName] or {}
-  return addon:GetCurrentPack().profileKeys[resolution][moduleName][id]
+  addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] =
+    addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] or {}
+  return addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id]
 end
 
 local scrollBoxData = {

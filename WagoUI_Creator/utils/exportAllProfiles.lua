@@ -20,7 +20,7 @@ end
 function addon:ExportAllProfiles()
   -- set current toc version
   local gameVersion = select(4, GetBuildInfo())
-  local currentUIPack = addon:GetCurrentPack()
+  local currentUIPack = addon:GetCurrentPackStashed()
 
   if not currentUIPack then
     addon:AddonPrintError("No pack selected")
@@ -130,4 +130,13 @@ function addon:ExportAllProfiles()
     end,
     "ExportAllProfiles"
   )
+end
+
+function addon:SetupExportStash()
+  -- for every pack in db set up a copy that we mutate on every export
+  addon.exportStash = CopyTable(addon.db.creatorUI)
+end
+
+function addon:CommitExportStash()
+  addon.db.creatorUI = addon.exportStash
 end

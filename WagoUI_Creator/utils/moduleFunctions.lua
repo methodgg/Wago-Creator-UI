@@ -7,7 +7,7 @@ local ModuleFunctions = addon.ModuleFunctions
 local LAP = LibStub:GetLibrary("LibAddonProfiles")
 
 function ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKeys, currentProfileKey)
-  local currentUIPack = addon:GetCurrentPack()
+  local currentUIPack = addon:GetCurrentPackStashed()
   tinsert(
     res,
     {
@@ -18,7 +18,10 @@ function ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKe
         currentUIPack.profileKeys[currentUIPack.resolutions.chosen][moduleName] = nil
         currentUIPack.profiles[currentUIPack.resolutions.chosen][moduleName] = nil
         addon.UpdatePackSelectedUI()
-        addon:AddProfileRemoval(addon.db.chosenPack, currentUIPack.resolutions.chosen, moduleName)
+        -- only mark for removal if it was previously set
+        if addon.db.creatorUI[addon.db.chosenPack].profiles[currentUIPack.resolutions.chosen][moduleName] then
+          addon:AddProfileRemoval(addon.db.chosenPack, currentUIPack.resolutions.chosen, moduleName)
+        end
       end
     }
   )
@@ -61,13 +64,14 @@ function ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKe
 end
 
 local function exportFunc(moduleName, resolution, timestamp)
-  local currentUIPack = addon:GetCurrentPack()
+  local packFromDb = addon.db.creatorUI[addon.db.chosenPack]
+  local stashed = addon:GetCurrentPackStashed()
   ---@type LibAddonProfilesModule
   local lapModule = LAP:GetModule(moduleName)
   ---@type any
-  local newExport = lapModule:exportProfile(currentUIPack.profileKeys[resolution][moduleName])
+  local newExport = lapModule:exportProfile(stashed.profileKeys[resolution][moduleName])
   ---@type any
-  local oldExport = currentUIPack.profiles[resolution][moduleName]
+  local oldExport = packFromDb.profiles[resolution][moduleName]
   local tableA, tableB
   if lapModule.exportGroup then
     tableA = oldExport
@@ -80,19 +84,19 @@ local function exportFunc(moduleName, resolution, timestamp)
   end
   --stuff changed, we need to handle it
   --set the profile, time of export
-  currentUIPack.profileMetadata[resolution][moduleName] = currentUIPack.profileMetadata[resolution][moduleName] or {}
+  stashed.profileMetadata[resolution][moduleName] = stashed.profileMetadata[resolution][moduleName] or {}
   if moduleName == "WeakAuras" or moduleName == "Echo Raid Tools" then
-    currentUIPack.profileMetadata[resolution][moduleName].lastUpdatedAt =
-      currentUIPack.profileMetadata[resolution][moduleName].lastUpdatedAt or {}
+    stashed.profileMetadata[resolution][moduleName].lastUpdatedAt =
+      stashed.profileMetadata[resolution][moduleName].lastUpdatedAt or {}
     if changedEntries then
       for key in pairs(changedEntries) do
-        currentUIPack.profileMetadata[resolution][moduleName].lastUpdatedAt[key] = timestamp
+        stashed.profileMetadata[resolution][moduleName].lastUpdatedAt[key] = timestamp
       end
     end
-    currentUIPack.profiles[resolution][moduleName] = newExport
+    stashed.profiles[resolution][moduleName] = newExport
   else
-    currentUIPack.profileMetadata[resolution][moduleName].lastUpdatedAt = timestamp
-    currentUIPack.profiles[resolution][moduleName] = newExport
+    stashed.profileMetadata[resolution][moduleName].lastUpdatedAt = timestamp
+    stashed.profiles[resolution][moduleName] = newExport
   end
   return true, changedEntries, removedEntries
 end

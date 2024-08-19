@@ -29,7 +29,7 @@ end
 
 function addon:CreateProfileList(f, width, height)
   local function contentScrollboxUpdate(self, data, offset, totalLines)
-    local currentUIPack = addon:GetCurrentPack()
+    local currentUIPack = addon:GetCurrentPackStashed()
     -- hide all lines
     for i = 1, totalLines do
       local line = self:GetLine(i)
@@ -362,7 +362,7 @@ function addon:CreateProfileList(f, width, height)
 
   local function getPacksForDropdown()
     local packs = {}
-    for _, pack in pairs(addon:GetAllPacks()) do
+    for _, pack in pairs(addon:GetAllPacksStashed()) do
       local newPack = {
         value = pack.localName,
         label = pack.localName,
@@ -399,7 +399,7 @@ function addon:CreateProfileList(f, width, height)
   newPackEditBox:HookScript(
     "OnEnterPressed",
     function()
-      addon:CreatePack()
+      addon:CreatePackStashed()
     end
   )
   f.newPackErrorLabel = newPackErrorLabel
@@ -426,11 +426,11 @@ function addon:CreateProfileList(f, width, height)
   end
 
   local createNewPackButton = LWF:CreateButton(f, 150, 40, L["Create Pack"], 16)
-  createNewPackButton:SetClickFunction(addon.CreatePack)
+  createNewPackButton:SetClickFunction(addon.CreatePackStashed)
   f.createNewPackButton = createNewPackButton
 
   local deletePackButton = LWF:CreateButton(f, 150, 40, L["Delete"], 16)
-  deletePackButton:SetClickFunction(addon.DeleteCurrentPack)
+  deletePackButton:SetClickFunction(addon.DeleteCurrentPackStashed)
   f.deletePackButton = deletePackButton
   addLine({packDropdown, newPackEditBox, createNewPackButton, deletePackButton}, 5, -10)
 
@@ -452,7 +452,7 @@ function addon:CreateProfileList(f, width, height)
       value = res.value,
       label = res.displayNameLong,
       onclick = function()
-        local currentPack = addon:GetCurrentPack()
+        local currentPack = addon:GetCurrentPackStashed()
         if not currentPack then
           return
         end
@@ -479,7 +479,7 @@ function addon:CreateProfileList(f, width, height)
     f,
     40,
     function(_, _, value)
-      local currentPack = addon:GetCurrentPack()
+      local currentPack = addon:GetCurrentPackStashed()
       if not currentPack then
         return
       end
@@ -491,9 +491,9 @@ function addon:CreateProfileList(f, width, height)
   f.resolutionCheckBox = resolutionCheckBox
 
   function addon.UpdatePackSelectedUI()
-    local currentPack = addon:GetCurrentPack()
+    local currentPack = addon:GetCurrentPackStashed()
     if not currentPack then
-      local packs = addon:GetAllPacks()
+      local packs = addon:GetAllPacksStashed()
       for _, pack in pairs(packs) do
         db.chosenPack = pack.localName
         addon.UpdatePackSelectedUI()
@@ -631,7 +631,7 @@ function addon:CreateProfileList(f, width, height)
   noPacksLabel:SetPoint("CENTER", noPacksContainer, "CENTER", 0, 33)
 
   function addon:UpdateNoPackLabel()
-    if addon:GetCurrentPack() then
+    if addon:GetCurrentPackStashed() then
       noPacksContainer:Hide()
     else
       noPacksContainer:Show()

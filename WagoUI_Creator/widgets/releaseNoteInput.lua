@@ -211,5 +211,5 @@ function addon:OpenReleaseNoteInput(timestamp, updates, removals)
 end
 
 function addon:SaveReleaseNotes(input)
-  addon:GetCurrentPack().releaseNotes[releaseNotesFrame.timestamp] = input
+  addon:GetCurrentPackStashed().releaseNotes[releaseNotesFrame.timestamp] = input
 end

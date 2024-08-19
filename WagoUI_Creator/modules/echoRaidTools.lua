@@ -15,17 +15,17 @@ local scrollBoxHeight = frameHeight - 165
 local lineHeight = 30
 
 local getChosenResolution = function()
-  return addon:GetCurrentPack().resolutions.chosen
+  return addon:GetCurrentPackStashed().resolutions.chosen
 end
 
 local setGroupExportState = function(resolution, id, value)
-  addon:GetCurrentPack().profileKeys[resolution][moduleName][id] = value
+  addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id] = value
 end
 
 local getGroupExportState = function(resolution, id)
-  addon:GetCurrentPack().profileKeys[resolution][moduleName] =
-    addon:GetCurrentPack().profileKeys[resolution][moduleName] or {}
-  return addon:GetCurrentPack().profileKeys[resolution][moduleName][id]
+  addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] =
+    addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] or {}
+  return addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id]
 end
 
 local scrollBoxData = {
