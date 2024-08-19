@@ -25,9 +25,7 @@ local commands = {
         "Toggle Debug and reload?",
         function()
           addon.db.debug = not addon.db.debug
-          if not addon.db.debug then
-            addon.db.autoStart = false
-          end
+          addon.db.autoStart = addon.db.debug
           ReloadUI()
         end,
         function()
