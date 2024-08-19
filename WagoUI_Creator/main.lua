@@ -99,7 +99,7 @@ do
             end
           )
         end
-        addon:AddDataToStorageAddon()
+        addon:AddDataToStorageAddon(false)
       elseif (event == "ADDON_LOADED") then
         local loadedAddonName = ...
         if (loadedAddonName == addonName) then
@@ -140,11 +140,13 @@ function addon:DeepCopyAsync(orig)
   return copy
 end
 
-function addon:AddDataToStorageAddon()
+---@param changesDetected boolean
+function addon:AddDataToStorageAddon(changesDetected)
   if not WagoUI_Storage then
     WagoUI_Storage = {}
   end
-  for _, pack in pairs(addon:GetAllPacksStashed()) do
+  local source = changesDetected and addon:GetAllPacksStashed() or addon.db.creatorUI
+  for _, pack in pairs(source) do
     local packName = pack.localName .. " (Local Copy)"
     local data = {
       gameVersion = pack.gameVersion,

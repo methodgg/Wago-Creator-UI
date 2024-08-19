@@ -126,7 +126,7 @@ function addon:ExportAllProfiles()
         addon.copyHelper:SmartFadeOut(2, L["No Changes detected"])
         LWF:ToggleLockoutFrame(false, addon.frames, addon.frames.mainFrame)
       end
-      addon:AddDataToStorageAddon()
+      addon:AddDataToStorageAddon(numUpdates > 0)
     end,
     "ExportAllProfiles"
   )
