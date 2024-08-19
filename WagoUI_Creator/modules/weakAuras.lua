@@ -11,7 +11,7 @@ local m
 local frameWidth = 750
 local frameHeight = 540
 local scrollBoxWidth = 250
-local scrollBoxHeight = frameHeight - 210
+local scrollBoxHeight = frameHeight - 229
 local lineHeight = 30
 local openWAButton
 
