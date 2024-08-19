@@ -200,7 +200,7 @@ function addon:OpenReleaseNoteInput(timestamp, updates, removals)
   end
 
   local dateString = "# " .. date("%y/%m/%d", timestamp) .. "\n"
-  str = dateString .. str
+  str = dateString .. (str or "")
   if addon.importFrame then
     addon.importFrame.Close:Click()
   end
