@@ -48,7 +48,7 @@ function addon:CreateReleaseNoteInput()
   releaseNotesFrame.logo = logo
 
   local nextStepLabel =
-    DF:CreateLabel(releaseNotesFrame, L["Continue the upload through the Wago App after the reload!"], 14, "white")
+    DF:CreateLabel(releaseNotesFrame, L["Continue the upload through the Wago App after the reload!"], 16, "white")
   nextStepLabel:SetPoint("BOTTOM", logo, "BOTTOM", 0, 30)
   local warningIconLeft = LWF:CreateIconButton(releaseNotesFrame, 30, "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
   local warningIconRight =
