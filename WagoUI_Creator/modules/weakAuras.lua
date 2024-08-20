@@ -181,6 +181,12 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
       if (info) then
         local line = self:GetLine(i)
         line.nameLabel:SetText(info.id)
+        vdt(info, info.id)
+        if info.iconSource == -1 then
+        -- TODO
+        -- we dont have an icon, would need to recreate the logic of WeakAuras to get it via spellCache
+        -- maybe we are not doing this one...
+        end
         local iconSource = info.groupIcon or info.displayIcon or 134400
         iconSource = tonumber(iconSource) or 134400
         line.icon:SetTexture(iconSource)
