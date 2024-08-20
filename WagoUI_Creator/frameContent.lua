@@ -97,7 +97,7 @@ function addon:CreateProfileList(f, width, height)
           line.notInstalledLabel:SetTextColor(0.5, 0.5, 0.5, 1)
         end
 
-        if canEnable then
+        if not lapModule:isLoaded() and canEnable then
           line:SetScript(
             "OnClick",
             function()
