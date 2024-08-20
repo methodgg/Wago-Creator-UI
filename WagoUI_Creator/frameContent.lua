@@ -456,11 +456,11 @@ function addon:CreateProfileList(f, width, height)
   end
 
   local createNewPackButton = LWF:CreateButton(f, 150, 40, L["Create Pack"], 16)
-  createNewPackButton:SetClickFunction(addon.CreatePackStashed())
+  createNewPackButton:SetClickFunction(addon.CreatePackStashed)
   f.createNewPackButton = createNewPackButton
 
   local deletePackButton = LWF:CreateButton(f, 150, 40, L["Delete"], 16)
-  deletePackButton:SetClickFunction(addon.DeleteCurrentPackStashed())
+  deletePackButton:SetClickFunction(addon.DeleteCurrentPackStashed)
   f.deletePackButton = deletePackButton
   addLine({packDropdown, newPackEditBox, createNewPackButton, deletePackButton}, 5, -10)
 
