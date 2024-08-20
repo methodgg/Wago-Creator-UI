@@ -464,17 +464,6 @@ function addon:CreateProfileList(f, width, height)
   f.deletePackButton = deletePackButton
   addLine({packDropdown, newPackEditBox, createNewPackButton, deletePackButton}, 5, -10)
 
-  -- resolution explainer
-  local resExplainerLabel = DF:CreateLabel(f, "Startup", 16, "white")
-  resExplainerLabel:SetWidth((width - 40) / 2)
-  resExplainerLabel:SetWordWrap(true)
-  resExplainerLabel:SetText(
-    L[
-      "Choose which resolutions you want the UI pack to support. You can provide a separate profile for each resolution and AddOn."
-    ]
-  )
-  -- addLine({resExplainerLabel}, 5, -10)
-
   -- resolution
   local resolutions = {}
   for _, res in ipairs(addon.resolutions.entries) do
@@ -492,33 +481,6 @@ function addon:CreateProfileList(f, width, height)
     }
     table.insert(resolutions, newRes)
   end
-
-  local resolutionDropdown =
-    LWF:CreateDropdown(
-    f,
-    200,
-    40,
-    16,
-    1.5,
-    function()
-      return resolutions
-    end
-  )
-  local resolutionCheckBox =
-    LWF:CreateCheckbox(
-    f,
-    40,
-    function(_, _, value)
-      local currentPack = addon:GetCurrentPackStashed()
-      if not currentPack then
-        return
-      end
-      currentPack.resolutions.enabled[currentPack.resolutions.chosen] = value
-      f.contentScrollbox:Refresh()
-    end,
-    false
-  )
-  f.resolutionCheckBox = resolutionCheckBox
 
   function addon.UpdatePackSelectedUI()
     addon:UpdateTabButtons()
@@ -542,17 +504,9 @@ function addon:CreateProfileList(f, width, height)
     end
 
     if not currentPack then
-      resolutionDropdown:NoOptionSelected()
-      resolutionDropdown:Disable()
-      resolutionCheckBox:Disable()
       f.exportAllButton:Disable()
       deletePackButton:Disable()
     else
-      resolutionDropdown:Enable()
-      addon:RefreshDropdown(resolutionDropdown)
-      resolutionCheckBox:Enable()
-      resolutionDropdown:Select(currentPack.resolutions.chosen)
-      resolutionCheckBox:SetValue(currentPack.resolutions.enabled[currentPack.resolutions.chosen])
       f.exportAllButton:Enable()
       deletePackButton:Enable()
     end
@@ -573,18 +527,6 @@ function addon:CreateProfileList(f, width, height)
   local logo = DF:CreateImage(f, [[Interface\AddOns\]] .. addonName .. [[\media\wagoLogo512]], 100, 100)
   logo:SetPoint("TOPRIGHT", f, "TOPRIGHT", -17, 21)
   f.logo = logo
-
-  -- local slashLabel = DF:CreateLabel(f, "Slash command: |cFFC1272D" .. addon.slashPrefixes[1] .. "|r", 20, "white")
-  -- slashLabel:SetPoint("TOP", logo, "BOTTOM", 0, 25)
-
-  -- addLine({resolutionDropdown, resolutionCheckBox, resolutionEnabledLabel}, 5, 0)
-
-  -- export explainer
-  local exportExplainerLabel = DF:CreateLabel(f, "Startup", 16, "white")
-  exportExplainerLabel:SetWidth((width - 40) / 2)
-  exportExplainerLabel:SetWordWrap(true)
-  exportExplainerLabel:SetText(L["exportExplainerLabel"])
-  -- addLine({exportExplainerLabel}, 5, -10)
 
   local exportAllButton = LWF:CreateButton(f, 300, 50, L["Save All Profiles"], 20)
   exportAllButton:SetClickFunction(addon.ExportAllProfiles)
