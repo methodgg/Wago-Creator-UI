@@ -27,9 +27,28 @@ do
   end
 end
 
+local tabEnabled
+local tabFunction
+local resolutionTabs, disableButtons
+local enableResolutionButton
+
 function addon:CreateProfileList(f, width, height)
   local function contentScrollboxUpdate(self, data, offset, totalLines)
     local currentUIPack = addon:GetCurrentPackStashed()
+    for btnIdx, button in pairs(resolutionTabs) do
+      if not currentUIPack then
+        button:Hide()
+        disableButtons[btnIdx]:Hide()
+      else
+        button:Show()
+      end
+    end
+    if currentUIPack and not tabEnabled then
+      enableResolutionButton:Show()
+      return
+    else
+      enableResolutionButton:Hide()
+    end
     -- hide all lines
     for i = 1, totalLines do
       local line = self:GetLine(i)
@@ -437,11 +456,21 @@ function addon:CreateProfileList(f, width, height)
   end
 
   local createNewPackButton = LWF:CreateButton(f, 150, 40, L["Create Pack"], 16)
-  createNewPackButton:SetClickFunction(addon.CreatePackStashed)
+  createNewPackButton:SetClickFunction(
+    function()
+      addon:CreatePackStashed()
+      tabFunction()
+    end
+  )
   f.createNewPackButton = createNewPackButton
 
   local deletePackButton = LWF:CreateButton(f, 150, 40, L["Delete"], 16)
-  deletePackButton:SetClickFunction(addon.DeleteCurrentPackStashed)
+  deletePackButton:SetClickFunction(
+    function()
+      addon:DeleteCurrentPackStashed()
+      tabFunction()
+    end
+  )
   f.deletePackButton = deletePackButton
   addLine({packDropdown, newPackEditBox, createNewPackButton, deletePackButton}, 5, -10)
 
@@ -454,7 +483,7 @@ function addon:CreateProfileList(f, width, height)
       "Choose which resolutions you want the UI pack to support. You can provide a separate profile for each resolution and AddOn."
     ]
   )
-  addLine({resExplainerLabel}, 5, -10)
+  -- addLine({resExplainerLabel}, 5, -10)
 
   -- resolution
   local resolutions = {}
@@ -502,6 +531,7 @@ function addon:CreateProfileList(f, width, height)
   f.resolutionCheckBox = resolutionCheckBox
 
   function addon.UpdatePackSelectedUI()
+    addon:UpdateTabButtons()
     local currentPack = addon:GetCurrentPackStashed()
     if not currentPack then
       local packs = addon:GetAllPacksStashed()
@@ -509,6 +539,15 @@ function addon:CreateProfileList(f, width, height)
         db.chosenPack = pack.localName
         addon.UpdatePackSelectedUI()
         return
+      end
+    end
+
+    tabEnabled = currentPack and currentPack.resolutions.enabled[currentPack.resolutions.chosen]
+    for _, line in pairs(f.contentScrollbox:GetLines()) do
+      if tabEnabled then
+        line:Show()
+      else
+        line:Hide()
       end
     end
 
@@ -541,22 +580,23 @@ function addon:CreateProfileList(f, width, height)
   resolutionEnabledLabel:SetText(L["Enable this resolution"])
 
   -- logo
-  local logo = DF:CreateImage(f, [[Interface\AddOns\]] .. addonName .. [[\media\wagoLogo512]], 256, 256)
-  logo:SetPoint("TOPRIGHT", f, "TOPRIGHT", -45, 24)
+  local logo = DF:CreateImage(f, [[Interface\AddOns\]] .. addonName .. [[\media\wagoLogo512]], 100, 100)
+  logo:SetPoint("TOPRIGHT", f, "TOPRIGHT", -17, 21)
+  f.logo = logo
 
-  local slashLabel = DF:CreateLabel(f, "Slash command: |cFFC1272D" .. addon.slashPrefixes[1] .. "|r", 20, "white")
-  slashLabel:SetPoint("TOP", logo, "BOTTOM", 0, 25)
+  -- local slashLabel = DF:CreateLabel(f, "Slash command: |cFFC1272D" .. addon.slashPrefixes[1] .. "|r", 20, "white")
+  -- slashLabel:SetPoint("TOP", logo, "BOTTOM", 0, 25)
 
-  addLine({resolutionDropdown, resolutionCheckBox, resolutionEnabledLabel}, 5, 0)
+  -- addLine({resolutionDropdown, resolutionCheckBox, resolutionEnabledLabel}, 5, 0)
 
   -- export explainer
   local exportExplainerLabel = DF:CreateLabel(f, "Startup", 16, "white")
   exportExplainerLabel:SetWidth((width - 40) / 2)
   exportExplainerLabel:SetWordWrap(true)
   exportExplainerLabel:SetText(L["exportExplainerLabel"])
-  addLine({exportExplainerLabel}, 5, 0)
+  -- addLine({exportExplainerLabel}, 5, -10)
 
-  local exportAllButton = LWF:CreateButton(f, 250, 40, L["Save All Profiles"], 16)
+  local exportAllButton = LWF:CreateButton(f, 300, 50, L["Save All Profiles"], 20)
   exportAllButton:SetClickFunction(addon.ExportAllProfiles)
   f.exportAllButton = exportAllButton
 
@@ -576,10 +616,96 @@ function addon:CreateProfileList(f, width, height)
     previewButton:Hide()
   end
 
-  addLine({exportAllButton, previewButton}, 5, 0, 160)
+  enableResolutionButton = LWF:CreateButton(f, 300, 50, L["Enable this resolution"], 20)
+  enableResolutionButton:SetClickFunction(
+    function()
+      local currentPack = addon:GetCurrentPackStashed()
+      if not currentPack then
+        return
+      end
+      currentPack.resolutions.enabled[currentPack.resolutions.chosen] = true
+      f.contentScrollbox:Refresh()
+      addon:UpdatePackSelectedUI()
+    end
+  )
+  f.enableResolutionButton = enableResolutionButton
+
+  resolutionTabs = {}
+  disableButtons = {}
+  for idx, _ in ipairs(addon.resolutions.entries) do
+    local profileTabButton = LWF:CreateTabButton(f, (width / #addon.resolutions.entries) - 2, 40, "", 16)
+    tinsert(resolutionTabs, profileTabButton)
+    local disableButton = DF:CreateButton(f, nil, 20, 20, "", nil, nil, "transmog-icon-remove", nil, nil, nil, nil)
+    tinsert(disableButtons, disableButton)
+    disableButton:SetClickFunction(
+      function()
+        local currentPack = addon:GetCurrentPackStashed()
+        if not currentPack then
+          return
+        end
+        currentPack.resolutions.enabled[currentPack.resolutions.chosen] = false
+        addon:UpdatePackSelectedUI()
+      end
+    )
+    disableButton:Hide()
+    -- profileTabButton:HookScript(
+    --   "OnDisable",
+    --   function()
+    --     local res = addon.resolutions.entries[idx]
+    --     local currentPack = addon:GetCurrentPackStashed()
+    --     if currentPack and currentPack.resolutions.enabled[res.value] then
+    --       disableButton:Show()
+    --     end
+    --   end
+    -- )
+    -- profileTabButton:HookScript(
+    --   "OnEnable",
+    --   function()
+    --     disableButton:Hide()
+    --   end
+    -- )
+    disableButton:SetPoint("TOPRIGHT", profileTabButton, "TOPRIGHT", 0, 15)
+    disableButton:SetTooltip("Click to disable")
+  end
+  addLine(resolutionTabs, 0, -20, 0)
+  tabFunction = function(tabIndex)
+    if addon:GetCurrentPackStashed() then
+      local res = addon.resolutions.entries[tabIndex]
+      addon:GetCurrentPackStashed().resolutions.chosen = res.value
+    end
+    addon.UpdatePackSelectedUI()
+  end
+  local defaultTabValue = (addon:GetCurrentPackStashed() and addon:GetCurrentPackStashed().resolutions.chosen) or "any"
+  local defaultTabIdx = 0
+  for i, entry in ipairs(addon.resolutions.entries) do
+    if entry.value == defaultTabValue then
+      defaultTabIdx = i
+    end
+  end
+  function addon:UpdateTabButtons()
+    for i, button in ipairs(resolutionTabs) do
+      local res = addon.resolutions.entries[i]
+      local currentPack = addon:GetCurrentPackStashed()
+      if currentPack then
+        local enabled = currentPack.resolutions.enabled[res.value]
+        if enabled then
+          button:SetTextColor(1, 0.82, 0, 1)
+        else
+          button:SetTextColor(0.725, 0.725, 0.725, 1)
+        end
+        if enabled and res.value == currentPack.resolutions.chosen then
+          disableButtons[i]:Show()
+        else
+          disableButtons[i]:Hide()
+        end
+        button:SetText(res.displayNameShort .. "\n" .. (enabled and L["Enabled"] or L["Disabled"]))
+      end
+    end
+  end
+  addon:UpdateTabButtons()
 
   local reloadIndicator = DF:CreateButton(f, nil, 40, 40, "", nil, nil, "UI-RefreshButton", nil, nil, nil, nil)
-  reloadIndicator:SetPoint("TOPRIGHT", f, "TOPRIGHT", -10, -10)
+  reloadIndicator:SetPoint("TOPRIGHT", f, "TOPRIGHT", -16, -10)
   reloadIndicator:SetTooltip(L["RELOAD_HINT"])
   reloadIndicator:SetFrameStrata("DIALOG")
   reloadIndicator:Hide()
@@ -588,9 +714,14 @@ function addon:CreateProfileList(f, width, height)
       ReloadUI()
     end
   )
+  local reloadLabel = DF:CreateLabel(f, L["Reload needed"], 16, "white")
+  reloadLabel:SetPoint("RIGHT", reloadIndicator, "LEFT", -5, 0)
+  reloadLabel:Hide()
 
   function addon:ShowReloadIndicator()
     reloadIndicator:Show()
+    reloadLabel:Show()
+    f.logo:Hide()
   end
 
   local widths = {
@@ -625,7 +756,7 @@ function addon:CreateProfileList(f, width, height)
     contentScrollboxUpdate,
     {},
     width - 17,
-    height - totalHeight + 4,
+    height - totalHeight - 85,
     0,
     lineHeight,
     createScrollLine,
@@ -633,12 +764,15 @@ function addon:CreateProfileList(f, width, height)
   )
   f.contentHeader = DF:CreateHeader(f, headerTable, nil, addonName .. "ContentHeader")
   f.contentScrollbox = contentScrollbox
-  addLine({f.contentHeader}, 0, 0)
+  addLine({f.contentHeader}, 0, 10)
   contentScrollbox:SetPoint("TOPLEFT", f.contentHeader, "BOTTOMLEFT")
   contentScrollbox.ScrollBar.scrollStep = 60
   DF:ReskinSlider(contentScrollbox)
   contentScrollbox.ScrollBar.ScrollUpButton.Highlight:ClearAllPoints(false)
   contentScrollbox.ScrollBar.ScrollDownButton.Highlight:ClearAllPoints(false)
+
+  enableResolutionButton:SetPoint("CENTER", contentScrollbox, "CENTER", 0, 0)
+  exportAllButton:SetPoint("TOP", contentScrollbox, "BOTTOM", 0, -16)
 
   local noPacksContainer = CreateFrame("Frame", nil, f)
   noPacksContainer:SetSize(width, height)
@@ -654,16 +788,14 @@ function addon:CreateProfileList(f, width, height)
       noPacksContainer:Hide()
     else
       noPacksContainer:Show()
+      enableResolutionButton:Hide()
     end
   end
 
   addon.ModuleFunctions:SortModuleConfigs()
   contentScrollbox:SetData(addon.moduleConfigs)
   contentScrollbox:Refresh()
-  addon.UpdatePackSelectedUI()
-  -- TODO:
-  -- hooksecurefunc(contentScrollbox, "Refresh", function()
-  --   addon:RefreshAllProfileDropdowns()
-  -- end)
+  -- have to do here because tabFunction is called for default value
+  LWF:CreateTabStructure(resolutionTabs, tabFunction, defaultTabIdx)
   addon.contentScrollbox = contentScrollbox
 end
