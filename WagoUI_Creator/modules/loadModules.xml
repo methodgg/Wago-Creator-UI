@@ -18,6 +18,7 @@
 	<Include file="weakAuras.lua"/>
 	<Include file="echoRaidTools.lua"/>
 	<Include file="omnicd.lua"/>
+	<Include file="omnicdSpellEditor.lua"/>
 	<Include file="cell.lua"/>
 	<Include file="bugsack.lua"/>
 	<Include file="kuiNameplates.lua"/>

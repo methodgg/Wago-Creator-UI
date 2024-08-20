@@ -1,6 +1,6 @@
 ---@class WagoUICreator
 local addon = select(2, ...)
-local moduleName = "OmniCD"
+local moduleName = "OmniCD Spell Editor"
 local LAP = LibStub:GetLibrary("LibAddonProfiles")
 local lapModule = LAP:GetModule(moduleName)
 
@@ -21,7 +21,7 @@ local moduleConfig = {
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
   copyButtonTooltipText = nil,
-  sortIndex = 25
+  sortIndex = 26
 }
 
 addon.ModuleFunctions:InsertModuleConfig(moduleConfig)
