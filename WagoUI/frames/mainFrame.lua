@@ -33,7 +33,7 @@ function addon:CreateMainFrame()
   frame:SetFrameStrata("HIGH")
   frame:SetFrameLevel(100)
   frame:SetToplevel(true)
-  LWF:ScaleFrameByResolution(frame)
+  LWF:ScaleFrameByUIParentScale(frame, 0.5333333333333)
   frame:SetPoint(addon.db.anchorTo, UIParent, addon.db.anchorFrom, addon.db.xoffset, addon.db.yoffset)
   hooksecurefunc(
     frame,

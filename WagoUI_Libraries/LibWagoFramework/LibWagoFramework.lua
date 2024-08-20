@@ -13,17 +13,12 @@ end
 
 local odt = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
 
+---Scale based on effective scale of UIParent so the window size is always the same relative size to the screen
 ---@param frame Frame
-function LibWagoFramework:ScaleFrameByResolution(frame)
-  --TODO: This needs to scale based on UIScale, not resolution
-  local detectedRes = C_VideoOptions.GetCurrentGameWindowSize()
-  local scale = 1
-  if detectedRes.x < 1920 then
-    scale = 0.8
-  elseif detectedRes.x < 2560 then
-    scale = 0.9
-  end
-  frame:SetScale(scale)
+---@param defaultScale number Default scale of the frame
+function LibWagoFramework:ScaleFrameByUIParentScale(frame, defaultScale)
+  local scale = 1 / UIParent:GetEffectiveScale()
+  frame:SetScale(scale / (1 / defaultScale))
 end
 
 ---A normal grey rectangular button with text

@@ -316,7 +316,7 @@ function addon:CreateFrames()
   frame:SetFrameStrata("HIGH")
   frame:SetFrameLevel(100)
   frame:SetToplevel(true)
-  LWF:ScaleFrameByResolution(frame)
+  LWF:ScaleFrameByUIParentScale(frame, 0.5333333333333)
   frame:SetPoint(
     WagoUICreatorDB.anchorTo,
     UIParent,
