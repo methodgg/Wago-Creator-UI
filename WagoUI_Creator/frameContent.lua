@@ -561,6 +561,9 @@ function addon:CreateProfileList(f, width, height)
     end
   )
   f.previewButton = previewButton
+  if addon:TableNumEntries(addon.db.creatorUI) == 0 then
+    previewButton:Hide()
+  end
 
   addLine({exportAllButton, previewButton}, 5, 0, 160)
 
