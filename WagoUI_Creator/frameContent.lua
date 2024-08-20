@@ -456,21 +456,11 @@ function addon:CreateProfileList(f, width, height)
   end
 
   local createNewPackButton = LWF:CreateButton(f, 150, 40, L["Create Pack"], 16)
-  createNewPackButton:SetClickFunction(
-    function()
-      addon:CreatePackStashed()
-      tabFunction()
-    end
-  )
+  createNewPackButton:SetClickFunction(addon.CreatePackStashed())
   f.createNewPackButton = createNewPackButton
 
   local deletePackButton = LWF:CreateButton(f, 150, 40, L["Delete"], 16)
-  deletePackButton:SetClickFunction(
-    function()
-      addon:DeleteCurrentPackStashed()
-      tabFunction()
-    end
-  )
+  deletePackButton:SetClickFunction(addon.DeleteCurrentPackStashed())
   f.deletePackButton = deletePackButton
   addLine({packDropdown, newPackEditBox, createNewPackButton, deletePackButton}, 5, -10)
 
@@ -669,11 +659,17 @@ function addon:CreateProfileList(f, width, height)
   end
   addLine(resolutionTabs, 0, -20, 0)
   tabFunction = function(tabIndex)
+    tabIndex = tabIndex or 1
     if addon:GetCurrentPackStashed() then
       local res = addon.resolutions.entries[tabIndex]
-      addon:GetCurrentPackStashed().resolutions.chosen = res.value
+      if not res then
+        addon:GetCurrentPackStashed().resolutions.chosen = "any"
+      else
+        addon:GetCurrentPackStashed().resolutions.chosen = res.value
+      end
     end
     addon.UpdatePackSelectedUI()
+    addon:UpdateTabButtons()
   end
   local defaultTabValue = (addon:GetCurrentPackStashed() and addon:GetCurrentPackStashed().resolutions.chosen) or "any"
   local defaultTabIdx = 0
@@ -698,6 +694,14 @@ function addon:CreateProfileList(f, width, height)
         else
           disableButtons[i]:Hide()
         end
+        if res.value == currentPack.resolutions.chosen then
+          button:Disable()
+          button.disabled_overlay:Hide()
+        else
+          button:Enable()
+          button.disabled_overlay:Show()
+        end
+
         button:SetText(res.displayNameShort .. "\n" .. (enabled and L["Enabled"] or L["Disabled"]))
       end
     end
