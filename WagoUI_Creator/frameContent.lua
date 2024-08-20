@@ -64,8 +64,10 @@ function addon:CreateProfileList(f, width, height)
         local canEnable = LAP:CanEnableAnyAddOn(lapModule.addonNames)
         if loaded then
           line:SetBackdropColor(unpack({.8, .8, .8, 0.3}))
+          line.icon:SetEnabled(true)
         else
           line:SetBackdropColor(unpack({.5, .5, .5, 0.1}))
+          line.icon:SetEnabled(false)
         end
 
         -- icon
@@ -111,11 +113,9 @@ function addon:CreateProfileList(f, width, height)
           line:SetScript("OnClick", nil)
         end
 
-        if loaded then
-          line.icon:SetEnabled(true)
+        if lapModule:isLoaded() then
           line.notInstalledLabel:SetText("")
         else
-          line.icon:SetEnabled(false)
           line.notInstalledLabel:SetText(
             info.queuedEnable and L["Enabled after reload"] or canEnable and L["AddOn disabled - click to enable"] or
               L["Not Installed"]
