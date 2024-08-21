@@ -1,3 +1,7 @@
+if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
+  return
+end
+
 ---@class WagoUICreator
 local addon = select(2, ...)
 local moduleName = "Blizzard Edit Mode"

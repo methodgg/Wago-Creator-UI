@@ -1,4 +1,4 @@
-## Interface: 110002
+## Interface: 110002, 40400
 ## Title: |cFFC1272DWago|rUI
 ## IconTexture: Interface\AddOns\WagoUI\media\logoSmall.png
 ## Author: The Wago Team
