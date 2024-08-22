@@ -25,6 +25,9 @@ local m = {
     return C_AddOns.IsAddOnLoaded("ElvUI") and not self:isLoaded()
   end,
   openConfig = function(self)
+    if not SlashCmdList["ACECONSOLE_ELVUI"] then
+      return
+    end
     SlashCmdList["ACECONSOLE_ELVUI"]()
   end,
   closeConfig = function(self)

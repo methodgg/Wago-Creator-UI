@@ -44,6 +44,9 @@ local m = {
     return false
   end,
   openConfig = function(self)
+    if not SlashCmdList["ACECONSOLE_ECHORT"] then
+      return
+    end
     SlashCmdList["ACECONSOLE_ECHORT"]()
   end,
   closeConfig = function(self)

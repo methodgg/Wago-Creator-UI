@@ -25,6 +25,9 @@ local m = {
     return false
   end,
   openConfig = function(self)
+    if not SlashCmdList["BugSack"] then
+      return
+    end
     SlashCmdList["BugSack"]("")
   end,
   closeConfig = function(self)

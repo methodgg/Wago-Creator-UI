@@ -24,6 +24,9 @@ local m = {
     return false
   end,
   openConfig = function(self)
+    if not SlashCmdList["OmniCC"] then
+      return
+    end
     SlashCmdList["OmniCC"]()
   end,
   closeConfig = function(self)

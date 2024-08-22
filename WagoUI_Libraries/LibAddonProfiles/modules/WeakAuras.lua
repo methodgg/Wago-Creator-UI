@@ -251,6 +251,9 @@ local m = {
     return false
   end,
   openConfig = function(self)
+    if not SlashCmdList["WEAKAURAS"] then
+      return
+    end
     SlashCmdList["WEAKAURAS"]("")
   end,
   closeConfig = function(self)

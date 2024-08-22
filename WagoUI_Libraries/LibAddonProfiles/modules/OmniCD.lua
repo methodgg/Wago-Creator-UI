@@ -25,6 +25,9 @@ local m = {
     return false
   end,
   openConfig = function(self)
+    if not OmniCD then
+      return
+    end
     OmniCD[1]:OpenOptionPanel()
   end,
   closeConfig = function(self)

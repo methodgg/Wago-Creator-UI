@@ -24,6 +24,9 @@ local m = {
     return false
   end,
   openConfig = function(self)
+    if not SlashCmdList["ACECONSOLE_NSCT"] then
+      return
+    end
     SlashCmdList["ACECONSOLE_NSCT"]()
   end,
   closeConfig = function(self)

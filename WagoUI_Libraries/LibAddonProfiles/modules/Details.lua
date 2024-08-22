@@ -87,6 +87,9 @@ local m = {
     return false
   end,
   openConfig = function(self)
+    if not SlashCmdList["DETAILS"] then
+      return
+    end
     SlashCmdList["DETAILS"]("options")
   end,
   closeConfig = function(self)

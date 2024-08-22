@@ -25,6 +25,9 @@ local m = {
     return false
   end,
   openConfig = function(self)
+    if not SlashCmdList["ACECONSOLE_QUARTZ"] then
+      return
+    end
     SlashCmdList["ACECONSOLE_QUARTZ"]()
   end,
   closeConfig = function(self)

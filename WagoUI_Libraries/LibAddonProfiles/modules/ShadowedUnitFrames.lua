@@ -24,6 +24,9 @@ local m = {
     return false
   end,
   openConfig = function(self)
+    if not SlashCmdList["SHADOWEDUF"] then
+      return
+    end
     SlashCmdList["SHADOWEDUF"]("")
   end,
   closeConfig = function(self)

@@ -161,6 +161,9 @@ local m = {
     return false
   end,
   openConfig = function(self)
+    if not SlashCmdList["PLATER"] then
+      return
+    end
     SlashCmdList["PLATER"]("")
   end,
   closeConfig = function(self)

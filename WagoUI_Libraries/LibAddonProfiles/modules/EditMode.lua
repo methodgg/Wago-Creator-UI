@@ -1,5 +1,5 @@
 if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
-	return
+  return
 end
 
 local _, loadingAddonNamespace = ...
@@ -63,6 +63,9 @@ local m = {
     return false
   end,
   openConfig = function(self)
+    if not SlashCmdList["EDITMODE"] then
+      return
+    end
     SlashCmdList["EDITMODE"]()
   end,
   closeConfig = function(self)

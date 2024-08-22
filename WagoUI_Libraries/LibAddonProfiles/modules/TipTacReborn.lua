@@ -24,6 +24,9 @@ local m = {
     return false
   end,
   openConfig = function(self)
+    if not SlashCmdList["TIPTAC"] then
+      return
+    end
     SlashCmdList["TIPTAC"]("")
   end,
   closeConfig = function(self)

@@ -24,6 +24,9 @@ local m = {
     return false
   end,
   openConfig = function(self)
+    if not SlashCmdList["ACECONSOLE_BARTENDER4"] then
+      return
+    end
     SlashCmdList["ACECONSOLE_BARTENDER4"]()
   end,
   closeConfig = function(self)

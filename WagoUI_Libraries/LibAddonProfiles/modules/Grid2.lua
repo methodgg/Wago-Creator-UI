@@ -137,10 +137,16 @@ local m = {
     return Grid2 and not self:isLoaded()
   end,
   openConfig = function(self)
+    if not SlashCmdList["ACECONSOLE_GRID2"] then
+      return
+    end
     SlashCmdList["ACECONSOLE_GRID2"]()
   end,
   closeConfig = function(self)
     -- toggle for now
+    if not SlashCmdList["ACECONSOLE_GRID2"] then
+      return
+    end
     SlashCmdList["ACECONSOLE_GRID2"]()
   end,
   getProfileKeys = function(self)

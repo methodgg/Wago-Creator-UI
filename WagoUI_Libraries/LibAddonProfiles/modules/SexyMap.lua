@@ -24,6 +24,9 @@ local m = {
     return false
   end,
   openConfig = function(self)
+    if not SlashCmdList["SexyMap"] then
+      return
+    end
     SlashCmdList["SexyMap"]("")
   end,
   closeConfig = function(self)

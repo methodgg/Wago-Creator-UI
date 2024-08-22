@@ -25,6 +25,9 @@ local m = {
     return false
   end,
   openConfig = function(self)
+    if not SlashCmdList["ACECONSOLE_WARPDEPLETE"] then
+      return
+    end
     SlashCmdList["ACECONSOLE_WARPDEPLETE"]("")
   end,
   closeConfig = function(self)

@@ -169,6 +169,9 @@ local m = {
     return false
   end,
   openConfig = function(self)
+    if not Cell then
+      return
+    end
     Cell.funcs:ShowOptionsFrame()
   end,
   closeConfig = function(self)

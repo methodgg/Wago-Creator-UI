@@ -26,6 +26,9 @@ local m = {
     return C_AddOns.IsAddOnLoaded("BigWigs") and not self:isLoaded()
   end,
   openConfig = function(self)
+    if not SlashCmdList["BigWigs"] then
+      return
+    end
     SlashCmdList["BigWigs"]()
   end,
   closeConfig = function(self)
