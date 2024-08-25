@@ -17,6 +17,7 @@ local m = {
   preventRename = true,
   willOverrideProfile = true,
   nonNativeProfileString = true,
+  needSpecialInterface = false,
   isLoaded = function(self)
     return SexyMap and true or false
   end,

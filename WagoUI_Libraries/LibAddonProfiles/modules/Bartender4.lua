@@ -17,6 +17,7 @@ local m = {
   preventRename = true,
   willOverrideProfile = true,
   nonNativeProfileString = true,
+  needSpecialInterface = false,
   isLoaded = function(self)
     return Bartender4 and true or false
   end,

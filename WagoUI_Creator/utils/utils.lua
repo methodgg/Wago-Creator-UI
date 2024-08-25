@@ -13,3 +13,18 @@ function addon:TableNumEntries(table)
   end
   return num
 end
+
+---@param table table
+---@param conditionFunc function
+---@return number | nil Returns the index of the first element that satisfies the condition function
+function addon:TableGetIndex(table, conditionFunc)
+  if not table then
+    return nil
+  end
+  for index, value in pairs(table) do
+    if conditionFunc(value) then
+      return index
+    end
+  end
+  return nil
+end

@@ -17,6 +17,7 @@ local m = {
   preventRename = true,
   willOverrideProfile = false,
   nonNativeProfileString = false,
+  needSpecialInterface = true,
   isLoaded = function(self)
     return TalentLoadoutsEx and true or false
   end,

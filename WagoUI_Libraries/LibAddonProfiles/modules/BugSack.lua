@@ -17,6 +17,7 @@ local m = {
   preventRename = true,
   nonNativeProfileString = true,
   willOverrideProfile = true,
+  needSpecialInterface = false,
   isLoaded = function(self)
     local loaded = C_AddOns.IsAddOnLoaded("BugSack")
     return loaded

@@ -129,6 +129,7 @@ local m = {
   preventRename = false,
   willOverrideProfile = false,
   nonNativeProfileString = false,
+  needSpecialInterface = false,
   isLoaded = function(self)
     local optionsLoaded = C_AddOns.IsAddOnLoaded("Grid2Options") or C_AddOns.IsAddOnLoadOnDemand("Grid2Options")
     return Grid2Options and Grid2 and C_AddOns.IsAddOnLoaded("Grid2") and optionsLoaded and true or false

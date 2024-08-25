@@ -6,6 +6,8 @@ addon.ModuleFunctions = {}
 local ModuleFunctions = addon.ModuleFunctions
 local LAP = LibStub:GetLibrary("LibAddonProfiles")
 
+ModuleFunctions.specialModules = {}
+
 function ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKeys, currentProfileKey)
   local currentUIPack = addon:GetCurrentPackStashed()
   tinsert(

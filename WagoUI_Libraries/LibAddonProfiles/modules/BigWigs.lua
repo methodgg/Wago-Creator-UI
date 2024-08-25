@@ -19,6 +19,7 @@ local m = {
   preventRename = false,
   willOverrideProfile = false,
   nonNativeProfileString = true,
+  needSpecialInterface = false,
   isLoaded = function(self)
     return BigWigs and true or false
   end,

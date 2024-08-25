@@ -36,6 +36,7 @@ local m = {
   preventRename = false,
   willOverrideProfile = false,
   nonNativeProfileString = false,
+  needSpecialInterface = true,
   isLoaded = function(self)
     local loaded = C_AddOns.IsAddOnLoaded("EchoRaidTools")
     return loaded

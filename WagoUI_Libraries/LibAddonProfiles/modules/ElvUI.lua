@@ -18,6 +18,7 @@ local m = {
   preventRename = false,
   willOverrideProfile = false,
   nonNativeProfileString = false,
+  needSpecialInterface = false,
   isLoaded = function(self)
     return ElvUI and ElvUI[1].Options.args.profiles and true or false
   end,

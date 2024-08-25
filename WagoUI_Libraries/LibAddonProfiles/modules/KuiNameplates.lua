@@ -38,6 +38,7 @@ local m = {
   preventRename = false,
   willOverrideProfile = false,
   nonNativeProfileString = false,
+  needSpecialInterface = false,
   isLoaded = function(self)
     local loaded = C_AddOns.IsAddOnLoaded("Kui_Nameplates")
     return loaded

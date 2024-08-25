@@ -80,6 +80,7 @@ local m = {
   preventRename = false,
   willOverrideProfile = false,
   nonNativeProfileString = false,
+  needSpecialInterface = false,
   isLoaded = function(self)
     return Details and true or false
   end,

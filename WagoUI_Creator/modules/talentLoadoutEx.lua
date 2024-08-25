@@ -399,4 +399,4 @@ local moduleConfig = {
   onSuccessfulTestOverride = onSuccessfulTestOverride
 }
 
-addon.ModuleFunctions:InsertModuleConfig(moduleConfig)
+addon.ModuleFunctions.specialModules[moduleName] = moduleConfig

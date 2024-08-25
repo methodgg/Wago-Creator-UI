@@ -56,6 +56,7 @@ local m = {
   preventRename = false,
   willOverrideProfile = true,
   nonNativeProfileString = false,
+  needSpecialInterface = false,
   isLoaded = function(self)
     return true
   end,
