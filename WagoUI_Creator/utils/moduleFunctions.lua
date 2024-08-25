@@ -128,9 +128,6 @@ end
 function ModuleFunctions:InsertModuleConfig(m)
   ---@type LibAddonProfilesModule
   local lapModule = m.lapModule
-  local copyFuncOverride = m.copyFunc and function(...)
-      m.copyFunc(...)
-    end or nil
   local manageFunc = m.manageFunc and function(...)
       m.manageFunc(...)
     end or nil
@@ -155,7 +152,6 @@ function ModuleFunctions:InsertModuleConfig(m)
       dropdown2Options = function()
         return m.dropdownOptions(2)
       end,
-      copyFuncOverride = copyFuncOverride,
       copyButtonTooltipText = m.copyButtonTooltipText,
       isLoaded = lapModule.isLoaded,
       sortIndex = m.sortIndex,
