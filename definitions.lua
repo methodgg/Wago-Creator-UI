@@ -4,7 +4,6 @@
 ---@field lapModule LibAddonProfilesModule
 ---@field dropdownOptions fun(index: number): table
 ---@field copyFunc fun() | nil
----@field copyButtonTooltipText string | nil
 ---@field sortIndex number | nil
 ---@class RefreshHook : table
 ---@field tableFunc fun() : table The target table that we want to hook functions on

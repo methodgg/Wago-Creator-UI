@@ -411,7 +411,6 @@ local moduleConfig = {
   lapModule = lapModule,
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
-  copyButtonTooltipText = nil,
   sortIndex = 12,
   hasGroups = true,
   manageFunc = showManageFrame,

@@ -392,7 +392,6 @@ local moduleConfig = {
   lapModule = lapModule,
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
-  copyButtonTooltipText = string.format(addon.L.noBuiltInProfileTextImport, moduleName),
   sortIndex = 2,
   hasGroups = true,
   manageFunc = showManageFrame,

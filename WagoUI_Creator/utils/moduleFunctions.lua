@@ -154,7 +154,6 @@ function ModuleFunctions:InsertModuleConfig(m)
       dropdown2Options = function()
         return m.dropdownOptions(2)
       end,
-      copyButtonTooltipText = m.copyButtonTooltipText,
       isLoaded = lapModule.isLoaded,
       sortIndex = m.sortIndex,
       hasGroups = m.hasGroups,
