@@ -81,7 +81,7 @@ function addon:ExportAllProfiles()
       for _, module in pairs(addon.moduleConfigs) do
         ---@type LibAddonProfilesModule
         local lapModule = module.lapModule
-        if module.isLoaded() then
+        if lapModule:isLoaded() then
           local didExportAtleastOne = false
           for resolution, enabled in pairs(enabledResolutions) do
             updates[resolution] = updates[resolution] or {}

@@ -17,6 +17,7 @@ local m = {
   preventRename = false,
   willOverrideProfile = true,
   nonNativeProfileString = false,
+  needSpecialInterface = false,
   isLoaded = function(self)
     local loaded = C_AddOns.IsAddOnLoaded("OmniCD")
     return loaded

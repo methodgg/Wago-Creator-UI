@@ -46,7 +46,7 @@ end
 ---@param profileKey string | table
 ---@param profileString string
 local function onSuccessfulTest(moduleName, lapModule, profileKey, profileString)
-  local isLoaded = lapModule.isLoaded and lapModule:isLoaded()
+  local isLoaded = lapModule:isLoaded()
   local keyType = type(profileKey)
   local isDuplicate = isLoaded and keyType == "string" and lapModule.isDuplicate and lapModule:isDuplicate(profileKey)
 

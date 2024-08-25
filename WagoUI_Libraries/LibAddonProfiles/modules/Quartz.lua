@@ -17,6 +17,7 @@ local m = {
   preventRename = false,
   willOverrideProfile = false,
   nonNativeProfileString = true,
+  needSpecialInterface = false,
   isLoaded = function(self)
     local loaded = C_AddOns.IsAddOnLoaded("Quartz")
     return loaded

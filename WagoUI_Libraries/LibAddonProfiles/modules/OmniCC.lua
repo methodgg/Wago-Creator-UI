@@ -17,6 +17,7 @@ local m = {
   preventRename = false,
   willOverrideProfile = false,
   nonNativeProfileString = true,
+  needSpecialInterface = false,
   isLoaded = function(self)
     return OmniCC and true or false
   end,

@@ -157,23 +157,7 @@ function addon:CreateProfileList(f, width, height)
           line.profileDropdown:Hide()
           line.manageButton:SetClickFunction(
             function()
-              local copyCallback = function()
-                addon:Async(
-                  function()
-                    if info.copyFuncOverride then
-                      -- TODO: what is this?
-                    else
-                      -- TODO: this needs to be fixed to work with the new profile system
-                      addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 50, L["Preparing export string..."])
-                      info.exportFunc()
-                      addon.copyHelper:Hide()
-                      addon:TextExport(WagoUICreatorDB.profiles[info.name][1])
-                    end
-                  end,
-                  "copy1Func"
-                )
-              end
-              info.manageFunc(addon.frames.mainFrame, 1, L["Copy"], nil, copyCallback)
+              info.manageFunc(addon.frames.mainFrame)
             end
           )
           --show how many WAs are marked

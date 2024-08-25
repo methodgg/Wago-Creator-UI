@@ -601,11 +601,10 @@ local moduleConfig = {
   lapModule = lapModule,
   dropdownOptions = dropdownOptions,
   copyFunc = nil,
-  copyButtonTooltipText = nil,
   sortIndex = 11,
   hasGroups = true,
   manageFunc = showManageFrame,
   onSuccessfulTestOverride = onSuccessfulTestOverride
 }
 
-addon.ModuleFunctions:InsertModuleConfig(moduleConfig)
+addon.ModuleFunctions.specialModules[moduleName] = moduleConfig

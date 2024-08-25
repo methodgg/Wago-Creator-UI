@@ -244,6 +244,7 @@ local m = {
   preventRename = false,
   willOverrideProfile = false,
   nonNativeProfileString = false,
+  needSpecialInterface = true,
   isLoaded = function(self)
     return WeakAuras and true or false
   end,

@@ -1,27 +1,6 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
-	<Include file="wagoSettings.lua"/>
-	<Include file="editMode.lua"/>
-	<Include file="elvui.lua"/>
-	<Include file="elvuiPrivate.lua"/>
-	<Include file="details.lua"/>
-	<Include file="plater.lua"/>
-	<Include file="bartender4.lua"/>
-	<Include file="suf.lua"/>
-	<Include file="grid2.lua"/>
-	<Include file="bigwigs.lua"/>
-	<Include file="omnicc.lua"/>
-	<Include file="nsct.lua"/>
-	<Include file="sexyMap.lua"/>
-	<Include file="tipTacReborn.lua"/>
-  <!-- TODO: include again -->
-	<!-- <Include file="talentLoadoutEx.lua"/> -->
+  <!-- <Include file="talentLoadoutEx.lua"/> -->
 	<Include file="weakAuras.lua"/>
-	<Include file="echoRaidTools.lua"/>
-	<Include file="omnicd.lua"/>
-	<Include file="omnicdSpellEditor.lua"/>
-	<Include file="cell.lua"/>
-	<Include file="bugsack.lua"/>
-	<Include file="kuiNameplates.lua"/>
-	<Include file="warpDeplete.lua"/>
-	<Include file="quartz.lua"/>
+- <Include file="echoRaidTools.lua"/>
+  <Include file="generic.lua"/>
 </Ui>

@@ -161,6 +161,7 @@ local m = {
   preventRename = true,
   willOverrideProfile = true,
   nonNativeProfileString = true,
+  needSpecialInterface = false,
   isLoaded = function(self)
     local loaded = C_AddOns.IsAddOnLoaded("Cell")
     return loaded
