@@ -1,3 +1,3 @@
-# 1.1.1 (2024-08-21)
+# 1.1.2 (2024-08-21)
 
-- Cataclysm Classic support
+- various fixes
