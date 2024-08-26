@@ -95,11 +95,11 @@ addon.externalLinks = {
   {
     name = "GitHub",
     tooltip = L["Open an issue on GitHub"],
-    url = "<Placeholder GitHub Link>"
-  },
-  {
-    name = "Discord",
-    tooltip = L["Provide feedback in Discord"],
-    url = "<Placeholder Discord Link>"
+    url = "https://github.com/methodgg/Wago-Creator-UI"
   }
+  -- {
+  --   name = "Discord",
+  --   tooltip = L["Provide feedback in Discord"],
+  --   url = "<Placeholder Discord Link>"
+  -- }
 }
