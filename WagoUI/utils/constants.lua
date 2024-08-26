@@ -77,7 +77,8 @@ addon.dbDefaults = {
   minimap = {
     hide = false,
     compartmentHide = false
-  }
+  },
+  latestSeenReleasenotes = {}
 }
 
 addon.state = {}

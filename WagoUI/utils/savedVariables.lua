@@ -90,6 +90,7 @@ do
         end
       elseif (event == "PLAYER_ENTERING_WORLD") then
         eventListener:UnregisterEvent("PLAYER_ENTERING_WORLD")
+        addon:CheckAvailableUpdates()
         if shouldAutoStart() then
           -- need to wait initialization of other addons to finish
           -- could not really find a more elegant way to do this

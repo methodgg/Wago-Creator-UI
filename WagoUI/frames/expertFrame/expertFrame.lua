@@ -56,6 +56,10 @@ function addon:CreateExpertFrame(f)
     uiPackDropdown:Select(db.selectedWagoData)
   end
 
+  function addon:SetUIPackDropdownToPack(packId)
+    uiPackDropdown:Select(packId)
+  end
+
   local resolutionDropdownFunc = function()
     return addon:GetResolutionsForDropdown()
   end

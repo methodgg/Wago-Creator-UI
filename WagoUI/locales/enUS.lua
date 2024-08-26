@@ -108,3 +108,4 @@ L["Set Profile %s: %s"] = "Set Profile %s: %s"
 L["altFrameHeader4"] =
   "Some Addons were not enabled before and have now been enabled.\nReload and continue loading the profiles afterwards."
 L["Load remaining and Reload"] = "Load remaining and Reload"
+L["UPDATE_LINK_TEXT"] = "%1$sclick to view updates%2$s"

@@ -146,16 +146,22 @@ function addon:GetWagoDataForDropdown()
         value = key,
         label = data.localName,
         onclick = function()
-          db.selectedWagoData = key
-          addon:RefreshResolutionDropdown()
-          addon:SetupWagoData()
-          addon:UpdateRegisteredDataConsumers()
+          addon:SetActivePack(key)
         end
       }
       tinsert(wagoData, entry)
     end
   end
   return wagoData
+end
+
+---@param packId string
+function addon:SetActivePack(packId)
+  db.selectedWagoData = packId
+  addon:RefreshResolutionDropdown()
+  addon:SetUIPackDropdownToPack(packId)
+  addon:SetupWagoData()
+  addon:UpdateRegisteredDataConsumers()
 end
 
 ---@param resolution string
