@@ -9,6 +9,8 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "WarpDeplete",
+  wagoId = "5bGoOqG0",
+  oldestSupported = "3.0.6",
   addonNames = {"WarpDeplete"},
   icon = [[Interface\AddOns\WarpDeplete\logo]],
   slash = "/exampleslash",
@@ -21,6 +23,9 @@ local m = {
   isLoaded = function(self)
     local loaded = C_AddOns.IsAddOnLoaded("WarpDeplete")
     return loaded
+  end,
+  isUpdated = function(self)
+    return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
     return false
