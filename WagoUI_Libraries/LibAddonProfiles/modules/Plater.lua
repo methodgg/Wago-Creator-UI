@@ -146,6 +146,8 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Plater",
+  wagoId = "kRNLep6o",
+  oldestSupported = "Plater-v585b-Retail",
   addonNames = {"Plater"},
   icon = [[Interface\AddOns\Plater\images\cast_bar]],
   slash = "/plater",
@@ -157,6 +159,30 @@ local m = {
   needSpecialInterface = false,
   isLoaded = function(self)
     return Plater and true or false
+  end,
+  isUpdated = function(self)
+    local currentVersionString = C_AddOns.GetAddOnMetadata(self.addonNames[1], "Version")
+    if not currentVersionString then
+      return false
+    end
+    -- we look at 585b vs 583a
+    local cMajor, cMinor = string.match(currentVersionString, "(%d+)(%a)")
+    cMajor = cMajor and tonumber(cMajor) or 0
+    local oMajor, oMinor = string.match(self.oldestSupported, "(%d+)(%a)")
+    oMajor = oMajor and tonumber(oMajor) or 0
+    if cMajor > oMajor then
+      return true
+    end
+    if cMajor < oMajor then
+      return false
+    end
+    if cMinor > oMinor then
+      return true
+    end
+    if cMinor < oMinor then
+      return false
+    end
+    return true
   end,
   needsInitialization = function(self)
     return false
