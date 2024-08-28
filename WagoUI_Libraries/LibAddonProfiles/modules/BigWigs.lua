@@ -11,6 +11,8 @@ local optionsFrame
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "BigWigs",
+  wagoId = "5NRegwG3",
+  oldestSupported = "v355.3",
   addonNames = {"BigWigs", "BigWigs_Core", "BigWigs_Plugins", "BigWigs_Options"},
   icon = 134337,
   slash = "/bigwigs",
@@ -22,6 +24,15 @@ local m = {
   needSpecialInterface = false,
   isLoaded = function(self)
     return BigWigs and true or false
+  end,
+  isUpdated = function(self)
+    local currentVersionString = C_AddOns.GetAddOnMetadata(self.addonNames[1], "Version")
+    if not currentVersionString then
+      return false
+    end
+    currentVersionString = string.gsub(currentVersionString, "v", "")
+    local oldestSupportedString = string.gsub(self.oldestSupported, "v", "")
+    return private:IsSemverSameOrHigher(currentVersionString, oldestSupportedString)
   end,
   needsInitialization = function(self)
     return C_AddOns.IsAddOnLoaded("BigWigs") and not self:isLoaded()

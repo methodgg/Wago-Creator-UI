@@ -9,6 +9,8 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Bartender4",
+  wagoId = "v63oVn6b",
+  oldestSupported = "4.15.0",
   addonNames = {"Bartender4"},
   icon = 132792,
   slash = "/bartender",
@@ -20,6 +22,13 @@ local m = {
   needSpecialInterface = false,
   isLoaded = function(self)
     return Bartender4 and true or false
+  end,
+  isUpdated = function(self)
+    local currentVersionString = C_AddOns.GetAddOnMetadata(self.addonNames[1], "Version")
+    if not currentVersionString then
+      return false
+    end
+    return private:IsSemverSameOrHigher(currentVersionString, self.oldestSupported)
   end,
   needsInitialization = function(self)
     return false
