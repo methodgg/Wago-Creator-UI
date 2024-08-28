@@ -9,6 +9,8 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Talent Loadouts Ex",
+  wagoId = "Qb6mxnNP",
+  oldestSupported = "3.4.1",
   addonNames = {"TalentLoadoutsEx"},
   icon = 134063,
   slash = "/run ToggleTalentFrame()",
@@ -20,6 +22,9 @@ local m = {
   needSpecialInterface = true,
   isLoaded = function(self)
     return TalentLoadoutsEx and true or false
+  end,
+  isUpdated = function(self)
+    return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
     return false

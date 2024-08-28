@@ -9,6 +9,7 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "TipTac Reborn",
+  oldestSupported = "24.08.26",
   addonNames = {"TipTac", "TipTacItemRef", "TipTacOptions", "TipTacTalents"},
   icon = 134331,
   slash = "/tiptac",
@@ -20,6 +21,9 @@ local m = {
   needSpecialInterface = false,
   isLoaded = function(self)
     return TipTac and true or false
+  end,
+  isUpdated = function(self)
+    return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
     return false

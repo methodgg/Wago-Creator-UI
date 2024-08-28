@@ -14,10 +14,10 @@
 	<Script file ="modules\Grid2.lua"/>
 	<Script file ="modules\NSCT.lua"/>
 	<Script file ="modules\OmniCC.lua"/>
-	<!-- <Script file ="modules\SexyMap.lua"/> -->
-	<!-- <Script file ="modules\ShadowedUnitFrames.lua"/> -->
+	<Script file ="modules\SexyMap.lua"/>
+	<Script file ="modules\ShadowedUnitFrames.lua"/>
 	<!-- <Script file ="modules\TalentLoadoutsEx.lua"/> -->
-	<!-- <Script file ="modules\TipTacReborn.lua"/> -->
+	<Script file ="modules\TipTacReborn.lua"/>
 	<Script file ="modules\OmniCD.lua"/>
 	<!-- <Script file ="modules\OmniCDSpellEditor.lua"/>-->
 	<Script file ="modules\Cell.lua"/>
