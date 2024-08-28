@@ -60,8 +60,10 @@ do
   end
 end
 
----@param a string Sanitized semver string - no "v" prefix etc
----@param b string Sanitized semver string - no "v" prefix etc
+---Checks if the version of the addon is the same or higher than the provided version.
+---Version format is semver but it can be any string that has numbers separated by dots.
+---@param a string
+---@param b string
 function private:IsSemverSameOrHigher(a, b)
   local aMajor, aMinor, aPatch, aBuild = string.match(a, "(%d+)%.*(%d*)%.*(%d*)%.*(%d*)")
   local bMajor, bMinor, bPatch, bBuild = string.match(b, "(%d+)%.*(%d*)%.*(%d*)%.*(%d*)")
