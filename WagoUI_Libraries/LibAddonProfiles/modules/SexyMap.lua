@@ -9,6 +9,8 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "SexyMap",
+  wagoId = "e56no0K9",
+  oldestSupported = "v11.0.1",
   addonNames = {"SexyMap"},
   icon = 237382,
   slash = "/sexymap",
@@ -20,6 +22,9 @@ local m = {
   needSpecialInterface = false,
   isLoaded = function(self)
     return SexyMap and true or false
+  end,
+  isUpdated = function(self)
+    return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
     return false

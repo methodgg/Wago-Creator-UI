@@ -50,7 +50,7 @@ local setupInstallButton = function(enabled, needEnableAddons, introImportState)
       local countOperations = 0
       for moduleName, data in pairs(introImportState) do
         local lap = LAP:GetModule(moduleName)
-        if data.checked and lap:isLoaded() then
+        if data.checked and lap:isLoaded() and lap:isUpdated() then
           countOperations = countOperations + 1
         end
       end
@@ -60,7 +60,7 @@ local setupInstallButton = function(enabled, needEnableAddons, introImportState)
         function()
           for moduleName, data in pairs(introImportState) do
             local lap = LAP:GetModule(moduleName)
-            if data.checked and lap:isLoaded() then
+            if data.checked and lap:isLoaded() and lap:isUpdated() then
               lap:importProfile(data.profile, data.profileKey, true)
               addon:AddonPrint(string.format(L["Imported %s: %s"], data.profileKey, moduleName))
               addon:StoreImportedProfileData(data.profileMetadata.lastUpdatedAt, moduleName, data.profileKey)
@@ -110,11 +110,14 @@ local updatePage = function(updatedData)
       end
     end
     local lap = LAP:GetModule(moduleName)
-    if data.checked and lap:isLoaded() and isDataPresent then
+    if data.checked and lap:isLoaded() and lap:isUpdated() and isDataPresent then
       numChecked = numChecked + 1
       tinsert(checkedEntries, {moduleName = moduleName, profileKey = data.profileKey})
     end
-    if data.checked and not lap:isLoaded() and LAP:CanEnableAnyAddOn(lap.addonNames) and isDataPresent then
+    if
+      data.checked and not lap:isLoaded() and LAP:CanEnableAnyAddOn(lap.addonNames) and isDataPresent and
+        lap:isUpdated()
+     then
       numNeedEnable = numNeedEnable + 1
       tinsert(needEnableEntries, {moduleName = moduleName, profileKey = L["AddOn disabled"]})
     end

@@ -32,7 +32,14 @@ for _, lapModule in pairs(LAP:GetAllModules()) do
   if lapModule.needSpecialInterface then
     ---@type ModuleConfig | nil
     local moduleConfig = addon.ModuleFunctions.specialModules[lapModule.moduleName]
-    if moduleConfig then
+    if moduleConfig then --tlex is not currently active
+      moduleConfig.sortIndex =
+        addon:TableGetIndex(
+        defaultSortOrder,
+        function(value)
+          return value == lapModule.moduleName
+        end
+      ) or 100
       addon.ModuleFunctions:InsertModuleConfig(moduleConfig)
     end
   else

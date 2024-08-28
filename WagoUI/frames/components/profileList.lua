@@ -78,7 +78,7 @@ function addon:CreateProfileList(parent, frameWidth, frameHeight)
         ---@type LibAddonProfilesModule
         local lap = info.lap
         local line = self:GetLine(i)
-        local loaded = lap:isLoaded()
+        local loaded = lap:isLoaded() and lap:isUpdated()
         if loaded then
           line:SetBackdropColor(unpack({.8, .8, .8, 0.3}))
         else
@@ -110,9 +110,11 @@ function addon:CreateProfileList(parent, frameWidth, frameHeight)
         line.nameLabel:SetText(info.entryName or info.moduleName)
         if not loaded then
           line.nameLabel:SetTextColor(0.5, 0.5, 0.5, 1)
+          line.profileKeyLabel:SetTextColor(0.5, 0.5, 0.5, 1)
           line.lastUpdateLabel:SetTextColor(0.5, 0.5, 0.5, 1)
         else
           line.nameLabel:SetTextColor(1, 1, 1, 1)
+          line.profileKeyLabel:SetTextColor(1, 1, 1, 1)
           line.lastUpdateLabel:SetTextColor(1, 1, 1, 1)
         end
 

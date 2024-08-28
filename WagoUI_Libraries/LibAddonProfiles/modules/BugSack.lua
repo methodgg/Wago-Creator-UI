@@ -9,6 +9,8 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "BugSack",
+  wagoId = "rkGrrgGy",
+  oldestSupported = "v11.0.0",
   addonNames = {"BugSack", "BugGrabber"},
   icon = [[Interface\AddOns\BugSack\Media\icon]],
   slash = "/bugsack",
@@ -21,6 +23,9 @@ local m = {
   isLoaded = function(self)
     local loaded = C_AddOns.IsAddOnLoaded("BugSack")
     return loaded
+  end,
+  isUpdated = function(self)
+    return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
     return false

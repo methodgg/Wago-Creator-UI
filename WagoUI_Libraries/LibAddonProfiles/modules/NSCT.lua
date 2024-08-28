@@ -9,6 +9,8 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "NameplateSCT",
+  wagoId = "rN4VDxKD",
+  oldestSupported = "1.42",
   addonNames = {"NameplateSCT"},
   icon = 4548873,
   slash = "/nsct",
@@ -20,6 +22,9 @@ local m = {
   needSpecialInterface = false,
   isLoaded = function(self)
     return NameplateSCTDB and true or false
+  end,
+  isUpdated = function(self)
+    return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
     return false

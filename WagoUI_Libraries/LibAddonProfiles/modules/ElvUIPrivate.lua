@@ -10,6 +10,8 @@ local EXPORT_PREFIX = "!E1!"
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "ElvUI Private Profile",
+  wagoId = "tukui--2",
+  oldestSupported = "v13.76",
   addonNames = {"ElvUI", "ElvUI_Libraries", "ElvUI_Options"},
   icon = [[Interface\AddOns\ElvUI\Core\Media\Textures\LogoAddon]],
   slash = "/ec",
@@ -21,6 +23,9 @@ local m = {
   needSpecialInterface = false,
   isLoaded = function(self)
     return ElvUI and ElvUI[1].Options.args.profiles and true or false
+  end,
+  isUpdated = function(self)
+    return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
     return C_AddOns.IsAddOnLoaded("ElvUI") and not self:isLoaded()

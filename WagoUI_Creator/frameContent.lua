@@ -81,7 +81,7 @@ function addon:CreateProfileList(f, width, height)
         ---@type LibAddonProfilesModule
         local lapModule = info.lapModule
         local res = currentUIPack.resolutions
-        local loaded = lapModule:isLoaded() and res.enabled[res.chosen]
+        local loaded = lapModule:isLoaded() and lapModule:isUpdated() and res.enabled[res.chosen]
         local canEnable = LAP:CanEnableAnyAddOn(lapModule.addonNames)
         if loaded then
           line:SetBackdropColor(unpack({.8, .8, .8, 0.3}))
@@ -134,8 +134,10 @@ function addon:CreateProfileList(f, width, height)
           line:SetScript("OnClick", nil)
         end
 
-        if lapModule:isLoaded() then
+        if lapModule:isLoaded() and lapModule:isUpdated() then
           line.notInstalledLabel:SetText("")
+        elseif lapModule:isLoaded() and not lapModule:isUpdated() then
+          line.notInstalledLabel:SetText(L["Addon out of date - update required"])
         else
           line.notInstalledLabel:SetText(
             info.queuedEnable and L["Enabled after reload"] or canEnable and L["AddOn disabled - click to enable"] or

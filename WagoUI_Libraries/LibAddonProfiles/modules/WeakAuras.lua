@@ -236,6 +236,8 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "WeakAuras",
+  wagoId = "VBNBxKx5",
+  oldestSupported = "5.17.0",
   addonNames = {"WeakAuras", "WeakAurasArchive", "WeakAurasModelPaths", "WeakAurasOptions", "WeakAurasTemplates"},
   icon = [[Interface\AddOns\WeakAuras\Media\Textures\icon]],
   slash = "/wa",
@@ -247,6 +249,9 @@ local m = {
   needSpecialInterface = true,
   isLoaded = function(self)
     return WeakAuras and true or false
+  end,
+  isUpdated = function(self)
+    return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
     return false

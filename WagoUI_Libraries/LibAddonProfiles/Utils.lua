@@ -59,3 +59,54 @@ do
     end
   end
 end
+
+---@param a string Sanitized semver string - no "v" prefix etc
+---@param b string Sanitized semver string - no "v" prefix etc
+function private:IsSemverSameOrHigher(a, b)
+  local aMajor, aMinor, aPatch, aBuild = string.match(a, "(%d+)%.*(%d*)%.*(%d*)%.*(%d*)")
+  local bMajor, bMinor, bPatch, bBuild = string.match(b, "(%d+)%.*(%d*)%.*(%d*)%.*(%d*)")
+  aMajor = aMajor and tonumber(aMajor) or 0
+  aMinor = aMinor and tonumber(aMinor) or 0
+  aPatch = aPatch and tonumber(aPatch) or 0
+  aBuild = aBuild and tonumber(aBuild) or 0
+  bMajor = bMajor and tonumber(bMajor) or 0
+  bMinor = bMinor and tonumber(bMinor) or 0
+  bPatch = bPatch and tonumber(bPatch) or 0
+  bBuild = bBuild and tonumber(bBuild) or 0
+
+  if aMajor > bMajor then
+    return true
+  end
+  if aMajor < bMajor then
+    return false
+  end
+  if aMinor > bMinor then
+    return true
+  end
+  if aMinor < bMinor then
+    return false
+  end
+  if aPatch > bPatch then
+    return true
+  end
+  if aPatch < bPatch then
+    return false
+  end
+  if aBuild > bBuild then
+    return true
+  end
+  if aBuild < bBuild then
+    return false
+  end
+  return true
+end
+
+---@param lapModule LibAddonProfilesModule
+---@return boolean
+function private:GenericVersionCheck(lapModule)
+  local currentVersionString = C_AddOns.GetAddOnMetadata(lapModule.addonNames[1], "Version")
+  if not currentVersionString then
+    return false
+  end
+  return private:IsSemverSameOrHigher(currentVersionString, lapModule.oldestSupported)
+end

@@ -9,6 +9,7 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "ShadowedUnitFrames",
+  oldestSupported = "v4.4.11",
   addonNames = {"ShadowedUnitFrames", "ShadowedUF_Options"},
   icon = 136200,
   slash = "/suf",
@@ -20,6 +21,9 @@ local m = {
   needSpecialInterface = false,
   isLoaded = function(self)
     return ShadowUF and true or false
+  end,
+  isUpdated = function(self)
+    return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
     return false

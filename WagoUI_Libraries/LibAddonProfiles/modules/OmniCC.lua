@@ -9,6 +9,8 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "OmniCC",
+  wagoId = "baNDDpNo",
+  oldestSupported = "11.0.1",
   addonNames = {"OmniCC", "OmniCC_Config"},
   icon = 136106,
   slash = "/omnicc",
@@ -20,6 +22,9 @@ local m = {
   needSpecialInterface = false,
   isLoaded = function(self)
     return OmniCC and true or false
+  end,
+  isUpdated = function(self)
+    return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
     return false

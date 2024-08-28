@@ -96,10 +96,11 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, check
         ---@type LibAddonProfilesModule
         local lap = info.lap
         local loaded = lap:isLoaded()
+        local updated = lap:isUpdated()
         local canEnable = LAP:CanEnableAnyAddOn(lap.addonNames)
         info.loaded = loaded
         local updateEnabledState = function()
-          if (loaded or canEnable) and info.enabled then
+          if updated and (loaded or canEnable) and info.enabled then
             line:SetBackdropColor(unpack({.8, .8, .8, 0.3}))
             line.nameLabel:SetTextColor(1, 1, 1, 1)
             if lap.willOverrideProfile then
@@ -122,7 +123,7 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, check
           end
         end
 
-        if loaded or canEnable then
+        if updated and (loaded or canEnable) then
           line.checkBox:Show()
           line.checkBox:SetChecked(info.enabled)
           line.checkBox:SetSwitchFunction(
@@ -139,8 +140,10 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, check
         end
 
         line.notInstalledLabel:SetTextColor(0.5, 0.5, 0.5, 1)
-        if loaded then
+        if loaded and updated then
           line.notInstalledLabel:SetText("")
+        elseif not updated then
+          line.notInstalledLabel:SetText(L["Addon out of date - update required"])
         elseif canEnable and info.enabled then
           line.notInstalledLabel:SetText(L["AddOn will be enabled"])
           line.notInstalledLabel:SetTextColor(1, 1, 1, 1)
@@ -159,7 +162,7 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, check
 
         line.textEntry:SetText(info.profileKey)
         addon.db.introImportState[lap.moduleName].checked = info.enabled
-        if loaded or canEnable then
+        if updated and (loaded or canEnable) then
           line.textEntry:Show()
           line.textEntry:Disable()
         else

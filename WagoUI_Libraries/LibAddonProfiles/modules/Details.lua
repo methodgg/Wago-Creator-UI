@@ -72,6 +72,8 @@ local exportProfileBlacklist = {
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Details",
+  wagoId = "25NRDlK3",
+  oldestSupported = "#Details.12879.159",
   addonNames = {"Details", "Details_Compare2", "Details_DataStorage"},
   icon = [[Interface\AddOns\Details\images\minimap]],
   slash = "/details config",
@@ -83,6 +85,9 @@ local m = {
   needSpecialInterface = false,
   isLoaded = function(self)
     return Details and true or false
+  end,
+  isUpdated = function(self)
+    return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
     return false

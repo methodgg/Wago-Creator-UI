@@ -121,6 +121,8 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Grid2",
+  wagoId = "vEGPyeN1",
+  oldestSupported = "2.8.49",
   addonNames = {"Grid2", "Grid2Options", "Grid2LDB", "Grid2RaidDebuffs", "Grid2RaidDebuffsOptions"},
   icon = [[Interface\AddOns\Grid2\media\iconsmall]],
   slash = "/grid2",
@@ -133,6 +135,9 @@ local m = {
   isLoaded = function(self)
     local optionsLoaded = C_AddOns.IsAddOnLoaded("Grid2Options") or C_AddOns.IsAddOnLoadOnDemand("Grid2Options")
     return Grid2Options and Grid2 and C_AddOns.IsAddOnLoaded("Grid2") and optionsLoaded and true or false
+  end,
+  isUpdated = function(self)
+    return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
     return Grid2 and not self:isLoaded()

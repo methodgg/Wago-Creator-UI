@@ -25,7 +25,7 @@ local function setAllProfilesAsync()
   -- This is needed when the user "chains" characters
   addon:GetImportedProfilesTarget()
   for _, lapModule in pairs(LAP:GetAllModules()) do
-    if lapModule:isLoaded() then
+    if lapModule:isLoaded() and lapModule:isUpdated() then
       local profileAssignments = lapModule.getProfileAssignments and lapModule:getProfileAssignments()
       if profileAssignments then
         -- it should be a retrievable key, the addon stores it in accessible SV

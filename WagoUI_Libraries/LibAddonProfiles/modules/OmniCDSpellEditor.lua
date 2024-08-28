@@ -9,6 +9,7 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "OmniCD Spell Editor",
+  oldestSupported = "10.2.7.2802",
   addonNames = {"OmniCD"},
   icon = [[Interface\AddOns\OmniCD\Config\Libs\Media\omnicd-logo64-c]],
   slash = "/omnicd",
@@ -21,6 +22,9 @@ local m = {
   isLoaded = function(self)
     local loaded = C_AddOns.IsAddOnLoaded("OmniCD")
     return loaded
+  end,
+  isUpdated = function(self)
+    return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
     return false

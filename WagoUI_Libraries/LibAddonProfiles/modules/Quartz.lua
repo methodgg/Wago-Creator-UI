@@ -9,6 +9,7 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Quartz",
+  oldestSupported = "3.7.13",
   addonNames = {"Quartz"},
   icon = 136235,
   slash = "/quartz",
@@ -21,6 +22,9 @@ local m = {
   isLoaded = function(self)
     local loaded = C_AddOns.IsAddOnLoaded("Quartz")
     return loaded
+  end,
+  isUpdated = function(self)
+    return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
     return false

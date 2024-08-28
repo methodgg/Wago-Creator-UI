@@ -9,6 +9,8 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Example Module",
+  wagoId = "XXXXXXX",
+  oldestSupported = "1.0.0",
   addonNames = {"ExampleModule", "ExampleModule_Options", "ExampleModule_Core"},
   icon = 9999999,
   slash = "/exampleslash",
@@ -21,6 +23,9 @@ local m = {
   isLoaded = function(self)
     local loaded = C_AddOns.IsAddOnLoaded("AddonName")
     return loaded
+  end,
+  isUpdated = function(self)
+    return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
     return false

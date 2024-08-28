@@ -30,6 +30,8 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Kui Nameplates",
+  wagoId = "kNMd8qGz",
+  oldestSupported = "2.29.18",
   addonNames = {"Kui_Nameplates", "Kui_Nameplates_Core", "Kui_Nameplates_Core_Config"},
   icon = 132177,
   slash = "/knp",
@@ -42,6 +44,9 @@ local m = {
   isLoaded = function(self)
     local loaded = C_AddOns.IsAddOnLoaded("Kui_Nameplates")
     return loaded
+  end,
+  isUpdated = function(self)
+    return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
     return false

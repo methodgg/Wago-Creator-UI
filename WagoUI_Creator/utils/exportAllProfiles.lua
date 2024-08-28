@@ -46,7 +46,7 @@ function addon:ExportAllProfiles()
   for _, module in pairs(addon.moduleConfigs) do
     ---@type LibAddonProfilesModule
     local lapModule = module.lapModule
-    if lapModule:isLoaded() then
+    if lapModule:isLoaded() and lapModule:isUpdated() then
       local hasAtleastOneExport = false
       for resolution, enabled in pairs(enabledResolutions) do
         local profileKey = currentUIPack.profileKeys[resolution][module.name]
@@ -81,7 +81,7 @@ function addon:ExportAllProfiles()
       for _, module in pairs(addon.moduleConfigs) do
         ---@type LibAddonProfilesModule
         local lapModule = module.lapModule
-        if lapModule:isLoaded() then
+        if lapModule:isLoaded() and lapModule:isUpdated() then
           local didExportAtleastOne = false
           for resolution, enabled in pairs(enabledResolutions) do
             updates[resolution] = updates[resolution] or {}
