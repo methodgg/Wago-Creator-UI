@@ -2,16 +2,16 @@
 	<Script file ="LibAddonProfiles.lua"/>
 	<Script file ="Utils.lua"/>
 	<Script file ="CompressionUtils.lua"/>
-	<Script file ="modules\WeakAuras.lua"/>
+	<!-- <Script file ="modules\WeakAuras.lua"/>
 	<Script file ="modules\EchoRaidTools.lua"/>
 	<Script file ="modules\Details.lua"/>
 	<Script file ="modules\Plater.lua"/>
 	<Script file ="modules\Bartender4.lua"/>
-	<Script file ="modules\BigWigs.lua"/>
+	<Script file ="modules\BigWigs.lua"/> -->
 	<Script file ="modules\EditMode.lua"/>
 	<Script file ="modules\ElvUI.lua"/>
 	<Script file ="modules\ElvUIPrivate.lua"/>
-	<Script file ="modules\Grid2.lua"/>
+	<!-- <Script file ="modules\Grid2.lua"/>
 	<Script file ="modules\NSCT.lua"/>
 	<Script file ="modules\OmniCC.lua"/>
 	<Script file ="modules\SexyMap.lua"/>
@@ -24,6 +24,6 @@
 	<Script file ="modules\BugSack.lua"/>
 	<Script file ="modules\KuiNameplates.lua"/>
 	<Script file ="modules\WarpDeplete.lua"/>
-	<Script file ="modules\Quartz.lua"/>
+	<Script file ="modules\Quartz.lua"/> -->
 	<Script file ="finalize.lua"/>
 </Ui>

@@ -60,6 +60,9 @@ local m = {
   isLoaded = function(self)
     return true
   end,
+  isUpdated = function(self)
+    return true
+  end,
   needsInitialization = function(self)
     return false
   end,
