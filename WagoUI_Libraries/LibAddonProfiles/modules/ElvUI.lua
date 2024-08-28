@@ -25,13 +25,7 @@ local m = {
     return ElvUI and ElvUI[1].Options.args.profiles and true or false
   end,
   isUpdated = function(self)
-    local currentVersionString = C_AddOns.GetAddOnMetadata(self.addonNames[1], "Version")
-    if not currentVersionString then
-      return false
-    end
-    currentVersionString = string.gsub(currentVersionString, "v", "")
-    local oldestSupportedString = string.gsub(self.oldestSupported, "v", "")
-    return private:IsSemverSameOrHigher(currentVersionString, oldestSupportedString)
+    return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
     return C_AddOns.IsAddOnLoaded("ElvUI") and not self:isLoaded()

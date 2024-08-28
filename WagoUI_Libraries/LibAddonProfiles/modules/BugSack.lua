@@ -25,13 +25,7 @@ local m = {
     return loaded
   end,
   isUpdated = function(self)
-    local currentVersionString = C_AddOns.GetAddOnMetadata(self.addonNames[1], "Version")
-    if not currentVersionString then
-      return false
-    end
-    currentVersionString = string.gsub(currentVersionString, "v", "")
-    local oldestSupportedString = string.gsub(self.oldestSupported, "v", "")
-    return private:IsSemverSameOrHigher(currentVersionString, oldestSupportedString)
+    return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
     return false

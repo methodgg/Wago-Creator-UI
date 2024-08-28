@@ -153,6 +153,8 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Cell",
+  wagoId = "qv63LLKb",
+  oldestSupported = "r239-release",
   addonNames = {"Cell"},
   icon = [[Interface\AddOns\Cell\Media\icon]],
   slash = "/cell",
@@ -165,6 +167,9 @@ local m = {
   isLoaded = function(self)
     local loaded = C_AddOns.IsAddOnLoaded("Cell")
     return loaded
+  end,
+  isUpdated = function(self)
+    return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
     return false

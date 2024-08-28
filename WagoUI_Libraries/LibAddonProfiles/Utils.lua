@@ -60,6 +60,8 @@ do
   end
 end
 
+_G["LibAddonProfilesPrivate"] = private
+
 ---@param a string Sanitized semver string - no "v" prefix etc
 ---@param b string Sanitized semver string - no "v" prefix etc
 function private:IsSemverSameOrHigher(a, b)
@@ -99,4 +101,14 @@ function private:IsSemverSameOrHigher(a, b)
     return false
   end
   return true
+end
+
+---@param lapModule LibAddonProfilesModule
+---@return boolean
+function private:GenericVersionCheck(lapModule)
+  local currentVersionString = C_AddOns.GetAddOnMetadata(lapModule.addonNames[1], "Version")
+  if not currentVersionString then
+    return false
+  end
+  return private:IsSemverSameOrHigher(currentVersionString, lapModule.oldestSupported)
 end
