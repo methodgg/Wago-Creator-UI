@@ -1,3 +1,3 @@
-# 1.1.2 (2024-08-21)
+# 1.1.3 (2024-08-21)
 
-- Print a chat message when an update for a UI Pack is available
+- Version check for supported Addons
