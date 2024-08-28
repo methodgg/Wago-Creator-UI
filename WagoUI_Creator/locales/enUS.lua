@@ -103,3 +103,9 @@ L["Reload needed"] = "Reload needed"
 L["Enabled"] = "Enabled"
 L["Disabled"] = "Disabled"
 L["Addon out of date - update required"] = "Addon out of date - update required"
+L["RESOLUTION_ENABLE__BUTTON_TOOLTIP"] =
+  'The different resolutions for which you can export profiles for DO NOT change your profiles or WeakAuras in any way - no automatic conversion to different resolutions and / or sizes is happening. These are simply options for you to offer multiple different profiles tailored to different resolutions to your users. If you only want to offer your exports in one way then do not enable this and simply export your profiles for "Any Resolution"'
+L["DISABLE_RESOLUTION_BUTTON_TOOLTIP"] =
+  "Click to disable\nDisabling a resolution will also disable all exports for this resolution from your exported data"
+L["WEAKAURA_WARNING_TOOLTIP"] =
+  "Ensure that you have the author's permission to distribute any WeakAuras you wish to export.\nExported WeakAuras currently have their Wago IDs and URLs removed."

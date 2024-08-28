@@ -535,6 +535,7 @@ function addon:CreateProfileList(f, width, height)
   end
 
   enableResolutionButton = LWF:CreateButton(f, 300, 50, L["Enable this resolution"], 20)
+  enableResolutionButton:SetTooltip(L["RESOLUTION_ENABLE__BUTTON_TOOLTIP"])
   enableResolutionButton:SetClickFunction(
     function()
       local currentPack = addon:GetCurrentPackStashed()
@@ -583,7 +584,7 @@ function addon:CreateProfileList(f, width, height)
     --   end
     -- )
     disableButton:SetPoint("TOPRIGHT", profileTabButton, "TOPRIGHT", 0, 15)
-    disableButton:SetTooltip("Click to disable")
+    disableButton:SetTooltip(L["DISABLE_RESOLUTION_BUTTON_TOOLTIP"])
   end
   addLine(resolutionTabs, 0, -20, 0)
   tabFunction = function(tabIndex)

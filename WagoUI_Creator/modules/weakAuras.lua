@@ -540,6 +540,11 @@ local function createManageFrame(w, h)
   )
   okayButton:SetPoint("BOTTOMRIGHT", m, "BOTTOMRIGHT", -60, 20)
 
+  local weakauraWarning =
+    DF:CreateButton(m, nil, 50, 50, "", nil, nil, "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
+  weakauraWarning:SetPoint("BOTTOM", m, "BOTTOM", 0, 20)
+  weakauraWarning:SetTooltip(L["WEAKAURA_WARNING_TOOLTIP"])
+
   openWAButton = LWF:CreateButton(m, 200, 40, L["Toggle WA Options"], 16)
   openWAButton:SetClickFunction(
     function()
