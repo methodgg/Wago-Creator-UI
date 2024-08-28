@@ -6,6 +6,7 @@ local defaultSortOrder = {
   "Blizzard Edit Mode",
   "ElvUI",
   "ElvUI Private Profile",
+  "ElvUI Account Settings",
   "Details",
   "Plater",
   "Kui Nameplates",
