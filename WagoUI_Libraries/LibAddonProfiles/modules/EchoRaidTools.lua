@@ -28,6 +28,7 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Echo Raid Tools",
+  oldestSupported = "1.5.8",
   addonNames = {"EchoRaidTools"},
   icon = [[Interface\AddOns\EchoRaidTools\assets\textures\ELp3.tga]],
   slash = "/echort",
@@ -40,6 +41,9 @@ local m = {
   isLoaded = function(self)
     local loaded = C_AddOns.IsAddOnLoaded("EchoRaidTools")
     return loaded
+  end,
+  isUpdated = function(self)
+    return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
     return false

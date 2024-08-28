@@ -2,8 +2,8 @@
 	<Script file ="LibAddonProfiles.lua"/>
 	<Script file ="Utils.lua"/>
 	<Script file ="CompressionUtils.lua"/>
-	<!-- <Script file ="modules\WeakAuras.lua"/>-->
-	<!-- <Script file ="modules\EchoRaidTools.lua"/>-->
+	<Script file ="modules\WeakAuras.lua"/>
+	<Script file ="modules\EchoRaidTools.lua"/>
 	<Script file ="modules\Details.lua"/>
 	<!-- <Script file ="modules\Plater.lua"/> -->
 	<Script file ="modules\Bartender4.lua"/>
