@@ -149,6 +149,7 @@ local m = {
   wagoId = "kRNLep6o",
   oldestSupported = "Plater-v585b-Retail",
   addonNames = {"Plater"},
+  conflictingAddons = {"Kui_Nameplates", "Kui_Nameplates_Core", "Kui_Nameplates_Core_Config"},
   icon = [[Interface\AddOns\Plater\images\cast_bar]],
   slash = "/plater",
   needReloadOnImport = true,

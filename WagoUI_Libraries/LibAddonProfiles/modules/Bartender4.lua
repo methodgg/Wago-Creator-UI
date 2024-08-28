@@ -12,6 +12,7 @@ local m = {
   wagoId = "v63oVn6b",
   oldestSupported = "4.15.0",
   addonNames = {"Bartender4"},
+  conflictingAddons = {"Dominos", "ElvUI", "ElvUI_Libraries", "ElvUI_Options"},
   icon = 132792,
   slash = "/bartender",
   needReloadOnImport = true,

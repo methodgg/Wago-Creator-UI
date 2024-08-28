@@ -124,6 +124,7 @@ local m = {
   wagoId = "vEGPyeN1",
   oldestSupported = "2.8.49",
   addonNames = {"Grid2", "Grid2Options", "Grid2LDB", "Grid2RaidDebuffs", "Grid2RaidDebuffsOptions"},
+  conflictingAddons = {"VuhDo", "VuhDoOptions", "Cell"},
   icon = [[Interface\AddOns\Grid2\media\iconsmall]],
   slash = "/grid2",
   needReloadOnImport = true,

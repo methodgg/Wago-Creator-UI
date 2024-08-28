@@ -156,6 +156,7 @@ local m = {
   wagoId = "qv63LLKb",
   oldestSupported = "r239-release",
   addonNames = {"Cell"},
+  conflictingAddons = {"VuhDo", "VuhDoOptions", "Grid2"},
   icon = [[Interface\AddOns\Cell\Media\icon]],
   slash = "/cell",
   needReloadOnImport = true,

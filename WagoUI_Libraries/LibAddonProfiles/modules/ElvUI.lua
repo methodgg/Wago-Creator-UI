@@ -13,6 +13,7 @@ local m = {
   wagoId = "tukui--2",
   oldestSupported = "v13.76",
   addonNames = {"ElvUI", "ElvUI_Libraries", "ElvUI_Options"},
+  conflictingAddons = {"Bartender4", "ShadowedUnitFrames", "ShadowedUF_Options", "PitBull4"},
   icon = [[Interface\AddOns\ElvUI\Core\Media\Textures\LogoAddon]],
   slash = "/ec",
   needReloadOnImport = true,

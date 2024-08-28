@@ -11,6 +11,7 @@ local m = {
   moduleName = "ShadowedUnitFrames",
   oldestSupported = "v4.4.11",
   addonNames = {"ShadowedUnitFrames", "ShadowedUF_Options"},
+  conflictingAddons = {"ElvUI", "ElvUI_Libraries", "ElvUI_Options", "PitBull4"},
   icon = 136200,
   slash = "/suf",
   needReloadOnImport = false,

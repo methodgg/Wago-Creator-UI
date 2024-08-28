@@ -33,6 +33,7 @@ local m = {
   wagoId = "kNMd8qGz",
   oldestSupported = "2.29.18",
   addonNames = {"Kui_Nameplates", "Kui_Nameplates_Core", "Kui_Nameplates_Core_Config"},
+  conflictingAddons = {"Plater"},
   icon = 132177,
   slash = "/knp",
   needReloadOnImport = true,
