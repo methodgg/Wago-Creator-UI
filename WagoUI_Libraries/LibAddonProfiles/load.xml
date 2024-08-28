@@ -11,9 +11,9 @@
 	<Script file ="modules\EditMode.lua"/>
 	<Script file ="modules\ElvUI.lua"/>
 	<Script file ="modules\ElvUIPrivate.lua"/>
-	<!-- <Script file ="modules\Grid2.lua"/> -->
-	<!-- <Script file ="modules\NSCT.lua"/> -->
-	<!-- <Script file ="modules\OmniCC.lua"/> -->
+	<Script file ="modules\Grid2.lua"/>
+	<Script file ="modules\NSCT.lua"/>
+	<Script file ="modules\OmniCC.lua"/>
 	<!-- <Script file ="modules\SexyMap.lua"/> -->
 	<!-- <Script file ="modules\ShadowedUnitFrames.lua"/> -->
 	<!-- <Script file ="modules\TalentLoadoutsEx.lua"/> -->
