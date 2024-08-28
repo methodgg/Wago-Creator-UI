@@ -60,8 +60,6 @@ do
   end
 end
 
-_G["LibAddonProfilesPrivate"] = private
-
 ---@param a string Sanitized semver string - no "v" prefix etc
 ---@param b string Sanitized semver string - no "v" prefix etc
 function private:IsSemverSameOrHigher(a, b)
