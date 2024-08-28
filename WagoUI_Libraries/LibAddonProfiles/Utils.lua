@@ -68,9 +68,18 @@ function private:DisableConflictingAddons(addonNames, introImportState)
   if not addonNames or not introImportState then
     return
   end
+  local doNotDisable = {}
+  for moduleName, state in pairs(introImportState) do
+    ---@type LibAddonProfilesModule
+    local lap = private.modules[moduleName]
+    if lap and state.checked then
+      for _, addon in ipairs(lap.addonNames) do
+        doNotDisable[addon] = true
+      end
+    end
+  end
   for _, addon in ipairs(addonNames) do
-    if not (introImportState[addon] and introImportState[addon].checked) then
-      vdt("disabling " .. addon)
+    if not doNotDisable[addon] then
       C_AddOns.DisableAddOn(addon)
     end
   end
