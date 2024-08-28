@@ -60,6 +60,22 @@ do
   end
 end
 
+---Disables a list of AddOns.
+---If the Addon is in introImportState and has field checked set to true, it will not be disabled
+---@param addonNames table<number, string>
+---@param introImportState table<string, IntroImportState>
+function private:DisableConflictingAddons(addonNames, introImportState)
+  if not addonNames or not introImportState then
+    return
+  end
+  for _, addon in ipairs(addonNames) do
+    if not (introImportState[addon] and introImportState[addon].checked) then
+      vdt("disabling " .. addon)
+      C_AddOns.DisableAddOn(addon)
+    end
+  end
+end
+
 ---Checks if the version of the addon is the same or higher than the provided version.
 ---Version format is semver but it can be any string that has numbers separated by dots.
 ---@param a string

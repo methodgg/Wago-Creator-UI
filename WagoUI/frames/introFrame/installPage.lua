@@ -62,6 +62,9 @@ local setupInstallButton = function(enabled, needEnableAddons, introImportState)
             local lap = LAP:GetModule(moduleName)
             if data.checked and lap:isLoaded() and lap:isUpdated() then
               lap:importProfile(data.profile, data.profileKey, true)
+              if lap.conflictingAddons then
+                LAP:DisableConflictingAddons(lap.conflictingAddons, introImportState)
+              end
               addon:AddonPrint(string.format(L["Imported %s: %s"], data.profileKey, moduleName))
               addon:StoreImportedProfileData(data.profileMetadata.lastUpdatedAt, moduleName, data.profileKey)
               if lap.needReloadOnImport then

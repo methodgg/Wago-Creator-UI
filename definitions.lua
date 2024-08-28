@@ -13,6 +13,7 @@
 ---@field wagoId string | nil X-Wago-ID for the AddOn. If the addon is not on Wago, this should be nil.
 ---@field oldestSupported string | nil The last version of the AddOn that was tested with this library.
 ---@field addonNames table<number, string> | nil The names of the AddOn modules. First entry is used to check if the AddOn can be enabled. Is a list to load all dependencies for modular AddOns.
+---@field conflictingAddons table<number, string> | nil A list of AddOns that conflict with this AddOn. Used in the intro wizard to disable conflicting AddOns.
 ---@field icon number | string The icon to use for the module
 ---@field slash string
 ---@field needReloadOnImport boolean If the AddOn needs to be reloaded after importing a profile

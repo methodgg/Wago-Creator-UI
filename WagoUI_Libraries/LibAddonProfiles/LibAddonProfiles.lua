@@ -60,6 +60,14 @@ if LibAddonProfiles then
     return LibAddonProfilesInternal:EnableAddOns(addonNames)
   end
 
+  ---Disables a list of AddOns.
+  ---If the Addon is in introImportState and has field checked set to true, it will not be disabled
+  ---@param addonNames table<number, string>
+  ---@param introImportState table<string, IntroImportState>
+  function LibAddonProfiles:DisableConflictingAddons(addonNames, introImportState)
+    return LibAddonProfilesInternal:DisableConflictingAddons(addonNames, introImportState)
+  end
+
   ---@param ... any
   function LibAddonProfilesInternal:PrintError(...)
     print("|cff0092ff" .. MAJOR .. "|r:", tostringall(...))
