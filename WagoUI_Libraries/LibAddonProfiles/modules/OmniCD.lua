@@ -10,6 +10,7 @@ end
 local m = {
   moduleName = "OmniCD",
   addonNames = {"OmniCD"},
+  oldestSupported = "10.2.7.2802",
   icon = [[Interface\AddOns\OmniCD\Config\Libs\Media\omnicd-logo64-c]],
   slash = "/omnicd",
   needReloadOnImport = true,
@@ -21,6 +22,13 @@ local m = {
   isLoaded = function(self)
     local loaded = C_AddOns.IsAddOnLoaded("OmniCD")
     return loaded
+  end,
+  isUpdated = function(self)
+    local currentVersionString = C_AddOns.GetAddOnMetadata(self.addonNames[1], "Version")
+    if not currentVersionString then
+      return false
+    end
+    return private:IsSemverSameOrHigher(currentVersionString, self.oldestSupported)
   end,
   needsInitialization = function(self)
     return false

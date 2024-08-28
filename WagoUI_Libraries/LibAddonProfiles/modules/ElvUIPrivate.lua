@@ -30,13 +30,8 @@ local m = {
       return false
     end
     currentVersionString = string.gsub(currentVersionString, "v", "")
-    local currentVersion = tonumber(currentVersionString)
     local oldestSupportedString = string.gsub(self.oldestSupported, "v", "")
-    local oldestSupported = tonumber(oldestSupportedString)
-    if not currentVersion or not oldestSupported then
-      return false
-    end
-    return currentVersion >= oldestSupported
+    return private:IsSemverSameOrHigher(currentVersionString, oldestSupportedString)
   end,
   needsInitialization = function(self)
     return C_AddOns.IsAddOnLoaded("ElvUI") and not self:isLoaded()
