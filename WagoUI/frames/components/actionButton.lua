@@ -23,11 +23,12 @@ function addon:CreateActionButton(parent, width, height, fontSize)
     ---@type LibAddonProfilesModule
     local lap = info.lap
     local loaded = lap:isLoaded()
+    local updated = lap:isUpdated()
     local canEnable = LAP:CanEnableAnyAddOn(lap.addonNames)
     local askReimport
     actionButton:SetBackdropColor(1, 1, 1, 0.7)
 
-    if loaded then
+    if loaded and updated then
       if not lastUdatedAt then
         actionButton:SetText(L["Import"])
       elseif updateAvailable then
@@ -39,6 +40,9 @@ function addon:CreateActionButton(parent, width, height, fontSize)
         askReimport = true
       end
       actionButton:Enable()
+    elseif loaded and not updated then
+      actionButton:SetText(L["Addon out of date"])
+      actionButton:Disable()
     elseif canEnable then
       actionButton:SetText(L["Enable AddOn"])
       actionButton:Enable()

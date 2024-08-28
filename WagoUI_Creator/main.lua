@@ -442,7 +442,7 @@ function addon:CreateFrames()
         )
         didInitialize = true
       end
-      if lapModule:isLoaded() then
+      if lapModule:isLoaded() and lapModule:isUpdated() then
         executeRefreshHooks(lapModule)
       end
     end

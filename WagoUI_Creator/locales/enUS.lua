@@ -102,3 +102,4 @@ L["Use the same name as you did on the website"] = "Use the same name as you did
 L["Reload needed"] = "Reload needed"
 L["Enabled"] = "Enabled"
 L["Disabled"] = "Disabled"
+L["Addon out of date - update required"] = "Addon out of date - update required"
