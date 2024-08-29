@@ -239,11 +239,6 @@ local m = {
     if not self:getProfileKeys()[profileKey] then
       return
     end
-    --TODO: This should not be here, we already handle this externally
-    if not C_AddOns.IsAddOnLoaded("Grid2Options") then
-      self:openConfig()
-      self:closeConfig()
-    end
     coroutine.yield()
     return grid2SerializeProfile(profileKey, true, true)
   end,
