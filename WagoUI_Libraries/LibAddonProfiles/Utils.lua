@@ -72,7 +72,7 @@ function private:DisableConflictingAddons(addonNames, introImportState)
   for moduleName, state in pairs(introImportState) do
     ---@type LibAddonProfilesModule
     local lap = private.modules[moduleName]
-    if lap and state.checked then
+    if lap and lap.addonNames and state.checked then
       for _, addon in ipairs(lap.addonNames) do
         doNotDisable[addon] = true
       end
