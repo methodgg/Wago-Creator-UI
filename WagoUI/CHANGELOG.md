@@ -1,3 +1,3 @@
-# 1.1.3 (2024-08-28)
+# 1.1.4 (2024-08-29)
 
-- Version check for supported Addons
+- Bug fix: Version check Plater
