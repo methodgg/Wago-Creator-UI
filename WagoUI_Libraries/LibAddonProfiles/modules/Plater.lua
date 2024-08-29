@@ -162,7 +162,7 @@ local m = {
     return Plater and true or false
   end,
   isUpdated = function(self)
-    local currentVersionString = C_AddOns.GetAddOnMetadata(self.addonNames[1], "Version")
+    local currentVersionString = private:GetAddonVersionCached(self.addonNames[1])
     if not currentVersionString then
       return false
     end

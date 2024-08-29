@@ -131,9 +131,23 @@ end
 ---@param lapModule LibAddonProfilesModule
 ---@return boolean
 function private:GenericVersionCheck(lapModule)
-  local currentVersionString = C_AddOns.GetAddOnMetadata(lapModule.addonNames[1], "Version")
+  local currentVersionString = private:GetAddonVersionCached(lapModule.addonNames[1])
   if not currentVersionString then
     return false
   end
   return private:IsSemverSameOrHigher(currentVersionString, lapModule.oldestSupported)
+end
+
+do
+  local versionCache = {}
+  ---@param addonName string
+  ---@return string
+  function private:GetAddonVersionCached(addonName)
+    if versionCache[addonName] then
+      return versionCache[addonName]
+    end
+    local version = C_AddOns.GetAddOnMetadata(addonName, "Version")
+    versionCache[addonName] = version
+    return version
+  end
 end
