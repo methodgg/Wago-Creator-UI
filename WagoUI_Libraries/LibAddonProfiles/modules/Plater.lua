@@ -167,9 +167,9 @@ local m = {
       return false
     end
     -- we look at 585b vs 583a
-    local cMajor, cMinor = string.match(currentVersionString, "(%d+)(%a)")
+    local cMajor, cMinor = string.match(currentVersionString, "(%d+)(%a*)")
     cMajor = cMajor and tonumber(cMajor) or 0
-    local oMajor, oMinor = string.match(self.oldestSupported, "(%d+)(%a)")
+    local oMajor, oMinor = string.match(self.oldestSupported, "(%d+)(%a*)")
     oMajor = oMajor and tonumber(oMajor) or 0
     if cMajor > oMajor then
       return true
