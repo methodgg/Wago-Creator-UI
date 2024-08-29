@@ -26,6 +26,13 @@ local m = {
     return ElvUI and ElvUI[1].Options.args.profiles and true or false
   end,
   isUpdated = function(self)
+    local currentVersionString = private:GetAddonVersionCached(self.addonNames[1])
+    if not currentVersionString then
+      return false
+    end
+    if strfind(currentVersionString, "project%-version") then
+      return true
+    end
     return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
