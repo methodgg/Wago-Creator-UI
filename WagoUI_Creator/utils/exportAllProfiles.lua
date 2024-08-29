@@ -130,10 +130,27 @@ function addon:ExportAllProfiles()
         addon.copyHelper:SmartFadeOut(2, L["No Changes detected"])
         LWF:ToggleLockoutFrame(false, addon.frames, addon.frames.mainFrame)
       end
+      addon:UpdateIncludedAddons(currentUIPack)
       addon:AddDataToStorageAddon(numUpdates > 0)
     end,
     "ExportAllProfiles"
   )
+end
+
+function addon:UpdateIncludedAddons(pack)
+  pack.includedAddons = {}
+  for res, addons in pairs(pack.profileKeys) do
+    if pack.resolutions.enabled[res] then
+      for addonName in pairs(addons) do
+        ---@type LibAddonProfilesModule
+        local lapModule = LAP:GetModule(addonName)
+        local wagoId = lapModule.wagoId
+        if wagoId then
+          pack.includedAddons[wagoId] = true
+        end
+      end
+    end
+  end
 end
 
 function addon:SetupExportStash()
