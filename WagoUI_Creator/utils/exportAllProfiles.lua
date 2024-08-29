@@ -97,6 +97,10 @@ function addon:ExportAllProfiles()
                 currentUIPack.profiles[currentUIPack.resolutions.chosen][module.name] = nil
               else
                 local updated, changedEntries, removedEntries = module.exportFunc(resolution, timestamp)
+                if lapModule.moduleName == "WeakAuras" then
+                  currentUIPack.collectedWagoIds = currentUIPack.collectedWagoIds or {}
+                  currentUIPack.collectedWagoIds[resolution] = lapModule:getCollectedWagoIds()
+                end
                 if updated then
                   updates[resolution][module.name] = changedEntries or true
                   removals[resolution][module.name] = removedEntries

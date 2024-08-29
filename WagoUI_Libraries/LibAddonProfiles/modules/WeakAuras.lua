@@ -161,7 +161,14 @@ function TableToString(inTable)
   return encoded
 end
 
+local collectedWagoIds = {}
+
 local function purgeWago(data)
+  if data.wagoID then
+    if not collectedWagoIds[data.wagoID] then
+      collectedWagoIds[data.wagoID] = data.id
+    end
+  end
   data.wagoID = nil
   --do not touch user provided urls
   local testString = "https://wago.io"
@@ -215,6 +222,7 @@ local m = {
   end,
   exportProfile = function(self, profileKey)
     if type(profileKey) ~= "table" then return end
+    collectedWagoIds = {}
     local displayIds = profileKey
     local exportStrings = {}
     for id in pairs(displayIds) do
@@ -224,6 +232,9 @@ local m = {
       end
     end
     return exportStrings
+  end,
+  getCollectedWagoIds = function(self)
+    return collectedWagoIds
   end,
   exportOptions = {
     purgeWago = false
