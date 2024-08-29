@@ -1,16 +1,13 @@
 local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "TipTac Reborn",
   oldestSupported = "24.08.26",
-  addonNames = {"TipTac", "TipTacItemRef", "TipTacOptions", "TipTacTalents"},
+  addonNames = { "TipTac", "TipTacItemRef", "TipTacOptions", "TipTacTalents" },
   icon = 134331,
   slash = "/tiptac",
   needReloadOnImport = true,
@@ -29,9 +26,7 @@ local m = {
     return false
   end,
   openConfig = function(self)
-    if not SlashCmdList["TIPTAC"] then
-      return
-    end
+    if not SlashCmdList["TIPTAC"] then return end
     SlashCmdList["TIPTAC"]("")
   end,
   closeConfig = function(self)
@@ -51,30 +46,20 @@ local m = {
   setProfile = function(self, profileKey)
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     if profileData and profileData.TipTacGlobal then
       return profileKey
     end
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     local _, pData = private:GenericDecode(profileString)
-    if not pData then
-      return
-    end
+    if not pData then return end
     TipTac_Config = pData.TipTacGlobal
   end,
   exportProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if type(profileKey) ~= "string" then
-      return
-    end
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
     local data = {
       TipTacGlobal = TipTac_Config
     }

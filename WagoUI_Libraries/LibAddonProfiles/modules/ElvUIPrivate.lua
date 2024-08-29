@@ -1,10 +1,7 @@
 local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 local EXPORT_PREFIX = "!E1!"
 
 ---@type LibAddonProfilesModule
@@ -12,7 +9,7 @@ local m = {
   moduleName = "ElvUI Private Profile",
   wagoId = "tukui--2",
   oldestSupported = "v13.76",
-  addonNames = {"ElvUI", "ElvUI_Libraries", "ElvUI_Options"},
+  addonNames = { "ElvUI", "ElvUI_Libraries", "ElvUI_Options" },
   icon = [[Interface\AddOns\ElvUI\Core\Media\Textures\LogoAddon]],
   slash = "/ec",
   needReloadOnImport = true,
@@ -38,9 +35,7 @@ local m = {
     return C_AddOns.IsAddOnLoaded("ElvUI") and not self:isLoaded()
   end,
   openConfig = function(self)
-    if not SlashCmdList["ACECONSOLE_ELVUI"] then
-      return
-    end
+    if not SlashCmdList["ACECONSOLE_ELVUI"] then return end
     SlashCmdList["ACECONSOLE_ELVUI"]()
   end,
   closeConfig = function(self)
@@ -64,19 +59,13 @@ local m = {
     return ElvPrivateDB.profiles[profileKey] and true or false
   end,
   setProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if not self:getProfileKeys()[profileKey] then return end
     local E = unpack(ElvUI)
     ElvPrivateDB.profileKeys[E.mynameRealm] = profileKey
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     local prefix = strsub(profileString, 1, 4)
     if prefix ~= EXPORT_PREFIX then
       return nil
@@ -88,9 +77,7 @@ local m = {
     end
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     -- TODO: do we even want to change this to use D:ImportProfile?
     -- seems simple enough as it is and sets the profile key (maybe this is not wanted?)
     local E = ElvUI[1]
@@ -104,15 +91,9 @@ local m = {
     ElvPrivateDB.profiles[profileKey] = data
   end,
   exportProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if type(profileKey) ~= "string" then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
     --Core\General\Distributor.lua
     local E = ElvUI[1]
     local D = E:GetModule("Distributor")
@@ -137,7 +118,7 @@ local m = {
       tableFunc = function()
         return ElvUI[1].Options.args.profiles.args.private.handler.db
       end,
-      functionNames = {"SetProfile", "CopyProfile", "DeleteProfile"}
+      functionNames = { "SetProfile", "CopyProfile", "DeleteProfile" }
     }
   }
 }

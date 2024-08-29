@@ -1,17 +1,14 @@
 local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "WarpDeplete",
   wagoId = "5bGoOqG0",
   oldestSupported = "3.0.6",
-  addonNames = {"WarpDeplete"},
+  addonNames = { "WarpDeplete" },
   icon = [[Interface\AddOns\WarpDeplete\logo]],
   slash = "/exampleslash",
   needReloadOnImport = false,
@@ -31,9 +28,7 @@ local m = {
     return false
   end,
   openConfig = function(self)
-    if not SlashCmdList["ACECONSOLE_WARPDEPLETE"] then
-      return
-    end
+    if not SlashCmdList["ACECONSOLE_WARPDEPLETE"] then return end
     SlashCmdList["ACECONSOLE_WARPDEPLETE"]("")
   end,
   closeConfig = function(self)
@@ -55,61 +50,35 @@ local m = {
     return self:getProfileKeys()[profileKey] ~= nil
   end,
   setProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if not self:getProfileKeys()[profileKey] then return end
     WarpDeplete.db:SetProfile(profileKey)
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     if not profileData then
       profileKey, profileData, rawData, moduleName = private:GenericDecode(profileString)
     end
-    if not profileData then
-      return
-    end
-    if not moduleName or moduleName ~= self.moduleName then
-      return
-    end
+    if not profileData then return end
+    if not moduleName or moduleName ~= self.moduleName then return end
     return profileKey
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     local decodedKey, profileData, rawData, moduleName = private:GenericDecode(profileString)
-    if not profileData then
-      return
-    end
-    if not moduleName or moduleName ~= self.moduleName then
-      return
-    end
+    if not profileData then return end
+    if not moduleName or moduleName ~= self.moduleName then return end
     profileKey = profileKey or decodedKey
-    if not profileKey then
-      return
-    end
+    if not profileKey then return end
     WarpDeplete.db.profiles[profileKey] = profileData
     self:setProfile(profileKey)
   end,
   exportProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if type(profileKey) ~= "string" then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
     local profileData = WarpDeplete.db.profiles[profileKey]
-    if not profileData then
-      return
-    end
+    if not profileData then return end
     local encoded = private:GenericEncode(profileKey, profileData, self.moduleName)
     return encoded
   end,
@@ -129,7 +98,7 @@ local m = {
       tableFunc = function()
         return WarpDeplete.db
       end,
-      functionNames = {"SetProfile", "DeleteProfile"}
+      functionNames = { "SetProfile", "DeleteProfile" }
     }
   }
 }

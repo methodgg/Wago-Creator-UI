@@ -70,6 +70,6 @@ if LibAddonProfiles then
 
   ---@param ... any
   function LibAddonProfilesInternal:PrintError(...)
-    print("|cff0092ff" .. MAJOR .. "|r:", tostringall(...))
+    print("|cff0092ff"..MAJOR.."|r:", tostringall(...))
   end
 end

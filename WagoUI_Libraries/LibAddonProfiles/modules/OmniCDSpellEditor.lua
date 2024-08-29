@@ -1,16 +1,13 @@
 local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "OmniCD Spell Editor",
   oldestSupported = "10.2.7.2802",
-  addonNames = {"OmniCD"},
+  addonNames = { "OmniCD" },
   icon = [[Interface\AddOns\OmniCD\Config\Libs\Media\omnicd-logo64-c]],
   slash = "/omnicd",
   needReloadOnImport = true,
@@ -56,9 +53,7 @@ local m = {
     -- global profile, no need to set anything
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     local E = OmniCD[1]
     local PS = E.ProfileSharing
     -- pretty basic test, this is what the addon does and seems quite insecure but oh well
@@ -72,9 +67,7 @@ local m = {
     return decodedProfileKey
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     local E = OmniCD[1]
     local PS = E.ProfileSharing
     local profileType, decodedProfileKey, profileData = PS:Decode(profileString)
@@ -84,37 +77,24 @@ local m = {
     E.ProfileSharing:CopyCustomSpells(profileData)
   end,
   exportProfile = function(self, profileKey)
-    if not profileKey then
-      return nil
-    end
-    if type(profileKey) ~= "string" then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
     -- OmniCD\Core\ProfileSharing.lua
     local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
     local E = OmniCD[1]
-    local C = OmniCD[3]
     local PS = E.ProfileSharing
     local PS_VERSION = "OmniCD2"
     local profileType = "cds"
     local profileData
     profileData = E:DeepCopy(OmniCDDB.cooldowns)
-    if not profileData then
-      return
-    end
-    if next(profileData) == nil then
-      return
-    end
+    if not profileData then return end
+    if next(profileData) == nil then return end
     local serializedData = PS:Serialize(profileData)
-    if type(serializedData) ~= "string" then
-      return
-    end
+    if type(serializedData) ~= "string" then return end
     local embeddedProfileKey = gsub(profileKey, "^%[IMPORT.-%]", "")
     serializedData = format("%s%s%s,%s", serializedData, PS_VERSION, profileType, embeddedProfileKey)
-    local compressedData = LibDeflate:CompressDeflate(serializedData, {level = 5})
+    local compressedData = LibDeflate:CompressDeflate(serializedData, { level = 5 })
     local encodedData = LibDeflate:EncodeForPrint(compressedData)
     return encodedData
   end,

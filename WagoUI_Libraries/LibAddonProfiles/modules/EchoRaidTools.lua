@@ -1,10 +1,7 @@
 local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 
 local function decodeString(importString)
   local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
@@ -29,7 +26,7 @@ end
 local m = {
   moduleName = "Echo Raid Tools",
   oldestSupported = "1.5.8",
-  addonNames = {"EchoRaidTools"},
+  addonNames = { "EchoRaidTools" },
   icon = [[Interface\AddOns\EchoRaidTools\assets\textures\ELp3.tga]],
   slash = "/echort",
   needReloadOnImport = false,
@@ -49,9 +46,7 @@ local m = {
     return false
   end,
   openConfig = function(self)
-    if not SlashCmdList["ACECONSOLE_ECHORT"] then
-      return
-    end
+    if not SlashCmdList["ACECONSOLE_ECHORT"] then return end
     SlashCmdList["ACECONSOLE_ECHORT"]()
   end,
   closeConfig = function(self)
@@ -68,19 +63,13 @@ local m = {
     EchoCooldowns.importStringExternal(profileString)
   end,
   exportGroup = function(self, profileKey)
-    if not profileKey then
-      return
-    end
+    if not profileKey then return end
     return EchoCooldowns.getExportStringForGroupIndex(profileKey)
   end,
   exportProfile = function(self, profileKey)
     local groupNames = profileKey
-    if type(groupNames) ~= "table" then
-      return
-    end
-    if not groupNames then
-      return
-    end
+    if type(groupNames) ~= "table" then return end
+    if not groupNames then return end
     local res = {}
     for id, group in pairs(EchoRaidToolsDB.Cooldowns.groups) do
       if groupNames[group.name] then

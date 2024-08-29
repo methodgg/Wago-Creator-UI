@@ -1,16 +1,13 @@
 local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "OmniCD",
   oldestSupported = "10.2.7.2802",
-  addonNames = {"OmniCD"},
+  addonNames = { "OmniCD" },
   icon = [[Interface\AddOns\OmniCD\Config\Libs\Media\omnicd-logo64-c]],
   slash = "/omnicd",
   needReloadOnImport = true,
@@ -30,9 +27,7 @@ local m = {
     return false
   end,
   openConfig = function(self)
-    if not OmniCD then
-      return
-    end
+    if not OmniCD then return end
     OmniCD[1]:OpenOptionPanel()
   end,
   closeConfig = function(self)
@@ -42,7 +37,7 @@ local m = {
     return OmniCDDB.profiles
   end,
   getCurrentProfileKey = function(self)
-    local characterName = UnitName("player") .. " - " .. GetRealmName()
+    local characterName = UnitName("player").." - "..GetRealmName()
     return OmniCDDB.profileKeys and OmniCDDB.profileKeys[characterName]
   end,
   getProfileAssignments = function(self)
@@ -55,34 +50,22 @@ local m = {
     return self:getProfileKeys()[profileKey] ~= nil
   end,
   setProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if not self:getProfileKeys()[profileKey] then return end
     OmniCD[1].DB:SetProfile(profileKey)
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     local E = OmniCD[1]
     local PS = E.ProfileSharing
     -- pretty basic test, this is what the addon does and seems quite insecure but oh well
     local profileType, decodedProfileKey, decoded = PS:Decode(profileString)
-    if not profileType or profileType ~= "all" then
-      return
-    end
-    if not decodedProfileKey or not decoded then
-      return
-    end
+    if not profileType or profileType ~= "all" then return end
+    if not decodedProfileKey or not decoded then return end
     return decodedProfileKey
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     local E = OmniCD[1]
     local PS = E.ProfileSharing
     local profileType, decodedProfileKey, profileData = PS:Decode(profileString)
@@ -92,15 +75,9 @@ local m = {
     E.ProfileSharing:CopyProfile(profileType, profileKey, profileData)
   end,
   exportProfile = function(self, profileKey)
-    if not profileKey then
-      return nil
-    end
-    if type(profileKey) ~= "string" then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
     -- OmniCD\Core\ProfileSharing.lua
     local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
     local E = OmniCD[1]
@@ -126,7 +103,7 @@ local m = {
     end
     local embeddedProfileKey = gsub(profileKey, "^%[IMPORT.-%]", "")
     serializedData = format("%s%s%s,%s", serializedData, PS_VERSION, profileType, embeddedProfileKey)
-    local compressedData = LibDeflate:CompressDeflate(serializedData, {level = 5})
+    local compressedData = LibDeflate:CompressDeflate(serializedData, { level = 5 })
     local encodedData = LibDeflate:EncodeForPrint(compressedData)
     return encodedData
   end,
@@ -154,7 +131,7 @@ local m = {
       tableFunc = function()
         return OmniCD[1].DB
       end,
-      functionNames = {"SetProfile", "DeleteProfile"}
+      functionNames = { "SetProfile", "DeleteProfile" }
     }
   }
 }

@@ -1,10 +1,7 @@
 local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 
 local optionsFrame
 
@@ -13,8 +10,8 @@ local m = {
   moduleName = "BigWigs",
   wagoId = "5NRegwG3",
   oldestSupported = "v355.3",
-  addonNames = {"BigWigs", "BigWigs_Core", "BigWigs_Plugins", "BigWigs_Options"},
-  conflictingAddons = {"DBM-Core"},
+  addonNames = { "BigWigs", "BigWigs_Core", "BigWigs_Plugins", "BigWigs_Options" },
+  conflictingAddons = { "DBM-Core" },
   icon = 134337,
   slash = "/bigwigs",
   needReloadOnImport = true,
@@ -58,36 +55,28 @@ local m = {
     return BigWigs3DB.profiles
   end,
   getCurrentProfileKey = function(self)
-    local characterName = UnitName("player") .. " - " .. GetRealmName()
+    local characterName = UnitName("player").." - "..GetRealmName()
     return BigWigs3DB.profileKeys and BigWigs3DB.profileKeys[characterName]
   end,
   getProfileAssignments = function(self)
     return BigWigs3DB.profileKeys
   end,
   isDuplicate = function(self, profileKey)
-    if not profileKey then
-      return false
-    end
+    if not profileKey then return false end
     return self:getProfileKeys()[profileKey] ~= nil
   end,
   setProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
+    if not profileKey then return end
     BigWigs.db:SetProfile(profileKey)
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     if profileKey and profileData and profileData.BigWigs3DB then
       return profileKey
     end
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     local _, pData = private:GenericDecode(profileString)
     if not pData then
       return
@@ -107,7 +96,7 @@ local m = {
     end
     --profileKey
     BigWigs3DB.profileKeys = BigWigs3DB.profileKeys or {}
-    BigWigs3DB.profileKeys[UnitName("player") .. " - " .. GetRealmName()] = profileKey
+    BigWigs3DB.profileKeys[UnitName("player").." - "..GetRealmName()] = profileKey
     --profiles
     for _, profile in pairs(bw3db.profiles) do
       BigWigs3DB.profiles = BigWigs3DB.profiles or {}
@@ -125,15 +114,9 @@ local m = {
     end
   end,
   exportProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if type(profileKey) ~= "string" then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
     local data = {
       BigWigs3DB = {
         profiles = {
@@ -180,7 +163,7 @@ local m = {
       tableFunc = function()
         return BigWigs.db
       end,
-      functionNames = {"SetProfile", "DeleteProfile"}
+      functionNames = { "SetProfile", "DeleteProfile" }
     }
   }
 }

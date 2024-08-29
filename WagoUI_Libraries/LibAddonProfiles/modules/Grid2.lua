@@ -1,10 +1,7 @@
 local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 
 local b_rshift = bit.rshift
 local b_and = bit.band
@@ -12,8 +9,8 @@ local byte = string.byte
 
 -- Plain hexadecimal encoding/decoding functions
 local function HexEncode(s, title)
-  local hex = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"}
-  local t = {string.format("[=== %s profile ===]", title or "")}
+  local hex = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" }
+  local t = { string.format("[=== %s profile ===]", title or "") }
   local j = 0
   for i = 1, #s do
     if j <= 0 then
@@ -38,7 +35,7 @@ local function grid2SerializeProfile(profileKey, Hex, exportCustomLayouts)
   local Serializer = LibStub:GetLibrary("AceSerializer-3.0Async")
   local Compresor = LibStub:GetLibrary("LibCompress")
   local profile = Grid2.db.profiles[profileKey] --Grid2.db.profile
-  local config = {["Grid2"] = profile}
+  local config = { ["Grid2"] = profile }
   for name, module in Grid2:IterateModules() do
     local data = Grid2.db:GetNamespace(name, true)
     if data then
@@ -123,8 +120,8 @@ local m = {
   moduleName = "Grid2",
   wagoId = "vEGPyeN1",
   oldestSupported = "2.8.49",
-  addonNames = {"Grid2", "Grid2Options", "Grid2LDB", "Grid2RaidDebuffs", "Grid2RaidDebuffsOptions"},
-  conflictingAddons = {"VuhDo", "VuhDoOptions", "Cell"},
+  addonNames = { "Grid2", "Grid2Options", "Grid2LDB", "Grid2RaidDebuffs", "Grid2RaidDebuffsOptions" },
+  conflictingAddons = { "VuhDo", "VuhDoOptions", "Cell" },
   icon = [[Interface\AddOns\Grid2\media\iconsmall]],
   slash = "/grid2",
   needReloadOnImport = true,
@@ -144,9 +141,7 @@ local m = {
     return Grid2 and not self:isLoaded()
   end,
   openConfig = function(self)
-    if not SlashCmdList["ACECONSOLE_GRID2"] then
-      return
-    end
+    if not SlashCmdList["ACECONSOLE_GRID2"] then return end
     SlashCmdList["ACECONSOLE_GRID2"]()
   end,
   closeConfig = function(self)
@@ -160,7 +155,7 @@ local m = {
     return Grid2DB.profiles
   end,
   getCurrentProfileKey = function(self)
-    local characterName = UnitName("player") .. " - " .. GetRealmName()
+    local characterName = UnitName("player").." - "..GetRealmName()
     return Grid2DB.profileKeys and Grid2DB.profileKeys[characterName]
   end,
   getProfileAssignments = function(self)
@@ -173,27 +168,19 @@ local m = {
     return self:getProfileKeys()[profileKey] ~= nil
   end,
   setProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
+    if not profileKey then return end
     Grid2.db:SetProfile(profileKey)
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     local pKey = profileString:match("%[=== (%w-) profile ===%]")
     return pKey
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     local success, data
     success, data = UnserializeProfile(profileString, true)
-    if not success or not data then
-      return
-    end
+    if not success or not data then return end
     if data["@Grid2Layout"] then -- Special ugly case for Custom Layouts
       local db = Grid2.db:GetNamespace("Grid2Layout", true)
       if db then
@@ -230,15 +217,9 @@ local m = {
     Grid2Options:AddNewCustomLayoutsOptions()
   end,
   exportProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if type(profileKey) ~= "string" then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
     coroutine.yield()
     return grid2SerializeProfile(profileKey, true, true)
   end,
@@ -258,7 +239,7 @@ local m = {
       tableFunc = function()
         return Grid2.db
       end,
-      functionNames = {"SetProfile", "CopyProfile", "DeleteProfile"}
+      functionNames = { "SetProfile", "CopyProfile", "DeleteProfile" }
     }
   }
 }

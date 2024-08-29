@@ -1,17 +1,14 @@
 local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "OmniCC",
   wagoId = "baNDDpNo",
   oldestSupported = "11.0.1",
-  addonNames = {"OmniCC", "OmniCC_Config"},
+  addonNames = { "OmniCC", "OmniCC_Config" },
   icon = 136106,
   slash = "/omnicc",
   needReloadOnImport = true,
@@ -30,9 +27,7 @@ local m = {
     return false
   end,
   openConfig = function(self)
-    if not SlashCmdList["OmniCC"] then
-      return
-    end
+    if not SlashCmdList["OmniCC"] then return end
     SlashCmdList["OmniCC"]()
   end,
   closeConfig = function(self)
@@ -42,7 +37,7 @@ local m = {
     return OmniCCDB.profiles
   end,
   getCurrentProfileKey = function(self)
-    local characterName = UnitName("player") .. " - " .. GetRealmName()
+    local characterName = UnitName("player").." - "..GetRealmName()
     return OmniCCDB.profileKeys[characterName]
   end,
   getProfileAssignments = function(self)
@@ -55,46 +50,30 @@ local m = {
     return self:getProfileKeys()[profileKey] ~= nil
   end,
   setProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if not self:getProfileKeys()[profileKey] then return end
     OmniCC.db:SetProfile(profileKey)
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     if profileData and profileData.OmniCC4Config then
       return profileKey
     end
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     local _, pData = private:GenericDecode(profileString)
-    if not pData then
-      return
-    end
+    if not pData then return end
     OmniCCDB.profileKeys = OmniCCDB.profileKeys or {}
-    OmniCCDB.profileKeys[UnitName("player") .. " - " .. GetRealmName()] = profileKey
+    OmniCCDB.profileKeys[UnitName("player").." - "..GetRealmName()] = profileKey
     OmniCCDB.profiles = OmniCCDB.profiles or {}
     OmniCCDB.profiles[profileKey] = pData.profiles[profileKey]
     OmniCC4Config = pData.OmniCC4Config
   end,
   exportProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if type(profileKey) ~= "string" then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
     local data = {
       global = OmniCCDB.global,
       profileKeys = {
@@ -123,7 +102,7 @@ local m = {
       tableFunc = function()
         return OmniCC.db
       end,
-      functionNames = {"SetProfile", "DeleteProfile"}
+      functionNames = { "SetProfile", "DeleteProfile" }
     }
   }
 }

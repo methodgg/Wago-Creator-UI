@@ -1,16 +1,13 @@
 local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Quartz",
   oldestSupported = "3.7.13",
-  addonNames = {"Quartz"},
+  addonNames = { "Quartz" },
   icon = 136235,
   slash = "/quartz",
   needReloadOnImport = false,
@@ -42,7 +39,7 @@ local m = {
     return Quartz3DB.profiles
   end,
   getCurrentProfileKey = function(self)
-    local characterName = UnitName("player") .. " - " .. GetRealmName()
+    local characterName = UnitName("player").." - "..GetRealmName()
     return Quartz3DB.profileKeys and Quartz3DB.profileKeys[characterName]
   end,
   getProfileAssignments = function(self)
@@ -55,67 +52,41 @@ local m = {
     return self:getProfileKeys()[profileKey] ~= nil
   end,
   setProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if not self:getProfileKeys()[profileKey] then return end
     local Quartz = LibStub("AceAddon-3.0"):GetAddon("Quartz3")
     ---@diagnostic disable-next-line: undefined-field
     Quartz.db:SetProfile(profileKey)
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     if not profileData then
       profileKey, profileData, rawData, moduleName = private:GenericDecode(profileString)
     end
-    if not profileData then
-      return
-    end
-    if not moduleName or moduleName ~= self.moduleName then
-      return
-    end
+    if not profileData then return end
+    if not moduleName or moduleName ~= self.moduleName then return end
     return profileKey
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     local decodedKey, profileData, rawData, moduleName = private:GenericDecode(profileString)
-    if not profileData then
-      return
-    end
-    if not moduleName or moduleName ~= self.moduleName then
-      return
-    end
+    if not profileData then return end
+    if not moduleName or moduleName ~= self.moduleName then return end
     profileKey = profileKey or decodedKey
-    if not profileKey then
-      return
-    end
+    if not profileKey then return end
     local Quartz = LibStub("AceAddon-3.0"):GetAddon("Quartz3")
     ---@diagnostic disable-next-line: undefined-field
     Quartz.db.profiles[profileKey] = profileData
     self:setProfile(profileKey)
   end,
   exportProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if type(profileKey) ~= "string" then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
     local Quartz = LibStub("AceAddon-3.0"):GetAddon("Quartz3")
     ---@diagnostic disable-next-line: undefined-field
     local profileData = Quartz.db.profiles[profileKey]
-    if not profileData then
-      return
-    end
+    if not profileData then return end
     local encoded = private:GenericEncode(profileKey, profileData, self.moduleName)
     return encoded
   end,
@@ -137,7 +108,7 @@ local m = {
         ---@diagnostic disable-next-line: undefined-field
         return Quartz.db
       end,
-      functionNames = {"SetProfile", "DeleteProfile"}
+      functionNames = { "SetProfile", "DeleteProfile" }
     }
   }
 }

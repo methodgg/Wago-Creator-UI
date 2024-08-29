@@ -1,17 +1,14 @@
 local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "NameplateSCT",
   wagoId = "rN4VDxKD",
   oldestSupported = "1.42",
-  addonNames = {"NameplateSCT"},
+  addonNames = { "NameplateSCT" },
   icon = 4548873,
   slash = "/nsct",
   needReloadOnImport = true,

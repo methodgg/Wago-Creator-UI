@@ -1,17 +1,14 @@
 local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "BugSack",
   wagoId = "rkGrrgGy",
   oldestSupported = "v11.0.0",
-  addonNames = {"BugSack", "BugGrabber"},
+  addonNames = { "BugSack", "BugGrabber" },
   icon = [[Interface\AddOns\BugSack\Media\icon]],
   slash = "/bugsack",
   needReloadOnImport = true,
@@ -53,21 +50,15 @@ local m = {
     return true
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     if profileData and profileData.BugSack then
       return profileKey
     end
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     local _, decodedData = private:GenericDecode(profileString)
-    if not decodedData then
-      return
-    end
+    if not decodedData then return end
     if not decodedData.BugSack or not decodedData.BugSackLDBIconDB then
       return
     end
@@ -75,15 +66,9 @@ local m = {
     BugSackLDBIconDB = decodedData.BugSackLDBIconDB
   end,
   exportProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if type(profileKey) ~= "string" then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
     local data = {
       BugSack = BugSackDB,
       BugSackLDBIconDB = BugSackLDBIconDB

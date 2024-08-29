@@ -1,10 +1,7 @@
 local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 
 local function decodeWeakAuraString(importString)
   local Serializer = LibStub:GetLibrary("AceSerializer-3.0Async")
@@ -97,70 +94,10 @@ end
 
 ---@format disable-next
 local bytetoB64 = {
-  [0] = "a",
-  "b",
-  "c",
-  "d",
-  "e",
-  "f",
-  "g",
-  "h",
-  "i",
-  "j",
-  "k",
-  "l",
-  "m",
-  "n",
-  "o",
-  "p",
-  "q",
-  "r",
-  "s",
-  "t",
-  "u",
-  "v",
-  "w",
-  "x",
-  "y",
-  "z",
-  "A",
-  "B",
-  "C",
-  "D",
-  "E",
-  "F",
-  "G",
-  "H",
-  "I",
-  "J",
-  "K",
-  "L",
-  "M",
-  "N",
-  "O",
-  "P",
-  "Q",
-  "R",
-  "S",
-  "T",
-  "U",
-  "V",
-  "W",
-  "X",
-  "Y",
-  "Z",
-  "0",
-  "1",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "(",
-  ")"
+  [0] = "a", "b",  "c",  "d",  "e",  "f",  "g",  "h",  "i",  "j",  "k",  "l",  "m",  "n",  "o",  "p",  "q",
+        "r", "s",  "t",  "u",  "v",  "w",  "x",  "y",  "z",  "A",  "B",  "C",  "D",  "E",  "F",  "G",  "H",
+        "I", "J",  "K",  "L",  "M",  "N",  "O",  "P",  "Q",  "R",  "S",  "T",  "U",  "V",  "W",  "X",  "Y",
+        "Z", "0", "1",  "2",  "3",  "4",  "5",  "6",  "7",  "8",  "9",  "(",  ")"
 }
 
 local function GenerateUniqueID()
@@ -209,7 +146,7 @@ function PTraverseSubGroups(data)
   return coroutine.wrap(TraverseSubGroups), data
 end
 
-local configForDeflate = {level = 5}
+local configForDeflate = { level = 5 }
 local configForLS = {
   errorOnUnserializableType = false
 }
@@ -220,7 +157,7 @@ function TableToString(inTable)
   local serialized = private:LibSerializeSerializeAsyncEx(configForLS, inTable)
   local compressed = LibDeflate:CompressDeflate(serialized, configForDeflate)
   local encoded = "!WA:2!"
-  encoded = encoded .. LibDeflate:EncodeForPrint(compressed)
+  encoded = encoded..LibDeflate:EncodeForPrint(compressed)
   return encoded
 end
 
@@ -238,7 +175,7 @@ local m = {
   moduleName = "WeakAuras",
   wagoId = "VBNBxKx5",
   oldestSupported = "5.17.0",
-  addonNames = {"WeakAuras", "WeakAurasArchive", "WeakAurasModelPaths", "WeakAurasOptions", "WeakAurasTemplates"},
+  addonNames = { "WeakAuras", "WeakAurasArchive", "WeakAurasModelPaths", "WeakAurasOptions", "WeakAurasTemplates" },
   icon = [[Interface\AddOns\WeakAuras\Media\Textures\icon]],
   slash = "/wa",
   needReloadOnImport = false,
@@ -257,9 +194,7 @@ local m = {
     return false
   end,
   openConfig = function(self)
-    if not SlashCmdList["WEAKAURAS"] then
-      return
-    end
+    if not SlashCmdList["WEAKAURAS"] then return end
     SlashCmdList["WEAKAURAS"]("")
   end,
   closeConfig = function(self)
@@ -279,9 +214,7 @@ local m = {
     WeakAuras.Import(data)
   end,
   exportProfile = function(self, profileKey)
-    if type(profileKey) ~= "table" then
-      return
-    end
+    if type(profileKey) ~= "table" then return end
     local displayIds = profileKey
     local exportStrings = {}
     for id in pairs(displayIds) do

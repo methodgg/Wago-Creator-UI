@@ -1,18 +1,15 @@
 local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Bartender4",
   wagoId = "v63oVn6b",
   oldestSupported = "4.15.0",
-  addonNames = {"Bartender4"},
-  conflictingAddons = {"Dominos", "ElvUI", "ElvUI_Libraries", "ElvUI_Options"},
+  addonNames = { "Bartender4" },
+  conflictingAddons = { "Dominos", "ElvUI", "ElvUI_Libraries", "ElvUI_Options" },
   icon = 132792,
   slash = "/bartender",
   needReloadOnImport = true,
@@ -43,43 +40,31 @@ local m = {
     return Bartender4DB.profiles
   end,
   getCurrentProfileKey = function(self)
-    local characterName = UnitName("player") .. " - " .. GetRealmName()
+    local characterName = UnitName("player").." - "..GetRealmName()
     return Bartender4DB.profileKeys and Bartender4DB.profileKeys[characterName]
   end,
   getProfileAssignments = function(self)
     return Bartender4DB.profileKeys
   end,
   isDuplicate = function(self, profileKey)
-    if not profileKey then
-      return false
-    end
+    if not profileKey then return false end
     return self:getProfileKeys()[profileKey] ~= nil
   end,
   setProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if not self:getProfileKeys()[profileKey] then return end
     Bartender4.db:SetProfile(profileKey)
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     if profileKey and profileData and profileData.Bartender4DB then
       return profileKey
     end
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     local _, pData = private:GenericDecode(profileString)
-    if not pData then
-      return
-    end
+    if not pData then return end
     local b4db = pData.Bartender4DB
     --namespaces
     for namespaceKey, namespace in pairs(b4db.namespaces) do
@@ -93,7 +78,7 @@ local m = {
     end
     --profileKey
     Bartender4DB.profileKeys = Bartender4DB.profileKeys or {}
-    Bartender4DB.profileKeys[UnitName("player") .. " - " .. GetRealmName()] = profileKey
+    Bartender4DB.profileKeys[UnitName("player").." - "..GetRealmName()] = profileKey
     --profiles
     for _, profile in pairs(b4db.profiles) do
       Bartender4DB.profiles = Bartender4DB.profiles or {}
@@ -101,17 +86,11 @@ local m = {
     end
   end,
   exportProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if type(profileKey) ~= "string" then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
-    local profiles = {[profileKey] = Bartender4DB.profiles[profileKey]}
-    local profileKeys = {["important"] = profileKey}
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
+    local profiles = { [profileKey] = Bartender4DB.profiles[profileKey] }
+    local profileKeys = { ["important"] = profileKey }
     local namespaces = {}
     for namespaceKey, namespace in pairs(Bartender4DB.namespaces) do
       if namespace.profiles then
@@ -150,7 +129,7 @@ local m = {
       tableFunc = function()
         return Bartender4.db
       end,
-      functionNames = {"SetProfile", "CopyProfile", "DeleteProfile"}
+      functionNames = { "SetProfile", "CopyProfile", "DeleteProfile" }
     }
   }
 }

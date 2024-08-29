@@ -1,10 +1,7 @@
 local loadingAddon, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 
 local function compressData(data)
   local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
@@ -15,7 +12,7 @@ local function compressData(data)
     local dataSerialized = LibAceSerializer:Serialize(dataCopied)
     coroutine.yield()
     if (dataSerialized) then
-      local dataCompressed = LibDeflate:CompressDeflate(dataSerialized, {level = 5})
+      local dataCompressed = LibDeflate:CompressDeflate(dataSerialized, { level = 5 })
       if (dataCompressed) then
         local dataEncoded = LibDeflate:EncodeForPrint(dataCompressed)
         coroutine.yield()
@@ -74,7 +71,7 @@ local m = {
   moduleName = "Details",
   wagoId = "25NRDlK3",
   oldestSupported = "#Details.12879.159",
-  addonNames = {"Details", "Details_Compare2", "Details_DataStorage"},
+  addonNames = { "Details", "Details_Compare2", "Details_DataStorage" },
   icon = [[Interface\AddOns\Details\images\minimap]],
   slash = "/details config",
   needReloadOnImport = false,
@@ -93,9 +90,7 @@ local m = {
     return false
   end,
   openConfig = function(self)
-    if not SlashCmdList["DETAILS"] then
-      return
-    end
+    if not SlashCmdList["DETAILS"] then return end
     SlashCmdList["DETAILS"]("options")
   end,
   closeConfig = function(self)
@@ -118,38 +113,24 @@ local m = {
     return self:getProfileKeys()[profileKey]
   end,
   setProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if not self:getProfileKeys()[profileKey] then return end
     Details:ApplyProfile(profileKey)
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     if rawData and rawData.profile and rawData.profile.all_in_one_windows and rawData.profile.class_specs_coords then
       return ""
     end
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     Details:ImportProfile(profileString, profileKey, nil, true, true)
   end,
   exportProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if type(profileKey) ~= "string" then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
     --functions\profiles.lua
     --need to call this so changes to the current profile are committed to the Details SavedVariables
     --TODO: logout still applies some changes to the data, not sure what this is about
@@ -209,7 +190,7 @@ local m = {
       tableFunc = function()
         return Details
       end,
-      functionNames = {"ApplyProfile", "EraseProfile"}
+      functionNames = { "ApplyProfile", "EraseProfile" }
     }
   }
 }

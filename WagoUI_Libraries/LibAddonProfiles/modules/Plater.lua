@@ -1,10 +1,7 @@
 local loadingAddon, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 
 local function deepCopyAsync(orig)
   local orig_type = type(orig)
@@ -30,7 +27,7 @@ local function doProfileImport(profileName, profile, bIsUpdate, bKeepModsNotInUp
   DF = _G["DetailsFramework"]
   local bWasUsingUIParent = Plater.db.profile.use_ui_parent
   local scriptDataBackup =
-    (bIsUpdate or bKeepModsNotInUpdate) and DF.table.copy({}, Plater.db.profile.script_data) or {}
+      (bIsUpdate or bKeepModsNotInUpdate) and DF.table.copy({}, Plater.db.profile.script_data) or {}
   local hookDataBackup = (bIsUpdate or bKeepModsNotInUpdate) and DF.table.copy({}, Plater.db.profile.hook_data) or {}
 
   --switch to profile
@@ -148,8 +145,8 @@ local m = {
   moduleName = "Plater",
   wagoId = "kRNLep6o",
   oldestSupported = "Plater-v585b-Retail",
-  addonNames = {"Plater"},
-  conflictingAddons = {"Kui_Nameplates", "Kui_Nameplates_Core", "Kui_Nameplates_Core_Config"},
+  addonNames = { "Plater" },
+  conflictingAddons = { "Kui_Nameplates", "Kui_Nameplates_Core", "Kui_Nameplates_Core_Config" },
   icon = [[Interface\AddOns\Plater\images\cast_bar]],
   slash = "/plater",
   needReloadOnImport = true,
@@ -189,9 +186,7 @@ local m = {
     return false
   end,
   openConfig = function(self)
-    if not SlashCmdList["PLATER"] then
-      return
-    end
+    if not SlashCmdList["PLATER"] then return end
     SlashCmdList["PLATER"]("")
   end,
   closeConfig = function(self)
@@ -221,40 +216,29 @@ local m = {
     return profileExists
   end,
   setProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if not self:getProfileKeys()[profileKey] then return end
     Plater.db:SetProfile(profileKey)
     if DetailsFrameworkPromptSimple then
       DetailsFrameworkPromptSimple.CloseButton:Click()
     end
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     if rawData and rawData.plate_config and rawData.profile_name then
       return rawData.profile_name
     end
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     local _, _, profile = private:GenericDecode(profileString)
-    if not profile then
-      return
-    end
+    if not profile then return end
     doProfileImport(profileKey, profile, true, false)
     coroutine.yield()
     if DetailsFrameworkPromptSimple then
       DetailsFrameworkPromptSimple:Hide()
     end
-    C_Timer.After(
-      .5,
+    C_Timer.After(.5,
       function()
         if DetailsFrameworkPromptSimple then
           DetailsFrameworkPromptSimple:Hide()
@@ -263,21 +247,12 @@ local m = {
     )
   end,
   exportProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if type(profileKey) ~= "string" then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
     local LibAceSerializer = LibStub:GetLibrary("AceSerializer-3.0Async")
     local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
     --Plater_Comms.lua
-    if not profileKey then
-      return nil
-    end
     local profile = deepCopyAsync(Plater.db.profiles[profileKey])
     coroutine.yield()
     profile.profile_name = profileKey
@@ -293,7 +268,7 @@ local m = {
     --convert the profile to string
     local dataSerialized = LibAceSerializer:Serialize(profile)
     coroutine.yield()
-    local dataCompressed = LibDeflate:CompressDeflate(dataSerialized, {level = 5})
+    local dataCompressed = LibDeflate:CompressDeflate(dataSerialized, { level = 5 })
     coroutine.yield()
     local dataEncoded = LibDeflate:EncodeForPrint(dataCompressed)
     coroutine.yield()
@@ -308,14 +283,14 @@ local m = {
     if not rawProfileDataA or not rawProfileDataB then
       return false
     end
-    return private:DeepCompareAsync(rawProfileDataA, rawProfileDataB, {login_counter = true})
+    return private:DeepCompareAsync(rawProfileDataA, rawProfileDataB, { login_counter = true })
   end,
   refreshHookList = {
     {
       tableFunc = function()
         return Plater.db
       end,
-      functionNames = {"SetProfile", "CopyProfile", "DeleteProfile"}
+      functionNames = { "SetProfile", "CopyProfile", "DeleteProfile" }
     }
   }
 }

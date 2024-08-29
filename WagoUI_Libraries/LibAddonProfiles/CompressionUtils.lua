@@ -1,11 +1,8 @@
 ---@class LAPLoadingNamespace
 local loadingAddonNamespace = select(2, ...)
 ---@class LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 
 ---@param profileKey string
 ---@param profile table
@@ -21,7 +18,7 @@ function private:GenericEncode(profileKey, profile, moduleName)
   }
   local serialized = Serializer:Serialize(data)
   coroutine.yield()
-  local compressed = LibDeflate:CompressDeflate(serialized, {level = 5})
+  local compressed = LibDeflate:CompressDeflate(serialized, { level = 5 })
   coroutine.yield()
   local encoded = LibDeflate:EncodeForPrint(compressed)
   coroutine.yield()
@@ -38,14 +35,10 @@ function private:GenericDecode(profileString)
   local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
   local decoded = LibDeflate:DecodeForPrint(profileString)
   coroutine.yield()
-  if not decoded then
-    return
-  end
+  if not decoded then return end
   local decompressed = LibDeflate:DecompressDeflate(decoded)
   coroutine.yield()
-  if not decompressed then
-    return
-  end
+  if not decompressed then return end
   local success, data = Serializer:Deserialize(decompressed)
   coroutine.yield()
   if success and data then
@@ -72,7 +65,7 @@ function private:DeepCompareAsync(tbl1, tbl2, ignoredKeys, debug)
         if value2 == nil then
           -- avoid the type call for missing keys in tbl2 by directly comparing with nil
           if debug then
-            vdt(key1 .. " is missing in tbl2")
+            vdt(key1.." is missing in tbl2")
           end
           return false
         elseif value1 ~= value2 then
@@ -80,13 +73,13 @@ function private:DeepCompareAsync(tbl1, tbl2, ignoredKeys, debug)
             coroutine.yield()
             if not private:DeepCompareAsync(value1, value2, ignoredKeys) then
               if debug then
-                vdt(key1 .. " is table and not equal in tbl2")
+                vdt(key1.." is table and not equal in tbl2")
               end
               return false
             end
           else
             if debug then
-              vdt(key1 .. " is not equal in tbl2")
+              vdt(key1.." is not equal in tbl2")
             end
             return false
           end
@@ -97,7 +90,7 @@ function private:DeepCompareAsync(tbl1, tbl2, ignoredKeys, debug)
     for key2, _ in pairs(tbl2) do
       if tbl1[key2] == nil then
         if debug then
-          vdt(key2 .. " is missing in tbl1")
+          vdt(key2.." is missing in tbl1")
         end
         return false
       end

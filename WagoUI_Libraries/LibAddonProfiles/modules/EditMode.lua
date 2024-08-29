@@ -4,11 +4,8 @@ end
 
 local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 
 local function getLayoutByName(layoutName)
   local layouts = EditModeManagerFrame:GetLayouts()
@@ -67,9 +64,7 @@ local m = {
     return false
   end,
   openConfig = function(self)
-    if not SlashCmdList["EDITMODE"] then
-      return
-    end
+    if not SlashCmdList["EDITMODE"] then return end
     SlashCmdList["EDITMODE"]()
   end,
   closeConfig = function(self)
@@ -90,9 +85,7 @@ local m = {
     return nil
   end,
   isDuplicate = function(self, profileKey)
-    if not profileKey then
-      return false
-    end
+    if not profileKey then return false end
     return getLayoutByName(profileKey) ~= nil
   end,
   setProfile = function(self, profileKey)
@@ -114,10 +107,8 @@ local m = {
     end
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if not profileString then
-      return
-    end
-    local t = {strsplit(" ", profileString)}
+    if not profileString then return end
+    local t = { strsplit(" ", profileString) }
     for i = 1, 8 do
       local v = t[i]
       if i <= 7 then
@@ -132,9 +123,7 @@ local m = {
     end
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     EditModeManagerFrame:Show()
 
     -- there is a hardcap of 5 profiles (+2 presets)
@@ -164,22 +153,14 @@ local m = {
     self:setProfile(profileKey)
   end,
   exportProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if type(profileKey) ~= "string" then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
     local layout = getLayoutByName(profileKey)
     return C_EditMode.ConvertLayoutInfoToString(layout)
   end,
   areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
-    if not profileStringA or not profileStringB then
-      return false
-    end
+    if not profileStringA or not profileStringB then return false end
     return profileStringA == profileStringB
   end,
   refreshHookList = {
@@ -187,7 +168,7 @@ local m = {
       tableFunc = function()
         return EditModeManagerFrame
       end,
-      functionNames = {"SaveLayouts", "Layout", "SelectLayout"}
+      functionNames = { "SaveLayouts", "Layout", "SelectLayout" }
     }
   }
 }

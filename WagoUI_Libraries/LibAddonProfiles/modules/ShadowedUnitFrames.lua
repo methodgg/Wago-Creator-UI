@@ -1,17 +1,14 @@
 local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "ShadowedUnitFrames",
   oldestSupported = "v4.4.11",
-  addonNames = {"ShadowedUnitFrames", "ShadowedUF_Options"},
-  conflictingAddons = {"ElvUI", "ElvUI_Libraries", "ElvUI_Options", "PitBull4"},
+  addonNames = { "ShadowedUnitFrames", "ShadowedUF_Options" },
+  conflictingAddons = { "ElvUI", "ElvUI_Libraries", "ElvUI_Options", "PitBull4" },
   icon = 136200,
   slash = "/suf",
   needReloadOnImport = false,
@@ -30,9 +27,7 @@ local m = {
     return false
   end,
   openConfig = function(self)
-    if not SlashCmdList["SHADOWEDUF"] then
-      return
-    end
+    if not SlashCmdList["SHADOWEDUF"] then return end
     SlashCmdList["SHADOWEDUF"]("")
   end,
   closeConfig = function(self)
@@ -42,7 +37,7 @@ local m = {
     return ShadowedUFDB.profiles
   end,
   getCurrentProfileKey = function(self)
-    local characterName = UnitName("player") .. " - " .. GetRealmName()
+    local characterName = UnitName("player").." - "..GetRealmName()
     return ShadowedUFDB.profileKeys and ShadowedUFDB.profileKeys[characterName]
   end,
   getProfileAssignments = function(self)
@@ -55,34 +50,21 @@ local m = {
     return ShadowUF.db.profiles[profileKey]
   end,
   setProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if not self:getProfileKeys()[profileKey] then return end
     ShadowUF.db:SetProfile(profileKey)
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if not profileString then
-      return
-    end
-    if
-      profileData and profileData.auraColors and profileData.auraIndicators and profileData.visibility and
-        profileData.wowBuild
-     then
+    if not profileString then return end
+    -- dont accept normal SUF exports as they are insecure
+    if profileData and profileData.auraColors and profileData.auraIndicators and profileData.visibility and profileData.wowBuild then
       return profileKey
     end
-    -- dont accept normal SUF exports as they are insecure
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     local _, pData = private:GenericDecode(profileString)
-    if not pData then
-      return
-    end
+    if not pData then return end
     ShadowUF.db:SetProfile(profileKey)
     ShadowUF:LoadDefaultLayout()
     for key, data in pairs(pData) do
@@ -95,15 +77,9 @@ local m = {
     ShadowUF:ProfilesChanged()
   end,
   exportProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if type(profileKey) ~= "string" then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
     return private:GenericEncode(profileKey, ShadowedUFDB.profiles[profileKey], self.moduleName)
   end,
   areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
@@ -122,7 +98,7 @@ local m = {
       tableFunc = function()
         return ShadowUF.db
       end,
-      functionNames = {"SetProfile", "CopyProfile", "DeleteProfile"}
+      functionNames = { "SetProfile", "CopyProfile", "DeleteProfile" }
     }
   }
 }

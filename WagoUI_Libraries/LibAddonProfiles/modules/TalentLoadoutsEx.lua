@@ -1,17 +1,14 @@
 local loadingAddonName, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Talent Loadouts Ex",
   wagoId = "Qb6mxnNP",
   oldestSupported = "3.4.1",
-  addonNames = {"TalentLoadoutsEx"},
+  addonNames = { "TalentLoadoutsEx" },
   icon = 134063,
   slash = "/run ToggleTalentFrame()",
   needReloadOnImport = false,
@@ -38,25 +35,17 @@ local m = {
     return false
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     if profileData and profileData.TalentLoadoutsEx then
       return profileData.TalentLoadoutsEx --return the data here as we use it in import
     end
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString or not profileKey then
-      return
-    end
-    if type(profileKey) ~= "table" then
-      return
-    end
+    if not profileString or not profileKey then return end
+    if type(profileKey) ~= "table" then return end
     local importFilter = profileKey
     local pKey, data = private:GenericDecode(profileString)
-    if not data or not pKey then
-      return
-    end
+    if not data or not pKey then return end
     --have to sanitize loadout names, user might have duplicates
     --get all user loadout names
     local allLoadoutNames = {}
@@ -75,7 +64,7 @@ local m = {
         if importFilter[class][specIdx] then
           for loadoutName, loadoutCode in pairs(loadouts) do
             if allLoadoutNames[loadoutName] then
-              loadoutName = string.sub(string.sub(pKey, 1, 1) .. adjustedLoadoutIdx .. " " .. loadoutName, 1, 12)
+              loadoutName = string.sub(string.sub(pKey, 1, 1)..adjustedLoadoutIdx.." "..loadoutName, 1, 12)
               adjustedLoadoutIdx = adjustedLoadoutIdx + 1
             end
             TalentLoadoutsEx[class] = TalentLoadoutsEx[class] or {}
@@ -94,7 +83,7 @@ local m = {
             TalentLoadoutsExGUI[class][specIdx] = TalentLoadoutsExGUI[class][specIdx] or {}
             local loadoutName = loadout.name
             if allLoadoutNames[loadoutName] then
-              loadoutName = string.sub(string.sub(pKey, 1, 1) .. adjustedLoadoutIdx .. " " .. loadoutName, 1, 12)
+              loadoutName = string.sub(string.sub(pKey, 1, 1)..adjustedLoadoutIdx.." "..loadoutName, 1, 12)
               adjustedLoadoutIdx = adjustedLoadoutIdx + 1
             end
             table.insert(
@@ -111,13 +100,9 @@ local m = {
     TLX.Frame.RequestUpdate()
   end,
   exportProfile = function(self, profileKey)
-    if type(profileKey) ~= "table" then
-      return
-    end
+    if type(profileKey) ~= "table" then return end
     local config = profileKey
-    if not config then
-      return
-    end
+    if not config then return end
     local data = {
       TalentLoadoutsEx = {},
       TalentLoadoutsExGUI = {}

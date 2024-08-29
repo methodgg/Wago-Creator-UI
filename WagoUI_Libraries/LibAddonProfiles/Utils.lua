@@ -1,11 +1,8 @@
 ---@class LAPLoadingNamespace
 local loadingAddonNamespace = select(2, ...)
 ---@class LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 
 do
   local cache = {}
@@ -65,9 +62,7 @@ end
 ---@param addonNames table<number, string>
 ---@param introImportState table<string, IntroImportState>
 function private:DisableConflictingAddons(addonNames, introImportState)
-  if not addonNames or not introImportState then
-    return
-  end
+  if not addonNames or not introImportState then return end
   local doNotDisable = {}
   for moduleName, state in pairs(introImportState) do
     ---@type LibAddonProfilesModule

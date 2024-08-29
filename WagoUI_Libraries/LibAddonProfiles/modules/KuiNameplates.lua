@@ -1,10 +1,7 @@
 local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
-local private =
-  loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
-if (not private) then
-  return
-end
+local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
+if (not private) then return end
 
 ---@param profileString string
 ---@return table | nil
@@ -32,8 +29,8 @@ local m = {
   moduleName = "Kui Nameplates",
   wagoId = "kNMd8qGz",
   oldestSupported = "2.29.18",
-  addonNames = {"Kui_Nameplates", "Kui_Nameplates_Core", "Kui_Nameplates_Core_Config"},
-  conflictingAddons = {"Plater"},
+  addonNames = { "Kui_Nameplates", "Kui_Nameplates_Core", "Kui_Nameplates_Core_Config" },
+  conflictingAddons = { "Plater" },
   icon = 132177,
   slash = "/knp",
   needReloadOnImport = true,
@@ -81,12 +78,8 @@ local m = {
     return self:getProfileKeys()[profileKey] ~= nil
   end,
   setProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if not self:getProfileKeys()[profileKey] then return end
     local config = KuiNameplatesCore.config
     config:SetProfile(profileKey)
   end,
@@ -102,24 +95,16 @@ local m = {
     end
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString then
-      return
-    end
+    if not profileString then return end
     local table = decodeProfileString(profileString)
     local config = KuiNameplatesCore.config
     config.csv.profile = profileKey
     config:PostProfile(profileKey, table)
   end,
   exportProfile = function(self, profileKey)
-    if not profileKey then
-      return
-    end
-    if type(profileKey) ~= "string" then
-      return
-    end
-    if not self:getProfileKeys()[profileKey] then
-      return
-    end
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
     local kui = LibStub("Kui-1.0")
     ---@diagnostic disable-next-line: undefined-field
     local tableToString = kui.table_to_string
@@ -127,7 +112,7 @@ local m = {
     -- dont use GetProfile, it has unwanted side effects
     local profile = config.gsv.profiles[profileKey]
     local encoded = tableToString(profile)
-    local export = profileKey .. encoded
+    local export = profileKey..encoded
     return export
   end,
   areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
@@ -146,13 +131,13 @@ local m = {
       tableFunc = function()
         return KuiNameplatesCore
       end,
-      functionNames = {"ConfigChanged"}
+      functionNames = { "ConfigChanged" }
     },
     {
       tableFunc = function()
         return KuiNameplatesCore.config
       end,
-      functionNames = {"PostProfile"}
+      functionNames = { "PostProfile" }
     }
   }
 }
