@@ -90,4 +90,3 @@ local m = {
     }
   }
 }
-private.modules[m.moduleName] = m
