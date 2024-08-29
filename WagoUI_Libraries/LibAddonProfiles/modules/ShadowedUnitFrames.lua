@@ -6,6 +6,7 @@ if (not private) then return end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "ShadowedUnitFrames",
+  wagoId = "none",
   oldestSupported = "v4.4.11",
   addonNames = { "ShadowedUnitFrames", "ShadowedUF_Options" },
   conflictingAddons = { "ElvUI", "ElvUI_Libraries", "ElvUI_Options", "PitBull4" },

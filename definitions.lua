@@ -11,7 +11,7 @@
 
 ---@class LibAddonProfilesModule : table
 ---@field moduleName string The name of the module. This should be the same as the AddOn name but can be different if the AddOn has multiple modules.
----@field wagoId string | nil X-Wago-ID for the AddOn. If the addon is not on Wago, this should be nil.
+---@field wagoId string | nil X-Wago-ID for the AddOn. If the addon is not on Wago, this should be "none". If the module is a sub-module of an AddOn, this should be nil. If this is a baseline wow feature this should be "baseline".
 ---@field oldestSupported string | nil The last version of the AddOn that was tested with this library.
 ---@field addonNames table<number, string> | nil The names of the AddOn modules. First entry is used to check if the AddOn can be enabled. Is a list to load all dependencies for modular AddOns.
 ---@field conflictingAddons table<number, string> | nil A list of AddOns that conflict with this AddOn. Used in the intro wizard to disable conflicting AddOns.

@@ -146,7 +146,7 @@ function addon:UpdateIncludedAddons(pack)
         local lapModule = LAP:GetModule(addonName)
         local wagoId = lapModule.wagoId
         if wagoId then
-          pack.includedAddons[wagoId] = true
+          pack.includedAddons[lapModule.moduleName] = wagoId
         end
       end
     end

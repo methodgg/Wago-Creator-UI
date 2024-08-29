@@ -46,6 +46,7 @@ end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Blizzard Edit Mode",
+  wagoId = "baseline",
   icon = 135724,
   slash = "/editmode",
   needReloadOnImport = true,
