@@ -18,7 +18,7 @@ local m = {
   needSpecialInterface = false,
   isLoaded = function(self)
     local loaded = C_AddOns.IsAddOnLoaded("OmniCD")
-    return loaded
+    return (loaded and OmniCDDB) and true or false
   end,
   isUpdated = function(self)
     return private:GenericVersionCheck(self)
