@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "OmniCD",
   wagoId = "none",
-  oldestSupported = "10.2.7.2802",
+  oldestSupported = "11.0.2.2803",
   addonNames = { "OmniCD" },
   icon = [[Interface\AddOns\OmniCD\Config\Libs\Media\omnicd-logo64-c]],
   slash = "/omnicd",
@@ -19,7 +19,7 @@ local m = {
   needSpecialInterface = false,
   isLoaded = function(self)
     local loaded = C_AddOns.IsAddOnLoaded("OmniCD")
-    return loaded
+    return (loaded and OmniCDDB) and true or false
   end,
   isUpdated = function(self)
     return private:GenericVersionCheck(self)

@@ -1,7 +1,7 @@
 ---@class LAPLoadingNamespace
 local loadingAddonNamespace = select(2, ...)
 local MAJOR = "LibAddonProfiles"
-local MINOR = 6
+local MINOR = 7
 
 ---@class LibAddonProfiles
 local LibAddonProfiles = LibStub:NewLibrary(MAJOR, MINOR)

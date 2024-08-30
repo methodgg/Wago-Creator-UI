@@ -66,8 +66,11 @@ local m = {
     if not profileString then return end
     local _, pData = private:GenericDecode(profileString)
     if not pData then return end
-    ShadowUF.db:SetProfile(profileKey)
-    ShadowUF:LoadDefaultLayout()
+    -- if this errors internally do not take the blame
+    xpcall(function()
+      ShadowUF.db:SetProfile(profileKey)
+      ShadowUF:LoadDefaultLayout()
+    end, geterrorhandler())
     for key, data in pairs(pData) do
       if (type(data) == "table") then
         ShadowUF.db.profile[key] = CopyTable(data)
@@ -75,7 +78,9 @@ local m = {
         ShadowUF.db.profile[key] = data
       end
     end
-    ShadowUF:ProfilesChanged()
+    xpcall(function()
+      ShadowUF:ProfilesChanged()
+    end, geterrorhandler())
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end
