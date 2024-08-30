@@ -6,6 +6,7 @@ if (not private) then return end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Quartz",
+  wagoId = "none",
   oldestSupported = "3.7.13",
   addonNames = { "Quartz" },
   icon = 136235,

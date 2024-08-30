@@ -6,7 +6,7 @@ if (not private) then return end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Example Module",
-  wagoId = "XXXXXXX",
+  wagoId = "XXXXXXX", -- Replace with your Wago.io ID, "none" for Addons not on wago, "baseline" for Blizzard Addons, nil for sub modules
   oldestSupported = "1.0.0",
   addonNames = { "ExampleModule", "ExampleModule_Options", "ExampleModule_Core" },
   icon = 9999999,
@@ -90,4 +90,3 @@ local m = {
     }
   }
 }
-private.modules[m.moduleName] = m
