@@ -1,27 +1,20 @@
 ---@class WagoUI
 local addon = select(2, ...)
 
-local frames = {
+local framesToHide = {
   "ElvUI_StaticPopup1",
   "ElvUI_StaticPopup2",
   "ElvUI_StaticPopup3",
   "ElvUI_StaticPopup4",
   "ElvUI_StaticPopup5",
-  "StaticPopup1",
-  "StaticPopup2",
-  "StaticPopup3",
-  "StaticPopup4",
-  "StaticPopup5",
+  "BugSackFrame",
+  "ScriptErrorsFrame",
   "PlaterOptionsPanelFrame",
   "DetailsWelcomeWindow",
   "DetailsNewsWindow",
   "StreamOverlayWelcomeWindow",
-  "ViragDevToolFrame",
   "ElvUIInstallFrame",
   "CellChangelogsFrame",
-  "BugSackFrame",
-  "ScriptErrorsFrame"
-  -- "DevToolFrame"
 }
 
 local detailsFrames = {
@@ -30,12 +23,10 @@ local detailsFrames = {
 }
 
 local function hideAddOnPopups()
-  for _, frameName in ipairs(frames) do
+  for _, frameName in ipairs(framesToHide) do
     local frame = _G[frameName]
     if frame then
       frame:Hide()
-      frame.Show = function()
-      end
     end
   end
   if SplashFrame and SplashFrame.BottomCloseButton then
