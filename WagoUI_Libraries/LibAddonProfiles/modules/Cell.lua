@@ -69,29 +69,31 @@ local function DoImport(imported)
     end
   end
 
-  -- click-castings
-  local clickCastings
-  if imported["clickCastings"] then
-    if Cell.isRetail then -- RETAIL -> RETAIL
-      clickCastings = imported["clickCastings"]
-    else                  -- RETAIL -> WRATH
-      clickCastings = nil
-    end
-    imported["clickCastings"] = nil
-  elseif imported["characterDB"] and imported["characterDB"]["clickCastings"] then
-    if
-        (Cell.isVanilla or Cell.isWrath or Cell.isCata) and
-        imported["characterDB"]["clickCastings"]["class"] == Cell.vars.playerClass
-    then                     -- WRATH -> WRATH, same class
-      clickCastings = imported["characterDB"]["clickCastings"]
-      if Cell.isVanilla then -- no dual spec system
-        clickCastings["useCommon"] = true
-      end
-    else -- WRATH -> RETAIL
-      clickCastings = nil
-    end
-    imported["characterDB"]["clickCastings"] = nil
-  end
+  -- DO NOT IMPORT CLICK CASTINGS
+
+  -- -- click-castings
+  -- local clickCastings
+  -- if imported["clickCastings"] then
+  --   if Cell.isRetail then -- RETAIL -> RETAIL
+  --     clickCastings = imported["clickCastings"]
+  --   else                  -- RETAIL -> WRATH
+  --     clickCastings = nil
+  --   end
+  --   imported["clickCastings"] = nil
+  -- elseif imported["characterDB"] and imported["characterDB"]["clickCastings"] then
+  --   if
+  --       (Cell.isVanilla or Cell.isWrath or Cell.isCata) and
+  --       imported["characterDB"]["clickCastings"]["class"] == Cell.vars.playerClass
+  --   then                     -- WRATH -> WRATH, same class
+  --     clickCastings = imported["characterDB"]["clickCastings"]
+  --     if Cell.isVanilla then -- no dual spec system
+  --       clickCastings["useCommon"] = true
+  --     end
+  --   else -- WRATH -> RETAIL
+  --     clickCastings = nil
+  --   end
+  --   imported["characterDB"]["clickCastings"] = nil
+  -- end
 
   -- layout auto switch
   local layoutAutoSwitch
@@ -128,14 +130,16 @@ local function DoImport(imported)
     imported["snippets"][i]["autorun"] = false
   end
 
+  --- USE OLD CLICK CASTINGS
   --! overwrite
+  local oldClickCastings = CopyTable(CellDB["clickCastings"])
   CellDB = imported
 
   if Cell.isRetail then
-    CellDB["clickCastings"] = clickCastings
+    CellDB["clickCastings"] = oldClickCastings
     CellDB["layoutAutoSwitch"] = layoutAutoSwitch
   else
-    CellCharacterDB["clickCastings"] = clickCastings
+    CellCharacterDB["clickCastings"] = oldClickCastings
     CellCharacterDB["layoutAutoSwitch"] = layoutAutoSwitch
     CellCharacterDB["revise"] = imported["revise"]
   end
