@@ -1,3 +1,4 @@
-# 1.1.8 (2024-08-29)
+# 1.1.9 (2024-08-29)
 
-- Bug fixes
+- Less aggressive addon spam suppression
+- Don't overwrite existing click casting assignments on Cell profile import

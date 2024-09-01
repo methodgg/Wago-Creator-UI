@@ -1,3 +1,3 @@
-# 1.1.8 (2024-08-29)
+# 1.1.9 (2024-08-29)
 
-- Bug fixes
+- Save a list of included Addons in the pack export
