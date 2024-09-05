@@ -42,7 +42,7 @@ local findApproriateProfileKey = function(profileKey, lap)
   local newProfileKey = profileKey
   local i = 1
   while lap:isDuplicate(newProfileKey) do
-    newProfileKey = profileKey .. "_" .. i
+    newProfileKey = profileKey.."_"..i
     i = i + 1
   end
   return newProfileKey
@@ -220,7 +220,7 @@ local function wrapStringInCurrentClassColor(name)
   local _, class = UnitClass("player")
   if class ~= "Adventurer" then
     local _, _, _, classHexString = GetClassColor(class)
-    res = "|c" .. classHexString .. res .. "|r"
+    res = "|c"..classHexString..res.."|r"
   end
   return res
 end
@@ -241,13 +241,13 @@ end
 
 ---@return table<string, ImportMetaData>>
 function addon:GetImportedProfilesTarget()
-  local currentCharacter = UnitName("player") .. " - " .. GetRealmName()
+  local currentCharacter = UnitName("player").." - "..GetRealmName()
   local packKey = addon.db.selectedWagoData
   local resolution = addon.db.selectedWagoDataResolution
   addon.db.importedProfiles[currentCharacter] = addon.db.importedProfiles[currentCharacter] or {}
   addon.db.importedProfiles[currentCharacter][packKey] = addon.db.importedProfiles[currentCharacter][packKey] or {}
   addon.db.importedProfiles[currentCharacter][packKey][resolution] =
-    addon.db.importedProfiles[currentCharacter][packKey][resolution] or {}
+      addon.db.importedProfiles[currentCharacter][packKey][resolution] or {}
   addon.db.classColoredCharacters[currentCharacter] = wrapStringInCurrentClassColor(currentCharacter)
   return addon.db.importedProfiles[currentCharacter][packKey][resolution]
 end
@@ -263,12 +263,7 @@ end
 function addon:StoreImportedProfileData(timestamp, moduleName, profileKey, entryName)
   local target = addon:GetImportedProfilesTarget()
   if not target[moduleName] then
-    target[moduleName] =
-      entryName and
-      {
-        entries = {}
-      } or
-      {}
+    target[moduleName] = entryName and { entries = {} } or {}
   end
   if entryName then
     target[moduleName].entries[entryName] = {

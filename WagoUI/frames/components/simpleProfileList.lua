@@ -20,9 +20,9 @@ function addon:SimpleProfileList(parent, frameWidth, frameHeight)
       Mixin(line, BackdropTemplateMixin)
     end
     ---@diagnostic disable-next-line: undefined-field
-    line:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+    line:SetBackdrop({ bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true })
     ---@diagnostic disable-next-line: undefined-field
-    line:SetBackdropColor(unpack({.8, .8, .8, 0.3}))
+    line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
     DF:Mixin(line, DF.HeaderFunctions)
 
     local nameLabel = DF:CreateLabel(line, "", 16, "white")
@@ -30,14 +30,7 @@ function addon:SimpleProfileList(parent, frameWidth, frameHeight)
     line:AddFrameToHeaderAlignment(nameLabel)
     line.nameLabel = nameLabel
 
-    local textEntry =
-      LWF:CreateTextEntry(
-      parent,
-      150,
-      20,
-      function()
-      end
-    )
+    local textEntry = LWF:CreateTextEntry(parent, 150, 20, function() end)
     textEntry:SetFrameLevel(150)
     ---@diagnostic disable-next-line: undefined-field
     line:AddFrameToHeaderAlignment(textEntry)
@@ -55,13 +48,13 @@ function addon:SimpleProfileList(parent, frameWidth, frameHeight)
       local line = self:GetLine(i)
       line.nameLabel:SetText("")
       line.textEntry:Hide()
-      line:SetBackdropColor(unpack({.8, .8, .8, 0.1}))
+      line:SetBackdropColor(unpack({ .8, .8, .8, 0.1 }))
       if (info) then
         local lap = LAP:GetModule(info.moduleName)
 
         local texturePath = addon:TestTexture(lap.icon) and lap.icon or QUESTION_MARK_ICON
-        local labelText = "|T" .. texturePath .. ":30|t"
-        labelText = labelText .. " " .. info.moduleName
+        local labelText = "|T"..texturePath..":30|t"
+        labelText = labelText.." "..info.moduleName
         line.nameLabel:SetText(labelText)
 
         line.textEntry:SetText(info.profileKey)
@@ -73,25 +66,15 @@ function addon:SimpleProfileList(parent, frameWidth, frameHeight)
   end
 
   local headerTable = {
-    {text = L["AddOn"], width = frameWidth / 2},
-    {text = L["Profile to be installed"], width = (frameWidth / 2) - 16}
+    { text = L["AddOn"],                   width = frameWidth / 2 },
+    { text = L["Profile to be installed"], width = (frameWidth / 2) - 16 }
   }
   local headerOptions = {
     text_size = 12
   }
   local lineHeight = 42
-  contentScrollbox =
-    DF:CreateScrollBox(
-    parent,
-    nil,
-    contentScrollboxUpdate,
-    {},
-    frameWidth - 30,
-    frameHeight,
-    0,
-    lineHeight,
-    createScrollLine,
-    true
+  contentScrollbox = DF:CreateScrollBox(parent, nil, contentScrollboxUpdate, {}, frameWidth - 30, frameHeight, 0,
+    lineHeight, createScrollLine, true
   )
   ---@diagnostic disable-next-line: inject-field
   header = DF:CreateHeader(parent, headerTable, headerOptions, nil)
@@ -106,5 +89,5 @@ function addon:SimpleProfileList(parent, frameWidth, frameHeight)
     contentScrollbox:Refresh()
   end
 
-  return {header = header, contentScrollbox = contentScrollbox, updateData = updateData}
+  return { header = header, contentScrollbox = contentScrollbox, updateData = updateData }
 end

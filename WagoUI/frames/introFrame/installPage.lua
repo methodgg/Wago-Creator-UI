@@ -115,14 +115,14 @@ local updatePage = function(updatedData)
     local lap = LAP:GetModule(moduleName)
     if data.checked and lap:isLoaded() and lap:isUpdated() and isDataPresent then
       numChecked = numChecked + 1
-      tinsert(checkedEntries, {moduleName = moduleName, profileKey = data.profileKey})
+      tinsert(checkedEntries, { moduleName = moduleName, profileKey = data.profileKey })
     end
     if
-      data.checked and not lap:isLoaded() and LAP:CanEnableAnyAddOn(lap.addonNames) and isDataPresent and
+        data.checked and not lap:isLoaded() and LAP:CanEnableAnyAddOn(lap.addonNames) and isDataPresent and
         lap:isUpdated()
-     then
+    then
       numNeedEnable = numNeedEnable + 1
-      tinsert(needEnableEntries, {moduleName = moduleName, profileKey = L["AddOn disabled"]})
+      tinsert(needEnableEntries, { moduleName = moduleName, profileKey = L["AddOn disabled"] })
     end
   end
   setupInstallButton(numChecked > 0, numNeedEnable > 0, introState)

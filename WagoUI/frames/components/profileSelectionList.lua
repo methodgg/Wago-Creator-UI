@@ -26,9 +26,9 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, check
       Mixin(line, BackdropTemplateMixin)
     end
     ---@diagnostic disable-next-line: undefined-field
-    line:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+    line:SetBackdrop({ bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true })
     ---@diagnostic disable-next-line: undefined-field
-    line:SetBackdropColor(unpack({.8, .8, .8, 0.3}))
+    line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
     DF:Mixin(line, DF.HeaderFunctions)
 
     local checkBox = LWF:CreateCheckbox(line, 40, nil, true)
@@ -41,14 +41,7 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, check
     line:AddFrameToHeaderAlignment(nameLabel)
     line.nameLabel = nameLabel
 
-    local textEntry =
-      LWF:CreateTextEntry(
-      parent,
-      150,
-      20,
-      function()
-      end
-    )
+    local textEntry = LWF:CreateTextEntry(parent, 150, 20, function() end)
     textEntry:SetFrameLevel(150)
     ---@diagnostic disable-next-line: undefined-field
     line:AddFrameToHeaderAlignment(textEntry)
@@ -58,20 +51,8 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, check
     notInstalledLabel:SetPoint("RIGHT", textEntry, "LEFT", -10, 0)
     line.notInstalledLabel = notInstalledLabel
 
-    local importOverrideWarning =
-      DF:CreateButton(
-      line,
-      nil,
-      30,
-      30,
-      "",
-      nil,
-      nil,
-      "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew",
-      nil,
-      nil,
-      nil,
-      nil
+    local importOverrideWarning = DF:CreateButton(line, nil, 30, 30, "", nil, nil,
+      "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew", nil, nil, nil, nil
     )
     importOverrideWarning:SetPoint("LEFT", textEntry, "RIGHT", 4, 0)
     line.importOverrideWarning = importOverrideWarning
@@ -91,7 +72,7 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, check
       line.notInstalledLabel:SetText("")
       line.textEntry:Hide()
       line.importOverrideWarning:Hide()
-      line:SetBackdropColor(unpack({.8, .8, .8, 0.1}))
+      line:SetBackdropColor(unpack({ .8, .8, .8, 0.1 }))
       if (info) then
         ---@type LibAddonProfilesModule
         local lap = info.lap
@@ -101,7 +82,7 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, check
         info.loaded = loaded
         local updateEnabledState = function()
           if updated and (loaded or canEnable) and info.enabled then
-            line:SetBackdropColor(unpack({.8, .8, .8, 0.3}))
+            line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
             line.nameLabel:SetTextColor(1, 1, 1, 1)
             if lap.willOverrideProfile then
               line.importOverrideWarning:Show()
@@ -116,7 +97,7 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, check
             line.textEntry.editbox:SetTextColor(1, 1, 1, 1)
           else
             line.textEntry.editbox:SetTextColor(0.4, 0.4, 0.4, 1)
-            line:SetBackdropColor(unpack({.8, .8, .8, 0.1}))
+            line:SetBackdropColor(unpack({ .8, .8, .8, 0.1 }))
             line.nameLabel:SetTextColor(0.5, 0.5, 0.5, 1)
             line.importOverrideWarning:Hide()
             line.textEntry:Disable()
@@ -155,9 +136,9 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, check
 
         -- need to test if the texture exists
         local texturePath = addon:TestTexture(lap.icon) and lap.icon or QUESTION_MARK_ICON
-        local labelText = (loaded or canEnable) and "|T" .. texturePath .. ":30|t" or ""
+        local labelText = (loaded or canEnable) and "|T"..texturePath..":30|t" or ""
         labelText =
-          labelText .. " " .. (info.entryName and info.moduleName .. ": " .. info.entryName or info.moduleName)
+            labelText.." "..(info.entryName and info.moduleName..": "..info.entryName or info.moduleName)
         line.nameLabel:SetText(labelText)
 
         line.textEntry:SetText(info.profileKey)
@@ -181,27 +162,16 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, check
   end
 
   local headerTable = {
-    {text = L["Install?"], width = widths.install, offset = 1},
-    {text = L["AddOn"], width = widths.addon},
-    {text = L["Profile to be installed"], width = frameWidth - totalHeaderWidth + widths.profile - 35}
+    { text = L["Install?"],                width = widths.install,                                     offset = 1 },
+    { text = L["AddOn"],                   width = widths.addon },
+    { text = L["Profile to be installed"], width = frameWidth - totalHeaderWidth + widths.profile - 35 }
   }
   local headerOptions = {
     text_size = 12
   }
   local lineHeight = 42
-  contentScrollbox =
-    DF:CreateScrollBox(
-    parent,
-    nil,
-    contentScrollboxUpdate,
-    {},
-    frameWidth - 30,
-    frameHeight,
-    0,
-    lineHeight,
-    createScrollLine,
-    true
-  )
+  contentScrollbox = DF:CreateScrollBox(parent, nil, contentScrollboxUpdate, {}, frameWidth - 30, frameHeight, 0,
+    lineHeight, createScrollLine, true)
   ---@diagnostic disable-next-line: inject-field
   header = DF:CreateHeader(parent, headerTable, headerOptions, nil)
   contentScrollbox:SetPoint("TOPLEFT", header, "BOTTOMLEFT")
@@ -215,5 +185,5 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, check
     contentScrollbox:Refresh()
   end
 
-  return {header = header, contentScrollbox = contentScrollbox, updateData = updateData}
+  return { header = header, contentScrollbox = contentScrollbox, updateData = updateData }
 end
