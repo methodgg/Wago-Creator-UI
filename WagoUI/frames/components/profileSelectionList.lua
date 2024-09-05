@@ -110,7 +110,8 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, check
           line.checkBox:SetSwitchFunction(
             function()
               info.enabled = not info.enabled
-              addon.db.introImportState[lap.moduleName].checked = info.enabled
+              local res = addon.db.selectedWagoDataResolution
+              addon.db.introImportState[res][lap.moduleName].checked = info.enabled
               updateEnabledState()
               checkedCallback()
               contentScrollbox:Refresh()
@@ -142,7 +143,8 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, check
         line.nameLabel:SetText(labelText)
 
         line.textEntry:SetText(info.profileKey)
-        addon.db.introImportState[lap.moduleName].checked = info.enabled
+        local res = addon.db.selectedWagoDataResolution
+        addon.db.introImportState[res][lap.moduleName].checked = info.enabled
         if updated and (loaded or canEnable) then
           line.textEntry:Show()
           line.textEntry:Disable()

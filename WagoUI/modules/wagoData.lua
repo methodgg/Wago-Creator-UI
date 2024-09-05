@@ -67,10 +67,11 @@ function addon:SetupWagoData()
   addon.wagoData = {}
   local newIntroImportState = {}
   for resolution, modules in pairs(source.profileKeys) do
+    newIntroImportState[resolution] = {}
     addon.wagoData[resolution] = {}
     for moduleName, moduleData in pairs(modules) do
       if type(moduleData) == "string" then
-        newIntroImportState[moduleName] = {}
+        newIntroImportState[resolution][moduleName] = {}
         local profileData = source.profiles[resolution][moduleName]
         local lap = LAP:GetModule(moduleName)
         if profileData and lap then
@@ -84,7 +85,9 @@ function addon:SetupWagoData()
             )
           end
 
-          local previousState = addon.db.introImportState and addon.db.introImportState[moduleName]
+          local previousState = addon.db.introImportState
+              and addon.db.introImportState[resolution]
+              and addon.db.introImportState[resolution][moduleName]
           local newChecked
           if not previousState then
             newChecked = true
@@ -92,7 +95,7 @@ function addon:SetupWagoData()
             newChecked = previousState.checked
           end
           local profileKey = findApproriateProfileKey(moduleData, lap)
-          newIntroImportState[moduleName] = {
+          newIntroImportState[resolution][moduleName] = {
             checked = newChecked,
             profileMetadata = source.profileMetadata[resolution][moduleName],
             profileKey = profileKey,
@@ -107,7 +110,7 @@ function addon:SetupWagoData()
               profileKey = profileKey,
               profileMetadata = source.profileMetadata[resolution][moduleName],
               profile = profileData,
-              enabled = newIntroImportState[moduleName].checked
+              enabled = newIntroImportState[resolution][moduleName].checked
             }
           )
         end

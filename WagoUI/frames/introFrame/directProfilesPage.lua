@@ -31,18 +31,16 @@ local function createPage()
   header:SetPoint("TOPLEFT", page, "TOPLEFT", 0, -15)
 
   local checkboxDefaultValue = true
-  for _, data in pairs(addon.db.introImportState) do
+  local res = addon.db.selectedWagoDataResolution
+  for _, data in pairs(addon.db.introImportState[res]) do
     if not data.checked then
       checkboxDefaultValue = false
       break
     end
   end
-  local allCheckbox =
-    LWF:CreateCheckbox(
-    page,
-    40,
+  local allCheckbox = LWF:CreateCheckbox(page, 40,
     function(self, _, value)
-      for _, data in pairs(addon.db.introImportState) do
+      for _, data in pairs(addon.db.introImportState[res]) do
         data.checked = value
       end
       addon:SetupWagoData()
@@ -56,7 +54,7 @@ local function createPage()
 
   local updateCheckbox = function()
     local val = true
-    for _, data in pairs(addon.db.introImportState) do
+    for _, data in pairs(addon.db.introImportState[res]) do
       if not data.checked then
         val = false
         break
