@@ -1,3 +1,3 @@
-# 1.1.10 (2024-09-05)
+# 1.1.11 (2024-09-06)
 
-- Bug fixes on install
+- More Bug fixes on install
