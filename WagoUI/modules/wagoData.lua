@@ -66,8 +66,10 @@ function addon:SetupWagoData()
   local source = WagoUI_Storage[db.selectedWagoData]
   addon.wagoData = {}
   local newIntroImportState = {}
+  for _, entry in pairs(addon.resolutions.entries) do
+    newIntroImportState[entry.value] = {}
+  end
   for resolution, modules in pairs(source.profileKeys) do
-    newIntroImportState[resolution] = {}
     addon.wagoData[resolution] = {}
     for moduleName, moduleData in pairs(modules) do
       if type(moduleData) == "string" then

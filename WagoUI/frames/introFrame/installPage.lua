@@ -12,7 +12,6 @@ local page, installButton, header, simpleList, hasSkipped
 ---@param needEnableAddons boolean If we need to enable some addons before we can install
 ---@param introImportState table<string, IntroImportState>
 local setupInstallButton = function(enabled, needEnableAddons, introImportState)
-  local res = addon.db.selectedWagoDataResolution
   header:SetText("")
   if not enabled then
     installButton:SetEnabled(false)
@@ -25,7 +24,7 @@ local setupInstallButton = function(enabled, needEnableAddons, introImportState)
     installButton:SetEnabled(true)
     installButton:SetClickFunction(
       function()
-        for moduleName, data in pairs(introImportState[res]) do
+        for moduleName, data in pairs(introImportState) do
           local lap = LAP:GetModule(moduleName)
           if data.checked and not lap:isLoaded() and LAP:CanEnableAnyAddOn(lap.addonNames) then
             LAP:EnableAddOns(lap.addonNames)
@@ -49,7 +48,7 @@ local setupInstallButton = function(enabled, needEnableAddons, introImportState)
       installButton:SetEnabled(false)
       addon.state.isImporting = true
       local countOperations = 0
-      for moduleName, data in pairs(introImportState[res]) do
+      for moduleName, data in pairs(introImportState) do
         local lap = LAP:GetModule(moduleName)
         if data.checked and lap:isLoaded() and lap:isUpdated() then
           countOperations = countOperations + 1
@@ -59,12 +58,12 @@ local setupInstallButton = function(enabled, needEnableAddons, introImportState)
       addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 0, L["Importing profiles..."])
       addon:Async(
         function()
-          for moduleName, data in pairs(introImportState[res]) do
+          for moduleName, data in pairs(introImportState) do
             local lap = LAP:GetModule(moduleName)
             if data.checked and lap:isLoaded() and lap:isUpdated() then
               lap:importProfile(data.profile, data.profileKey, true)
               if lap.conflictingAddons then
-                LAP:DisableConflictingAddons(lap.conflictingAddons, introImportState[res])
+                LAP:DisableConflictingAddons(lap.conflictingAddons, introImportState)
               end
               addon:AddonPrint(string.format(L["Imported %s: %s"], data.profileKey, moduleName))
               addon:StoreImportedProfileData(data.profileMetadata.lastUpdatedAt, moduleName, data.profileKey)
@@ -100,7 +99,7 @@ local updatePage = function(updatedData)
   end
   local numChecked = 0
   local numNeedEnable = 0
-  local res = addon.db.selectedWagoDataResolution
+  local res = addon.db.selectedWagoDataResolution or addon.resolutions.defaultValue
   ---@type table<string, IntroImportState>
   local introState = addon.db.introImportState[res]
   local checkedEntries = {}

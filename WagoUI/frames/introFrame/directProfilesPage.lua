@@ -31,7 +31,7 @@ local function createPage()
   header:SetPoint("TOPLEFT", page, "TOPLEFT", 0, -15)
 
   local checkboxDefaultValue = true
-  local res = addon.db.selectedWagoDataResolution
+  local res = addon.db.selectedWagoDataResolution or addon.resolutions.defaultValue
   for _, data in pairs(addon.db.introImportState[res]) do
     if not data.checked then
       checkboxDefaultValue = false
