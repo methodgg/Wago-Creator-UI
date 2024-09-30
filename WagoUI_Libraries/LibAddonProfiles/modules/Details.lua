@@ -126,6 +126,10 @@ local m = {
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
     Details:ImportProfile(profileString, profileKey, nil, true, true)
+    local decompressedData = Details:DecompressData(profileString, "print")
+    for i, v in Details:ListInstances() do
+      DetailsFramework.table.copy(v.hide_on_context, decompressedData.instances[i].hide_on_context)
+    end
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end
