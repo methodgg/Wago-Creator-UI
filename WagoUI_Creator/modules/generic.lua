@@ -7,6 +7,8 @@ local defaultSortOrder = {
   "ElvUI",
   "ElvUI Private Profile",
   "ElvUI Account Settings",
+  "ElvUI Style Filters",
+  "ElvUI Aura Filters",
   "Details",
   "Plater",
   "Kui Nameplates",
@@ -35,12 +37,12 @@ for _, lapModule in pairs(LAP:GetAllModules()) do
     local moduleConfig = addon.ModuleFunctions.specialModules[lapModule.moduleName]
     if moduleConfig then --tlex is not currently active
       moduleConfig.sortIndex =
-        addon:TableGetIndex(
-        defaultSortOrder,
-        function(value)
-          return value == lapModule.moduleName
-        end
-      ) or 100
+          addon:TableGetIndex(
+            defaultSortOrder,
+            function(value)
+              return value == lapModule.moduleName
+            end
+          ) or 100
       addon.ModuleFunctions:InsertModuleConfig(moduleConfig)
     end
   else
