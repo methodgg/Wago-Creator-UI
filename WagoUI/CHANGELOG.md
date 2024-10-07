@@ -1,3 +1,3 @@
-# 1.1.12 (2024-10-07)
+# 1.1.13 (2024-10-07)
 
-- ElvUI Style Filters / Aura Filters
+- Skip version check if user is using internal guild version of BigWigs
