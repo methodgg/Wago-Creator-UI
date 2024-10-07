@@ -116,7 +116,8 @@
         "WarpDeplete",
         "Quartz3DB",
         "ExampleAddon",
-        "CellAnchorFrame"
+        "CellAnchorFrame",
+        "BigWigsLoader"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }
