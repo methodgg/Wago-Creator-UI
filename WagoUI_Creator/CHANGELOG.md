@@ -1,4 +1,3 @@
-# 1.1.9 (2024-08-29)
+# 1.1.12 (2024-10-07)
 
-- Less aggressive addon spam suppression
-- Don't overwrite existing click casting assignments on Cell profile import
+- ElvUI Style Filters / Aura Filters

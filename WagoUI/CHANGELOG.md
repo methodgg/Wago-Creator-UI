@@ -1,3 +1,3 @@
-# 1.1.11 (2024-09-06)
+# 1.1.12 (2024-10-07)
 
-- More Bug fixes on install
+- ElvUI Style Filters / Aura Filters
