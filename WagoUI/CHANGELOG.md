@@ -1,3 +1,3 @@
-# 1.1.13 (2024-10-07)
+# 1.1.14 (2024-10-14)
 
-- Skip version check if user is using internal guild version of BigWigs
+- Nil issue fix
