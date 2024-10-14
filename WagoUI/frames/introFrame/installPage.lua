@@ -104,6 +104,7 @@ local updatePage = function(updatedData)
   local introState = addon.db.introImportState[res]
   local checkedEntries = {}
   local needEnableEntries = {}
+  if not introState then return end
   for moduleName, data in pairs(introState) do
     local isDataPresent
     if updatedData then

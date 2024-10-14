@@ -32,10 +32,12 @@ local function createPage()
 
   local checkboxDefaultValue = true
   local res = addon.db.selectedWagoDataResolution or addon.resolutions.defaultValue
-  for _, data in pairs(addon.db.introImportState[res]) do
-    if not data.checked then
-      checkboxDefaultValue = false
-      break
+  if addon.db.introImportState[res] then
+    for _, data in pairs(addon.db.introImportState[res]) do
+      if not data.checked then
+        checkboxDefaultValue = false
+        break
+      end
     end
   end
   local allCheckbox = LWF:CreateCheckbox(page, 40,
