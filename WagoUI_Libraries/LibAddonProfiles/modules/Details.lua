@@ -126,6 +126,14 @@ local m = {
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
     Details:ImportProfile(profileString, profileKey, nil, true, true)
+    profileString = DetailsFramework:Trim(profileString)
+    local automationData = Details:DecompressData(profileString, "print")
+    if automationData then
+      --import automation
+      for i, v in Details:ListInstances() do
+        DetailsFramework.table.copy(v.hide_on_context, automationData.profile.instances[i].hide_on_context)
+      end
+    end
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end
