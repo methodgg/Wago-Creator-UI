@@ -1,8 +1,8 @@
-## Interface: 110002, 40400
+## Interface: 110005, 40400
 ## Title: |cFFC1272DWago|rUI Creator
 ## IconTexture: Interface\AddOns\WagoUI_Creator\media\logoSmall.png
 ## Author: The Wago Team
-## Version: 1.1.13
+## Version: 1.2.0
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
 ## SavedVariables: WagoUICreatorDB
