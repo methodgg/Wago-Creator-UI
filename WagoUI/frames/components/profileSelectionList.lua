@@ -124,7 +124,7 @@ function addon:CreateProfileSelectionList(parent, frameWidth, frameHeight, check
         line.notInstalledLabel:SetTextColor(0.5, 0.5, 0.5, 1)
         if loaded and updated then
           line.notInstalledLabel:SetText("")
-        elseif loaded and not updated then
+        elseif (canEnable or loaded) and not updated then
           line.notInstalledLabel:SetText(L["Addon out of date - update required"])
         elseif canEnable and info.enabled then
           line.notInstalledLabel:SetText(L["AddOn will be enabled"])

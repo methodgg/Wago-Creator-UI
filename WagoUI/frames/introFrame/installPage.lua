@@ -123,6 +123,7 @@ local updatePage = function(updatedData)
         data.checked and not lap:isLoaded() and LAP:CanEnableAnyAddOn(lap.addonNames) and isDataPresent and
         lap:isUpdated()
     then
+      numChecked = numChecked + 1
       numNeedEnable = numNeedEnable + 1
       tinsert(needEnableEntries, { moduleName = moduleName, profileKey = L["AddOn disabled"] })
     end

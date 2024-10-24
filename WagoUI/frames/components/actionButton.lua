@@ -40,7 +40,7 @@ function addon:CreateActionButton(parent, width, height, fontSize)
         askReimport = true
       end
       actionButton:Enable()
-    elseif loaded and not updated then
+    elseif (canEnable or loaded) and not updated then
       actionButton:SetText(L["Addon out of date"])
       actionButton:Disable()
     elseif canEnable then
