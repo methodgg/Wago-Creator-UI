@@ -71,6 +71,7 @@ local m = {
       if namespace.profiles then
         for _, profile in pairs(namespace.profiles) do
           Bartender4DB.namespaces = Bartender4DB.namespaces or {}
+          Bartender4DB.namespaces[namespaceKey] = Bartender4DB.namespaces[namespaceKey] or {}
           Bartender4DB.namespaces[namespaceKey].profiles = Bartender4DB.namespaces[namespaceKey].profiles or {}
           Bartender4DB.namespaces[namespaceKey].profiles[profileKey] = profile
         end
