@@ -1,3 +1,3 @@
 # 1.2.0 (2024-10-23)
 
-- Patch 10.0.5 Update
+- Bartender4 Import Nil fix
