@@ -19,13 +19,24 @@ local getChosenResolution = function()
   return addon:GetCurrentPackStashed().resolutions.chosen
 end
 
-local setWeakAuraExportState = function(resolution, id, value)
-  addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id] = value
+---@param resolution string
+---@param id string
+---@param value boolean
+---@param blocked boolean | nil
+local setWeakAuraExportState = function(resolution, id, value, blocked)
+  if blocked then
+    value = false
+  end
+  addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id] = {
+    export = value,
+    blocked = blocked
+  }
 end
 
+-- This needs work
 function addon:GetWeakAuraExportState(resolution, id)
   addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] =
-    addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] or {}
+      addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] or {}
   return addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id]
 end
 
@@ -34,15 +45,25 @@ local scrollBoxData = {
   [2] = {}
 }
 
-local function addToData(i, info)
+---@param i number
+---@param info table
+---@param block boolean | nil
+local function addToData(i, info, block)
   -- only insert if not already in list
   for _, existingInfo in ipairs(scrollBoxData[i]) do
     if existingInfo.id == info.id then
       return
     end
   end
-  tinsert(scrollBoxData[i], info)
-  setWeakAuraExportState(getChosenResolution(), info.id, true)
+
+  setWeakAuraExportState(getChosenResolution(), info.id, true, block)
+
+  local data = {
+    info = info,
+    blocked = block
+  }
+
+  tinsert(scrollBoxData[i], data)
   m.scrollBoxes[i].onSearchBoxTextChanged()
   addon.frames.mainFrame.frameContent.contentScrollbox:Refresh()
 end
@@ -182,9 +203,9 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
         local line = self:GetLine(i)
         line.nameLabel:SetText(info.id)
         if info.iconSource == -1 then
-        -- TODO
-        -- we dont have an icon, would need to recreate the logic of WeakAuras to get it via spellCache
-        -- maybe we are not doing this one...
+          -- TODO
+          -- we dont have an icon, would need to recreate the logic of WeakAuras to get it via spellCache
+          -- maybe we are not doing this one...
         end
         local iconSource = info.groupIcon or info.displayIcon or 134400
         iconSource = tonumber(iconSource) or 134400
@@ -209,8 +230,8 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
     if not line.SetBackdrop then
       Mixin(line, BackdropTemplateMixin)
     end
-    line:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
-    line:SetBackdropColor(unpack({.8, .8, .8, 0.3}))
+    line:SetBackdrop({ bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true })
+    line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
 
     local icon = DF:CreateButton(line, nil, lineHeight, lineHeight, "", nil, nil, 134400, nil, nil, nil, nil)
     icon:SetPoint("left", line, "left", 0, 0)
@@ -236,13 +257,13 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
     line:SetScript(
       "OnEnter",
       function(self)
-        line:SetBackdropColor(unpack({.8, .8, .8, 0.5}))
+        line:SetBackdropColor(unpack({ .8, .8, .8, 0.5 }))
       end
     )
     line:SetScript(
       "OnLeave",
       function(self)
-        line:SetBackdropColor(unpack({.8, .8, .8, 0.3}))
+        line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
       end
     )
     ---@diagnostic disable-next-line: inject-field
@@ -354,18 +375,18 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
   end
 
   local groupsScrollBox =
-    DF:CreateScrollBox(
-    frame,
-    nil,
-    scrollBoxUpdate,
-    {},
-    scrollBoxWidth,
-    scrollBoxHeight,
-    0,
-    lineHeight,
-    createScrollLine,
-    true
-  )
+      DF:CreateScrollBox(
+        frame,
+        nil,
+        scrollBoxUpdate,
+        {},
+        scrollBoxWidth,
+        scrollBoxHeight,
+        0,
+        lineHeight,
+        createScrollLine,
+        true
+      )
   DF:ReskinSlider(groupsScrollBox)
   groupsScrollBox.ScrollBar.ScrollUpButton.Highlight:ClearAllPoints(false)
   groupsScrollBox.ScrollBar.ScrollDownButton.Highlight:ClearAllPoints(false)
@@ -398,9 +419,9 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
       widget.previousNumData = #filtered
     end
     -- it still breaks in some cases, but this is the best I can do for now
-    groupsScrollBox:SetData(filtered) --fix scroll height reflecting the data
+    groupsScrollBox:SetData(filtered)   --fix scroll height reflecting the data
     groupsScrollBox:OnVerticalScroll(0) --scroll to the top
-    groupsScrollBox:Refresh() --update the data displayed
+    groupsScrollBox:Refresh()           --update the data displayed
     if widget then
       widget.widget:SetFocus()
     end --regain focus
@@ -408,14 +429,14 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
   groupsScrollBox.onSearchBoxTextChanged = onSearchBoxTextChanged
 
   local searchBox =
-    LWF:CreateTextEntry(
-    groupsScrollBox,
-    scrollBoxWidth,
-    30,
-    function()
-    end,
-    16
-  )
+      LWF:CreateTextEntry(
+        groupsScrollBox,
+        scrollBoxWidth,
+        30,
+        function()
+        end,
+        16
+      )
   searchBox:SetPoint("BOTTOMLEFT", groupsScrollBox, "TOPLEFT", 0, 2)
   groupsScrollBox.searchBox = searchBox
 
@@ -486,6 +507,13 @@ local function createManageFrame(w, h)
           addToData(2, info)
         end,
         tooltip = L["Add to export list"]
+      },
+      [2] = {
+        icon = 255352,
+        onClick = function(info)
+          addToData(2, info, true)
+        end,
+        tooltip = "Block this WeakAura from being exported"
       }
     },
     [2] = {
@@ -516,15 +544,15 @@ local function createManageFrame(w, h)
   end
 
   local purgeWagoCheckbox =
-    LWF:CreateCheckbox(
-    m,
-    25,
-    function(_, _, value)
-      WagoUICreatorDB.exportOptions[moduleName].purgeWago = value
-      lapModule:setExportOptions(WagoUICreatorDB.exportOptions[moduleName])
-    end,
-    WagoUICreatorDB.exportOptions[moduleName]
-  )
+      LWF:CreateCheckbox(
+        m,
+        25,
+        function(_, _, value)
+          WagoUICreatorDB.exportOptions[moduleName].purgeWago = value
+          lapModule:setExportOptions(WagoUICreatorDB.exportOptions[moduleName])
+        end,
+        WagoUICreatorDB.exportOptions[moduleName]
+      )
   purgeWagoCheckbox:SetPoint("BOTTOMLEFT", m, "BOTTOMLEFT", 60, 27)
   local purgeWagoLabel = DF:CreateLabel(m, L["Purge Wago IDs for exports"], 12, "white")
   purgeWagoLabel:SetPoint("LEFT", purgeWagoCheckbox, "RIGHT", 10, 0)
@@ -541,7 +569,7 @@ local function createManageFrame(w, h)
   okayButton:SetPoint("BOTTOMRIGHT", m, "BOTTOMRIGHT", -60, 20)
 
   local weakauraWarning =
-    DF:CreateButton(m, nil, 50, 50, "", nil, nil, "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
+      DF:CreateButton(m, nil, 50, 50, "", nil, nil, "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
   weakauraWarning:SetPoint("BOTTOM", m, "BOTTOM", 0, 20)
   weakauraWarning:SetTooltip(L["WEAKAURA_WARNING_TOOLTIP"])
 
@@ -577,7 +605,9 @@ local function showManageFrame(anchor)
   for id, display in pairs(WeakAurasSaved.displays) do
     table.insert(scrollBoxData[1], display)
     --populate second list
-    if addon:GetWeakAuraExportState(getChosenResolution(), id) then
+    local exportState = addon:GetWeakAuraExportState(getChosenResolution(), id)
+    -- TODO: failing here, needs work
+    if exportState.export then
       table.insert(scrollBoxData[2], display)
     end
   end
