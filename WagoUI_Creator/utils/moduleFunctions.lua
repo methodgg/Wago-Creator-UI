@@ -36,7 +36,7 @@ function ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKe
       {
         data = {
           value = profileKey,
-          label = isCurrentProfile and "|cff009ECC" .. profileKey .. "|r (active)" or profileKey,
+          label = isCurrentProfile and "|cff009ECC"..profileKey.."|r (active)" or profileKey,
           onclick = function()
             currentUIPack.profileKeys[currentUIPack.resolutions.chosen][moduleName] = profileKey
             addon.UpdatePackSelectedUI()
@@ -89,7 +89,7 @@ local function exportFunc(moduleName, resolution, timestamp)
   stashed.profileMetadata[resolution][moduleName] = stashed.profileMetadata[resolution][moduleName] or {}
   if moduleName == "WeakAuras" or moduleName == "Echo Raid Tools" then
     stashed.profileMetadata[resolution][moduleName].lastUpdatedAt =
-      stashed.profileMetadata[resolution][moduleName].lastUpdatedAt or {}
+        stashed.profileMetadata[resolution][moduleName].lastUpdatedAt or {}
     if changedEntries then
       for key in pairs(changedEntries) do
         stashed.profileMetadata[resolution][moduleName].lastUpdatedAt[key] = timestamp
@@ -131,11 +131,11 @@ function ModuleFunctions:InsertModuleConfig(m)
   ---@type LibAddonProfilesModule
   local lapModule = m.lapModule
   local manageFunc = m.manageFunc and function(...)
-      m.manageFunc(...)
-    end or nil
+    m.manageFunc(...)
+  end or nil
   local onSuccessfulTestOverride = m.onSuccessfulTestOverride and function(...)
-      m.onSuccessfulTestOverride(...)
-    end or nil
+    m.onSuccessfulTestOverride(...)
+  end or nil
   tinsert(
     addon.moduleConfigs,
     {
