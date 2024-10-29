@@ -80,7 +80,20 @@ local function exportFunc(moduleName, resolution, timestamp)
     tableB = newExport
   end
   local areEqual, changedEntries, removedEntries =
-    lapModule:areProfileStringsEqual(oldExport, newExport, tableA, tableB)
+      lapModule:areProfileStringsEqual(oldExport, newExport, tableA, tableB)
+
+  --check for old keys for which the data is now nonexistent here
+  if moduleName == "WeakAuras" or moduleName == "Echo Raid Tools" then
+    for key in pairs(stashed.profileKeys[resolution][moduleName]) do
+      if not newExport[key] then
+        removedEntries = removedEntries or {}
+        removedEntries[key] = true
+        areEqual = false
+        stashed.profileKeys[resolution][moduleName][key] = nil
+      end
+    end
+  end
+
   if areEqual then
     return false
   end
