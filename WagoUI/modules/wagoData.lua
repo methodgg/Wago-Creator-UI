@@ -32,7 +32,7 @@ end
 ---@param profileKey string
 ---@param lap LibAddonProfilesModule
 ---@return string newProfileKey
-local findApproriateProfileKey = function(profileKey, lap)
+local findAppropriateProfileKey = function(profileKey, lap)
   if profileKey == "Global" then
     return profileKey
   end
@@ -96,7 +96,7 @@ function addon:SetupWagoData()
           else
             newChecked = previousState.checked
           end
-          local profileKey = findApproriateProfileKey(moduleData, lap)
+          local profileKey = findAppropriateProfileKey(moduleData, lap)
           newIntroImportState[resolution][moduleName] = {
             checked = newChecked,
             profileMetadata = source.profileMetadata[resolution][moduleName],
@@ -260,7 +260,7 @@ end
 -- Important:
 -- We are storing the timestamp of when the profile has been updated by the creator
 -- This is to check if the profile has been updated since the user last imported it
--- Additionally we store the timestmap of when the profile was imported by the user
+-- Additionally we store the timestamp of when the profile was imported by the user
 ---@param timestamp number
 ---@param moduleName string
 ---@param profileKey string
