@@ -69,7 +69,7 @@ local exportProfileBlacklist = {
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Details",
-  wagoId = "25NRDlK3",
+  wagoId = "qv63A7Gb",
   oldestSupported = "#Details.12879.159",
   addonNames = { "Details", "Details_Compare2", "Details_DataStorage" },
   icon = [[Interface\AddOns\Details\images\minimap]],
