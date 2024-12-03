@@ -151,6 +151,14 @@ function addon:UpdateIncludedAddons(pack)
       end
     end
   end
+  -- add additional addons
+  if pack.additionalAddons then
+    for wagoId, addonName in pairs(pack.additionalAddons) do
+      if not pack.includedAddons[addonName] then
+        pack.includedAddons[addonName] = wagoId
+      end
+    end
+  end
 end
 
 function addon:SetupExportStash()

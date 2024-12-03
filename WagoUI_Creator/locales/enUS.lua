@@ -3,7 +3,13 @@
 local addon = select(2, ...)
 addon.L = {}
 local L = addon.L
-
+L["Type to search for\nyour AddOns"]  = "Type to search for\nyour AddOns"
+L["Mark Addons as\nIncluded"] = "Mark Addons as\nIncluded"
+L["Mark as included"] = "Mark as included"
+L["Remove"] = "Remove"
+L["Additional Addons"] = "Additional Addons"
+L["Your Addons"] = "Your Addons"
+L["Included Addons"] = "Included Addons"
 L["noBuiltInProfileTextImport"] =
   "%s has no built-in profile text import.\nCopy a string that can be imported with UIManager"
 L["Open an issue on GitHub"] = "Open an issue on GitHub"

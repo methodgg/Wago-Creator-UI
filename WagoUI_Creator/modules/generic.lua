@@ -3,6 +3,7 @@ local addon = select(2, ...)
 local LAP = LibStub:GetLibrary("LibAddonProfiles")
 
 local defaultSortOrder = {
+  "Additional Addons",
   "Blizzard Edit Mode",
   "ElvUI",
   "ElvUI Private Profile",
