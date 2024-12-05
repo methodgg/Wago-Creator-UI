@@ -418,9 +418,13 @@ local function showManageFrame(anchor)
   end
   wipe(scrollBoxData[1])
   wipe(scrollBoxData[2])
+  local blacklist = { --wago addons
+    ["mKOv7Q6x"] = true,
+    ["O67jdaN3"] = true,
+  }
   for addonIndex = 1, C_AddOns.GetNumAddOns() do
     local wagoId = C_AddOns.GetAddOnMetadata(addonIndex, "X-Wago-ID")
-    if wagoId then
+    if wagoId and not blacklist[wagoId] then
       local entry = {
         id = C_AddOns.GetAddOnMetadata(addonIndex, "Title"),
         wagoId = wagoId,
