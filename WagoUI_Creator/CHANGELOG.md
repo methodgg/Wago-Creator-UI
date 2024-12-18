@@ -1,3 +1,3 @@
-# 1.2.6 (2024-12-05)
+# 1.2.7 (2024-12-18)
 
-- Add "Additional Addons" module
+- Patch 11.0.7 update
