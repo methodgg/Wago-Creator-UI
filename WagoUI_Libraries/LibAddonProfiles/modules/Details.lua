@@ -125,7 +125,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    Details:ImportProfile(profileString, profileKey, nil, true, true)
+    local bImportAutoRunCode, bIsFromImportPrompt, overwriteExisting = false, true, true
+    xpcall(function()
+      Details:ImportProfile(profileString, profileKey, bImportAutoRunCode, bIsFromImportPrompt, overwriteExisting)
+    end, geterrorhandler())
     --import automation
     profileString = DetailsFramework:Trim(profileString)
     local profileData = Details:DecompressData(profileString, "print")

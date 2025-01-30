@@ -117,7 +117,7 @@ local m = {
     local bKeepModsNotInUpdate = false -- indicates if wago update from companion, we won't use it here
     local doNotReload = true
     local keepScaleTune = true         -- don't mess with ui scale
-    xpcall(function()                  -- if this errors internally do not take the blame
+    xpcall(function()
       Plater.ImportAndSwitchProfile(profileKey, profile, bIsUpdate, bKeepModsNotInUpdate, doNotReload, keepScaleTune)
     end, geterrorhandler())
 
