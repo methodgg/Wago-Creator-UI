@@ -351,9 +351,7 @@ local function createManageFrame(w, h)
   m.StartMoving = function()
   end
 
-  local explainerText =
-  "You can specify additional AddOns that you want to include in your UI Pack. This is meant for AddOns that do not need any configuration to be exported. A good example is an AddOn that only includes your own custom media. AddOns specified this way are available to automatically download during the UI Pack installation process.\n\nThis feature is only available for AddOns that are hosted and publicly available on the Wago AddOns platform."
-  local explainerLabel = DF:CreateLabel(m, explainerText, 18, "white")
+  local explainerLabel = DF:CreateLabel(m, L["ADDITIONAL_ADDONS_EXPLAINER"], 18, "white")
   explainerLabel:SetPoint("TOPLEFT", m, "TOPLEFT", 5, -40)
   explainerLabel:SetPoint("TOPRIGHT", m, "TOPRIGHT", -5, -40)
 

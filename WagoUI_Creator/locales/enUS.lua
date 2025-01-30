@@ -115,3 +115,4 @@ L["DISABLE_RESOLUTION_BUTTON_TOOLTIP"] =
   "Click to disable\nDisabling a resolution will also disable all exports for this resolution from your exported data"
 L["WEAKAURA_WARNING_TOOLTIP"] =
   "Ensure that you have the author's permission to distribute any WeakAuras you wish to export.\nExported WeakAuras currently have their Wago IDs and URLs removed."
+L["ADDITIONAL_ADDONS_EXPLAINER"] = "You can specify additional AddOns that you want to include in your UI Pack. This is meant for AddOns that do not need any configuration to be exported. A good example is an AddOn that only includes your own custom media. AddOns specified this way are available to automatically download during the UI Pack installation process.\n\nThis feature is only available for AddOns that are hosted and publicly available on the Wago AddOns platform and have the X-Wago-ID field properly set in the toc file."
