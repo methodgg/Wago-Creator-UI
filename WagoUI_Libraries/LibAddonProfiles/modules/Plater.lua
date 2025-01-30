@@ -19,127 +19,6 @@ local function deepCopyAsync(orig)
   return copy
 end
 
----@param profileName string
----@param profile table
----@param bIsUpdate boolean if true, the profile is an update and the user settings for mods/scripts will be copied
----@param bKeepModsNotInUpdate boolean indicates if wago update from companion, we won't use it here
-local function doProfileImport(profileName, profile, bIsUpdate, bKeepModsNotInUpdate)
-  DF = _G["DetailsFramework"]
-  local bWasUsingUIParent = Plater.db.profile.use_ui_parent
-  local scriptDataBackup =
-      (bIsUpdate or bKeepModsNotInUpdate) and DF.table.copy({}, Plater.db.profile.script_data) or {}
-  local hookDataBackup = (bIsUpdate or bKeepModsNotInUpdate) and DF.table.copy({}, Plater.db.profile.hook_data) or {}
-
-  --switch to profile
-  Plater.db:SetProfile(profileName)
-  --cleanup profile -> reset to defaults
-  Plater.db:ResetProfile(false, true)
-  --import new profile settings
-  DF.table.copy(Plater.db.profile, profile)
-
-  --check if parent to UIParent is enabled and calculate the new scale
-  if (Plater.db.profile.use_ui_parent) then
-    if (not bIsUpdate or not bWasUsingUIParent) then --only update if necessary
-      Plater.db.profile.ui_parent_scale_tune = 1 / UIParent:GetEffectiveScale()
-    end
-  else
-    Plater.db.profile.ui_parent_scale_tune = 0
-  end
-
-  if (bIsUpdate or bKeepModsNotInUpdate) then
-    --copy user settings for mods/scripts and keep mods/scripts which are not part of the profile
-    for index, oldScriptObject in ipairs(scriptDataBackup) do
-      local scriptDB = Plater.db.profile.script_data or {}
-      local bFound = false
-      for i = 1, #scriptDB do
-        local scriptObject = scriptDB[i]
-        if (scriptObject.Name == oldScriptObject.Name) then
-          if (bIsUpdate) then
-            Plater.UpdateOptionsForModScriptImport(scriptObject, oldScriptObject)
-          end
-          bFound = true
-          break
-        end
-      end
-
-      if (not bFound and bKeepModsNotInUpdate) then
-        table.insert(scriptDB, oldScriptObject)
-      end
-    end
-
-    for index, oldScriptObject in ipairs(hookDataBackup) do
-      local scriptDB = Plater.db.profile.hook_data or {}
-      local bFound = false
-      for i = 1, #scriptDB do
-        local scriptObject = scriptDB[i]
-        if (scriptObject.Name == oldScriptObject.Name) then
-          if (bIsUpdate) then
-            Plater.UpdateOptionsForModScriptImport(scriptObject, oldScriptObject)
-          end
-
-          bFound = true
-          break
-        end
-      end
-
-      if (not bFound and bKeepModsNotInUpdate) then
-        table.insert(scriptDB, oldScriptObject)
-      end
-    end
-  end
-
-  --cleanup NPC cache/colors
-  ---@type table<number, string[]> [1] npcname [2] zonename [3] language
-  local cache = Plater.db.profile.npc_cache
-
-  local cacheTemp = DF.table.copy({}, cache)
-  for npcId, npcData in pairs(cacheTemp) do
-    ---@cast npcData table{key1: string, key2: string, key3: string|nil}
-    if (tonumber(npcId)) then
-      cache[npcId] = nil
-      cache[tonumber(npcId)] = npcData
-    end
-  end
-
-  --cleanup npc colors
-  local colors = Plater.db.profile.npc_colors
-  local colorsTemp = DF.table.copy({}, colors)
-
-  for npcId, npcColorTable in pairs(colorsTemp) do
-    if tonumber(npcId) then
-      colors[npcId] = nil
-      colors[tonumber(npcId)] = npcColorTable
-    end
-  end
-
-  --cleanup cast colors/sounds
-  local castColors = Plater.db.profile.cast_colors
-  local castColorsTemp = DF.table.copy({}, castColors)
-
-  for spellId, castColorTable in pairs(castColorsTemp) do
-    if tonumber(spellId) then
-      castColors[spellId] = nil
-      castColors[tonumber(spellId)] = castColorTable
-    end
-  end
-
-  local audioCues = Plater.db.profile.cast_audiocues
-  local audioCuesTemp = DF.table.copy({}, audioCues)
-
-  for spellId, audioCuePath in pairs(audioCuesTemp) do
-    if tonumber(spellId) then
-      audioCues[spellId] = nil
-      audioCues[tonumber(spellId)] = audioCuePath
-    end
-  end
-
-  --restore CVars of the profile
-  Plater.RestoreProfileCVars()
-
-  --automatically reload the user UI
-  -- ReloadUI()
-end
-
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Plater",
@@ -233,7 +112,17 @@ local m = {
     if not profileString then return end
     local _, _, profile = private:GenericDecode(profileString)
     if not profile then return end
-    doProfileImport(profileKey, profile, true, false)
+
+    local bIsUpdate = true             --if true, the profile is an update and the user settings for mods/scripts will be copied
+    local bKeepModsNotInUpdate = false -- indicates if wago update from companion, we won't use it here
+    local doNotReload = true
+    local keepScaleTune = true         -- don't mess with ui scale
+    -- xpcall(function()                  -- if this errors internally do not take the blame
+    --   vdt({ profileKey, profile, bIsUpdate, bKeepModsNotInUpdate, doNotReload, keepScaleTune })
+    --   Plater.ImportAndSwitchProfile(profileKey, profile, bIsUpdate, bKeepModsNotInUpdate, doNotReload, keepScaleTune)
+    -- end, geterrorhandler())
+    Plater.ImportAndSwitchProfile(profileKey, profile, bIsUpdate, bKeepModsNotInUpdate, doNotReload, keepScaleTune)
+
     coroutine.yield()
     if DetailsFrameworkPromptSimple then
       DetailsFrameworkPromptSimple:Hide()
