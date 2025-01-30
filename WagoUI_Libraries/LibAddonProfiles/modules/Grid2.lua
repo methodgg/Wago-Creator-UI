@@ -177,7 +177,7 @@ local m = {
   oldestSupported = "2.8.49",
   addonNames = { "Grid2", "Grid2Options", "Grid2LDB", "Grid2RaidDebuffs", "Grid2RaidDebuffsOptions" },
   conflictingAddons = { "VuhDo", "VuhDoOptions", "Cell" },
-  icon = [[Interface\AddOns\Grid2\media\iconsmall]],
+  icon = C_AddOns.GetAddOnMetadata("Grid2", "IconTexture"),
   slash = "/grid2",
   needReloadOnImport = true,
   needProfileKey = false,
@@ -210,7 +210,7 @@ local m = {
     return Grid2DB.profiles
   end,
   getCurrentProfileKey = function(self)
-    local characterName = UnitName("player") .. " - " .. GetRealmName()
+    local characterName = UnitName("player").." - "..GetRealmName()
     return Grid2DB.profileKeys and Grid2DB.profileKeys[characterName]
   end,
   getProfileAssignments = function(self)
