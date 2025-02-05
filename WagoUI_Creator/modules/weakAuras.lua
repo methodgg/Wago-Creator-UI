@@ -37,7 +37,6 @@ local setWeakAuraExportState = function(resolution, id, value, blocked)
   }
 end
 
--- This needs work
 function addon:GetWeakAuraExportState(resolution, id)
   addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] =
       addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] or {}
@@ -626,7 +625,6 @@ local function showManageFrame(anchor)
     table.insert(scrollBoxData[1], { info = display })
     --populate second list
     local exportState = addon:GetWeakAuraExportState(getChosenResolution(), id)
-    -- TODO: failing here, needs work
     if exportState then
       local entry = {
         info = display,
