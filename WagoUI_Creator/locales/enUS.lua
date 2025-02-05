@@ -3,6 +3,7 @@
 local addon = select(2, ...)
 addon.L = {}
 local L = addon.L
+L["Blocked"] = "Blocked"
 L["Type to search for\nyour AddOns"]  = "Type to search for\nyour AddOns"
 L["Mark Addons as\nIncluded"] = "Mark Addons as\nIncluded"
 L["Mark as included"] = "Mark as included"

@@ -124,3 +124,21 @@ function private:LibSerializeDeserializeAsync(serialized)
   until completed
   return tab
 end
+
+---@param orig any
+---@return any copy
+function private:DeepCopyAsync(orig)
+  local orig_type = type(orig)
+  local copy
+  coroutine.yield()
+  if orig_type == "table" then
+    copy = {}
+    for orig_key, orig_value in next, orig, nil do
+      copy[self:DeepCopyAsync(orig_key)] = self:DeepCopyAsync(orig_value)
+    end
+    setmetatable(copy, self:DeepCopyAsync(getmetatable(orig)))
+  else -- number, string, boolean, etc
+    copy = orig
+  end
+  return copy
+end

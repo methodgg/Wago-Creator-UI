@@ -19,13 +19,35 @@ local getChosenResolution = function()
   return addon:GetCurrentPackStashed().resolutions.chosen
 end
 
-local setWeakAuraExportState = function(resolution, id, value)
-  addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id] = value
+---@param resolution string
+---@param id string
+---@param value boolean
+---@param blocked boolean | nil
+local setWeakAuraExportState = function(resolution, id, value, blocked)
+  if value == false then
+    addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id] = nil
+    return
+  end
+  if blocked then
+    value = false
+  end
+  addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id] = {
+    export = value,
+    blocked = blocked
+  }
 end
 
 function addon:GetWeakAuraExportState(resolution, id)
   addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] =
-    addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] or {}
+      addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] or {}
+  -- migrate old values: if the value is not a table, convert it to a table
+  local value = addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id]
+  if type(value) ~= "table" and value ~= nil then
+    addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id] = {
+      export = value,
+      blocked = false
+    }
+  end
   return addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id]
 end
 
@@ -34,15 +56,29 @@ local scrollBoxData = {
   [2] = {}
 }
 
-local function addToData(i, info)
+---@param i number
+---@param info table
+---@param block boolean | nil
+local function addToData(i, info, block)
   -- only insert if not already in list
   for _, existingInfo in ipairs(scrollBoxData[i]) do
-    if existingInfo.id == info.id then
-      return
+    if existingInfo.info.id == info.info.id then
+      if existingInfo.blocked ~= block then
+        m.removeFromData(i, info)
+      else
+        return
+      end
     end
   end
-  tinsert(scrollBoxData[i], info)
-  setWeakAuraExportState(getChosenResolution(), info.id, true)
+
+  setWeakAuraExportState(getChosenResolution(), info.info.id, true, block)
+
+  local data = {
+    info = info.info,
+    blocked = block
+  }
+
+  tinsert(scrollBoxData[i], data)
   m.scrollBoxes[i].onSearchBoxTextChanged()
   addon.frames.mainFrame.frameContent.contentScrollbox:Refresh()
 end
@@ -131,15 +167,15 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
     wipe(filteredData)
     local initialData = scrollBoxData[scrollBoxIndex]
     if searchString and searchString ~= "" then
-      for _, display in pairs(initialData) do
-        if display.id:lower():find(searchString) then
-          table.insert(filteredData, display)
+      for _, entry in pairs(initialData) do
+        if entry.info.id:lower():find(searchString) then
+          table.insert(filteredData, entry)
         end
       end
     else
       if scrollBoxIndex == 2 then
-        for _, display in pairs(initialData) do
-          table.insert(filteredData, display)
+        for _, entry in pairs(initialData) do
+          table.insert(filteredData, entry)
         end
       end
     end
@@ -151,17 +187,17 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
     table.sort(
       filteredData,
       function(a, b)
-        local aDepth = getWeakAuraDepth(a.id)
-        local bDepth = getWeakAuraDepth(b.id)
-        local aChildren = getNumTotalControlledChildren(a.id)
-        local bChildren = getNumTotalControlledChildren(b.id)
+        local aDepth = getWeakAuraDepth(a.info.id)
+        local bDepth = getWeakAuraDepth(b.info.id)
+        local aChildren = getNumTotalControlledChildren(a.info.id)
+        local bChildren = getNumTotalControlledChildren(b.info.id)
         if aDepth ~= bDepth then
           return aDepth < bDepth
         end
         if aChildren ~= bChildren then
           return aChildren > bChildren
         end
-        return (a.id < b.id)
+        return (a.info.id < b.info.id)
       end
     )
     return filteredData
@@ -180,13 +216,20 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
       local info = filteredData[index]
       if (info) then
         local line = self:GetLine(i)
-        line.nameLabel:SetText(info.id)
-        if info.iconSource == -1 then
-        -- TODO
-        -- we dont have an icon, would need to recreate the logic of WeakAuras to get it via spellCache
-        -- maybe we are not doing this one...
+        local name = info.info.id
+        if info.blocked then
+          name = name.." ("..L["Blocked"]..")"
+          line.nameLabel:SetTextColor(1, 0, 0, 1)
+        else
+          line.nameLabel:SetTextColor(1, 1, 1, 1)
         end
-        local iconSource = info.groupIcon or info.displayIcon or 134400
+        line.nameLabel:SetText(name)
+        if info.info.iconSource == -1 then
+          -- TODO
+          -- we dont have an icon, would need to recreate the logic of WeakAuras to get it via spellCache
+          -- maybe we are not doing this one...
+        end
+        local iconSource = info.info.groupIcon or info.info.displayIcon or 134400
         iconSource = tonumber(iconSource) or 134400
         line.icon:SetTexture(iconSource)
         line.icon:SetPushedTexture(iconSource)
@@ -209,8 +252,8 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
     if not line.SetBackdrop then
       Mixin(line, BackdropTemplateMixin)
     end
-    line:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
-    line:SetBackdropColor(unpack({.8, .8, .8, 0.3}))
+    line:SetBackdrop({ bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true })
+    line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
 
     local icon = DF:CreateButton(line, nil, lineHeight, lineHeight, "", nil, nil, 134400, nil, nil, nil, nil)
     icon:SetPoint("left", line, "left", 0, 0)
@@ -236,13 +279,13 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
     line:SetScript(
       "OnEnter",
       function(self)
-        line:SetBackdropColor(unpack({.8, .8, .8, 0.5}))
+        line:SetBackdropColor(unpack({ .8, .8, .8, 0.5 }))
       end
     )
     line:SetScript(
       "OnLeave",
       function(self)
-        line:SetBackdropColor(unpack({.8, .8, .8, 0.3}))
+        line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
       end
     )
     ---@diagnostic disable-next-line: inject-field
@@ -354,18 +397,18 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
   end
 
   local groupsScrollBox =
-    DF:CreateScrollBox(
-    frame,
-    nil,
-    scrollBoxUpdate,
-    {},
-    scrollBoxWidth,
-    scrollBoxHeight,
-    0,
-    lineHeight,
-    createScrollLine,
-    true
-  )
+      DF:CreateScrollBox(
+        frame,
+        nil,
+        scrollBoxUpdate,
+        {},
+        scrollBoxWidth,
+        scrollBoxHeight,
+        0,
+        lineHeight,
+        createScrollLine,
+        true
+      )
   DF:ReskinSlider(groupsScrollBox)
   groupsScrollBox.ScrollBar.ScrollUpButton.Highlight:ClearAllPoints(false)
   groupsScrollBox.ScrollBar.ScrollDownButton.Highlight:ClearAllPoints(false)
@@ -398,9 +441,9 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
       widget.previousNumData = #filtered
     end
     -- it still breaks in some cases, but this is the best I can do for now
-    groupsScrollBox:SetData(filtered) --fix scroll height reflecting the data
+    groupsScrollBox:SetData(filtered)   --fix scroll height reflecting the data
     groupsScrollBox:OnVerticalScroll(0) --scroll to the top
-    groupsScrollBox:Refresh() --update the data displayed
+    groupsScrollBox:Refresh()           --update the data displayed
     if widget then
       widget.widget:SetFocus()
     end --regain focus
@@ -408,14 +451,14 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
   groupsScrollBox.onSearchBoxTextChanged = onSearchBoxTextChanged
 
   local searchBox =
-    LWF:CreateTextEntry(
-    groupsScrollBox,
-    scrollBoxWidth,
-    30,
-    function()
-    end,
-    16
-  )
+      LWF:CreateTextEntry(
+        groupsScrollBox,
+        scrollBoxWidth,
+        30,
+        function()
+        end,
+        16
+      )
   searchBox:SetPoint("BOTTOMLEFT", groupsScrollBox, "TOPLEFT", 0, 2)
   groupsScrollBox.searchBox = searchBox
 
@@ -467,9 +510,9 @@ local function createManageFrame(w, h)
 
   local function removeFromData(i, info)
     for idx, lineInfo in ipairs(scrollBoxData[i]) do
-      if lineInfo.id == info.id then
+      if lineInfo.info.id == info.info.id then
         tremove(scrollBoxData[i], idx)
-        setWeakAuraExportState(getChosenResolution(), info.id, nil)
+        setWeakAuraExportState(getChosenResolution(), info.info.id, false)
         break
       end
     end
@@ -486,6 +529,13 @@ local function createManageFrame(w, h)
           addToData(2, info)
         end,
         tooltip = L["Add to export list"]
+      },
+      [2] = {
+        icon = 255352,
+        onClick = function(info)
+          addToData(2, info, true)
+        end,
+        tooltip = "Block this WeakAura from being exported"
       }
     },
     [2] = {
@@ -499,7 +549,7 @@ local function createManageFrame(w, h)
       [2] = {
         icon = 134327,
         onClick = function(info)
-          copyExportString(info.id)
+          copyExportString(info.info.id)
         end,
         tooltip = L["Copy export string directly to clipboard"]
       }
@@ -516,15 +566,15 @@ local function createManageFrame(w, h)
   end
 
   local purgeWagoCheckbox =
-    LWF:CreateCheckbox(
-    m,
-    25,
-    function(_, _, value)
-      WagoUICreatorDB.exportOptions[moduleName].purgeWago = value
-      lapModule:setExportOptions(WagoUICreatorDB.exportOptions[moduleName])
-    end,
-    WagoUICreatorDB.exportOptions[moduleName]
-  )
+      LWF:CreateCheckbox(
+        m,
+        25,
+        function(_, _, value)
+          WagoUICreatorDB.exportOptions[moduleName].purgeWago = value
+          lapModule:setExportOptions(WagoUICreatorDB.exportOptions[moduleName])
+        end,
+        WagoUICreatorDB.exportOptions[moduleName]
+      )
   purgeWagoCheckbox:SetPoint("BOTTOMLEFT", m, "BOTTOMLEFT", 60, 27)
   local purgeWagoLabel = DF:CreateLabel(m, L["Purge Wago IDs for exports"], 12, "white")
   purgeWagoLabel:SetPoint("LEFT", purgeWagoCheckbox, "RIGHT", 10, 0)
@@ -541,7 +591,7 @@ local function createManageFrame(w, h)
   okayButton:SetPoint("BOTTOMRIGHT", m, "BOTTOMRIGHT", -60, 20)
 
   local weakauraWarning =
-    DF:CreateButton(m, nil, 50, 50, "", nil, nil, "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
+      DF:CreateButton(m, nil, 50, 50, "", nil, nil, "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
   weakauraWarning:SetPoint("BOTTOM", m, "BOTTOM", 0, 20)
   weakauraWarning:SetTooltip(L["WEAKAURA_WARNING_TOOLTIP"])
 
@@ -575,10 +625,15 @@ local function showManageFrame(anchor)
   wipe(scrollBoxData[2])
   clearWeakAuraCaches()
   for id, display in pairs(WeakAurasSaved.displays) do
-    table.insert(scrollBoxData[1], display)
+    table.insert(scrollBoxData[1], { info = display })
     --populate second list
-    if addon:GetWeakAuraExportState(getChosenResolution(), id) then
-      table.insert(scrollBoxData[2], display)
+    local exportState = addon:GetWeakAuraExportState(getChosenResolution(), id)
+    if exportState then
+      local entry = {
+        info = display,
+        blocked = exportState.blocked
+      }
+      table.insert(scrollBoxData[2], entry)
     end
   end
   for i = 1, 2 do
