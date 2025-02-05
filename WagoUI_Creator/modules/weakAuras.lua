@@ -42,12 +42,11 @@ function addon:GetWeakAuraExportState(resolution, id)
       addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] or {}
   -- migrate old values: if the value is not a table, convert it to a table
   local value = addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id]
-  if type(value) ~= "table" and not value == nil then
-    value = {
+  if type(value) ~= "table" and value ~= nil then
+    addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id] = {
       export = value,
       blocked = false
     }
-    addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id] = value
   end
   return addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id]
 end
