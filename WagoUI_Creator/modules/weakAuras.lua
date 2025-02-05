@@ -24,6 +24,10 @@ end
 ---@param value boolean
 ---@param blocked boolean | nil
 local setWeakAuraExportState = function(resolution, id, value, blocked)
+  if value == false then
+    addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id] = nil
+    return
+  end
   if blocked then
     value = false
   end
@@ -37,6 +41,15 @@ end
 function addon:GetWeakAuraExportState(resolution, id)
   addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] =
       addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] or {}
+  -- migrate old values: if the value is not a table, convert it to a table
+  local value = addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id]
+  if type(value) ~= "table" and not value == nil then
+    value = {
+      export = value,
+      blocked = false
+    }
+    addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id] = value
+  end
   return addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id]
 end
 
@@ -51,15 +64,15 @@ local scrollBoxData = {
 local function addToData(i, info, block)
   -- only insert if not already in list
   for _, existingInfo in ipairs(scrollBoxData[i]) do
-    if existingInfo.id == info.id then
+    if existingInfo.info.id == info.info.id then
       return
     end
   end
 
-  setWeakAuraExportState(getChosenResolution(), info.id, true, block)
+  setWeakAuraExportState(getChosenResolution(), info.info.id, true, block)
 
   local data = {
-    info = info,
+    info = info.info,
     blocked = block
   }
 
@@ -152,15 +165,15 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
     wipe(filteredData)
     local initialData = scrollBoxData[scrollBoxIndex]
     if searchString and searchString ~= "" then
-      for _, display in pairs(initialData) do
-        if display.id:lower():find(searchString) then
-          table.insert(filteredData, display)
+      for _, entry in pairs(initialData) do
+        if entry.info.id:lower():find(searchString) then
+          table.insert(filteredData, entry)
         end
       end
     else
       if scrollBoxIndex == 2 then
-        for _, display in pairs(initialData) do
-          table.insert(filteredData, display)
+        for _, entry in pairs(initialData) do
+          table.insert(filteredData, entry)
         end
       end
     end
@@ -172,17 +185,17 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
     table.sort(
       filteredData,
       function(a, b)
-        local aDepth = getWeakAuraDepth(a.id)
-        local bDepth = getWeakAuraDepth(b.id)
-        local aChildren = getNumTotalControlledChildren(a.id)
-        local bChildren = getNumTotalControlledChildren(b.id)
+        local aDepth = getWeakAuraDepth(a.info.id)
+        local bDepth = getWeakAuraDepth(b.info.id)
+        local aChildren = getNumTotalControlledChildren(a.info.id)
+        local bChildren = getNumTotalControlledChildren(b.info.id)
         if aDepth ~= bDepth then
           return aDepth < bDepth
         end
         if aChildren ~= bChildren then
           return aChildren > bChildren
         end
-        return (a.id < b.id)
+        return (a.info.id < b.info.id)
       end
     )
     return filteredData
@@ -201,13 +214,20 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
       local info = filteredData[index]
       if (info) then
         local line = self:GetLine(i)
-        line.nameLabel:SetText(info.id)
-        if info.iconSource == -1 then
+        local name = info.info.id
+        if info.blocked then
+          name = name.." ("..L["Blocked"]..")"
+          line.nameLabel:SetTextColor(1, 0, 0, 1)
+        else
+          line.nameLabel:SetTextColor(1, 1, 1, 1)
+        end
+        line.nameLabel:SetText(name)
+        if info.info.iconSource == -1 then
           -- TODO
           -- we dont have an icon, would need to recreate the logic of WeakAuras to get it via spellCache
           -- maybe we are not doing this one...
         end
-        local iconSource = info.groupIcon or info.displayIcon or 134400
+        local iconSource = info.info.groupIcon or info.info.displayIcon or 134400
         iconSource = tonumber(iconSource) or 134400
         line.icon:SetTexture(iconSource)
         line.icon:SetPushedTexture(iconSource)
@@ -488,9 +508,9 @@ local function createManageFrame(w, h)
 
   local function removeFromData(i, info)
     for idx, lineInfo in ipairs(scrollBoxData[i]) do
-      if lineInfo.id == info.id then
+      if lineInfo.info.id == info.info.id then
         tremove(scrollBoxData[i], idx)
-        setWeakAuraExportState(getChosenResolution(), info.id, nil)
+        setWeakAuraExportState(getChosenResolution(), info.info.id, false)
         break
       end
     end
@@ -527,7 +547,7 @@ local function createManageFrame(w, h)
       [2] = {
         icon = 134327,
         onClick = function(info)
-          copyExportString(info.id)
+          copyExportString(info.info.id)
         end,
         tooltip = L["Copy export string directly to clipboard"]
       }
@@ -603,12 +623,16 @@ local function showManageFrame(anchor)
   wipe(scrollBoxData[2])
   clearWeakAuraCaches()
   for id, display in pairs(WeakAurasSaved.displays) do
-    table.insert(scrollBoxData[1], display)
+    table.insert(scrollBoxData[1], { info = display })
     --populate second list
     local exportState = addon:GetWeakAuraExportState(getChosenResolution(), id)
     -- TODO: failing here, needs work
-    if exportState.export then
-      table.insert(scrollBoxData[2], display)
+    if exportState then
+      local entry = {
+        info = display,
+        blocked = exportState.blocked
+      }
+      table.insert(scrollBoxData[2], entry)
     end
   end
   for i = 1, 2 do
