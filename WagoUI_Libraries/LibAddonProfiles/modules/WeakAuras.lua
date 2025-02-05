@@ -223,10 +223,18 @@ local m = {
   exportProfile = function(self, profileKey)
     if type(profileKey) ~= "table" then return end
     collectedWagoIds = {}
-    local displayIds = profileKey
+    local displayIds = {}
+    local blockedIds = {}
+    for id, data in pairs(profileKey) do
+      if not data.blocked then
+        displayIds[id] = true
+      else
+        blockedIds[id] = true
+      end
+    end
     local exportStrings = {}
     for id in pairs(displayIds) do
-      local exportString = self:exportGroup(id)
+      local exportString = self:exportGroup(id, blockedIds)
       if exportString then
         exportStrings[id] = exportString
       end
@@ -244,9 +252,10 @@ local m = {
       self.exportOptions[k] = v
     end
   end,
-  exportGroup = function(self, profileKey)
+  exportGroup = function(self, profileKey, blockedIds)
     local id = profileKey
-    local data = WeakAuras.GetData(id)
+    local original = WeakAuras.GetData(id)
+    local data = private:DeepCopyAsync(original)
 
     if (data) then
       data.uid = data.uid or GenerateUniqueID()
@@ -287,6 +296,18 @@ local m = {
         if transmit.c then
           for _, child in ipairs(transmit.c) do
             purgeWago(child)
+          end
+        end
+      end
+      -- remove blocked data and remove blocked from controlled children
+      for k, child in pairs(transmit.c) do
+        if blockedIds[child.id] then
+          tremove(transmit.c, k)
+        elseif child.controlledChildren then
+          for i, controlledChild in pairs(child.controlledChildren) do
+            if blockedIds[controlledChild] then
+              tremove(child.controlledChildren, i)
+            end
           end
         end
       end

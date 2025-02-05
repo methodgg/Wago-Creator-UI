@@ -84,8 +84,9 @@ local function exportFunc(moduleName, resolution, timestamp)
 
   --check for old keys for which the data is now nonexistent here
   if moduleName == "WeakAuras" or moduleName == "Echo Raid Tools" then
-    for key in pairs(stashed.profileKeys[resolution][moduleName]) do
-      if not newExport[key] then
+    -- don't clean up blocked entries
+    for key, info in pairs(stashed.profileKeys[resolution][moduleName]) do
+      if not info.blocked and not newExport[key] then
         removedEntries = removedEntries or {}
         removedEntries[key] = true
         areEqual = false

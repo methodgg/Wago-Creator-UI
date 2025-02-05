@@ -38,7 +38,7 @@
 ---@field exportProfile fun(self: LibAddonProfilesModule, profileKey: string | table) : string | table | nil Export the profile string. If the function returns a table it will contain multiple profile strings.
 ---@field exportOptions table<any, any> | nil A table of options that can be used to customize the export. The options are used in the exportProfile function.
 ---@field setExportOptions? fun(self: LibAddonProfilesModule, options: table) : nil  Set the export options. The options are used in the exportProfile function.
----@field exportGroup? fun(self: LibAddonProfilesModule, profileKey: string) : string | nil For modules that have a group of export strings, export a single export string of that group. (e.g. WeakAuras)
+---@field exportGroup? fun(self: LibAddonProfilesModule, profileKey: string, blockedIds: table<string> | nil) : string | nil For modules that have a group of export strings, export a single export string of that group. (e.g. WeakAuras)
 ---@field areProfileStringsEqual fun(self: LibAddonProfilesModule, profileStringA: string | nil, profileStringB: string | nil , tableA : table | nil, tableB : table | nil) : areEqual: boolean, changedEntries: table | nil, removedEntries: table | nil Deep compare two profile strings or two tables.
 ---@field refreshHookList table<number, RefreshHook> | nil Defines what functions should be hooked when wanting to monitor additions / deletions of profiles and changes to the currently active profile key.
 ---@field getCollectedWagoIds? fun(self: LibAddonProfilesModule) : table<string, string> Returns a list of collected Wago IDs.
