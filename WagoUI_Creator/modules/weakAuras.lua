@@ -63,7 +63,11 @@ local function addToData(i, info, block)
   -- only insert if not already in list
   for _, existingInfo in ipairs(scrollBoxData[i]) do
     if existingInfo.info.id == info.info.id then
-      return
+      if existingInfo.blocked ~= block then
+        m.removeFromData(i, info)
+      else
+        return
+      end
     end
   end
 
