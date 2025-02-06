@@ -120,7 +120,11 @@
         "BigWigsLoader",
         "BlizzHUDTweaksDB",
         "OmniBarDB",
-        "OmniBar"
+        "OmniBar",
+        "HidingBarDB",
+        "HidingBarDBChar",
+        "HidingBarAddon",
+        "HidingBarConfigAddon"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }

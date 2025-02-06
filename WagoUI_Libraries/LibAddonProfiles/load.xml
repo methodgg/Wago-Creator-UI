@@ -30,6 +30,7 @@
 	<Script file ="modules\Quartz.lua"/>
 	<Script file ="modules\BlizzHUDTweaks.lua"/>
 	<Script file ="modules\OmniBar.lua"/>
+	<Script file ="modules\HidingBar.lua"/>
 	<Script file ="modules\AdditionalAddons.lua"/>
 	<Script file ="finalize.lua"/>
 </Ui>
