@@ -117,7 +117,8 @@
         "Quartz3DB",
         "ExampleAddon",
         "CellAnchorFrame",
-        "BigWigsLoader"
+        "BigWigsLoader",
+        "BlizzHUDTweaksDB"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }

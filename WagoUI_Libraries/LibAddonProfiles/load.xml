@@ -28,6 +28,7 @@
 	<Script file ="modules\KuiNameplates.lua"/>
 	<Script file ="modules\WarpDeplete.lua"/>
 	<Script file ="modules\Quartz.lua"/>
+	<Script file ="modules\BlizzHUDTweaks.lua"/>
 	<Script file ="modules\AdditionalAddons.lua"/>
 	<Script file ="finalize.lua"/>
 </Ui>
