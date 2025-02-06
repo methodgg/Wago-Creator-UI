@@ -118,7 +118,9 @@
         "ExampleAddon",
         "CellAnchorFrame",
         "BigWigsLoader",
-        "BlizzHUDTweaksDB"
+        "BlizzHUDTweaksDB",
+        "OmniBarDB",
+        "OmniBar"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }

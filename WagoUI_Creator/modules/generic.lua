@@ -31,6 +31,7 @@ local defaultSortOrder = {
   "OmniCD",
   "OmniCD Spell Editor",
   "BlizzHUDTweaks",
+  "OmniBar",
 }
 
 for _, lapModule in pairs(LAP:GetAllModules()) do
