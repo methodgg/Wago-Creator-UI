@@ -44,11 +44,11 @@ function addon:ResetOptions()
 end
 
 function addon:AddonPrint(...)
-  print("|c" .. addon.color .. addonName .. "|r:", tostringall(...))
+  print("|c"..addon.color..addonName.."|r:", tostringall(...))
 end
 
 function addon:AddonPrintError(...)
-  print("|c" .. addon.color .. addonName .. "|r|cffff9117:|r", tostringall(...))
+  print("|c"..addon.color..addonName.."|r|cffff9117:|r", tostringall(...))
 end
 
 function addon:ShowFrame()
@@ -147,7 +147,7 @@ function addon:AddDataToStorageAddon(changesDetected)
   end
   local source = changesDetected and addon:GetAllPacksStashed() or addon.db.creatorUI
   for _, pack in pairs(source) do
-    local packName = pack.localName .. " (Local Copy)"
+    local packName = pack.localName.." (Local Copy)"
     local data = {
       gameVersion = pack.gameVersion,
       localName = packName,
@@ -218,7 +218,7 @@ function addon.DeleteCurrentPackStashed()
   end
   addon.exportStash[addon.db.chosenPack] = nil
   if WagoUI_Storage and WagoUI then
-    WagoUI_Storage[addon.db.chosenPack .. " (Local Copy)"] = nil
+    WagoUI_Storage[addon.db.chosenPack.." (Local Copy)"] = nil
     WagoUI:SetupWagoData()
     WagoUI:UpdateRegisteredDataConsumers()
   end
@@ -248,7 +248,7 @@ function addon:RefreshAllProfileDropdowns()
     dropdown:Refresh() --update the dropdown options
     dropdown:Close()
     local dropdownValue = dropdown:GetValue()
-    dropdown:Select(dropdownValue) --selected profile could have been renamed, need to refresh like this
+    dropdown:Select(dropdownValue)        --selected profile could have been renamed, need to refresh like this
     local values = {}
     for _, v in pairs(dropdown.func()) do --if the selected profile got deleted
       if v.value then
@@ -301,15 +301,15 @@ function addon:CreateFrames()
   }
   local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "Title")
   local frame =
-    DF:CreateSimplePanel(
-    UIParent,
-    addon.ADDON_WIDTH,
-    addon.ADDON_HEIGHT,
-    addonTitle,
-    addonName .. "Frame",
-    panelOptions,
-    WagoUICreatorDB
-  )
+      DF:CreateSimplePanel(
+        UIParent,
+        addon.ADDON_WIDTH,
+        addon.ADDON_HEIGHT,
+        addonTitle,
+        addonName.."Frame",
+        panelOptions,
+        WagoUICreatorDB
+      )
   frame:Hide()
   DF:ApplyStandardBackdrop(frame)
   DF:CreateBorder(frame, 1, 0, 0)
@@ -339,20 +339,20 @@ function addon:CreateFrames()
   frame.Title:SetFont(frame.Title:GetFont(), 16)
   frame.Title:SetPoint("CENTER", frame.TitleBar, "CENTER", 0, 1)
 
-  local versionString = frame.TitleBar:CreateFontString(addonName .. "VersionString", "overlay", "GameFontNormalSmall")
+  local versionString = frame.TitleBar:CreateFontString(addonName.."VersionString", "overlay", "GameFontNormalSmall")
   versionString:SetTextColor(.8, .8, .8, 1)
-  versionString:SetText("v" .. metaVersion)
+  versionString:SetText("v"..metaVersion)
   versionString:SetPoint("LEFT", frame.TitleBar, "LEFT", 2, 0)
 
   local autoStartCheckbox =
-    LWF:CreateCheckbox(
-    frame,
-    25,
-    function(_, _, value)
-      WagoUICreatorDB.autoStart = value
-    end,
-    WagoUICreatorDB.autoStart
-  )
+      LWF:CreateCheckbox(
+        frame,
+        25,
+        function(_, _, value)
+          WagoUICreatorDB.autoStart = value
+        end,
+        WagoUICreatorDB.autoStart
+      )
   autoStartCheckbox:Hide()
   autoStartCheckbox:SetPoint("TOPLEFT", frame, "TOPRIGHT", 5, 0)
 
