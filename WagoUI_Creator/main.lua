@@ -438,12 +438,16 @@ function addon:CreateFrames()
           0,
           function()
             lapModule:closeConfig()
+            if lapModule:isLoaded() and lapModule:isUpdated() then
+              executeRefreshHooks(lapModule)
+            end
           end
         )
         didInitialize = true
-      end
-      if lapModule:isLoaded() and lapModule:isUpdated() then
-        executeRefreshHooks(lapModule)
+      else
+        if lapModule:isLoaded() and lapModule:isUpdated() then
+          executeRefreshHooks(lapModule)
+        end
       end
     end
     if didInitialize then
