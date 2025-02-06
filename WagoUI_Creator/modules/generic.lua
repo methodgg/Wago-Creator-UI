@@ -33,6 +33,7 @@ local defaultSortOrder = {
   "BlizzHUDTweaks",
   "OmniBar",
   "HidingBar",
+  "NameplateAuras",
 }
 
 for _, lapModule in pairs(LAP:GetAllModules()) do
