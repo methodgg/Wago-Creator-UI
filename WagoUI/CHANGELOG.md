@@ -1,3 +1,4 @@
-# 1.2.7 (2024-12-18)
+# 1.2.8 (2025-02-14)
 
-- Patch 11.0.7 update
+- New Feature: WeakAura blocking
+- New Addons: NameplateAuras, HidingBar, Omnibar, BlizzHudTweaks
