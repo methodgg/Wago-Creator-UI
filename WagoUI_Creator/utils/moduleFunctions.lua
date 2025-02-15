@@ -70,6 +70,13 @@ local function exportFunc(moduleName, resolution, timestamp)
   local stashed = addon:GetCurrentPackStashed()
   ---@type LibAddonProfilesModule
   local lapModule = LAP:GetModule(moduleName)
+  -- migrate weakaura export options
+  if moduleName == "WeakAuras" then
+    local keys = stashed.profileKeys[resolution][moduleName]
+    for id in pairs(keys) do
+      addon:GetWeakAuraExportState(resolution, id)
+    end
+  end
   ---@type any
   local newExport = lapModule:exportProfile(stashed.profileKeys[resolution][moduleName])
   ---@type any
