@@ -546,13 +546,14 @@ local function createManageFrame(w, h)
         end,
         tooltip = L["Add to export list"]
       },
-      [2] = {
-        icon = 255352,
-        onClick = function(info)
-          addToData(2, info, true)
-        end,
-        tooltip = "Block this WeakAura from being exported"
-      }
+      -- TODO: add this back in when new app version releases
+      -- [2] = {
+      --   icon = 255352,
+      --   onClick = function(info)
+      --     addToData(2, info, true)
+      --   end,
+      --   tooltip = "Block this WeakAura from being exported"
+      -- }
     },
     [2] = {
       [1] = {
