@@ -167,5 +167,6 @@ function addon:SetupExportStash()
 end
 
 function addon:CommitExportStash()
+  addon:TempFixWAExportState()
   addon.db.creatorUI = addon.exportStash
 end
