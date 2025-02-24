@@ -1,3 +1,3 @@
-# 1.3.3 (2025-02-16)
+# 1.3.4 (2025-02-24)
 
-- New Addons: NameplateAuras, HidingBar, Omnibar, BlizzHudTweaks
+- Use native Cell Import Logic
