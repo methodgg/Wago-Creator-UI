@@ -28,7 +28,7 @@ end
 local m = {
   moduleName = "Cell",
   wagoId = "qv63LLKb",
-  oldestSupported = "r239-release", -- TODO: bump to new version before merge
+  oldestSupported = "r244-release",
   addonNames = { "Cell", "Cell_UnitFrames" },
   conflictingAddons = { "VuhDo", "VuhDoOptions", "Grid2" },
   icon = C_AddOns.GetAddOnMetadata("Cell", "IconTexture"),
