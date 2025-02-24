@@ -24,133 +24,12 @@ local function decodeProfileString(profileString)
   return deserialized
 end
 
-local function DoImport(imported)
-  local F = Cell.funcs
-  -- raid debuffs
-  for instanceID in pairs(imported["raidDebuffs"]) do
-    if not Cell.snippetVars.loadedDebuffs[instanceID] then
-      imported["raidDebuffs"][instanceID] = nil
-    end
-  end
-
-  -- deal with invalid
-  if Cell.isRetail then
-    imported["appearance"]["useLibHealComm"] = false
-  elseif Cell.isVanilla or Cell.isWrath or Cell.isCata then
-    imported["quickCast"] = nil
-    imported["quickAssist"] = nil
-    imported["appearance"]["healAbsorb"][1] = false
-  end
-
-  -- indicators
-  local builtInFound = {}
-  for _, layout in pairs(imported["layouts"]) do
-    for i = #layout["indicators"], 1, -1 do
-      if layout["indicators"][i]["type"] == "built-in" then -- remove unsupported built-in
-        local indicatorName = layout["indicators"][i]["indicatorName"]
-        builtInFound[indicatorName] = true
-        if not Cell.defaults.indicatorIndices[indicatorName] then
-          tremove(layout["indicators"], i)
-        end
-      else -- remove invalid spells from custom indicators
-        F:FilterInvalidSpells(layout["indicators"][i]["auras"])
-      end
-    end
-  end
-
-  -- add missing indicators
-  if F:Getn(builtInFound) ~= Cell.defaults.builtIns then
-    for indicatorName, index in pairs(Cell.defaults.indicatorIndices) do
-      if not builtInFound[indicatorName] then
-        for _, layout in pairs(imported["layouts"]) do
-          tinsert(layout["indicators"], index, Cell.defaults.layout.indicators[index])
-        end
-      end
-    end
-  end
-
-  -- DO NOT IMPORT CLICK CASTINGS
-
-  -- -- click-castings
-  -- local clickCastings
-  -- if imported["clickCastings"] then
-  --   if Cell.isRetail then -- RETAIL -> RETAIL
-  --     clickCastings = imported["clickCastings"]
-  --   else                  -- RETAIL -> WRATH
-  --     clickCastings = nil
-  --   end
-  --   imported["clickCastings"] = nil
-  -- elseif imported["characterDB"] and imported["characterDB"]["clickCastings"] then
-  --   if
-  --       (Cell.isVanilla or Cell.isWrath or Cell.isCata) and
-  --       imported["characterDB"]["clickCastings"]["class"] == Cell.vars.playerClass
-  --   then                     -- WRATH -> WRATH, same class
-  --     clickCastings = imported["characterDB"]["clickCastings"]
-  --     if Cell.isVanilla then -- no dual spec system
-  --       clickCastings["useCommon"] = true
-  --     end
-  --   else -- WRATH -> RETAIL
-  --     clickCastings = nil
-  --   end
-  --   imported["characterDB"]["clickCastings"] = nil
-  -- end
-
-  -- layout auto switch
-  local layoutAutoSwitch
-  if imported["layoutAutoSwitch"] then
-    if Cell.isRetail then -- RETAIL -> RETAIL
-      layoutAutoSwitch = imported["layoutAutoSwitch"]
-    else                  -- RETAIL -> WRATH
-      layoutAutoSwitch = nil
-    end
-    imported["layoutAutoSwitch"] = nil
-  elseif imported["characterDB"] and imported["characterDB"]["layoutAutoSwitch"] then
-    if Cell.isVanilla or Cell.isWrath or Cell.isCata then -- WRATH -> WRATH
-      layoutAutoSwitch = imported["characterDB"]["layoutAutoSwitch"]
-    else                                                  -- CLASSIC -> RETAIL
-      layoutAutoSwitch = nil
-    end
-    imported["characterDB"]["layoutAutoSwitch"] = nil
-  end
-
-  -- remove characterDB
-  imported["characterDB"] = nil
-
-  -- remove invalid spells
-  F:FilterInvalidSpells(imported["debuffBlacklist"])
-  F:FilterInvalidSpells(imported["bigDebuffs"])
-  F:FilterInvalidSpells(imported["actions"])
-  F:FilterInvalidSpells(imported["customDefensives"])
-  F:FilterInvalidSpells(imported["customExternals"])
-  F:FilterInvalidSpells(imported["targetedSpellsList"])
-  -- F:FilterInvalidSpells(imported["cleuAuras"])
-
-  -- disable autorun
-  for i = 1, #imported["snippets"] do
-    imported["snippets"][i]["autorun"] = false
-  end
-
-  --- USE OLD CLICK CASTINGS
-  --! overwrite
-  local oldClickCastings = CopyTable(CellDB["clickCastings"])
-  CellDB = imported
-
-  if Cell.isRetail then
-    CellDB["clickCastings"] = oldClickCastings
-    CellDB["layoutAutoSwitch"] = layoutAutoSwitch
-  else
-    CellCharacterDB["clickCastings"] = oldClickCastings
-    CellCharacterDB["layoutAutoSwitch"] = layoutAutoSwitch
-    CellCharacterDB["revise"] = imported["revise"]
-  end
-end
-
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Cell",
   wagoId = "qv63LLKb",
-  oldestSupported = "r239-release",
-  addonNames = { "Cell" },
+  oldestSupported = "r239-release", -- TODO: bump to new version before merge
+  addonNames = { "Cell", "Cell_UnitFrames" },
   conflictingAddons = { "VuhDo", "VuhDoOptions", "Grid2" },
   icon = C_AddOns.GetAddOnMetadata("Cell", "IconTexture"),
   slash = "/cell",
@@ -199,9 +78,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    local profileData = decodeProfileString(profileString)
-    if not profileData then return end
-    DoImport(profileData)
+    xpcall(function()
+      ---profileString string, profileName string?, ignoredIndicesExternal table<string, boolean>?
+      Cell.ImportProfile(profileString, profileKey, { ["nicknames"] = true, ["clickCastings"] = true })
+    end, geterrorhandler())
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end
@@ -210,7 +90,7 @@ local m = {
     -- Cell\Modules\About_ImportExport.lua
     local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
     local prefix = "!CELL:"..Cell.versionNum..":ALL!"
-    local db = Cell.funcs:Copy(CellDB)
+    local db = private:DeepCopyAsync(CellDB)
     db["nicknames"] = nil
     -- possible on Classic only, ignore for now
     -- if includeCharacter then
