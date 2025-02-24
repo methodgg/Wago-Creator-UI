@@ -90,7 +90,7 @@ local m = {
     -- Cell\Modules\About_ImportExport.lua
     local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
     local prefix = "!CELL:"..Cell.versionNum..":ALL!"
-    local db = Cell.funcs:Copy(CellDB)
+    local db = private:DeepCopyAsync(CellDB)
     db["nicknames"] = nil
     -- possible on Classic only, ignore for now
     -- if includeCharacter then
