@@ -93,7 +93,7 @@ local function exportFunc(moduleName, resolution, timestamp)
   if moduleName == "WeakAuras" or moduleName == "Echo Raid Tools" then
     -- don't clean up blocked entries
     for key, info in pairs(stashed.profileKeys[resolution][moduleName]) do
-      if (not info or not info.blocked) and not newExport[key] then
+      if --[[not info.blocked and]] not newExport[key] then --TODO: fix on WA blocking feature
         removedEntries = removedEntries or {}
         removedEntries[key] = true
         areEqual = false
