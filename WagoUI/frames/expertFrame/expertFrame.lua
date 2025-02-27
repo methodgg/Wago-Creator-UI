@@ -3,6 +3,8 @@ local addonName = ...
 ---@class WagoUI
 local addon = select(2, ...)
 local LWF = LibStub("LibWagoFramework")
+local DF = _G["DetailsFramework"]
+local LAP = LibStub("LibAddonProfiles")
 local db
 local L = addon.L
 
@@ -17,7 +19,7 @@ local onShow = function()
 end
 
 function addon:CreateExpertFrame(f)
-  local expertFrame = CreateFrame("Frame", addonName .. "ExpertFrame", f)
+  local expertFrame = CreateFrame("Frame", addonName.."ExpertFrame", f)
   expertFrame:SetPoint("TOPLEFT", f, "TOPLEFT", 0, -10)
   expertFrame:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", 0, 0)
   expertFrame:Hide()
@@ -76,11 +78,11 @@ function addon:CreateExpertFrame(f)
   end
 
   function addon:RefreshResolutionDropdown()
-    resolutionDropdown:Refresh() --update the dropdown options
+    resolutionDropdown:Refresh()                             --update the dropdown options
     resolutionDropdown:Close()
     resolutionDropdown:Select(db.selectedWagoDataResolution) --selected profile could have been renamed, need to refresh like this
     local values = {}
-    for _, v in pairs(resolutionDropdown.func()) do --if the selected profile got deleted
+    for _, v in pairs(resolutionDropdown.func()) do          --if the selected profile got deleted
       if v.value then
         values[v.value] = true
       end
@@ -130,69 +132,52 @@ function addon:CreateExpertFrame(f)
   -- end);
   -- f.updateAllButton = updateAllButton
 
-  addLine({uiPackDropdown, resolutionDropdown, introButton, altButton --[[, updateAllButton ]]}, 0, 0)
+  addLine({ uiPackDropdown, resolutionDropdown, introButton, altButton --[[, updateAllButton ]] }, 0, 0)
 
-  db.selectedWagoDataTab = db.selectedWagoDataTab or 1
-  local profileTabButton = LWF:CreateTabButton(expertFrame, (frameWidth / 2) - 2, 40, L["Profiles"], 16)
-  local weakaurasTabButton = LWF:CreateTabButton(expertFrame, (frameWidth / 2) - 2, 40, L["WeakAuras"], 16)
-  addLine({profileTabButton, weakaurasTabButton}, 0, 0, 0, 0)
-
-  local profileList = addon:CreateProfileList(expertFrame, frameWidth, frameHeight - totalHeight + 4)
+  local profileList = addon:CreateProfileList(expertFrame, frameWidth, frameHeight - totalHeight - 30)
 
   local updateData = function(data)
     local filtered = {}
     if data then
-      if db.selectedWagoDataTab == 1 then
-        for _, entry in ipairs(data) do
-          if entry.moduleName ~= "WeakAuras" and entry.moduleName ~= "Echo Raid Tools" then
-            tinsert(filtered, entry)
-          end
-        end
-        --sort disabled modules to bottom, alphabetically afterwards
-        table.sort(
-          filtered,
-          function(a, b)
-            local orderA = (a.lap:isLoaded() or a.lap:needsInitialization()) and 1 or 0
-            local orderB = (b.lap:isLoaded() or b.lap:needsInitialization()) and 1 or 0
-            if orderA == orderB then
-              return a.moduleName < b.moduleName
-            end
-            return orderA > orderB
-          end
-        )
+      for _, entry in ipairs(data) do
+        tinsert(filtered, entry)
       end
-      if db.selectedWagoDataTab == 2 then
-        for _, entry in ipairs(data) do
-          if entry.moduleName == "WeakAuras" or entry.moduleName == "Echo Raid Tools" then
-            tinsert(filtered, entry)
+      --sort disabled modules to bottom, alphabetically afterwards, WAs at bottom
+      table.sort(
+        filtered,
+        function(a, b)
+          local orderA = (a.lap:isLoaded() or a.lap:needsInitialization()) and 1 or 0
+          local orderB = (b.lap:isLoaded() or b.lap:needsInitialization()) and 1 or 0
+          if a.moduleName == "WeakAuras" then
+            orderA = orderA - 100
           end
+          if b.moduleName == "WeakAuras" then
+            orderB = orderB - 100
+          end
+          if orderA == orderB then
+            return a.moduleName < b.moduleName
+          end
+          return orderA > orderB
         end
-        --sort weakauras on top, alphabetically afterwards
-        table.sort(
-          filtered,
-          function(a, b)
-            local orderA = a.moduleName == "WeakAuras" and 1 or 0
-            local orderB = b.moduleName == "WeakAuras" and 1 or 0
-            if orderA == orderB then
-              return a.entryName < b.entryName
-            end
-            return orderA > orderB
-          end
-        )
-      end
+      )
     end
     profileList.updateData(filtered)
   end
 
   addon:RegisterDataConsumer(updateData)
+  addon:UpdateRegisteredDataConsumers()
 
-  local tabFunction = function(tabIndex)
-    db.selectedWagoDataTab = tabIndex
-    addon:UpdateRegisteredDataConsumers()
-  end
-  LWF:CreateTabStructure({profileTabButton, weakaurasTabButton}, tabFunction, db.selectedWagoDataTab)
+  addLine({ profileList.header }, 0, 0)
 
-  addLine({profileList.header}, 0, 0)
+  local text = L["Scroll down for WeakAuras!"]
+  local footer = DF:CreateLabel(expertFrame, text, 22, "white")
+  footer:SetJustifyH("CENTER")
+  footer:SetPoint("BOTTOM", expertFrame, "BOTTOM", 0, 15)
+  local waLap = LAP:GetModule("WeakAuras")
+  local warningIconLeft = LWF:CreateIconButton(expertFrame, 30, waLap.icon)
+  local warningIconRight = LWF:CreateIconButton(expertFrame, 30, waLap.icon)
+  warningIconLeft:SetPoint("RIGHT", footer, "LEFT", -5, 0)
+  warningIconRight:SetPoint("LEFT", footer, "RIGHT", 5, 0)
 
   expertFrame:SetScript("OnShow", onShow)
 end
