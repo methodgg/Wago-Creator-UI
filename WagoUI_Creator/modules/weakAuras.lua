@@ -51,22 +51,6 @@ function addon:GetWeakAuraExportState(resolution, id)
   return addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id]
 end
 
--- TODO: remove this when the app is updated
-function addon:TempFixWAExportState()
-  for resolution, modules in pairs(addon:GetCurrentPackStashed().profileKeys) do
-    local waKeys = modules["WeakAuras"]
-    if waKeys then
-      for id, state in pairs(waKeys) do
-        if state.export then
-          waKeys[id] = true
-        else
-          waKeys[id] = nil
-        end
-      end
-    end
-  end
-end
-
 local scrollBoxData = {
   [1] = {},
   [2] = {}
@@ -547,14 +531,13 @@ local function createManageFrame(w, h)
         end,
         tooltip = L["Add to export list"]
       },
-      -- TODO: add this back in when new app version releases
-      -- [2] = {
-      --   icon = 255352,
-      --   onClick = function(info)
-      --     addToData(2, info, true)
-      --   end,
-      --   tooltip = "Block this WeakAura from being exported"
-      -- }
+      [2] = {
+        icon = 255352,
+        onClick = function(info)
+          addToData(2, info, true)
+        end,
+        tooltip = "Block this WeakAura from being exported"
+      }
     },
     [2] = {
       [1] = {
