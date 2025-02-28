@@ -71,15 +71,27 @@ function private:DeepCompareAsync(tbl1, tbl2, ignoredKeys, debug)
         elseif value1 ~= value2 then
           if type(value1) == "table" and type(value2) == "table" then
             coroutine.yield()
-            if not private:DeepCompareAsync(value1, value2, ignoredKeys) then
+            if not private:DeepCompareAsync(value1, value2, ignoredKeys, debug) then
               if debug then
                 vdt(key1.." is table and not equal in tbl2")
+                vdt(value1, "value1")
+                vdt(value2, "value2")
               end
               return false
             end
+          elseif type(value1) == "number" and type(value2) == "number" and math.abs(value1 - value2) < 0.001 then
+            -- floating point inaccuracy, consider them equal in this case
+            if debug then
+              vdt(key1.." floating point inaccuracy")
+              vdt(value1, "value1")
+              vdt(value2, "value2")
+            end
+            return true
           else
             if debug then
               vdt(key1.." is not equal in tbl2")
+              vdt(value1, "value1")
+              vdt(value2, "value2")
             end
             return false
           end
