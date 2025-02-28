@@ -338,6 +338,7 @@ local function createManageFrame(w, h)
     NoTUISpecialFrame = false
   }
   m = DF:CreateSimplePanel(UIParent, w, h, "", nil, panelOptions)
+  LWF:ScaleFrameByUIParentScale(m, 0.5333333333333)
   DF:ApplyStandardBackdrop(m)
   DF:CreateBorder(m)
   m:ClearAllPoints()

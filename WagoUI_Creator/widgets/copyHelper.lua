@@ -2,21 +2,23 @@
 local addonName = ...
 ---@class WagoUICreator
 local addon = select(2, ...)
-local DF = _G["DetailsFramework"]
 local L = addon.L
+local DF = _G["DetailsFramework"]
+local LWF = LibStub("LibWagoFramework")
 
 local copyPrompt = L["copyInstruction"]
 
 function addon:CreateCopyHelper()
-  addon.copyHelper = CreateFrame("Frame", addonName .. "CopyHelper", UIParent)
+  addon.copyHelper = CreateFrame("Frame", addonName.."CopyHelper", UIParent)
+  LWF:ScaleFrameByUIParentScale(addon.copyHelper, 0.5333333333333)
   addon.copyHelper:SetFrameStrata("TOOLTIP")
   addon.copyHelper:SetFrameLevel(200)
   addon.copyHelper:SetHeight(100)
   addon.copyHelper:SetWidth(300)
   addon.copyHelper.tex = addon.copyHelper:CreateTexture(nil, "BACKGROUND", nil, 0)
   addon.copyHelper.tex:SetAllPoints()
-  addon.copyHelper.tex:SetColorTexture(unpack({0.2, 0.2, 0.2, 1}))
-  addon.copyHelper.text = addon.copyHelper:CreateFontString(addonName .. "copyHelperText")
+  addon.copyHelper.tex:SetColorTexture(unpack({ 0.2, 0.2, 0.2, 1 }))
+  addon.copyHelper.text = addon.copyHelper:CreateFontString(addonName.."copyHelperText")
   addon.copyHelper.text:SetFontObject("GameFontNormalMed3")
   addon.copyHelper.text:SetJustifyH("CENTER")
   addon.copyHelper.text:SetText(copyPrompt)
@@ -27,15 +29,16 @@ function addon:CreateCopyHelper()
   addon.copyHelper.text:SetTextColor(1, 1, 0)
 
   addon.copyHelper.fadeOutFrame = CreateFrame("Frame", nil, UIParent)
+  LWF:ScaleFrameByUIParentScale(addon.copyHelper.fadeOutFrame, 0.5333333333333)
   addon.copyHelper.fadeOutFrame:SetFrameStrata("TOOLTIP")
   addon.copyHelper.fadeOutFrame:SetFrameLevel(200)
   addon.copyHelper.fadeOutFrame:SetHeight(100)
   addon.copyHelper.fadeOutFrame:SetWidth(300)
   addon.copyHelper.fadeOutFrame.tex = addon.copyHelper.fadeOutFrame:CreateTexture(nil, "BACKGROUND", nil, 0)
   addon.copyHelper.fadeOutFrame.tex:SetAllPoints()
-  addon.copyHelper.fadeOutFrame.tex:SetColorTexture(unpack({0.2, 0.2, 0.2, 1}))
+  addon.copyHelper.fadeOutFrame.tex:SetColorTexture(unpack({ 0.2, 0.2, 0.2, 1 }))
   addon.copyHelper.fadeOutFrame.text =
-    addon.copyHelper.fadeOutFrame:CreateFontString(addonName .. "copyHelperFadeoutText")
+      addon.copyHelper.fadeOutFrame:CreateFontString(addonName.."copyHelperFadeoutText")
   addon.copyHelper.fadeOutFrame.text:SetFontObject("GameFontNormalMed3")
   addon.copyHelper.fadeOutFrame.text:SetJustifyH("CENTER")
   addon.copyHelper.fadeOutFrame.text:SetText(copyPrompt)
@@ -46,7 +49,9 @@ function addon:CreateCopyHelper()
   addon.copyHelper.fadeOutFrame.text:SetTextColor(1, 1, 0)
 
   -- parent frame to give the statusbar a background
-  local statusBar = CreateFrame("Frame", addonName .. "StatusBar", UIParent, "BackdropTemplate")
+  local statusBar = CreateFrame("Frame", addonName.."StatusBar", UIParent, "BackdropTemplate")
+  ---@diagnostic disable-next-line: param-type-mismatch
+  LWF:ScaleFrameByUIParentScale(statusBar, 0.5333333333333)
   --set a grey backdrop
   ---@diagnostic disable-next-line: missing-fields,param-type-mismatch
   statusBar:SetBackdrop(
@@ -111,7 +116,7 @@ function addon:CreateCopyHelper()
       currentProgress = currentProgress + 1
     end
     statusBar.bar:SetSmoothedValue(currentProgress)
-    local text = currentProgress .. "/" .. maxProgress
+    local text = currentProgress.."/"..maxProgress
     if currentProgress == maxProgress then
       ---@diagnostic disable-next-line: param-type-mismatch
       UIFrameFadeOut(statusBar, 1, 1, 0)
@@ -138,15 +143,15 @@ function addon:CreateCopyHelper()
       addon.copyHelper.hideTimer:Cancel()
     end
     addon.copyHelper.hideTimer =
-      C_Timer.NewTimer(
-      seconds,
-      function()
-        addon.copyHelper.fadeOutFrame.text:SetText(copyPrompt)
-        addon.copyHelper.fadeOutFrame.text:SetTextColor(1, 1, 0)
-        addon.copyHelper.fadeOutFrame:Hide()
-        addon.copyHelper.fadeOutFrame.isFading = false
-      end
-    )
+        C_Timer.NewTimer(
+          seconds,
+          function()
+            addon.copyHelper.fadeOutFrame.text:SetText(copyPrompt)
+            addon.copyHelper.fadeOutFrame.text:SetTextColor(1, 1, 0)
+            addon.copyHelper.fadeOutFrame:Hide()
+            addon.copyHelper.fadeOutFrame.isFading = false
+          end
+        )
   end
 
   function addon.copyHelper:SmartShow(anchorFrame, x, y, text)

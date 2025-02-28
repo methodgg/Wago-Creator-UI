@@ -24,7 +24,7 @@ end
 
 local getGroupExportState = function(resolution, id)
   addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] =
-    addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] or {}
+      addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] or {}
   return addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id]
 end
 
@@ -113,8 +113,8 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
     if not line.SetBackdrop then
       Mixin(line, BackdropTemplateMixin)
     end
-    line:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
-    line:SetBackdropColor(unpack({.8, .8, .8, 0.3}))
+    line:SetBackdrop({ bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true })
+    line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
 
     local icon = DF:CreateButton(line, nil, lineHeight, lineHeight, "", nil, nil, 134400, nil, nil, nil, nil)
     icon:SetPoint("left", line, "left", 0, 0)
@@ -129,13 +129,13 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
     line:SetScript(
       "OnEnter",
       function(self)
-        line:SetBackdropColor(unpack({.8, .8, .8, 0.5}))
+        line:SetBackdropColor(unpack({ .8, .8, .8, 0.5 }))
       end
     )
     line:SetScript(
       "OnLeave",
       function(self)
-        line:SetBackdropColor(unpack({.8, .8, .8, 0.3}))
+        line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
       end
     )
     ---@diagnostic disable-next-line: inject-field
@@ -214,18 +214,18 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
   end
 
   local groupsScrollBox =
-    DF:CreateScrollBox(
-    frame,
-    nil,
-    scrollBoxUpdate,
-    {},
-    scrollBoxWidth,
-    scrollBoxHeight,
-    0,
-    lineHeight,
-    createScrollLine,
-    true
-  )
+      DF:CreateScrollBox(
+        frame,
+        nil,
+        scrollBoxUpdate,
+        {},
+        scrollBoxWidth,
+        scrollBoxHeight,
+        0,
+        lineHeight,
+        createScrollLine,
+        true
+      )
   DF:ReskinSlider(groupsScrollBox)
   groupsScrollBox.ScrollBar.ScrollUpButton.Highlight:ClearAllPoints(false)
   groupsScrollBox.ScrollBar.ScrollDownButton.Highlight:ClearAllPoints(false)
@@ -259,9 +259,9 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
       widget.previousNumData = #filtered
     end
     -- it still breaks in some cases, but this is the best I can do for now
-    groupsScrollBox:SetData(filtered) --fix scroll height reflecting the data
+    groupsScrollBox:SetData(filtered)   --fix scroll height reflecting the data
     groupsScrollBox:OnVerticalScroll(0) --scroll to the top
-    groupsScrollBox:Refresh() --update the data displayed
+    groupsScrollBox:Refresh()           --update the data displayed
     if widget then
       widget.widget:SetFocus()
     end --regain focus
@@ -269,13 +269,13 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
   groupsScrollBox.onSearchBoxTextChanged = onSearchBoxTextChanged
 
   local searchBox =
-    LWF:CreateTextEntry(
-    groupsScrollBox,
-    scrollBoxWidth,
-    20,
-    function()
-    end
-  )
+      LWF:CreateTextEntry(
+        groupsScrollBox,
+        scrollBoxWidth,
+        20,
+        function()
+        end
+      )
   searchBox:SetPoint("bottomleft", groupsScrollBox, "topleft", 0, 2)
   groupsScrollBox.searchBox = searchBox
 
@@ -293,6 +293,7 @@ local function createManageFrame(w, h)
     NoTUISpecialFrame = false
   }
   m = DF:CreateSimplePanel(UIParent, w, h, "", nil, panelOptions)
+  LWF:ScaleFrameByUIParentScale(m, 0.5333333333333)
   ---@diagnostic disable-next-line: undefined-field
   DF:ApplyStandardBackdrop(m)
   DF:CreateBorder(m)

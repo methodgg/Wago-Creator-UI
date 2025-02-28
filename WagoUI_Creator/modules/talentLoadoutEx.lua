@@ -158,6 +158,8 @@ end
 local function createManageFrame()
   ---@diagnostic disable-next-line: undefined-field
   manageFrame = DF:CreateSimplePanel(addon.frames.mainFrame, frameWidth, frameHeight, "")
+  LWF:ScaleFrameByUIParentScale(manageFrame, 0.5333333333333)
+  manageFrame:EnableMouse(true)
   ---@diagnostic disable-next-line: undefined-field
   DF:ApplyStandardBackdrop(manageFrame)
   DF:CreateBorder(manageFrame)
@@ -190,30 +192,30 @@ local function createManageFrame()
 
   for idx, classData in ipairs(specData) do
     local classSwitch =
-      LWF:CreateCheckbox(
-      manageFrame,
-      size,
-      function(_, _, value)
-        for specIdx, specId in ipairs(classData.specs) do
-          db[classData.dataName][specIdx] = value
-          specSwitches[specId]:SetValue(value)
-        end
-      end,
-      false
-    )
+        LWF:CreateCheckbox(
+          manageFrame,
+          size,
+          function(_, _, value)
+            for specIdx, specId in ipairs(classData.specs) do
+              db[classData.dataName][specIdx] = value
+              specSwitches[specId]:SetValue(value)
+            end
+          end,
+          false
+        )
     classSwitches[classData.dataName] = classSwitch
     local yOffset = -30 + (math.floor((idx - 1) / classesPerRow) * -columnHeight)
     local xOffset = 10 + ((idx - 1) % classesPerRow) * rowWidth
     classSwitch:SetPoint("TOPLEFT", manageFrame, "TOPLEFT", xOffset, yOffset)
 
     local icon = classSwitch:CreateTexture(nil, "ARTWORK")
-    icon:SetTexture("Interface\\ICONS\\ClassIcon_" .. classData.dataName)
+    icon:SetTexture("Interface\\ICONS\\ClassIcon_"..classData.dataName)
     icon:SetSize(size, size)
     icon:SetPoint("LEFT", classSwitch.widget, "RIGHT", 0, 0)
     classIcons[classData.dataName] = icon
 
     local colorString = RAID_CLASS_COLORS[classData.dataName].colorStr
-    local coloredClassName = "|c" .. colorString .. classData.displayName .. "|r"
+    local coloredClassName = "|c"..colorString..classData.displayName.."|r"
     ---@diagnostic disable-next-line: undefined-field
     local classLabel = DF:CreateLabel(manageFrame, coloredClassName, 10, "white")
     classLabel:SetPoint("LEFT", icon, "RIGHT", 0, 0)
@@ -221,19 +223,19 @@ local function createManageFrame()
 
     for specIdx, specId in ipairs(classData.specs) do
       local specSwitch =
-        LWF:CreateCheckbox(
-        manageFrame,
-        size,
-        function(_, _, value)
-          db[classData.dataName][specIdx] = value
-          local allSpecsChecked = true
-          for sIdx, _ in ipairs(classData.specs) do
-            allSpecsChecked = allSpecsChecked and db[classData.dataName][sIdx]
-          end
-          classSwitch:SetValue(allSpecsChecked)
-        end,
-        false
-      )
+          LWF:CreateCheckbox(
+            manageFrame,
+            size,
+            function(_, _, value)
+              db[classData.dataName][specIdx] = value
+              local allSpecsChecked = true
+              for sIdx, _ in ipairs(classData.specs) do
+                allSpecsChecked = allSpecsChecked and db[classData.dataName][sIdx]
+              end
+              classSwitch:SetValue(allSpecsChecked)
+            end,
+            false
+          )
       specSwitches[specId] = specSwitch
       specSwitch:SetPoint("TOPLEFT", manageFrame, "TOPLEFT", xOffset, (-(specIdx * (size + 1))) - 10 + yOffset)
 
@@ -244,7 +246,7 @@ local function createManageFrame()
       specIcon:SetPoint("LEFT", specSwitch.widget, "RIGHT", 0, 0)
       specIcons[specId] = specIcon
 
-      local coloredSpecName = "|c" .. colorString .. specName .. "|r"
+      local coloredSpecName = "|c"..colorString..specName.."|r"
       ---@diagnostic disable-next-line: undefined-field
       local specLabel = DF:CreateLabel(manageFrame, coloredSpecName, 10, "white")
       specLabel:SetPoint("LEFT", specIcon, "RIGHT", 0, 0)
@@ -270,14 +272,14 @@ local function createManageFrame()
       for _, classData in ipairs(specData) do
         classSwitches[classData.dataName]:SetEnabled(true)
         local colorString = RAID_CLASS_COLORS[classData.dataName].colorStr
-        local coloredClassName = "|c" .. colorString .. classData.displayName .. "|r"
+        local coloredClassName = "|c"..colorString..classData.displayName.."|r"
         classLabels[classData.dataName]:SetText(coloredClassName)
         classIcons[classData.dataName]:SetDesaturated(false)
 
         for specIdx, specId in ipairs(classData.specs) do
           specSwitches[specId]:SetEnabled(true)
           local _, specName, _, iconNumber = GetSpecializationInfoByID(specId)
-          local coloredSpecName = "|c" .. colorString .. specName .. "|r"
+          local coloredSpecName = "|c"..colorString..specName.."|r"
           specLabels[specId]:SetText(coloredSpecName)
           specIcons[specId]:SetDesaturated(false)
         end
@@ -291,7 +293,7 @@ local function createManageFrame()
         classSwitches[classData.dataName]:SetEnabled(classSwitchedValue)
         local colorString = RAID_CLASS_COLORS[classData.dataName].colorStr
         local coloredClassName =
-          "|c" .. ((not classSwitchedValue) and "ff777777" or colorString) .. classData.displayName .. "|r"
+            "|c"..((not classSwitchedValue) and "ff777777" or colorString)..classData.displayName.."|r"
         classLabels[classData.dataName]:SetText(coloredClassName)
         classIcons[classData.dataName]:SetDesaturated(not classSwitchedValue)
 
@@ -299,7 +301,7 @@ local function createManageFrame()
           specSwitches[specId]:SetEnabled(db[classData.dataName][specIdx])
           local _, specName, _, iconNumber = GetSpecializationInfoByID(specId)
           local coloredSpecName =
-            "|c" .. ((not db[classData.dataName][specIdx]) and "ff777777" or colorString) .. specName .. "|r"
+              "|c"..((not db[classData.dataName][specIdx]) and "ff777777" or colorString)..specName.."|r"
           specLabels[specId]:SetText(coloredSpecName)
           specIcons[specId]:SetDesaturated(not db[classData.dataName][specIdx])
         end
@@ -355,7 +357,7 @@ local function showManageFrame(anchor, index, mode, dbRef, importExportCallback)
   manageFrame:SetEnabledStates(mode)
   manageFrame:ClearAllPoints()
   manageFrame:SetPoint("CENTER", anchor, "CENTER", 0, 0)
-  manageFrame:SetTitle("Talent Loadout Ex - " .. (mode))
+  manageFrame:SetTitle("Talent Loadout Ex - "..(mode))
   manageFrame.importExportButton:SetText(mode)
   manageFrame.importExportButton:Enable()
   manageFrame.importExportButton:SetClickFunction(
