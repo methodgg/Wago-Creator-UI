@@ -200,7 +200,6 @@ local m = {
         report_heal_links = true,
         report_lines = true,
         report_schema = true,
-        npc_cache = true
       }
     )
   end,
