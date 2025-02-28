@@ -170,7 +170,15 @@ local m = {
     if not rawProfileDataA or not rawProfileDataB then
       return false
     end
-    return private:DeepCompareAsync(rawProfileDataA, rawProfileDataB, { login_counter = true })
+    return private:DeepCompareAsync(rawProfileDataA, rawProfileDataB,
+      {
+        login_counter = true,
+        captured_casts = true,
+        captured_spells = true,
+        last_news_time = true,
+        npc_cache = true
+      }
+    )
   end,
   refreshHookList = {
     {

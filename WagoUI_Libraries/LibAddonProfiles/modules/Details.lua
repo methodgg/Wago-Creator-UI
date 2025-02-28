@@ -194,7 +194,15 @@ local m = {
     if not profileDataA or not profileDataB then
       return false
     end
-    return private:DeepCompareAsync(profileDataA, profileDataB)
+    return private:DeepCompareAsync(profileDataA, profileDataB,
+      {
+        report_to_who = true,
+        report_heal_links = true,
+        report_lines = true,
+        report_schema = true,
+        npc_cache = true
+      }
+    )
   end,
   refreshHookList = {
     {
