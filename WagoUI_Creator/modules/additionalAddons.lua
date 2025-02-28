@@ -420,7 +420,13 @@ local function showManageFrame(anchor)
   local blacklist = { --wago addons
     ["mKOv7Q6x"] = true,
     ["O67jdaN3"] = true,
+    ["qv63o6bQ"] = true,
   }
+  for _, module in pairs(LAP:GetAllModules()) do
+    if module.wagoId and module.wagoId ~= "none" and module.wagoId ~= "baseline" then
+      blacklist[module.wagoId] = true
+    end
+  end
   for addonIndex = 1, C_AddOns.GetNumAddOns() do
     local wagoId = C_AddOns.GetAddOnMetadata(addonIndex, "X-Wago-ID")
     if wagoId and not blacklist[wagoId] then
