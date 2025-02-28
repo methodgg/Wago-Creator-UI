@@ -11,6 +11,7 @@ local defaultHeight = 70
 local function createChoiceFrame()
   ---@diagnostic disable-next-line: undefined-field
   choiceFrame = DF:CreateSimplePanel(UIParent, defaultWidth, defaultHeight, "")
+  LWF:ScaleFrameByUIParentScale(choiceFrame, 0.5333333333333)
   ---@diagnostic disable-next-line: undefined-field
   DF:ApplyStandardBackdrop(choiceFrame)
   DF:CreateBorder(choiceFrame)
