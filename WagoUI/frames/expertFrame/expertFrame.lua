@@ -154,7 +154,9 @@ function addon:CreateExpertFrame(f)
           if b.moduleName == "WeakAuras" then
             orderB = orderB - 100
           end
-          if orderA == orderB then
+          if a.moduleName == "WeakAuras" and b.moduleName == "WeakAuras" then
+            return a.entryName < b.entryName
+          elseif orderA == orderB then
             return a.moduleName < b.moduleName
           end
           return orderA > orderB
