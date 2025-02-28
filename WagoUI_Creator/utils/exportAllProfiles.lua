@@ -122,15 +122,16 @@ function addon:ExportAllProfiles()
         end
       end
       numUpdates = numUpdates + addon:CountRemovedProfiles(addon.db.chosenPack)
+      local includedAdded, includedRemoved = addon:UpdateIncludedAddons(currentUIPack)
+      numUpdates = numUpdates + #includedAdded + #includedRemoved
       if numUpdates > 0 then
         addon.copyHelper:SmartHide()
         currentUIPack.updatedAt = timestamp
-        addon:OpenReleaseNoteInput(timestamp, updates, removals)
+        addon:OpenReleaseNoteInput(timestamp, updates, removals, includedAdded, includedRemoved)
       else
         addon.copyHelper:SmartFadeOut(2, L["No Changes detected"])
         LWF:ToggleLockoutFrame(false, addon.frames, addon.frames.mainFrame)
       end
-      addon:UpdateIncludedAddons(currentUIPack)
       addon:AddDataToStorageAddon(numUpdates > 0)
     end,
     "ExportAllProfiles"
@@ -138,7 +139,10 @@ function addon:ExportAllProfiles()
 end
 
 function addon:UpdateIncludedAddons(pack)
+  local oldIncluded = addon.db.creatorUI[addon.db.chosenPack].includedAddons
   pack.includedAddons = {}
+  local added = {}
+  local removed = {}
   for res, addons in pairs(pack.profileKeys) do
     if pack.resolutions.enabled[res] then
       for addonName in pairs(addons) do
@@ -156,9 +160,22 @@ function addon:UpdateIncludedAddons(pack)
     for wagoId, addonName in pairs(pack.additionalAddons) do
       if not pack.includedAddons[addonName] then
         pack.includedAddons[addonName] = wagoId
+        if not oldIncluded[addonName] then
+          tinsert(added, addonName)
+        end
       end
     end
   end
+
+  for addonName in pairs(oldIncluded) do
+    if not LAP:GetModule(addonName) then -- only care about actual additional addons
+      if not pack.includedAddons[addonName] then
+        tinsert(removed, addonName)
+      end
+    end
+  end
+
+  return added, removed
 end
 
 function addon:SetupExportStash()

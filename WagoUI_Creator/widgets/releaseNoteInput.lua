@@ -43,16 +43,16 @@ function addon:CreateReleaseNoteInput()
   local explainerLabel = DF:CreateLabel(releaseNotesFrame, L["autoReleaseNotesExplanation"], 12, "#d0d2d6")
   explainerLabel:SetPoint("TOPLEFT", releaseNotesFrame.scrollframe, "BOTTOMLEFT", 4, -10)
 
-  local logo = DF:CreateImage(releaseNotesFrame, [[Interface\AddOns\]] .. addonName .. [[\media\wagoLogo512]], 256, 256)
+  local logo = DF:CreateImage(releaseNotesFrame, [[Interface\AddOns\]]..addonName..[[\media\wagoLogo512]], 256, 256)
   logo:SetPoint("TOP", releaseNotesFrame.scrollframe, "BOTTOM", 0, 10)
   releaseNotesFrame.logo = logo
 
   local nextStepLabel =
-    DF:CreateLabel(releaseNotesFrame, L["Continue the upload through the Wago App after the reload!"], 16, "white")
+      DF:CreateLabel(releaseNotesFrame, L["Continue the upload through the Wago App after the reload!"], 16, "white")
   nextStepLabel:SetPoint("BOTTOM", logo, "BOTTOM", 0, 30)
   local warningIconLeft = LWF:CreateIconButton(releaseNotesFrame, 30, "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
   local warningIconRight =
-    LWF:CreateIconButton(releaseNotesFrame, 30, "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
+      LWF:CreateIconButton(releaseNotesFrame, 30, "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
   warningIconLeft:SetPoint("RIGHT", nextStepLabel, "LEFT", -5, 0)
   warningIconRight:SetPoint("LEFT", nextStepLabel, "RIGHT", 5, 0)
   releaseNotesFrame.nextStepLabel = nextStepLabel
@@ -117,7 +117,7 @@ local function getAndClearCurrentProfileRemovals(resolution)
     local data = addon.db.profileRemovals[i]
     if data.packName == addon.db.chosenPack and data.resolution == resolution then
       removeString = removeString or ""
-      removeString = removeString .. "- " .. data.moduleName .. "\n"
+      removeString = removeString.."- "..data.moduleName.."\n"
       table.remove(addon.db.profileRemovals, i)
     end
   end
@@ -140,18 +140,18 @@ local function getUpdateString(updates)
     local str
     for key, entry in pairs(data) do
       if type(entry) == "boolean" then
-        str = str or ("### " .. addon:GetResolutionString(resolution, "displayNameShort") .. "\n")
-        str = str .. "- " .. key .. "\n"
+        str = str or ("### "..addon:GetResolutionString(resolution, "displayNameShort").."\n")
+        str = str.."- "..key.."\n"
       elseif type(entry) == "table" then
         for k in pairs(entry) do
-          str = str or ("### " .. addon:GetResolutionString(resolution, "displayNameShort") .. "\n")
-          str = str .. "- " .. key .. ": " .. k .. "\n"
+          str = str or ("### "..addon:GetResolutionString(resolution, "displayNameShort").."\n")
+          str = str.."- "..key..": "..k.."\n"
         end
       end
     end
     if str then
       res = res or ""
-      res = res .. str
+      res = res..str
     end
   end
   return res
@@ -163,24 +163,24 @@ local function getRemovalString(removals)
     local str
     for module, v in pairs(data) do
       for entry in pairs(v) do
-        str = str or ("### " .. addon:GetResolutionString(resolution, "displayNameShort") .. "\n")
-        str = str .. "- " .. module .. ": " .. entry .. "\n"
+        str = str or ("### "..addon:GetResolutionString(resolution, "displayNameShort").."\n")
+        str = str.."- "..module..": "..entry.."\n"
       end
     end
     local removedProfiles = getAndClearCurrentProfileRemovals(resolution)
     if removedProfiles then
-      str = str or ("### " .. addon:GetResolutionString(resolution, "displayNameShort") .. "\n")
-      str = str .. removedProfiles
+      str = str or ("### "..addon:GetResolutionString(resolution, "displayNameShort").."\n")
+      str = str..removedProfiles
     end
     if str then
       res = res or ""
-      res = res .. str
+      res = res..str
     end
   end
   return res
 end
 
-function addon:OpenReleaseNoteInput(timestamp, updates, removals)
+function addon:OpenReleaseNoteInput(timestamp, updates, removals, includedAdded, includedRemoved)
   if not releaseNotesFrame then
     addon:CreateReleaseNoteInput()
   end
@@ -189,18 +189,30 @@ function addon:OpenReleaseNoteInput(timestamp, updates, removals)
   local str
 
   local updateString = getUpdateString(updates)
+  if #includedAdded > 0 then
+    updateString = updateString or ""
+    for _, addedAddon in pairs(includedAdded) do
+      updateString = updateString.."- "..addedAddon.."\n"
+    end
+  end
   if updateString then
-    str = "## " .. L["Updated / Added"] .. ":\n" .. updateString
+    str = "## "..L["Updated / Added"]..":\n"..updateString
   end
 
   local removalString = getRemovalString(removals)
+  if #includedRemoved > 0 then
+    removalString = removalString or ""
+    for _, addedAddon in pairs(includedRemoved) do
+      removalString = removalString.."- "..addedAddon.."\n"
+    end
+  end
   if removalString then
     str = str or ""
-    str = str .. "## " .. L["Removed"] .. ":\n" .. removalString
+    str = str.."## "..L["Removed"]..":\n"..removalString
   end
 
-  local dateString = "# " .. date("%y/%m/%d", timestamp) .. "\n"
-  str = dateString .. (str or "")
+  local dateString = "# "..date("%y/%m/%d", timestamp).."\n"
+  str = dateString..(str or "")
   if addon.importFrame then
     addon.importFrame.Close:Click()
   end
