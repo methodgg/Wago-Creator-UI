@@ -133,7 +133,24 @@ function addon:DeepCopyAsync(orig)
     for orig_key, orig_value in next, orig, nil do
       copy[addon:DeepCopyAsync(orig_key)] = addon:DeepCopyAsync(orig_value)
     end
-    setmetatable(copy, addon:DeepCopyAsync(getmetatable(orig)))
+    local meta = addon:DeepCopyAsync(getmetatable(orig))
+    if meta then setmetatable(copy, meta) end
+  else -- number, string, boolean, etc
+    copy = orig
+  end
+  return copy
+end
+
+function addon:DeepCopy(orig)
+  local orig_type = type(orig)
+  local copy
+  if orig_type == "table" then
+    copy = {}
+    for orig_key, orig_value in next, orig, nil do
+      copy[addon:DeepCopy(orig_key)] = addon:DeepCopy(orig_value)
+    end
+    local meta = addon:DeepCopy(getmetatable(orig))
+    if meta then setmetatable(copy, meta) end
   else -- number, string, boolean, etc
     copy = orig
   end
