@@ -139,7 +139,7 @@ function addon:ExportAllProfiles()
 end
 
 function addon:UpdateIncludedAddons(pack)
-  local oldIncluded = addon.db.creatorUI[addon.db.chosenPack].includedAddons
+  local oldIncluded = addon.db.creatorUI[addon.db.chosenPack].includedAddons or {}
   pack.includedAddons = {}
   local added = {}
   local removed = {}
