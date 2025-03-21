@@ -94,9 +94,23 @@ local m = {
     if type(profileKey) ~= "string" then return end
     if not self:getProfileKeys()[profileKey] then return end
     --Core\General\Distributor.lua
-    local E = ElvUI[1]
+    local E, L, V, P, G = unpack(ElvUI)
     local D = E:GetModule("Distributor")
-    local _, profileExport = D:GetProfileExport("private", profileKey, "text")
+
+    local profileData = {}
+    profileData = E:CopyTable(profileData, ElvPrivateDB.profiles[profileKey])
+    profileData = E:RemoveTableDuplicates(profileData, V, D.GeneratedKeys.private)
+    profileData = E:FilterTableFromBlacklist(profileData, D.blacklistedKeys.private)
+    if not profileData or (profileData and type(profileData) ~= 'table') then return end
+
+    local profileExport
+    local serialString = D:Serialize(profileData)
+    local exportString = D:CreateProfileExport('private', profileKey, serialString)
+    local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
+    local compressedData = LibDeflate:CompressDeflate(exportString, { level = 5 })
+    local printableString = LibDeflate:EncodeForPrint(compressedData)
+    profileExport = printableString and format('%s%s', EXPORT_PREFIX, printableString) or nil
+
     return profileExport
   end,
   areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
