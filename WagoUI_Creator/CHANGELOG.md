@@ -1,3 +1,3 @@
-# 1.3.9 (2025-03-20)
+# 1.4.0 (2025-03-21)
 
-- export nil fix
+- ElvUI Private Profile export fix

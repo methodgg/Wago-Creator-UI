@@ -1,5 +1,3 @@
-# 1.3.7 (2025-02-28)
+# 1.4.0 (2025-03-21)
 
-- Improve expert frame UX
-- Enable Classic Era support
-- Fix a few frame sizes
+- Small fixes
