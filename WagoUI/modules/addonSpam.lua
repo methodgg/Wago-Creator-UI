@@ -15,6 +15,7 @@ local framesToHide = {
   "StreamOverlayWelcomeWindow",
   "ElvUIInstallFrame",
   "CellChangelogsFrame",
+  "FeatureWindow", --MDungeonTeleports
 }
 
 local detailsFrames = {
