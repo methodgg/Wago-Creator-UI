@@ -1,3 +1,3 @@
-# 1.4.0 (2025-03-21)
+# 1.4.1 (2025-03-24)
 
-- ElvUI Private Profile export fix
+- OmniCD wagoId
