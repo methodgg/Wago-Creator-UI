@@ -6,7 +6,7 @@ if (not private) then return end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "OmniCD",
-  wagoId = "none",
+  wagoId = "E6gLXAK1",
   oldestSupported = "v2.8.9",
   addonNames = { "OmniCD" },
   icon = C_AddOns.GetAddOnMetadata("OmniCD", "IconTexture"),
