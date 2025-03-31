@@ -16,6 +16,7 @@ local defaultSortOrder = {
   "BigWigs",
   "Bartender4",
   "Cell",
+  "Cell Unit Frames",
   "Grid2",
   "ShadowedUnitFrames",
   "WeakAuras",

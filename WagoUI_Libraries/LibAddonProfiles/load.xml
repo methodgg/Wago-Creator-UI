@@ -24,6 +24,7 @@
 	<Script file ="modules\OmniCD.lua"/>
 	<Script file ="modules\OmniCDSpellEditor.lua"/>
 	<Script file ="modules\Cell.lua"/>
+	<Script file ="modules\CellUnitFrames.lua"/>
 	<Script file ="modules\BugSack.lua"/>
 	<Script file ="modules\KuiNameplates.lua"/>
 	<Script file ="modules\WarpDeplete.lua"/>
