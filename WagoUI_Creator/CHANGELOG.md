@@ -1,3 +1,3 @@
-# 1.4.1 (2025-03-24)
+# 1.4.2 (2025-03-31)
 
-- OmniCD wagoId
+- Export additional data for Cell UnitFrames
