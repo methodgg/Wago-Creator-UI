@@ -27,7 +27,7 @@ end
 
 ---@param profileString string
 ---@return string | nil profileKey
----@return table | nil profileData
+---@return table | nil profileData only use this if the data was encapsulated in the first place, use rawData instead otherwise
 ---@return table | nil rawData
 ---@return string | nil moduleName
 function private:GenericDecode(profileString)
