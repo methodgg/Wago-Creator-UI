@@ -126,7 +126,9 @@
         "HidingBarAddon",
         "HidingBarConfigAddon",
         "NAuras",
-        "NameplateAurasAceDB"
+        "NameplateAurasAceDB",
+        "UUFDB",
+        "UUFG"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }
