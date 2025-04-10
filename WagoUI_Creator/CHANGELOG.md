@@ -1,3 +1,3 @@
-# 1.4.2 (2025-03-31)
+# 1.4.3 (2025-04-10)
 
-- Export additional data for Cell UnitFrames
+- Add Unhalted UnitFrames
