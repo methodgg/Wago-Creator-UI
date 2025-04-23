@@ -1,5 +1,6 @@
 ## Interface: 110002, 40400
-## Title: |cFFC1272DWago|rUI Storage
+## Title: Wago UI Pack Storage
+## Group: Wago
 ## IconTexture: Interface\AddOns\WagoUI_Storage\logo.png
 ## Author: The Wago Team
 ## Version: 1.0.0
