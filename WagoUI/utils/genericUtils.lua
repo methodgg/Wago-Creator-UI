@@ -1,14 +1,14 @@
----@type string
-local addonName = ...
 ---@class WagoUI
 local addon = select(2, ...)
 
+local addonNameForPrint = "|cFFC1272DWago|r UI Packs"
+
 function addon:AddonPrint(...)
-  print("|c" .. addon.color .. addonName .. "|r:", tostringall(...))
+  print(addonNameForPrint..":", tostringall(...))
 end
 
 function addon:AddonPrintError(...)
-  print("|c" .. addon.color .. addonName .. "|r|cffff9117:|r", tostringall(...))
+  print(addonNameForPrint.."|r|cffff9117:|r", tostringall(...))
 end
 
 do

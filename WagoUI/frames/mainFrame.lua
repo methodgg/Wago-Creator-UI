@@ -15,17 +15,17 @@ function addon:CreateMainFrame()
     -- UseScaleBar = true, --disable for now might use it later on
     NoCloseButton = false
   }
-  local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "Title") .. " - slash command: " .. addon.slashPrefixes[1]
+  local addonTitle = "|cFFC1272DWago|r UI Packs".." - Slash command: "..addon.slashPrefixes[1]
   local frame =
-    DF:CreateSimplePanel(
-    UIParent,
-    addon.ADDON_WIDTH,
-    addon.ADDON_HEIGHT,
-    addonTitle,
-    addonName .. "Frame",
-    panelOptions,
-    addon.db
-  )
+      DF:CreateSimplePanel(
+        UIParent,
+        addon.ADDON_WIDTH,
+        addon.ADDON_HEIGHT,
+        addonTitle,
+        addonName.."Frame",
+        panelOptions,
+        addon.db
+      )
   frame:Hide()
   DF:ApplyStandardBackdrop(frame)
   DF:CreateBorder(frame, 1, 0, 0)
@@ -50,9 +50,9 @@ function addon:CreateMainFrame()
   frame.TitleBar:SetHeight(30)
   frame.Title:SetPoint("CENTER", frame.TitleBar, "CENTER", 0, 1)
 
-  local versionString = frame.TitleBar:CreateFontString(addonName .. "VersionString", "overlay", "GameFontNormalSmall")
+  local versionString = frame.TitleBar:CreateFontString(addonName.."VersionString", "overlay", "GameFontNormalSmall")
   versionString:SetTextColor(.8, .8, .8, 1)
-  versionString:SetText("v" .. metaVersion)
+  versionString:SetText("v"..metaVersion)
   versionString:SetPoint("LEFT", frame.TitleBar, "LEFT", 2, 0)
 
   local reloadIndicator = DF:CreateButton(frame, nil, 40, 40, "", nil, nil, "UI-RefreshButton", nil, nil, nil, nil)
@@ -78,14 +78,14 @@ function addon:CreateMainFrame()
   end
 
   local autoStartCheckbox =
-    LWF:CreateCheckbox(
-    frame,
-    25,
-    function(_, _, value)
-      addon.db.autoStart = value
-    end,
-    addon.db.autoStart
-  )
+      LWF:CreateCheckbox(
+        frame,
+        25,
+        function(_, _, value)
+          addon.db.autoStart = value
+        end,
+        addon.db.autoStart
+      )
   autoStartCheckbox:SetPoint("TOPLEFT", frame, "TOPRIGHT", 10, 0)
   autoStartCheckbox:Hide()
 

@@ -43,12 +43,14 @@ function addon:ResetOptions()
   DetailsFrameworkPromptSimple:SetHeight(100)
 end
 
+local addonNameForPrint = "|cFFC1272DWago|r UI Creator"
+
 function addon:AddonPrint(...)
-  print("|c"..addon.color..addonName.."|r:", tostringall(...))
+  print(addonNameForPrint..":", tostringall(...))
 end
 
 function addon:AddonPrintError(...)
-  print("|c"..addon.color..addonName.."|r|cffff9117:|r", tostringall(...))
+  print(addonNameForPrint.."|r|cffff9117:|r", tostringall(...))
 end
 
 function addon:ShowFrame()
@@ -316,7 +318,7 @@ function addon:CreateFrames()
     -- UseScaleBar = true, --disable for now might use it later on
     NoCloseButton = false
   }
-  local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "Title")
+  local addonTitle = "|cFFC1272DWago|r UI Pack Creator - Slash command: /wagoc"
   local frame =
       DF:CreateSimplePanel(
         UIParent,
