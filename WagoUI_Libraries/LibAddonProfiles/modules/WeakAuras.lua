@@ -302,11 +302,11 @@ local m = {
       -- remove blocked data and remove blocked from controlled children
       if transmit.c then
         for k, child in pairs(transmit.c) do
-          if blockedIds[child.id] then
+          if blockedIds and blockedIds[child.id] then
             tremove(transmit.c, k)
           elseif child.controlledChildren then
             for i, controlledChild in pairs(child.controlledChildren) do
-              if blockedIds[controlledChild] then
+              if blockedIds and blockedIds[controlledChild] then
                 tremove(child.controlledChildren, i)
               end
             end
