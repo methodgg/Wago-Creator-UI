@@ -1,1 +1,0 @@
-WagoUI_Storage = {}

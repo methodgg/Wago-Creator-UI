@@ -1,9 +1,7 @@
 {
     "version": "0.2",
     "language": "en-US",
-    "ignorePaths": [
-        "**/libs"
-    ],
+    "ignorePaths": ["**/libs"],
     "words": [
         "Blizz",
         "CCDB",
@@ -39,6 +37,7 @@
         "tostringall",
         "tremove",
         "UFDB",
+        "UICDB",
         "UIDB",
         "Unserializable",
         "Unserialize",

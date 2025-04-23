@@ -1,5 +1,6 @@
 ## Interface: 110105, 40402, 11507
-## Title: |cFFC1272DWago|rUI Creator
+## Title: Wago UI Pack Creator
+## Group: Wago
 ## IconTexture: Interface\AddOns\WagoUI_Creator\media\logoSmall.png
 ## Author: The Wago Team
 ## Version: 1.4.4
