@@ -1,9 +1,12 @@
 {
     "version": "0.2",
     "language": "en-US",
-    "ignorePaths": ["**/libs"],
+    "ignorePaths": [
+        "**/libs"
+    ],
     "words": [
         "Blizz",
+        "cata",
         "CCDB",
         "cooldowns",
         "copytocompress",

@@ -9,6 +9,9 @@ local function getGameFlavorString()
   if gameVersion >= 110000 then
     return "retail"
   end
+  if gameVersion >= 50500 then
+    return "mop"
+  end
   if gameVersion >= 40400 then
     return "cata"
   end
