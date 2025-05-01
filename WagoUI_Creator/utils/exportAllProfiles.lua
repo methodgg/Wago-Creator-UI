@@ -160,7 +160,16 @@ function addon:UpdateIncludedAddons(pack)
   end
   -- add additional addons
   if pack.additionalAddons then
-    for wagoId, addonName in pairs(pack.additionalAddons) do
+    for wagoId in pairs(pack.additionalAddons) do
+      --fix addon name
+      local addonName
+      for addonIndex = 1, C_AddOns.GetNumAddOns() do
+        local id = C_AddOns.GetAddOnMetadata(addonIndex, "X-Wago-ID")
+        if id == wagoId then
+          addonName = C_AddOns.GetAddOnInfo(addonIndex)
+          break
+        end
+      end
       if not pack.includedAddons[addonName] then
         pack.includedAddons[addonName] = wagoId
         if not oldIncluded[addonName] then

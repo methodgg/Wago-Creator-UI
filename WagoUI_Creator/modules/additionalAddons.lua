@@ -431,7 +431,7 @@ local function showManageFrame(anchor)
     local wagoId = C_AddOns.GetAddOnMetadata(addonIndex, "X-Wago-ID")
     if wagoId and not blacklist[wagoId] then
       local entry = {
-        id = C_AddOns.GetAddOnMetadata(addonIndex, "Title"),
+        id = C_AddOns.GetAddOnInfo(addonIndex),
         wagoId = wagoId,
         icon = C_AddOns.GetAddOnMetadata(addonIndex, "IconTexture") or 134400
       }
