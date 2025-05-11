@@ -24,7 +24,7 @@ local m = {
     return BigWigs and true or false
   end,
   isUpdated = function(self)
-    local loaderVersionString = BigWigsLoader and BigWigsLoader:GetVersionString()
+    local loaderVersionString = BigWigsLoader and BigWigsLoader.GetVersionString and BigWigsLoader:GetVersionString()
     if loaderVersionString then
       local g, m, h = string.match(loaderVersionString, "(%d+)/(%d+)-(%w+)")
       if g and m and h then return true end --internal guild version
