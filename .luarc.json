@@ -128,7 +128,8 @@
         "NAuras",
         "NameplateAurasAceDB",
         "UUFDB",
-        "UUFG"
+        "UUFG",
+        "BigWigsAPI"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }
