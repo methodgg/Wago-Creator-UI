@@ -170,7 +170,7 @@ function addon:UpdateIncludedAddons(pack)
           break
         end
       end
-      if not pack.includedAddons[addonName] then
+      if not pack.includedAddons[addonName] and addonName then
         pack.includedAddons[addonName] = wagoId
         if not oldIncluded[addonName] then
           tinsert(added, addonName)
