@@ -1,7 +1,7 @@
 ---@class WagoUICreator
 local addon = select(2, ...)
 local L = addon.L
-local moduleName = "WeakAurasExternal"
+local moduleName = "Wago WeakAuras"
 local LAP = LibStub:GetLibrary("LibAddonProfiles")
 local lapModule = LAP:GetModule(moduleName)
 local DF = _G["DetailsFramework"]
@@ -11,7 +11,7 @@ local m
 local frameWidth = 750
 local frameHeight = 540
 local scrollBoxWidth = 250
-local scrollBoxHeight = frameHeight - 229
+local scrollBoxHeight = frameHeight - 340
 local lineHeight = 30
 local openWAButton
 
@@ -22,22 +22,17 @@ end
 ---@param resolution string
 ---@param id string
 ---@param value boolean
----@param blocked boolean | nil
-local setWeakAuraExportState = function(resolution, id, value, blocked)
+local setWeakAuraExportState = function(resolution, id, value)
   if value == false then
     addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id] = nil
     return
   end
-  if blocked then
-    value = false
-  end
   addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id] = {
     export = value,
-    blocked = blocked
   }
 end
 
-function addon:GetWeakAuraExportState(resolution, id)
+function addon:GetWeakAuraExternalExportState(resolution, id)
   addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] =
       addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] or {}
   -- migrate old values: if the value is not a table, convert it to a table
@@ -45,7 +40,6 @@ function addon:GetWeakAuraExportState(resolution, id)
   if type(value) ~= "table" and value ~= nil then
     addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id] = {
       export = value,
-      blocked = false
     }
   end
   return addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id]
@@ -58,24 +52,18 @@ local scrollBoxData = {
 
 ---@param i number
 ---@param info table
----@param block boolean | nil
-local function addToData(i, info, block)
+local function addToData(i, info)
   -- only insert if not already in list
   for _, existingInfo in ipairs(scrollBoxData[i]) do
     if existingInfo.info.id == info.info.id then
-      if existingInfo.blocked ~= block then
-        m.removeFromData(i, info)
-      else
-        return
-      end
+      m.removeFromData(i, info)
     end
   end
 
-  setWeakAuraExportState(getChosenResolution(), info.info.id, true, block)
+  setWeakAuraExportState(getChosenResolution(), info.info.id, true)
 
   local data = {
     info = info.info,
-    blocked = block
   }
 
   tinsert(scrollBoxData[i], data)
@@ -197,12 +185,6 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
       if (info) then
         local line = self:GetLine(i)
         local name = info.info.id
-        if info.blocked then
-          name = name.." ("..L["Blocked"]..")"
-          line.nameLabel:SetTextColor(1, 0, 0, 1)
-        else
-          line.nameLabel:SetTextColor(1, 1, 1, 1)
-        end
         line.nameLabel:SetText(name)
         if info.info.iconSource == -1 then
           -- TODO
@@ -284,6 +266,10 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
           buttonData.onClick(line.info)
         end
       )
+      button:HookScript("OnEnter", function(self)
+        local additionalText = buttonData.type == "urlCopy" and "\n\n"..line.info.info.url or ""
+        button:SetTooltip(buttonData.tooltip..additionalText)
+      end)
       button:HookScript(
         "OnLeave",
         function(self)
@@ -465,11 +451,15 @@ local function createManageFrame(w, h)
   m:SetFrameLevel(100)
   m.__background:SetAlpha(1)
   m:SetMouseClickEnabled(true)
-  m:SetTitle(L["WeakAuras Export Settings"])
+  m:SetTitle(L["Wago WeakAuras Export Settings"])
   m:Hide()
   m.buttons = {}
   m.StartMoving = function()
   end
+
+  local explainerLabel = DF:CreateLabel(m, L["EXTERNAL_WEAKAURAS_EXPLAINER"], 18, "white")
+  explainerLabel:SetPoint("TOPLEFT", m, "TOPLEFT", 5, -40)
+  explainerLabel:SetPoint("TOPRIGHT", m, "TOPRIGHT", -5, -40)
 
   m:HookScript(
     "OnShow",
@@ -511,6 +501,14 @@ local function createManageFrame(w, h)
         end,
         tooltip = L["Add to export list"]
       },
+      [2] = {
+        icon = 134327,
+        onClick = function(info)
+          addon:TextExport(info.info.url)
+        end,
+        tooltip = L["Copy Wago Url"],
+        type = "urlCopy"
+      }
     },
     [2] = {
       [1] = {
@@ -520,34 +518,25 @@ local function createManageFrame(w, h)
         end,
         tooltip = L["Remove from export list"]
       },
+      [2] = {
+        icon = 134327,
+        onClick = function(info)
+          addon:TextExport(info.info.url)
+        end,
+        tooltip = L["Copy Wago Url"],
+        type = "urlCopy"
+      }
     }
   }
 
   for idx, buttonConfig in ipairs(buttonConfigs) do
     local scrollBox = createGroupScrollBox(m, buttonConfig, idx)
-    scrollBox:SetPoint("TOPLEFT", m, "TOPLEFT", 60 + ((idx - 1) * (scrollBoxWidth + 110)), -125)
+    scrollBox:SetPoint("TOPLEFT", m, "TOPLEFT", 60 + ((idx - 1) * (scrollBoxWidth + 110)), -260)
     m.scrollBoxes[idx] = scrollBox
-    local labelText = idx == 1 and L["Your WeakAuras"] or idx == 2 and L["Exported WeakAuras"]
+    local labelText = idx == 1 and L["Your WeakAuras"] or idx == 2 and L["Included Wago WeakAuras"]
     local label = DF:CreateLabel(scrollBox, labelText, 20, "white")
     label:SetPoint("BOTTOM", scrollBox, "TOP", 0, 55)
   end
-
-  local purgeWagoCheckbox =
-      LWF:CreateCheckbox(
-        m,
-        25,
-        function(_, _, value)
-          WagoUICreatorDB.exportOptions[moduleName].purgeWago = value
-          lapModule:setExportOptions(WagoUICreatorDB.exportOptions[moduleName])
-        end,
-        WagoUICreatorDB.exportOptions[moduleName]
-      )
-  purgeWagoCheckbox:SetPoint("BOTTOMLEFT", m, "BOTTOMLEFT", 60, 27)
-  local purgeWagoLabel = DF:CreateLabel(m, L["Purge Wago IDs for exports"], 12, "white")
-  purgeWagoLabel:SetPoint("LEFT", purgeWagoCheckbox, "RIGHT", 10, 0)
-  -- TODO: HIDE THIS FOR NOW
-  purgeWagoCheckbox:Hide()
-  purgeWagoLabel:Hide()
 
   local okayButton = LWF:CreateButton(m, 200, 40, L["Okay"], 16)
   okayButton:SetClickFunction(
@@ -556,11 +545,6 @@ local function createManageFrame(w, h)
     end
   )
   okayButton:SetPoint("BOTTOMRIGHT", m, "BOTTOMRIGHT", -60, 20)
-
-  local weakauraWarning =
-      DF:CreateButton(m, nil, 50, 50, "", nil, nil, "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
-  weakauraWarning:SetPoint("BOTTOM", m, "BOTTOM", 0, 20)
-  weakauraWarning:SetTooltip(L["WEAKAURA_WARNING_TOOLTIP"])
 
   openWAButton = LWF:CreateButton(m, 200, 40, L["Toggle WA Options"], 16)
   openWAButton:SetClickFunction(
@@ -592,13 +576,14 @@ local function showManageFrame(anchor)
   wipe(scrollBoxData[2])
   clearWeakAuraCaches()
   for id, display in pairs(WeakAurasSaved.displays) do
-    table.insert(scrollBoxData[1], { info = display })
+    if display.wagoID and display.url and string.find(display.url, "wago.io") then
+      table.insert(scrollBoxData[1], { info = display })
+    end
     --populate second list
-    local exportState = addon:GetWeakAuraExportState(getChosenResolution(), id)
+    local exportState = addon:GetWeakAuraExternalExportState(getChosenResolution(), id)
     if exportState then
       local entry = {
         info = display,
-        blocked = exportState.blocked
       }
       table.insert(scrollBoxData[2], entry)
     end

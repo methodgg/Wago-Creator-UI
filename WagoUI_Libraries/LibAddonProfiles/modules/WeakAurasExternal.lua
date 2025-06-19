@@ -5,10 +5,12 @@ if (not private) then return end
 
 ---@type LibAddonProfilesModule
 local m = {
-  moduleName = "WeakAurasExternal",
-  wagoId = nil,
+  moduleName = "Wago WeakAuras",
+  wagoId = "VBNBxKx5",
+  oldestSupported = "5.17.0",
+  addonNames = { "WeakAuras", "WeakAurasArchive", "WeakAurasModelPaths", "WeakAurasOptions", "WeakAurasTemplates" },
   icon = [[Interface\AddOns\WagoUI_Creator\media\wagoLogo512]],
-  slash = "",
+  slash = "/wa",
   needReloadOnImport = false,
   needProfileKey = false,
   preventRename = false,
@@ -19,16 +21,17 @@ local m = {
     return WeakAuras and true or false
   end,
   isUpdated = function(self)
-    local LAP = LibStub:GetLibrary("LibAddonProfiles")
-    local waModule = LAP:GetModule("WeakAuras")
-    return private:GenericVersionCheck(waModule)
+    return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
     return false
   end,
   openConfig = function(self)
+    if not SlashCmdList["WEAKAURAS"] then return end
+    SlashCmdList["WEAKAURAS"]("")
   end,
   closeConfig = function(self)
+    WeakAurasOptions:Hide()
   end,
   isDuplicate = function(self, profileKey)
     return false
@@ -38,9 +41,27 @@ local m = {
   importProfile = function(self, profileString, profileKey, fromIntro)
   end,
   exportProfile = function(self, profileKey)
+    if type(profileKey) ~= "table" then return end
+    local displayIds = profileKey
+    local wagoSlugs = {}
+    for id in pairs(displayIds) do
+      local slug = self:exportGroup(id)
+      if slug then
+        wagoSlugs[id] = slug
+      end
+    end
+    return wagoSlugs
+  end,
+  exportGroup = function(self, profileKey)
+    local id = profileKey
+    local original = WeakAuras.GetData(id)
+    if not original.url then return end
+    local wagoSlug = original.url:match("https://wago.io/([^/%s]+)")
+    return wagoSlug
   end,
   areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
-    return false
+    if not tableA or not tableB then return false end
+    return private:DeepCompareAsync(tableA, tableB)
   end,
 }
 

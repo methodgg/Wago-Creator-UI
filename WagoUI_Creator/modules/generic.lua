@@ -21,6 +21,7 @@ local defaultSortOrder = {
   "Grid2",
   "ShadowedUnitFrames",
   "WeakAuras",
+  "Wago WeakAuras",
   "Echo Raid Tools",
   "Talent Loadout Ex",
   "OmniCC",

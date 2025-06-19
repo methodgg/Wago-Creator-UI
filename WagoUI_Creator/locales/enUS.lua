@@ -3,6 +3,10 @@
 local addon = select(2, ...)
 addon.L = {}
 local L = addon.L
+L["Wago WeakAuras Export Settings"] = "Wago WeakAuras Export Settings"
+L["Included Wago WeakAuras"] = "Included Wago WeakAuras"
+L["EXTERNAL_WEAKAURAS_EXPLAINER"] = "You can specify additional WeakAuras from wago.io to be included in your UI Pack. The user will always get the latest version of the WeakAura directly from wago.io when installing it through your UI Pack.\nYou need to have the WeakAura you want to include imported on your client."
+L["Copy Wago Url"] = "Copy Wago Url"
 L["Blocked"] = "Blocked"
 L["Type to search for\nyour AddOns"]  = "Type to search for\nyour AddOns"
 L["Mark Addons as\nIncluded"] = "Mark Addons as\nIncluded"
