@@ -41,27 +41,11 @@ local m = {
   importProfile = function(self, profileString, profileKey, fromIntro)
   end,
   exportProfile = function(self, profileKey)
-    if type(profileKey) ~= "table" then return end
-    local displayIds = profileKey
-    local wagoSlugs = {}
-    for id in pairs(displayIds) do
-      local slug = self:exportGroup(id)
-      if slug then
-        wagoSlugs[id] = slug
-      end
-    end
-    return wagoSlugs
   end,
   exportGroup = function(self, profileKey)
-    local id = profileKey
-    local original = WeakAuras.GetData(id)
-    if not original.url then return end
-    local wagoSlug = original.url:match("https://wago.io/([^/%s]+)")
-    return wagoSlug
   end,
   areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
-    if not tableA or not tableB then return false end
-    return private:DeepCompareAsync(tableA, tableB)
+    return false
   end,
 }
 

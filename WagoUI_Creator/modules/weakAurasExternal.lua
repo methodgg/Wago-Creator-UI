@@ -15,35 +15,14 @@ local scrollBoxHeight = frameHeight - 340
 local lineHeight = 30
 local openWAButton
 
-local getChosenResolution = function()
-  return addon:GetCurrentPackStashed().resolutions.chosen
+---@param weakAuraId string
+---@param wagoSlug string | nil
+local setWeakAuraIncludedState = function(weakAuraId, wagoSlug)
+  local pack = addon:GetCurrentPackStashed()
+  pack.wagoWeakAuras = pack.wagoWeakAuras or {}
+  pack.wagoWeakAuras[weakAuraId] = wagoSlug
 end
 
----@param resolution string
----@param id string
----@param value boolean
-local setWeakAuraExportState = function(resolution, id, value)
-  if value == false then
-    addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id] = nil
-    return
-  end
-  addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id] = {
-    export = value,
-  }
-end
-
-function addon:GetWeakAuraExternalExportState(resolution, id)
-  addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] =
-      addon:GetCurrentPackStashed().profileKeys[resolution][moduleName] or {}
-  -- migrate old values: if the value is not a table, convert it to a table
-  local value = addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id]
-  if type(value) ~= "table" and value ~= nil then
-    addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id] = {
-      export = value,
-    }
-  end
-  return addon:GetCurrentPackStashed().profileKeys[resolution][moduleName][id]
-end
 
 local scrollBoxData = {
   [1] = {},
@@ -60,7 +39,8 @@ local function addToData(i, info)
     end
   end
 
-  setWeakAuraExportState(getChosenResolution(), info.info.id, true)
+  local wagoSlug = info.info.url:match("https://wago.io/([^/%s]+)")
+  setWeakAuraIncludedState(info.info.id, wagoSlug)
 
   local data = {
     info = info.info,
@@ -483,7 +463,7 @@ local function createManageFrame(w, h)
     for idx, lineInfo in ipairs(scrollBoxData[i]) do
       if lineInfo.info.id == info.info.id then
         tremove(scrollBoxData[i], idx)
-        setWeakAuraExportState(getChosenResolution(), info.info.id, false)
+        setWeakAuraIncludedState(info.info.id, nil)
         break
       end
     end
@@ -579,13 +559,20 @@ local function showManageFrame(anchor)
     if display.wagoID and display.url and string.find(display.url, "wago.io") then
       table.insert(scrollBoxData[1], { info = display })
     end
-    --populate second list
-    local exportState = addon:GetWeakAuraExternalExportState(getChosenResolution(), id)
-    if exportState then
-      local entry = {
-        info = display,
-      }
-      table.insert(scrollBoxData[2], entry)
+  end
+  local pack = addon:GetCurrentPackStashed()
+  if pack.wagoWeakAuras then
+    for weakAuraId, wagoSlug in pairs(pack.wagoWeakAuras) do
+      local display = WeakAurasSaved.displays[weakAuraId]
+      if display then
+        local entry = {
+          info = display,
+        }
+        table.insert(scrollBoxData[2], entry)
+      else
+        -- remove entry if the WA is no longer installed for the creator
+        pack.wagoWeakAuras[weakAuraId] = nil
+      end
     end
   end
   for i = 1, 2 do

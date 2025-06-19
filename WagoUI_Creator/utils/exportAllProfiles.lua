@@ -127,6 +127,8 @@ function addon:ExportAllProfiles()
       numUpdates = numUpdates + addon:CountRemovedProfiles(addon.db.chosenPack)
       local includedAdded, includedRemoved = addon:UpdateIncludedAddons(currentUIPack)
       numUpdates = numUpdates + #includedAdded + #includedRemoved
+      local includedWAAdded, includedWARemoved = addon:UpdateIncludedWagoWeakAuras(currentUIPack)
+      numUpdates = numUpdates + #includedWAAdded + #includedWARemoved
       if numUpdates > 0 then
         addon.copyHelper:SmartHide()
         currentUIPack.updatedAt = timestamp
@@ -139,6 +141,25 @@ function addon:ExportAllProfiles()
     end,
     "ExportAllProfiles"
   )
+end
+
+function addon:UpdateIncludedWagoWeakAuras(pack)
+  local oldWagoWeakAuras = addon.db.creatorUI[addon.db.chosenPack].wagoWeakAuras or {}
+  local added = {}
+  local removed = {}
+  for weakAuraId, wagoSlug in pairs(oldWagoWeakAuras) do
+    if not pack.wagoWeakAuras[weakAuraId] or pack.wagoWeakAuras[weakAuraId] ~= wagoSlug then
+      tinsert(removed, weakAuraId)
+    end
+  end
+  if pack.wagoWeakAuras then
+    for weakAuraId, wagoSlug in pairs(pack.wagoWeakAuras) do
+      if not oldWagoWeakAuras[weakAuraId] or oldWagoWeakAuras[weakAuraId] ~= wagoSlug then
+        tinsert(added, weakAuraId)
+      end
+    end
+  end
+  return added, removed
 end
 
 function addon:UpdateIncludedAddons(pack)
