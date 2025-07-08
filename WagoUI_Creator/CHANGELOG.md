@@ -1,3 +1,3 @@
-# 1.4.7 (2025-06-20)
+# 1.4.8 (2025-07-08)
 
-- Patch 11.1.7 Update
+- BigWigs compatibility update
