@@ -71,7 +71,7 @@ local m = {
   end,
   setProfile = function(self, profileKey)
     if not profileKey then return end
-    BigWigs.db:SetProfile(profileKey)
+    BigWigsLoader.db:SetProfile(profileKey)
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
     if not profileString then return end
@@ -165,7 +165,7 @@ local m = {
   refreshHookList = {
     {
       tableFunc = function()
-        return BigWigs.db
+        return BigWigsLoader.db
       end,
       functionNames = { "SetProfile", "DeleteProfile" }
     }
