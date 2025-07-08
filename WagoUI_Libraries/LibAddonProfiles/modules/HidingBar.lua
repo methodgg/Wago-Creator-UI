@@ -58,8 +58,10 @@ local m = {
   setProfile = function(self, profileKey)
     if not profileKey then return end
     if not self:getProfileKeys()[profileKey] then return end
-    HidingBarAddon:setProfile(profileKey)
-    HidingBarConfigAddon:hidingBarUpdate()
+    xpcall(function()
+      HidingBarAddon:setProfile(profileKey)
+      HidingBarConfigAddon:hidingBarUpdate()
+    end, geterrorhandler())
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
     if not profileString then return end
