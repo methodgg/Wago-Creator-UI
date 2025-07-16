@@ -151,9 +151,11 @@ function addon:UpdateIncludedAddons(pack)
       for addonName in pairs(addons) do
         ---@type LibAddonProfilesModule
         local lapModule = LAP:GetModule(addonName)
-        local wagoId = lapModule.wagoId
-        if wagoId then
-          pack.includedAddons[lapModule.moduleName] = wagoId
+        if lapModule then
+          local wagoId = lapModule.wagoId
+          if wagoId then
+            pack.includedAddons[lapModule.moduleName] = wagoId
+          end
         end
       end
     end
