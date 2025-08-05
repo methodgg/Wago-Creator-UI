@@ -1,9 +1,9 @@
-## Interface: 110107, 50500, 40402, 11507
+## Interface: 110200, 110107, 50500, 40402, 11507
 ## Title: Wago UI Pack Creator
 ## Group: WagoAppCompanion
 ## IconTexture: Interface\AddOns\WagoUI_Creator\media\logoSmall.png
 ## Author: The Wago Team
-## Version: 1.4.8
+## Version: 1.5.0
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
 ## SavedVariables: WagoUICreatorDB
