@@ -28,7 +28,7 @@ end
 local m = {
   moduleName = "Cell",
   wagoId = "qv63LLKb",
-  oldestSupported = "r244-release",
+  oldestSupported = "r261-release",
   addonNames = { "Cell" },
   conflictingAddons = { "VuhDo", "VuhDoOptions", "Grid2" },
   icon = C_AddOns.GetAddOnMetadata("Cell", "IconTexture"),
@@ -96,6 +96,9 @@ local m = {
     -- if includeCharacter then
     --     db["characterDB"] = F:Copy(CellCharacterDB)
     -- end
+    db["flavor"] = Cell.flavor
+    db["fallbackGroupType"] = nil
+    db["fallbackInMythic"] = nil
     local serialized = private:LibSerializeSerializeAsyncEx(nil, db)
     coroutine.yield()
     local compressed = LibDeflate:CompressDeflate(serialized, { level = 5 })
