@@ -3,6 +3,6 @@
   <Include file="locales\loadLocales.xml"/>
   <Include file="utils\loadUtils.xml"/>
   <Include file="modules\loadModules.xml"/>
-  <Include file="frames\loadFrames.xml"/>
+  <Include file="wagoFrames\loadFrames.xml"/>
 	<Include file="main.lua"/>
 </Ui>
