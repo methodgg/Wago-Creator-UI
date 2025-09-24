@@ -5,7 +5,7 @@ local addon = select(2, ...)
 local DF = _G["DetailsFramework"]
 local LWF = LibStub("LibWagoFramework")
 local L = addon.L
-local LAP = LibStub:GetLibrary("LibAddonProfiles")
+local LAP = LibStub and LibStub:GetLibrary("LibAddonProfiles", true)
 
 ---@type string | nil
 local currentSelectedCharacter = nil
@@ -24,7 +24,8 @@ local function setAllProfilesAsync()
   -- Keys that need to be retrieved from WagoUI db need to also be stored in WagoUI db again
   -- This is needed when the user "chains" characters
   addon:GetImportedProfilesTarget()
-  for _, lapModule in pairs(LAP:GetAllModules()) do
+  if LAP then
+    for _, lapModule in pairs(LAP:GetAllModules()) do
     if lapModule:isLoaded() and lapModule:isUpdated() then
       local profileAssignments = lapModule.getProfileAssignments and lapModule:getProfileAssignments()
       if profileAssignments then
@@ -44,7 +45,7 @@ local function setAllProfilesAsync()
           addon:StoreImportedProfileData(updatedAt, lapModule.moduleName, profileKey)
         end
       end
-    elseif LAP:CanEnableAnyAddOn(lapModule.addonNames) then
+    elseif LAP and LAP:CanEnableAnyAddOn(lapModule.addonNames) then
       -- check if we have imported via WagoUI on that character and the module is not loaded
       -- we need to load the addon, reload UI and continue setting the profile
       local profileKey, updatedAt = addon:GetLatestImportedProfile(currentSelectedCharacter, lapModule.moduleName)
@@ -54,6 +55,7 @@ local function setAllProfilesAsync()
       end
     end
     coroutine.yield()
+  end
   end
 end
 
@@ -69,7 +71,7 @@ function addon:ContinueSetAllProfiles()
     function()
       for _, data in ipairs(addon.dbC.needLoad) do
         ---@type LibAddonProfilesModule
-        local lap = LAP:GetModule(data.moduleName)
+        local lap = LAP and LAP:GetModule(data.moduleName)
         local profileKeys = lap.getProfileKeys and lap:getProfileKeys()
         if profileKeys and data.profileKey and profileKeys[data.profileKey] then
           lap:setProfile(data.profileKey)
@@ -179,8 +181,10 @@ function addon:CreateAltFrame(f)
           if #needLoad > 0 then
             addon.dbC.needLoad = needLoad
             for _, data in ipairs(needLoad) do
-              local lap = LAP:GetModule(data.moduleName)
-              LAP:EnableAddOns(lap.addonNames)
+              local lap = LAP and LAP:GetModule(data.moduleName)
+              if lap and LAP then
+                LAP:EnableAddOns(lap.addonNames)
+              end
             end
             header:SetText(L["altFrameHeader4"])
           else

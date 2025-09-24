@@ -4,7 +4,7 @@ local DF = _G["DetailsFramework"]
 local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
 local db
 local L = addon.L
-local LAP = LibStub:GetLibrary("LibAddonProfiles")
+local LAP = LibStub and LibStub:GetLibrary("LibAddonProfiles", true)
 
 local widths = {
   options = 60,
