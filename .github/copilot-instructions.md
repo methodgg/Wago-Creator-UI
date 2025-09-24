@@ -36,8 +36,9 @@ Always reference these instructions first and fallback to search or bash command
   luacheck WagoUI --no-color          # ~0.4 seconds
   luacheck WagoUI_Creator --no-color  # ~0.4 seconds
   
-  # Test specific file
+  # Test specific file (if WoW API globals are undefined, add --globals flag)
   luacheck path/to/changed/file.lua --no-color  # <0.1 seconds
+  luacheck WagoUI/main.lua --globals UIParent DetailsFrameworkPromptSimple --no-color
   ```
 
 ### Build Process
