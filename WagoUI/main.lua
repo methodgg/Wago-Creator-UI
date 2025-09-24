@@ -64,7 +64,9 @@ end
 
 function init()
   addon:RegisterErrorHandledFunctions()
-  addon:SetupWagoData()
+  if addon.SetupWagoData then
+    addon:SetupWagoData()
+  end
   addon:CreateCopyHelper()
   local mainFrame = addon:CreateMainFrame()
   addon:CreateIntroFrame(mainFrame)

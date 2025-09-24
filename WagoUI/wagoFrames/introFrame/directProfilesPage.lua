@@ -45,7 +45,9 @@ local function createPage()
       for _, data in pairs(addon.db.introImportState[res]) do
         data.checked = value
       end
-      addon:SetupWagoData()
+      if addon.SetupWagoData then
+        addon:SetupWagoData()
+      end
       addon:UpdateRegisteredDataConsumers()
     end,
     checkboxDefaultValue
