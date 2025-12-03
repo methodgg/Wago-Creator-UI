@@ -1,6 +1,6 @@
 ---@class WagoUI
 local addon = select(2, ...)
-local LAP = LibStub:GetLibrary("LibAddonProfiles")
+local LAP = LibStub and LibStub:GetLibrary("LibAddonProfiles", true)
 local db
 
 --- We want to get the latest imported profile for a character and module.
@@ -75,7 +75,7 @@ function addon:SetupWagoData()
       if type(moduleData) == "string" then
         newIntroImportState[resolution][moduleName] = {}
         local profileData = source.profiles[resolution][moduleName]
-        local lap = LAP:GetModule(moduleName)
+        local lap = LAP and LAP:GetModule(moduleName)
         if profileData and lap then
           if lap:needsInitialization() then
             lap:openConfig()
@@ -119,7 +119,7 @@ function addon:SetupWagoData()
       elseif moduleName == "WeakAuras" or moduleName == "Echo Raid Tools" then
         for groupId in pairs(moduleData) do
           local profile = source.profiles[resolution][moduleName] and source.profiles[resolution][moduleName][groupId]
-          local lap = LAP:GetModule(moduleName)
+          local lap = LAP and LAP:GetModule(moduleName)
           if profile and lap then
             tinsert(
               addon.wagoData[resolution],
@@ -165,7 +165,9 @@ function addon:SetActivePack(packId)
   db.selectedWagoData = packId
   addon:RefreshResolutionDropdown()
   addon:SetUIPackDropdownToPack(packId)
-  addon:SetupWagoData()
+  if addon.SetupWagoData then
+    addon:SetupWagoData()
+  end
   addon:UpdateRegisteredDataConsumers()
 end
 
@@ -195,7 +197,9 @@ function addon:GetResolutionsForDropdown()
           label = addon:GetResolutionString(key, "displayNameShort"),
           onclick = function()
             db.selectedWagoDataResolution = key
-            addon:SetupWagoData()
+            if addon.SetupWagoData then
+              addon:SetupWagoData()
+            end
             addon:UpdateRegisteredDataConsumers()
           end
         }
