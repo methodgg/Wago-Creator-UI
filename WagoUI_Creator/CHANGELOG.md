@@ -1,3 +1,3 @@
-# 1.6.1 (2025-12-03)
+# 1.6.2 (2026-01-15)
 
-- Patch 11.2.7 update
+- TBC Anniversary UI Packs support
