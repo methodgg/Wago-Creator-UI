@@ -1,9 +1,9 @@
-## Interface: 110207, 50502, 40402, 11507
+## Interface: 110207, 50502, 40402, 11507, 20505
 ## Title: Wago UI Pack Installer
 ## Group: WagoAppCompanion
 ## IconTexture: Interface\AddOns\WagoUI\media\logoSmall.png
 ## Author: The Wago Team
-## Version: 1.6.1
+## Version: 1.6.2
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
 ## OptionalDeps: WagoUI_Creator, WagoUI_Storage
