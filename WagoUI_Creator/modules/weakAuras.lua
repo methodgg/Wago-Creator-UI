@@ -525,7 +525,7 @@ local function createManageFrame(w, h)
   local buttonConfigs = {
     [1] = {
       [1] = {
-        icon = 450908,
+        icon = [[Interface\AddOns\WagoUI_Creator\media\misc_arrowright]],
         onClick = function(info)
           addToData(2, info)
         end,
@@ -541,7 +541,7 @@ local function createManageFrame(w, h)
     },
     [2] = {
       [1] = {
-        icon = 4200126,
+        icon = [[Interface\AddOns\WagoUI_Creator\media\misc_rnrredxbutton]],
         onClick = function(info)
           removeFromData(2, info)
         end,
