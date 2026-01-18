@@ -129,7 +129,9 @@
         "NameplateAurasAceDB",
         "UUFDB",
         "UUFG",
-        "BigWigsAPI"
+        "BigWigsAPI",
+        "MPTSV",
+        "MPTAPI"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }

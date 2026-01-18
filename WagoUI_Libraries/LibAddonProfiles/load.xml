@@ -35,5 +35,6 @@
 	<Script file ="modules\NameplateAuras.lua"/>
 	<Script file ="modules\AdditionalAddons.lua"/>
 	<Script file ="modules\UnhaltedUnitFrames.lua"/>
+	<Script file ="modules\MPlusTimer.lua"/>
 	<Script file ="finalize.lua"/>
 </Ui>
