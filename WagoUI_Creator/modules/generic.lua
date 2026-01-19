@@ -40,6 +40,7 @@ local defaultSortOrder = {
   "MPlusTimer",
   "TargetedSpells",
   "AzortharionUI",
+  "BetterBlizzFrames",
 }
 
 for _, lapModule in pairs(LAP:GetAllModules()) do

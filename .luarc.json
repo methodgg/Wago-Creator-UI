@@ -136,7 +136,9 @@
         "MSG",
         "TargetedSpellsAPI",
         "AzortharionUI_DB",
-        "AUIG"
+        "AUIG",
+        "BBF",
+        "BetterBlizzFramesDB"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }
