@@ -131,7 +131,9 @@
         "UUFG",
         "BigWigsAPI",
         "MPTSV",
-        "MPTAPI"
+        "MPTAPI",
+        "MinimapStatsDB",
+        "MSG"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }

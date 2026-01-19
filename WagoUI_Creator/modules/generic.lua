@@ -36,6 +36,8 @@ local defaultSortOrder = {
   "OmniBar",
   "HidingBar",
   "NameplateAuras",
+  "MinimapStats",
+  "MPlusTimer"
 }
 
 for _, lapModule in pairs(LAP:GetAllModules()) do
