@@ -142,7 +142,8 @@
         "BBP",
         "BetterBlizzPlatesDB",
         "sArena_ReloadedDB",
-        "sArena"
+        "sArena",
+        "SCRB"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }

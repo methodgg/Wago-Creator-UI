@@ -42,5 +42,6 @@
 	<!-- <Script file ="modules\BetterBlizzFrames.lua"/> -->
 	<!-- <Script file ="modules\BetterBlizzPlates.lua"/> -->
 	<!-- <Script file ="modules\sArenaReloaded.lua"/> -->
+	<!-- <Script file ="modules\SenseiClassResourceBar.lua"/> -->
 	<Script file ="finalize.lua"/>
 </Ui>
