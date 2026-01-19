@@ -134,7 +134,9 @@
         "MPTAPI",
         "MinimapStatsDB",
         "MSG",
-        "TargetedSpellsAPI"
+        "TargetedSpellsAPI",
+        "AzortharionUI_DB",
+        "AUIG"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }

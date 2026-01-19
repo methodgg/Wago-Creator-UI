@@ -38,7 +38,8 @@ local defaultSortOrder = {
   "NameplateAuras",
   "MinimapStats",
   "MPlusTimer",
-  "TargetedSpells"
+  "TargetedSpells",
+  "AzortharionUI",
 }
 
 for _, lapModule in pairs(LAP:GetAllModules()) do

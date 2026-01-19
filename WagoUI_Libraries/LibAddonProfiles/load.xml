@@ -38,5 +38,6 @@
 	<Script file ="modules\MPlusTimer.lua"/>
 	<Script file ="modules\MinimapStats.lua"/>
 	<Script file ="modules\TargetedSpells.lua"/>
+	<Script file ="modules\AzortharionUI.lua"/>
 	<Script file ="finalize.lua"/>
 </Ui>
