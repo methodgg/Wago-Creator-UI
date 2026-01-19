@@ -5,13 +5,13 @@ if (not private) then return end
 
 ---@type LibAddonProfilesModule
 local m = {
-  moduleName = "Unhalted Unit Frames",
-  wagoId = "96do35NO",
-  oldestSupported = "1.3",
-  addonNames = { "UnhaltedUF" },
-  conflictingAddons = { "BetterBlizzFrames", "MidnightSimpleUnitFrames", "ShadowedUnitFrames", "ShadowedUF_Options", "PitBull4" },
-  icon = C_AddOns.GetAddOnMetadata("UnhaltedUF", "IconTexture"),
-  slash = "/uuf",
+  moduleName = "Midnight Simple Unit Frames",
+  wagoId = "XKq9aoKy",
+  oldestSupported = "1.62",
+  addonNames = { "MidnightSimpleUnitFrames" },
+  conflictingAddons = { "BetterBlizzFrames", "UnhaltedUF", "ShadowedUnitFrames", "ShadowedUF_Options", "PitBull4" },
+  icon = C_AddOns.GetAddOnMetadata("MidnightSimpleUnitFrames", "IconTexture"),
+  slash = "/msuf",
   needReloadOnImport = true,
   needProfileKey = true,
   preventRename = false,
@@ -29,45 +29,39 @@ local m = {
     return false
   end,
   openConfig = function(self)
-    UUFG.OpenUUFGUI()
+    if not SlashCmdList["MSUFOPTIONS"] then return end
+    SlashCmdList["MSUFOPTIONS"]()
   end,
   closeConfig = function(self)
-    UUFG.CloseUUFGUI()
+    MSUF_StandaloneOptionsWindow:Hide()
   end,
   getProfileKeys = function(self)
-    return UUFDB.profiles
+    return {
+      ["Global"] = true
+    }
   end,
   getCurrentProfileKey = function(self)
-    local characterName = UnitName("player").." - "..GetRealmName()
-    return UUFDB.profileKeys and UUFDB.profileKeys[characterName]
+    return "Global"
   end,
   isDuplicate = function(self, profileKey)
-    if not profileKey then return false end
-    return self:getProfileKeys()[profileKey] ~= nil
+    return true
   end,
   setProfile = function(self, profileKey)
-    local characterName = UnitName("player").." - "..GetRealmName()
-    UUFDB.profileKeys[characterName] = profileKey
+
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if profileData and profileData.General and profileData.General.ForegroundColour then
-      -- should be unique enough for now
-      return profileKey
-    end
+
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
     xpcall(function()
-      UUFG:ImportUUF(profileString, profileKey)
+
     end, geterrorhandler())
   end,
   exportProfile = function(self, profileKey)
-    if not profileKey then return end
-    if type(profileKey) ~= "string" then return end
-    if not self:getProfileKeys()[profileKey] then return end
     local export
     xpcall(function()
-      export = UUFG:ExportUUF(profileKey)
+
     end, geterrorhandler())
     return export
   end,

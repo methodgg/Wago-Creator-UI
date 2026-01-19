@@ -43,5 +43,6 @@
 	<!-- <Script file ="modules\BetterBlizzPlates.lua"/> -->
 	<!-- <Script file ="modules\sArenaReloaded.lua"/> -->
 	<!-- <Script file ="modules\SenseiClassResourceBar.lua"/> -->
+	<!-- <Script file ="modules\MidnightSimpleUnitFrames.lua"/> -->
 	<Script file ="finalize.lua"/>
 </Ui>
