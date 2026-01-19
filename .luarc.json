@@ -138,7 +138,9 @@
         "AzortharionUI_DB",
         "AUIG",
         "BBF",
-        "BetterBlizzFramesDB"
+        "BetterBlizzFramesDB",
+        "BBP",
+        "BetterBlizzPlatesDB"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }
