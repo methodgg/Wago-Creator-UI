@@ -6,7 +6,7 @@ if (not private) then return end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "Sensei Class Resource Bar",
-  wagoId = "?", --todo: no wago yet
+  wagoId = "ANzk0V64",
   oldestSupported = "1.3.6",
   addonNames = { "SenseiClassResourceBar" },
   conflictingAddons = {},
