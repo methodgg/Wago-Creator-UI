@@ -140,7 +140,9 @@
         "BBF",
         "BetterBlizzFramesDB",
         "BBP",
-        "BetterBlizzPlatesDB"
+        "BetterBlizzPlatesDB",
+        "sArena_ReloadedDB",
+        "sArena"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }

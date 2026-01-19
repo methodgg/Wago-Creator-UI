@@ -42,6 +42,7 @@ local defaultSortOrder = {
   "AzortharionUI",
   "BetterBlizzFrames",
   "BetterBlizzPlates",
+  "sArenaReloaded",
 }
 
 for _, lapModule in pairs(LAP:GetAllModules()) do
