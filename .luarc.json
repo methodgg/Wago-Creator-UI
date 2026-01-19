@@ -133,7 +133,8 @@
         "MPTSV",
         "MPTAPI",
         "MinimapStatsDB",
-        "MSG"
+        "MSG",
+        "TargetedSpellsAPI"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }

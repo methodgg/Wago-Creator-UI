@@ -37,5 +37,6 @@
 	<Script file ="modules\UnhaltedUnitFrames.lua"/>
 	<Script file ="modules\MPlusTimer.lua"/>
 	<Script file ="modules\MinimapStats.lua"/>
+	<Script file ="modules\TargetedSpells.lua"/>
 	<Script file ="finalize.lua"/>
 </Ui>
