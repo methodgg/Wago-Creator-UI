@@ -135,9 +135,11 @@ local m = {
     local _, layouts = layoutManager:EnumerateLayouts()
     for i, layout in pairs(layouts) do
       if layout.layoutID == layoutIDs[1] then
-        if layout.classAndSpecTag ~= tag then
+        local layoutTag = tonumber(layout.classAndSpecTag);
+        local playerTag = tonumber(tag);
+        if math.abs(layoutTag - playerTag) > 5 then
           removeProfile(profileKey)
-          print("Imported layout's class/spec does not match current specialization. Layout has been removed.")
+          print("Imported layout's class does not match current specialization. Layout has been removed.")
         end
         break
       end
