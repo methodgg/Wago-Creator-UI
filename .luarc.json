@@ -156,7 +156,8 @@
         "EnhanceQoL",
         "DandersFramesDB_v2",
         "DandersFramesGUI",
-        "DandersFrames_Export"
+        "DandersFrames_Export",
+        "DandersFrames_Import"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }

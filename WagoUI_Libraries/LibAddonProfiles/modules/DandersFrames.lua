@@ -54,7 +54,7 @@ local m = {
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
     xpcall(function()
-
+      DandersFrames_Import(profileString, profileKey)
     end, geterrorhandler())
   end,
   exportProfile = function(self, profileKey)
@@ -71,8 +71,8 @@ local m = {
     if not profileStringA or not profileStringB then
       return false
     end
-    local _, _, profileDataA = private:GenericDecode(profileStringA, false)
-    local _, _, profileDataB = private:GenericDecode(profileStringB, false)
+    local _, _, profileDataA = private:GenericDecode(profileStringA, false, true)
+    local _, _, profileDataB = private:GenericDecode(profileStringB, false, true)
     if not profileDataA or not profileDataB then
       return false
     end
