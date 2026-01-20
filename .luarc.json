@@ -147,7 +147,9 @@
         "MSUF_StandaloneOptionsWindow",
         "MSUF_GlobalDB",
         "MSUF_ImportFromString",
-        "MSUF_SerializeDB"
+        "MSUF_SerializeDB",
+        "CooldownViewerSettings",
+        "CooldownViewerUtil"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }

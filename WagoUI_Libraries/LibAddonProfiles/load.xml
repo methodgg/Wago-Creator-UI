@@ -9,6 +9,7 @@
 	<Script file ="modules\Bartender4.lua"/>
 	<Script file ="modules\BigWigs.lua"/>
 	<Script file ="modules\EditMode.lua"/>
+	<Script file ="modules\CooldownManager.lua"/>
 	<Script file ="modules\ElvUI.lua"/>
 	<Script file ="modules\ElvUIPrivate.lua"/>
 	<Script file ="modules\ElvUIGlobal.lua"/>
