@@ -47,8 +47,8 @@
   <Script file ="modules\EQOL.lua"/>
   <Script file ="modules\EQOL_UF.lua"/>
   <Script file ="modules\EQOL_RESOURCE.lua"/>
-  <Script file ="modules\DandersFrames.lua"/>
-  <Script file ="modules\DandersFramesClickCasting.lua"/>
+  <!-- <Script file ="modules\DandersFrames.lua"/> -->
+  <!-- <Script file ="modules\DandersFramesClickCasting.lua"/> -->
 	<!-- <Script file ="modules\SenseiClassResourceBar.lua"/> -->
 	<!-- <Script file ="modules\MidnightSimpleUnitFrames.lua"/> -->
 	<Script file ="finalize.lua"/>
