@@ -153,7 +153,10 @@
         "CooldownManagerCenteredDB",
         "CooldownManagerCentered",
         "EnhanceQoLDB",
-        "EnhanceQoL"
+        "EnhanceQoL",
+        "DandersFramesDB_v2",
+        "DandersFramesGUI",
+        "DandersFrames_Export"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }
