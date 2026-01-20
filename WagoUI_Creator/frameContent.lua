@@ -344,7 +344,7 @@ function addon:CreateProfileList(f, width, height)
     line.lastUpdateLabel = lastUpdateLabel
 
     line.alternateProfileButton = LWF:CreateButton(line, 120, 30, L["Add Alternative"], 12)
-    line:AddFrameToHeaderAlignment(line.alternateProfileButton)
+    -- line:AddFrameToHeaderAlignment(line.alternateProfileButton)
 
     -- export button
     if addon.db.debug then
