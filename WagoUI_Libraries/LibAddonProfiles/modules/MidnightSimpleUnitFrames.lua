@@ -36,15 +36,13 @@ local m = {
     MSUF_StandaloneOptionsWindow:Hide()
   end,
   getProfileKeys = function(self)
-    return {
-      ["Global"] = true
-    }
+
   end,
   getCurrentProfileKey = function(self)
-    return "Global"
+
   end,
   isDuplicate = function(self, profileKey)
-    return true
+
   end,
   setProfile = function(self, profileKey)
 
@@ -69,8 +67,9 @@ local m = {
     if not profileStringA or not profileStringB then
       return false
     end
-    local _, _, profileDataA = private:GenericDecode(profileStringA)
-    local _, _, profileDataB = private:GenericDecode(profileStringB)
+    -- TODO TEST THIS
+    local profileDataA = C_EncodingUtil.DeserializeCBOR(C_EncodingUtil.DecodeBase64(profileStringA))
+    local profileDataB = C_EncodingUtil.DeserializeCBOR(C_EncodingUtil.DecodeBase64(profileStringB))
     if not profileDataA or not profileDataB then
       return false
     end
