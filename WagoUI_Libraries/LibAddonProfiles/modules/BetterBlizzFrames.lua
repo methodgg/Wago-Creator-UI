@@ -55,8 +55,7 @@ local m = {
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
     xpcall(function()
-      -- TODO: doesnt import, need a different function from author
-      BBF.ImportProfile(profileString, "fullProfile")
+      BBF.ImportProfile(profileString)
     end, geterrorhandler())
   end,
   exportProfile = function(self, profileKey)

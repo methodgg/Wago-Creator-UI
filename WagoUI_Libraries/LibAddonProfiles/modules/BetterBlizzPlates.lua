@@ -55,8 +55,7 @@ local m = {
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
     xpcall(function()
-      -- TODO: doesnt import, need a different function from author
-      BBP.ImportProfile(profileString, "fullProfile")
+      BBP.ImportProfile(profileString)
     end, geterrorhandler())
   end,
   exportProfile = function(self, profileKey)
@@ -71,8 +70,8 @@ local m = {
       return false
     end
     -- return "!BBP" .. encoded .. "!BBP"
-    local _, _, profileDataA = private:GenericDecode(profileStringA:sub(5, profileStringA:len() - 4), true, true)
-    local _, _, profileDataB = private:GenericDecode(profileStringB:sub(5, profileStringB:len() - 4), true, true)
+    local _, _, profileDataA = private:GenericDecode(profileStringA:sub(5, profileStringA:len() - 4), true)
+    local _, _, profileDataB = private:GenericDecode(profileStringB:sub(5, profileStringB:len() - 4), true)
     if not profileDataA or not profileDataB then
       return false
     end
