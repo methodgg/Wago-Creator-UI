@@ -45,6 +45,7 @@ local defaultSortOrder = {
   "sArenaReloaded",
   "SenseiClassResourceBar",
   "CooldownManager",
+  "CooldownManagerCentered",
 }
 
 for _, lapModule in pairs(LAP:GetAllModules()) do
