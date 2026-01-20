@@ -151,7 +151,9 @@
         "CooldownViewerSettings",
         "CooldownViewerUtil",
         "CooldownManagerCenteredDB",
-        "CooldownManagerCentered"
+        "CooldownManagerCentered",
+        "EnhanceQoLDB",
+        "EnhanceQoL"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }
