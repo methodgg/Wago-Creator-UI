@@ -3,23 +3,25 @@ local _, loadingAddonNamespace = ...
 local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
 if (not private) then return end
 
+local optionsFrame
+
 ---@type LibAddonProfilesModule
 local m = {
-  moduleName = "Unhalted Unit Frames",
-  wagoId = "96do35NO",
-  oldestSupported = "1.3",
-  addonNames = { "UnhaltedUF" },
-  conflictingAddons = { "BetterBlizzFrames", "MidnightSimpleUnitFrames", "ShadowedUnitFrames", "ShadowedUF_Options", "PitBull4" },
-  icon = C_AddOns.GetAddOnMetadata("UnhaltedUF", "IconTexture"),
-  slash = "/uuf",
-  needReloadOnImport = true,
-  needProfileKey = true,
-  preventRename = false,
+  moduleName = "MinimapStats",
+  wagoId = "qGYM7vGg",
+  oldestSupported = "6.3",
+  addonNames = { "MinimapStats" },
+  conflictingAddons = {},
+  icon = C_AddOns.GetAddOnMetadata("MinimapStats", "IconTexture"),
+  slash = "/ms",
+  needReloadOnImport = false,
+  needProfileKey = false,
+  preventRename = true,
   willOverrideProfile = true,
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)
-    local loaded = C_AddOns.IsAddOnLoaded("UnhaltedUF")
+    local loaded = C_AddOns.IsAddOnLoaded("MinimapStats")
     return loaded
   end,
   isUpdated = function(self)
@@ -29,45 +31,53 @@ local m = {
     return false
   end,
   openConfig = function(self)
-    UUFG.OpenUUFGUI()
+    MSG:CreateGUI()
   end,
   closeConfig = function(self)
-    UUFG.CloseUUFGUI()
+    local titleToFind = C_AddOns.GetAddOnMetadata("MinimapStats", "Title")
+    local function findOptionsFrame()
+      for i = 1, select("#", UIParent:GetChildren()) do
+        local childFrame = select(i, UIParent:GetChildren())
+        if childFrame and childFrame.obj and childFrame.obj.titletext then
+          if childFrame.obj.titletext:GetText() == titleToFind then
+            return childFrame
+          end
+        end
+      end
+    end
+    optionsFrame = optionsFrame or findOptionsFrame()
+    if optionsFrame then
+      optionsFrame:Hide()
+    end
   end,
   getProfileKeys = function(self)
-    return UUFDB.profiles
+    return {
+      ["Global"] = true
+    }
   end,
   getCurrentProfileKey = function(self)
-    local characterName = UnitName("player").." - "..GetRealmName()
-    return UUFDB.profileKeys and UUFDB.profileKeys[characterName]
+    return "Global"
   end,
   isDuplicate = function(self, profileKey)
-    if not profileKey then return false end
-    return self:getProfileKeys()[profileKey] ~= nil
+    return true
   end,
   setProfile = function(self, profileKey)
-    local characterName = UnitName("player").." - "..GetRealmName()
-    UUFDB.profileKeys[characterName] = profileKey
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if profileData and profileData.General and profileData.General.ForegroundColour then
-      -- should be unique enough for now
+    if profileData and profileData.InstanceDifficulty and profileData.Location then
       return profileKey
     end
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
     xpcall(function()
-      UUFG:ImportUUF(profileString, profileKey)
+      MSG:ImportSavedVariables(profileString)
     end, geterrorhandler())
   end,
   exportProfile = function(self, profileKey)
-    if not profileKey then return end
-    if type(profileKey) ~= "string" then return end
-    if not self:getProfileKeys()[profileKey] then return end
     local export
     xpcall(function()
-      export = UUFG:ExportUUF(profileKey)
+      export = MSG:ExportSavedVariables()
     end, geterrorhandler())
     return export
   end,
@@ -75,8 +85,8 @@ local m = {
     if not profileStringA or not profileStringB then
       return false
     end
-    local _, _, profileDataA = private:GenericDecode(profileStringA)
-    local _, _, profileDataB = private:GenericDecode(profileStringB)
+    local _, _, profileDataA = private:GenericDecode(profileStringA:sub(4))
+    local _, _, profileDataB = private:GenericDecode(profileStringB:sub(4))
     if not profileDataA or not profileDataB then
       return false
     end

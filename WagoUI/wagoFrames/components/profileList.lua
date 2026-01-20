@@ -29,9 +29,9 @@ function addon:CreateProfileList(parent, frameWidth, frameHeight)
       Mixin(line, BackdropTemplateMixin)
     end
     ---@diagnostic disable-next-line: undefined-field
-    line:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+    line:SetBackdrop({ bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true })
     ---@diagnostic disable-next-line: undefined-field
-    line:SetBackdropColor(unpack({.8, .8, .8, 0.3}))
+    line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
     DF:Mixin(line, DF.HeaderFunctions)
 
     -- icon
@@ -80,9 +80,9 @@ function addon:CreateProfileList(parent, frameWidth, frameHeight)
         local line = self:GetLine(i)
         local loaded = lap:isLoaded() and lap:isUpdated()
         if loaded then
-          line:SetBackdropColor(unpack({.8, .8, .8, 0.3}))
+          line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
         else
-          line:SetBackdropColor(unpack({.8, .8, .8, 0.1}))
+          line:SetBackdropColor(unpack({ .8, .8, .8, 0.1 }))
         end
 
         -- icon
@@ -119,7 +119,7 @@ function addon:CreateProfileList(parent, frameWidth, frameHeight)
         end
 
         local importedLastUpdatedAt, importedProfileKey = addon:GetImportedProfileData(info.moduleName, info.entryName)
-        local profileKey = importedProfileKey or info.profileKey
+        local profileKey = info.profileKey
         -- profile key
         line.profileKeyLabel:SetText(info.entryName and "" or profileKey)
 
@@ -145,29 +145,29 @@ function addon:CreateProfileList(parent, frameWidth, frameHeight)
   end
 
   local headerTable = {
-    {text = L["Options"], width = widths.options, offset = 1},
-    {text = L["Name"], width = widths.name},
-    {text = L["Action"], width = widths.action},
-    {text = L["Profile"], width = widths.profile},
-    {text = L["Latest Version"], width = frameWidth - totalHeaderWidth + widths.lastUpdate - 35}
+    { text = L["Options"],        width = widths.options,                                        offset = 1 },
+    { text = L["Name"],           width = widths.name },
+    { text = L["Action"],         width = widths.action },
+    { text = L["Profile"],        width = widths.profile },
+    { text = L["Latest Version"], width = frameWidth - totalHeaderWidth + widths.lastUpdate - 35 }
   }
   local headerOptions = {
     text_size = 12
   }
   local lineHeight = 42
   contentScrollbox =
-    DF:CreateScrollBox(
-    parent,
-    nil,
-    contentScrollboxUpdate,
-    {},
-    frameWidth - 30,
-    frameHeight,
-    0,
-    lineHeight,
-    createScrollLine,
-    true
-  )
+      DF:CreateScrollBox(
+        parent,
+        nil,
+        contentScrollboxUpdate,
+        {},
+        frameWidth - 30,
+        frameHeight,
+        0,
+        lineHeight,
+        createScrollLine,
+        true
+      )
   ---@diagnostic disable-next-line: inject-field
   header = DF:CreateHeader(parent, headerTable, headerOptions, nil)
   contentScrollbox:SetPoint("TOPLEFT", header, "BOTTOMLEFT")
@@ -182,5 +182,5 @@ function addon:CreateProfileList(parent, frameWidth, frameHeight)
     contentScrollbox:Refresh()
   end
 
-  return {header = header, contentScrollbox = contentScrollbox, updateData = updateData}
+  return { header = header, contentScrollbox = contentScrollbox, updateData = updateData }
 end

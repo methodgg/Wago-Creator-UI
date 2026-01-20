@@ -5,21 +5,21 @@ if (not private) then return end
 
 ---@type LibAddonProfilesModule
 local m = {
-  moduleName = "Unhalted Unit Frames",
-  wagoId = "96do35NO",
-  oldestSupported = "1.3",
-  addonNames = { "UnhaltedUF" },
-  conflictingAddons = { "BetterBlizzFrames", "MidnightSimpleUnitFrames", "ShadowedUnitFrames", "ShadowedUF_Options", "PitBull4" },
-  icon = C_AddOns.GetAddOnMetadata("UnhaltedUF", "IconTexture"),
-  slash = "/uuf",
+  moduleName = "Enhance QoL Unit Frames",
+  wagoId = "aN0Ykv6j",
+  oldestSupported = "7.2.0",
+  addonNames = { "EnhanceQoL" },
+  conflictingAddons = {},
+  icon = C_AddOns.GetAddOnMetadata("EnhanceQoL", "IconTexture"),
+  slash = "/eqol",
   needReloadOnImport = true,
   needProfileKey = true,
   preventRename = false,
-  willOverrideProfile = true,
+  willOverrideProfile = false,
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)
-    local loaded = C_AddOns.IsAddOnLoaded("UnhaltedUF")
+    local loaded = C_AddOns.IsAddOnLoaded("EnhanceQoL")
     return loaded
   end,
   isUpdated = function(self)
@@ -29,36 +29,34 @@ local m = {
     return false
   end,
   openConfig = function(self)
-    UUFG.OpenUUFGUI()
+    if not SlashCmdList["ENHANCEQOL"] then return end
+    SlashCmdList["ENHANCEQOL"]("")
   end,
   closeConfig = function(self)
-    UUFG.CloseUUFGUI()
+    SettingsPanel:Hide()
   end,
   getProfileKeys = function(self)
-    return UUFDB.profiles
+    return EnhanceQoLDB.profiles
   end,
   getCurrentProfileKey = function(self)
-    local characterName = UnitName("player").." - "..GetRealmName()
-    return UUFDB.profileKeys and UUFDB.profileKeys[characterName]
+    local characterName = UnitGUID("player")
+    return EnhanceQoLDB.profileKeys and EnhanceQoLDB.profileKeys[characterName]
   end,
   isDuplicate = function(self, profileKey)
     if not profileKey then return false end
     return self:getProfileKeys()[profileKey] ~= nil
   end,
   setProfile = function(self, profileKey)
-    local characterName = UnitName("player").." - "..GetRealmName()
-    UUFDB.profileKeys[characterName] = profileKey
+    local characterName = UnitGUID("player")
+    EnhanceQoLDB.profileKeys[characterName] = profileKey
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if profileData and profileData.General and profileData.General.ForegroundColour then
-      -- should be unique enough for now
-      return profileKey
-    end
+
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
     xpcall(function()
-      UUFG:ImportUUF(profileString, profileKey)
+      EnhanceQoL.importUFProfile(profileString, "ALL")
     end, geterrorhandler())
   end,
   exportProfile = function(self, profileKey)
@@ -67,7 +65,7 @@ local m = {
     if not self:getProfileKeys()[profileKey] then return end
     local export
     xpcall(function()
-      export = UUFG:ExportUUF(profileKey)
+      export = EnhanceQoL.exportUFProfile(profileKey, "ALL")
     end, geterrorhandler())
     return export
   end,
@@ -75,8 +73,8 @@ local m = {
     if not profileStringA or not profileStringB then
       return false
     end
-    local _, _, profileDataA = private:GenericDecode(profileStringA)
-    local _, _, profileDataB = private:GenericDecode(profileStringB)
+    local _, _, profileDataA = private:GenericDecode(profileStringA, false)
+    local _, _, profileDataB = private:GenericDecode(profileStringB, false)
     if not profileDataA or not profileDataB then
       return false
     end

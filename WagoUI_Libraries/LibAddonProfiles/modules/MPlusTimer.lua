@@ -5,21 +5,21 @@ if (not private) then return end
 
 ---@type LibAddonProfilesModule
 local m = {
-  moduleName = "Unhalted Unit Frames",
-  wagoId = "96do35NO",
-  oldestSupported = "1.3",
-  addonNames = { "UnhaltedUF" },
-  conflictingAddons = { "BetterBlizzFrames", "MidnightSimpleUnitFrames", "ShadowedUnitFrames", "ShadowedUF_Options", "PitBull4" },
-  icon = C_AddOns.GetAddOnMetadata("UnhaltedUF", "IconTexture"),
-  slash = "/uuf",
-  needReloadOnImport = true,
+  moduleName = "MPlusTimer",
+  wagoId = "BKpqWZGE",
+  oldestSupported = "1.0.13",
+  addonNames = { "MPlusTimer" },
+  conflictingAddons = {},
+  icon = C_AddOns.GetAddOnMetadata("MPlusTimer", "IconTexture"),
+  slash = "/mpt",
+  needReloadOnImport = false,
   needProfileKey = true,
   preventRename = false,
   willOverrideProfile = true,
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)
-    local loaded = C_AddOns.IsAddOnLoaded("UnhaltedUF")
+    local loaded = C_AddOns.IsAddOnLoaded("MPlusTimer")
     return loaded
   end,
   isUpdated = function(self)
@@ -29,36 +29,38 @@ local m = {
     return false
   end,
   openConfig = function(self)
-    UUFG.OpenUUFGUI()
+    if not SlashCmdList["ACECONSOLE_MPT"] then
+      return
+    end
+    SlashCmdList["ACECONSOLE_MPT"]()
   end,
   closeConfig = function(self)
-    UUFG.CloseUUFGUI()
+    SettingsPanel:Hide()
   end,
   getProfileKeys = function(self)
-    return UUFDB.profiles
+    return MPTSV.Profiles
   end,
   getCurrentProfileKey = function(self)
-    local characterName = UnitName("player").." - "..GetRealmName()
-    return UUFDB.profileKeys and UUFDB.profileKeys[characterName]
+    local characterName = UnitName("player").."-"..GetNormalizedRealmName()
+    return MPTSV.ProfileKey and MPTSV.ProfileKey[characterName]
   end,
   isDuplicate = function(self, profileKey)
     if not profileKey then return false end
     return self:getProfileKeys()[profileKey] ~= nil
   end,
   setProfile = function(self, profileKey)
-    local characterName = UnitName("player").." - "..GetRealmName()
+    local characterName = UnitName("player").."-"..GetNormalizedRealmName()
     UUFDB.profileKeys[characterName] = profileKey
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if profileData and profileData.General and profileData.General.ForegroundColour then
-      -- should be unique enough for now
+    if profileData and profileData.ChestTimer1 and profileData.ChestTimer2 then
       return profileKey
     end
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
     xpcall(function()
-      UUFG:ImportUUF(profileString, profileKey)
+      MPTAPI:ImportProfile(profileString, profileKey, true)
     end, geterrorhandler())
   end,
   exportProfile = function(self, profileKey)
@@ -67,7 +69,7 @@ local m = {
     if not self:getProfileKeys()[profileKey] then return end
     local export
     xpcall(function()
-      export = UUFG:ExportUUF(profileKey)
+      export = MPTAPI:GetExportString(profileKey)
     end, geterrorhandler())
     return export
   end,

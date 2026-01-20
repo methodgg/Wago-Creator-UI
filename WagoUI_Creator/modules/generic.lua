@@ -36,6 +36,20 @@ local defaultSortOrder = {
   "OmniBar",
   "HidingBar",
   "NameplateAuras",
+  "MinimapStats",
+  "MPlusTimer",
+  "TargetedSpells",
+  "AzortharionUI",
+  "BetterBlizzFrames",
+  "BetterBlizzPlates",
+  "sArenaReloaded",
+  "SenseiClassResourceBar",
+  "CooldownManager",
+  "Cooldown Manager Centered",
+  "Enhance QoL",
+  "Enhance QoL Unit Frames",
+  "Enhance QoL Resource Bars",
+  "DandersFrames",
 }
 
 for _, lapModule in pairs(LAP:GetAllModules()) do

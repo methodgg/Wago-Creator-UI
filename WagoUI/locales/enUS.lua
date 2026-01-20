@@ -3,7 +3,6 @@
 local addon = select(2, ...)
 addon.L = {}
 local L = addon.L
-
 L["Scroll down for WeakAuras!"] = "Scroll down for WeakAuras!"
 L["Open an issue on GitHub"] = "Open an issue on GitHub"
 L["Provide feedback in Discord"] = "Provide feedback in Discord"

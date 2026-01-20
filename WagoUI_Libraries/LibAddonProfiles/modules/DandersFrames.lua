@@ -5,21 +5,21 @@ if (not private) then return end
 
 ---@type LibAddonProfilesModule
 local m = {
-  moduleName = "Unhalted Unit Frames",
-  wagoId = "96do35NO",
-  oldestSupported = "1.3",
-  addonNames = { "UnhaltedUF" },
-  conflictingAddons = { "BetterBlizzFrames", "MidnightSimpleUnitFrames", "ShadowedUnitFrames", "ShadowedUF_Options", "PitBull4" },
-  icon = C_AddOns.GetAddOnMetadata("UnhaltedUF", "IconTexture"),
-  slash = "/uuf",
+  moduleName = "DandersFrames",
+  wagoId = "RNL9B46o",
+  oldestSupported = "3.1.12",
+  addonNames = { "DandersFrames" },
+  conflictingAddons = {},
+  icon = C_AddOns.GetAddOnMetadata("DandersFrames", "IconTexture"),
+  slash = "/df",
   needReloadOnImport = true,
   needProfileKey = true,
   preventRename = false,
-  willOverrideProfile = true,
+  willOverrideProfile = false,
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)
-    local loaded = C_AddOns.IsAddOnLoaded("UnhaltedUF")
+    local loaded = C_AddOns.IsAddOnLoaded("DandersFrames")
     return loaded
   end,
   isUpdated = function(self)
@@ -29,36 +29,32 @@ local m = {
     return false
   end,
   openConfig = function(self)
-    UUFG.OpenUUFGUI()
+    if not SlashCmdList["DANDERSFRAMES"] then return end
+    SlashCmdList["DANDERSFRAMES"]("")
   end,
   closeConfig = function(self)
-    UUFG.CloseUUFGUI()
+    DandersFramesGUI:Hide()
   end,
   getProfileKeys = function(self)
-    return UUFDB.profiles
+    return DandersFramesDB_v2.profiles
   end,
   getCurrentProfileKey = function(self)
-    local characterName = UnitName("player").." - "..GetRealmName()
-    return UUFDB.profileKeys and UUFDB.profileKeys[characterName]
+    return DandersFramesDB_v2.currentProfile
   end,
   isDuplicate = function(self, profileKey)
     if not profileKey then return false end
     return self:getProfileKeys()[profileKey] ~= nil
   end,
   setProfile = function(self, profileKey)
-    local characterName = UnitName("player").." - "..GetRealmName()
-    UUFDB.profileKeys[characterName] = profileKey
+    DandersFramesDB_v2.currentProfile = profileKey
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if profileData and profileData.General and profileData.General.ForegroundColour then
-      -- should be unique enough for now
-      return profileKey
-    end
+
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
     xpcall(function()
-      UUFG:ImportUUF(profileString, profileKey)
+
     end, geterrorhandler())
   end,
   exportProfile = function(self, profileKey)
@@ -67,7 +63,7 @@ local m = {
     if not self:getProfileKeys()[profileKey] then return end
     local export
     xpcall(function()
-      export = UUFG:ExportUUF(profileKey)
+      export = DandersFrames_Export(profileKey)
     end, geterrorhandler())
     return export
   end,
@@ -75,8 +71,8 @@ local m = {
     if not profileStringA or not profileStringB then
       return false
     end
-    local _, _, profileDataA = private:GenericDecode(profileStringA)
-    local _, _, profileDataB = private:GenericDecode(profileStringB)
+    local _, _, profileDataA = private:GenericDecode(profileStringA, false)
+    local _, _, profileDataB = private:GenericDecode(profileStringB, false)
     if not profileDataA or not profileDataB then
       return false
     end

@@ -26,20 +26,31 @@ function private:GenericEncode(profileKey, profile, moduleName)
 end
 
 ---@param profileString string
+---@param useLibSerialize boolean | nil If true, use LibSerialize instead of AceSerializer
+---@param debug boolean | nil If true, print debug messages to vdt
 ---@return string | nil profileKey
 ---@return table | nil profileData only use this if the data was encapsulated in the first place, use rawData instead otherwise
 ---@return table | nil rawData
 ---@return string | nil moduleName
-function private:GenericDecode(profileString)
+function private:GenericDecode(profileString, useLibSerialize, debug)
   local Serializer = LibStub:GetLibrary("AceSerializer-3.0Async")
   local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
   local decoded = LibDeflate:DecodeForPrint(profileString)
+  if debug then vdt(decoded, "decoded") end
   coroutine.yield()
   if not decoded then return end
   local decompressed = LibDeflate:DecompressDeflate(decoded)
+  if debug then vdt(decompressed, "decompressed") end
   coroutine.yield()
   if not decompressed then return end
-  local success, data = Serializer:Deserialize(decompressed)
+  local success, data
+  if useLibSerialize then
+    data = private:LibSerializeDeserializeAsync(decompressed)
+    success = data ~= nil
+  else
+    success, data = Serializer:Deserialize(decompressed)
+  end
+  if debug then vdt(data, "data") end
   coroutine.yield()
   if success and data then
     return data.profileKey, data.profile, data, data.moduleName

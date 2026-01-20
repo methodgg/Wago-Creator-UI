@@ -96,7 +96,7 @@ function addon:SetupWagoData()
           else
             newChecked = previousState.checked
           end
-          local profileKey = findAppropriateProfileKey(moduleData, lap)
+          local profileKey = moduleData
           newIntroImportState[resolution][moduleName] = {
             checked = newChecked,
             profileMetadata = source.profileMetadata[resolution][moduleName],

@@ -5,21 +5,21 @@ if (not private) then return end
 
 ---@type LibAddonProfilesModule
 local m = {
-  moduleName = "Unhalted Unit Frames",
-  wagoId = "96do35NO",
-  oldestSupported = "1.3",
-  addonNames = { "UnhaltedUF" },
-  conflictingAddons = { "BetterBlizzFrames", "MidnightSimpleUnitFrames", "ShadowedUnitFrames", "ShadowedUF_Options", "PitBull4" },
-  icon = C_AddOns.GetAddOnMetadata("UnhaltedUF", "IconTexture"),
-  slash = "/uuf",
+  moduleName = "sArena Reloaded",
+  wagoId = "5NRebvG3",
+  oldestSupported = "2.3.3",
+  addonNames = { "sArena_Reloaded" },
+  conflictingAddons = {},
+  icon = 135884,
+  slash = "/sarena",
   needReloadOnImport = true,
   needProfileKey = true,
   preventRename = false,
-  willOverrideProfile = true,
+  willOverrideProfile = false,
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)
-    local loaded = C_AddOns.IsAddOnLoaded("UnhaltedUF")
+    local loaded = C_AddOns.IsAddOnLoaded("sArena_Reloaded")
     return loaded
   end,
   isUpdated = function(self)
@@ -29,17 +29,17 @@ local m = {
     return false
   end,
   openConfig = function(self)
-    UUFG.OpenUUFGUI()
+    LibStub("AceConfigDialog-3.0"):Open("sArena")
   end,
   closeConfig = function(self)
-    UUFG.CloseUUFGUI()
+    LibStub("AceConfigDialog-3.0"):Close("sArena")
   end,
   getProfileKeys = function(self)
-    return UUFDB.profiles
+    return sArena_ReloadedDB.profiles
   end,
   getCurrentProfileKey = function(self)
     local characterName = UnitName("player").." - "..GetRealmName()
-    return UUFDB.profileKeys and UUFDB.profileKeys[characterName]
+    return sArena_ReloadedDB.profileKeys and sArena_ReloadedDB.profileKeys[characterName]
   end,
   isDuplicate = function(self, profileKey)
     if not profileKey then return false end
@@ -47,18 +47,15 @@ local m = {
   end,
   setProfile = function(self, profileKey)
     local characterName = UnitName("player").." - "..GetRealmName()
-    UUFDB.profileKeys[characterName] = profileKey
+    sArena_ReloadedDB.profileKeys[characterName] = profileKey
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if profileData and profileData.General and profileData.General.ForegroundColour then
-      -- should be unique enough for now
-      return profileKey
-    end
+
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
     xpcall(function()
-      UUFG:ImportUUF(profileString, profileKey)
+      sArena:ImportProfile(profileString, profileKey, true)
     end, geterrorhandler())
   end,
   exportProfile = function(self, profileKey)
@@ -67,7 +64,7 @@ local m = {
     if not self:getProfileKeys()[profileKey] then return end
     local export
     xpcall(function()
-      export = UUFG:ExportUUF(profileKey)
+      export = sArena:ExportProfile(profileKey)
     end, geterrorhandler())
     return export
   end,
@@ -75,8 +72,8 @@ local m = {
     if not profileStringA or not profileStringB then
       return false
     end
-    local _, _, profileDataA = private:GenericDecode(profileStringA)
-    local _, _, profileDataB = private:GenericDecode(profileStringB)
+    local _, _, profileDataA = private:GenericDecode(profileStringA:sub(9, profileStringA:len() - 8), true)
+    local _, _, profileDataB = private:GenericDecode(profileStringB:sub(9, profileStringB:len() - 8), true)
     if not profileDataA or not profileDataB then
       return false
     end

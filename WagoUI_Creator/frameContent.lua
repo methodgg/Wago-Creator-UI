@@ -61,7 +61,7 @@ function addon:CreateProfileList(f, width, height)
           line.exportButton:Hide()
         end
         line.lastUpdateLabel:SetText("")
-        line:SetBackdropColor(unpack({.8, .8, .8, 0.1}))
+        line:SetBackdropColor(unpack({ .8, .8, .8, 0.1 }))
         line.notInstalledLabel:SetText("")
       else
         line.icon:Show()
@@ -84,10 +84,10 @@ function addon:CreateProfileList(f, width, height)
         local loaded = lapModule:isLoaded() and lapModule:isUpdated() and res.enabled[res.chosen]
         local canEnable = LAP:CanEnableAnyAddOn(lapModule.addonNames)
         if loaded then
-          line:SetBackdropColor(unpack({.8, .8, .8, 0.3}))
+          line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
           line.icon:SetEnabled(true)
         else
-          line:SetBackdropColor(unpack({.5, .5, .5, 0.1}))
+          line:SetBackdropColor(unpack({ .5, .5, .5, 0.1 }))
           line.icon:SetEnabled(false)
         end
 
@@ -141,7 +141,7 @@ function addon:CreateProfileList(f, width, height)
         else
           line.notInstalledLabel:SetText(
             info.queuedEnable and L["Enabled after reload"] or canEnable and L["AddOn disabled - click to enable"] or
-              L["Not Installed"]
+            L["Not Installed"]
           )
         end
 
@@ -173,7 +173,7 @@ function addon:CreateProfileList(f, width, height)
             end
           end
           if marked > 0 then
-            line.manageButton:SetText(L["Manage"] .. " (" .. marked .. ")")
+            line.manageButton:SetText(L["Manage"].." ("..marked..")")
           else
             line.manageButton:SetText(L["Manage"])
           end
@@ -184,16 +184,16 @@ function addon:CreateProfileList(f, width, height)
         local profileKey = currentUIPack.profileKeys[currentUIPack.resolutions.chosen][info.name]
         local fallbackOptions = function()
           return profileKey and
-            {
               {
-                value = profileKey,
-                label = profileKey,
-                onclick = function()
-                  addon.UpdatePackSelectedUI()
-                end
-              }
-            } or
-            {}
+                {
+                  value = profileKey,
+                  label = profileKey,
+                  onclick = function()
+                    addon.UpdatePackSelectedUI()
+                  end
+                }
+              } or
+              {}
         end
         line.profileDropdown.func = loaded and info.dropdown1Options or fallbackOptions
         line.profileDropdown:Refresh()
@@ -249,13 +249,13 @@ function addon:CreateProfileList(f, width, height)
           local setExportButtonText = function()
             local text = L["Export"]
             if lapModule.nonNativeProfileString then
-              text = text .. " " .. L["nonNativeExportLabel"]
+              text = text.." "..L["nonNativeExportLabel"]
             end
             line.exportButton:SetText(text)
           end
           setExportButtonText()
           if lapModule.nonNativeProfileString then
-            line.exportButton:SetTooltip(L["exportButtonWarning"] .. "\n\n" .. L["nonNativeExportTooltip"])
+            line.exportButton:SetTooltip(L["exportButtonWarning"].."\n\n"..L["nonNativeExportTooltip"])
           else
             line.exportButton:SetTooltip(L["exportButtonWarning"])
           end
@@ -298,8 +298,8 @@ function addon:CreateProfileList(f, width, height)
     if not line.SetBackdrop then
       Mixin(line, BackdropTemplateMixin)
     end
-    line:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
-    line:SetBackdropColor(unpack({.8, .8, .8, 0.3}))
+    line:SetBackdrop({ bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true })
+    line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
     DF:Mixin(line, DF.HeaderFunctions)
 
     -- icon
@@ -314,16 +314,16 @@ function addon:CreateProfileList(f, width, height)
 
     -- profile dropdown
     local profileDropdown =
-      LWF:CreateDropdown(
-      line,
-      180,
-      30,
-      nil,
-      1,
-      function()
-        return {}
-      end
-    )
+        LWF:CreateDropdown(
+          line,
+          180,
+          30,
+          nil,
+          1,
+          function()
+            return {}
+          end
+        )
     tinsert(profileDropdowns, profileDropdown)
     line:AddFrameToHeaderAlignment(profileDropdown)
     line.profileDropdown = profileDropdown
@@ -342,6 +342,9 @@ function addon:CreateProfileList(f, width, height)
     local lastUpdateLabel = DF:CreateLabel(line, "", 10, "white")
     line:AddFrameToHeaderAlignment(lastUpdateLabel)
     line.lastUpdateLabel = lastUpdateLabel
+
+    line.alternateProfileButton = LWF:CreateButton(line, 120, 30, L["Add Alternative"], 12)
+    -- line:AddFrameToHeaderAlignment(line.alternateProfileButton)
 
     -- export button
     if addon.db.debug then
@@ -432,9 +435,11 @@ function addon:CreateProfileList(f, width, height)
       newPackEditBox:SetFocus()
     end
   end
+
   function addon:ResetNewPackErrorLabel()
     addon:SetNewPackErrorLabel(L["Use the same name as you did on the website"], false)
   end
+
   addon:ResetNewPackErrorLabel()
 
   addon.GetNewEditBoxText = function()
@@ -448,7 +453,7 @@ function addon:CreateProfileList(f, width, height)
   local deletePackButton = LWF:CreateButton(f, 150, 40, L["Delete"], 16)
   deletePackButton:SetClickFunction(addon.DeleteCurrentPackStashed)
   f.deletePackButton = deletePackButton
-  addLine({packDropdown, newPackEditBox, createNewPackButton, deletePackButton}, 5, -10)
+  addLine({ packDropdown, newPackEditBox, createNewPackButton, deletePackButton }, 5, -10)
 
   -- resolution
   local resolutions = {}
@@ -510,7 +515,7 @@ function addon:CreateProfileList(f, width, height)
   resolutionEnabledLabel:SetText(L["Enable this resolution"])
 
   -- logo
-  local logo = DF:CreateImage(f, [[Interface\AddOns\]] .. addonName .. [[\media\wagoLogo512]], 100, 100)
+  local logo = DF:CreateImage(f, [[Interface\AddOns\]]..addonName..[[\media\wagoLogo512]], 100, 100)
   logo:SetPoint("TOPRIGHT", f, "TOPRIGHT", -17, 21)
   f.logo = logo
 
@@ -631,10 +636,11 @@ function addon:CreateProfileList(f, width, height)
           button.disabled_overlay:Show()
         end
 
-        button:SetText(res.displayNameShort .. "\n" .. (enabled and L["Enabled"] or L["Disabled"]))
+        button:SetText(res.displayNameShort.."\n"..(enabled and L["Enabled"] or L["Disabled"]))
       end
     end
   end
+
   addon:UpdateTabButtons()
 
   local reloadIndicator = DF:CreateButton(f, nil, 40, 40, "", nil, nil, "UI-RefreshButton", nil, nil, nil, nil)
@@ -661,7 +667,7 @@ function addon:CreateProfileList(f, width, height)
     options = 60,
     name = 450,
     profile = 200,
-    lastUpdate = 150
+    lastUpdate = 100
   }
   if addon.db.debug then
     widths["export"] = 200
@@ -672,32 +678,33 @@ function addon:CreateProfileList(f, width, height)
   end
 
   local headerTable = {
-    {text = L["Options"], width = widths.options, offset = 1},
-    {text = L["Name"], width = widths.name},
-    {text = L["Profile to Save"], width = widths.profile},
-    {text = L["Last Save"], width = width - totalHeaderWidth + widths.lastUpdate}
+    { text = L["Options"],         width = widths.options,          offset = 1 },
+    { text = L["Name"],            width = widths.name },
+    { text = L["Profile to Save"], width = widths.profile },
+    { text = L["Last Save"],       width = widths.lastUpdate },
+    { text = L["Alternative"],     width = width - totalHeaderWidth }
   }
 
   if addon.db.debug then
-    table.insert(headerTable, {text = L["Export"], width = width - totalHeaderWidth + widths.export})
+    table.insert(headerTable, { text = L["Export"], width = width - totalHeaderWidth + widths.export })
   end
   local lineHeight = 42
   local contentScrollbox =
-    DF:CreateScrollBox(
-    f,
-    nil,
-    contentScrollboxUpdate,
-    {},
-    width - 17,
-    height - totalHeight - 85,
-    0,
-    lineHeight,
-    createScrollLine,
-    true
-  )
-  f.contentHeader = DF:CreateHeader(f, headerTable, nil, addonName .. "ContentHeader")
+      DF:CreateScrollBox(
+        f,
+        nil,
+        contentScrollboxUpdate,
+        {},
+        width - 17,
+        height - totalHeight - 85,
+        0,
+        lineHeight,
+        createScrollLine,
+        true
+      )
+  f.contentHeader = DF:CreateHeader(f, headerTable, nil, addonName.."ContentHeader")
   f.contentScrollbox = contentScrollbox
-  addLine({f.contentHeader}, 0, 10)
+  addLine({ f.contentHeader }, 0, 10)
   contentScrollbox:SetPoint("TOPLEFT", f.contentHeader, "BOTTOMLEFT")
   contentScrollbox.ScrollBar.scrollStep = 60
   DF:ReskinSlider(contentScrollbox)
