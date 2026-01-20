@@ -157,7 +157,9 @@
         "DandersFramesDB_v2",
         "DandersFramesGUI",
         "DandersFrames_Export",
-        "DandersFrames_Import"
+        "DandersFrames_Import",
+        "DandersFrames_ClickCast_Export",
+        "DandersFrames_ClickCast_Import"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }

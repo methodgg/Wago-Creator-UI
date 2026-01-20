@@ -5,7 +5,7 @@ if (not private) then return end
 
 ---@type LibAddonProfilesModule
 local m = {
-  moduleName = "DandersFrames",
+  moduleName = "DandersFrames Click Castings",
   wagoId = "RNL9B46o",
   oldestSupported = "3.1.12",
   addonNames = { "DandersFrames" },
@@ -36,17 +36,17 @@ local m = {
     DandersFramesGUI:Hide()
   end,
   getProfileKeys = function(self)
-    return DandersFramesDB_v2.profiles
+    return {
+      ["Global"] = true
+    }
   end,
   getCurrentProfileKey = function(self)
-    return DandersFramesDB_v2.currentProfile
+    return "Global"
   end,
   isDuplicate = function(self, profileKey)
-    if not profileKey then return false end
-    return self:getProfileKeys()[profileKey] ~= nil
+    return true
   end,
   setProfile = function(self, profileKey)
-    DandersFramesDB_v2.currentProfile = profileKey
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
 
@@ -54,16 +54,14 @@ local m = {
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
     xpcall(function()
-      DandersFrames_Import(profileString, profileKey)
+      DandersFrames_ClickCast_Import(profileString, true)
     end, geterrorhandler())
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end
-    if type(profileKey) ~= "string" then return end
-    if not self:getProfileKeys()[profileKey] then return end
     local export
     xpcall(function()
-      export = DandersFrames_Export(profileKey)
+      export = DandersFrames_ClickCast_Export()
     end, geterrorhandler())
     return export
   end,
