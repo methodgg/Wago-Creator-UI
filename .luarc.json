@@ -161,7 +161,8 @@
         "DandersFrames_ClickCast_Export",
         "DandersFrames_ClickCast_Import",
         "BCDMG",
-        "BCDMDB"
+        "BCDMDB",
+        "Prat"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }

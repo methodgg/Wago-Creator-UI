@@ -51,6 +51,7 @@ local defaultSortOrder = {
   "Enhance QoL Unit Frames",
   "Enhance QoL Resource Bars",
   "DandersFrames",
+  "Prat3",
 }
 
 for _, lapModule in pairs(LAP:GetAllModules()) do

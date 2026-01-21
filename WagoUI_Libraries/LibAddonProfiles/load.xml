@@ -27,6 +27,7 @@
 	<Script file ="modules\Cell.lua"/>
 	<Script file ="modules\CellUnitFrames.lua"/>
 	<Script file ="modules\BugSack.lua"/>
+	<!-- <Script file ="modules\Prat3.lua"/> -->
 	<Script file ="modules\KuiNameplates.lua"/>
 	<Script file ="modules\WarpDeplete.lua"/>
 	<Script file ="modules\Quartz.lua"/>
