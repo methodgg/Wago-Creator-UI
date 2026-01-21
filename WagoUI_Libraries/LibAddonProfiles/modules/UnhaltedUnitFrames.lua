@@ -50,10 +50,7 @@ local m = {
     UUFDB.profileKeys[characterName] = profileKey
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if profileData and profileData.General and profileData.General.ForegroundColour then
-      -- should be unique enough for now
-      return profileKey
-    end
+
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
@@ -75,8 +72,8 @@ local m = {
     if not profileStringA or not profileStringB then
       return false
     end
-    local _, _, profileDataA = private:GenericDecode(profileStringA)
-    local _, _, profileDataB = private:GenericDecode(profileStringB)
+    local _, _, profileDataA = private:GenericDecode(profileStringA:sub(6), false)
+    local _, _, profileDataB = private:GenericDecode(profileStringB:sub(6), false)
     if not profileDataA or not profileDataB then
       return false
     end
