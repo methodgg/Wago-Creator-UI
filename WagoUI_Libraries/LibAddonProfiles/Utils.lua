@@ -127,6 +127,9 @@ end
 ---@return boolean
 function private:GenericVersionCheck(lapModule)
   local currentVersionString = private:GetAddonVersionCached(lapModule.addonNames[1])
+  if currentVersionString == "@project-version@" then
+    return true
+  end
   if not currentVersionString then
     return false
   end
