@@ -1,3 +1,3 @@
-# 1.7.0 (2026-01-20)
+# 1.7.1 (2026-01-21)
 
-- 12.0 Support
+- Unhalted UF + Better Cooldown Manager Profile Support
