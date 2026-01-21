@@ -7,10 +7,10 @@ if (not private) then return end
 local m = {
   moduleName = "Unhalted Unit Frames",
   wagoId = "96do35NO",
-  oldestSupported = "1.3",
-  addonNames = { "UnhaltedUF" },
+  oldestSupported = "12.0.5",
+  addonNames = { "UnhaltedUnitFrames" },
   conflictingAddons = { "BetterBlizzFrames", "MidnightSimpleUnitFrames", "ShadowedUnitFrames", "ShadowedUF_Options", "PitBull4" },
-  icon = C_AddOns.GetAddOnMetadata("UnhaltedUF", "IconTexture"),
+  icon = C_AddOns.GetAddOnMetadata("UnhaltedUnitFrames", "IconTexture"),
   slash = "/uuf",
   needReloadOnImport = true,
   needProfileKey = true,
@@ -19,7 +19,7 @@ local m = {
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)
-    local loaded = C_AddOns.IsAddOnLoaded("UnhaltedUF")
+    local loaded = C_AddOns.IsAddOnLoaded("UnhaltedUnitFrames")
     return loaded
   end,
   isUpdated = function(self)
