@@ -18,6 +18,7 @@ local defaultSortOrder = {
   "Cell",
   "Cell Unit Frames",
   "Unhalted Unit Frames",
+  "BetterCooldownManager",
   "Grid2",
   "ShadowedUnitFrames",
   "WeakAuras",

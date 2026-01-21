@@ -159,7 +159,9 @@
         "DandersFrames_Export",
         "DandersFrames_Import",
         "DandersFrames_ClickCast_Export",
-        "DandersFrames_ClickCast_Import"
+        "DandersFrames_ClickCast_Import",
+        "BCDMG",
+        "BCDMDB"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }
