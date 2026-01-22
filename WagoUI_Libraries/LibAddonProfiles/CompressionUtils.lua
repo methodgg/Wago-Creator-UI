@@ -60,13 +60,23 @@ function private:GenericDecode(profileString, useLibSerialize, debug)
 end
 
 ---@param profileString string
+---@param decompress boolean | nil If true, decompress the data after decoding
+---@param debug boolean | nil If true, print debug messages to vdt
 ---@return table | nil
-function private:BlizzardDecodeB64CBOR(profileString)
+function private:BlizzardDecodeB64CBOR(profileString, decompress, debug)
   local decoded = C_EncodingUtil.DecodeBase64(profileString)
   coroutine.yield()
   if not decoded then return end
+  if debug then vdt(decoded, "decoded") end
+  if decompress then
+    decoded = C_EncodingUtil.DecompressString(decoded, _G.Enum.CompressionMethod.Deflate)
+    coroutine.yield()
+    if not decoded then return end
+    if debug then vdt(decoded, "decompressed") end
+  end
   local deserialized = C_EncodingUtil.DeserializeCBOR(decoded)
   coroutine.yield()
+  if debug then vdt(deserialized, "deserialized") end
   return deserialized
 end
 
