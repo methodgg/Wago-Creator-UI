@@ -1,3 +1,3 @@
-# 1.7.1 (2026-01-21)
+# 1.7.2 (2026-01-22)
 
-- Unhalted UF + Better Cooldown Manager Profile Support
+- Prat-3.0 support
