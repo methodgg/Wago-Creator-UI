@@ -59,6 +59,17 @@ function private:GenericDecode(profileString, useLibSerialize, debug)
   end
 end
 
+---@param profileString string
+---@return table | nil
+function private:BlizzardDecodeB64CBOR(profileString)
+  local decoded = C_EncodingUtil.DecodeBase64(profileString)
+  coroutine.yield()
+  if not decoded then return end
+  local deserialized = C_EncodingUtil.DeserializeCBOR(decoded)
+  coroutine.yield()
+  return deserialized
+end
+
 ---@param tbl1 table
 ---@param tbl2 table
 ---@param ignoredKeys table | nil

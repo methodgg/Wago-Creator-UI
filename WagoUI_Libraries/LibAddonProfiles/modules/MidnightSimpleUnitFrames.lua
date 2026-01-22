@@ -68,8 +68,8 @@ local m = {
       return false
     end
     -- TODO TEST THIS
-    local profileDataA = C_EncodingUtil.DeserializeCBOR(C_EncodingUtil.DecodeBase64(profileStringA))
-    local profileDataB = C_EncodingUtil.DeserializeCBOR(C_EncodingUtil.DecodeBase64(profileStringB))
+    local profileDataA = private:BlizzardDecodeB64CBOR(profileStringA)
+    local profileDataB = private:BlizzardDecodeB64CBOR(profileStringB)
     if not profileDataA or not profileDataB then
       return false
     end

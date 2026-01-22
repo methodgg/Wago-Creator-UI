@@ -74,8 +74,8 @@ local m = {
     end
     -- when swapping to another profile prat doesnt fully put all the data into the proper places when it should
     -- after a reload it does so there can be false positives but if the creator just keeps exporting it will sort itself out
-    local profileDataA = C_EncodingUtil.DeserializeCBOR(C_EncodingUtil.DecodeBase64(profileStringA))
-    local profileDataB = C_EncodingUtil.DeserializeCBOR(C_EncodingUtil.DecodeBase64(profileStringB))
+    local profileDataA = private:BlizzardDecodeB64CBOR(profileStringA)
+    local profileDataB = private:BlizzardDecodeB64CBOR(profileStringB)
     if not profileDataA or not profileDataB then
       return false
     end
