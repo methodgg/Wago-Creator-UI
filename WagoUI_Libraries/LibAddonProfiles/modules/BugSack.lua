@@ -7,6 +7,9 @@ if (not private) then return end
 local m = {
   moduleName = "BugSack",
   wagoId = "rkGrrgGy",
+  additionalWagoIds = {
+    ["BugGrabber"] = "7x61oyG1",
+  },
   oldestSupported = "v11.0.0",
   addonNames = { "BugSack", "BugGrabber" },
   icon = C_AddOns.GetAddOnMetadata("BugSack", "IconTexture"),

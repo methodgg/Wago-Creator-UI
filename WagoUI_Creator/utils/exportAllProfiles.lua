@@ -159,6 +159,11 @@ function addon:UpdateIncludedAddons(pack)
           if wagoId then
             pack.includedAddons[lapModule.moduleName] = wagoId
           end
+          if lapModule.additionalWagoIds then
+            for additionalAddonName, additionalWagoId in pairs(lapModule.additionalWagoIds) do
+              pack.includedAddons[additionalAddonName] = additionalWagoId
+            end
+          end
         end
       end
     end
