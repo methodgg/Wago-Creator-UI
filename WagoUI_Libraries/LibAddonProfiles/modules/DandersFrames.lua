@@ -71,13 +71,12 @@ local m = {
     if not profileStringA or not profileStringB then
       return false
     end
-    --TODO TEST THIS
-    local _, _, profileDataA = private:GenericDecode(profileStringA, false, true)
-    local _, _, profileDataB = private:GenericDecode(profileStringB, false, true)
+    local _, _, profileDataA = private:GenericDecode(profileStringA:sub(7), true)
+    local _, _, profileDataB = private:GenericDecode(profileStringB:sub(7), true)
     if not profileDataA or not profileDataB then
       return false
     end
-    return private:DeepCompareAsync(profileDataA, profileDataB)
+    return private:DeepCompareAsync(profileDataA, profileDataB, { exportTime = true, exportedBy = true })
   end
 }
 private.modules[m.moduleName] = m

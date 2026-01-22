@@ -36,14 +36,17 @@ local m = {
     DandersFramesGUI:Hide()
   end,
   getProfileKeys = function(self)
+    --TODO: there is multiple profiles
     return {
       ["Global"] = true
     }
   end,
   getCurrentProfileKey = function(self)
+    --TODO: there is multiple profiles
     return "Global"
   end,
   isDuplicate = function(self, profileKey)
+    --TODO: there is multiple profiles
     return true
   end,
   setProfile = function(self, profileKey)
@@ -61,6 +64,7 @@ local m = {
     if not profileKey then return end
     local export
     xpcall(function()
+      --TODO: there is multiple profiles, this function can take profileKey
       export = DandersFrames_ClickCast_Export()
     end, geterrorhandler())
     return export
@@ -69,13 +73,12 @@ local m = {
     if not profileStringA or not profileStringB then
       return false
     end
-    --TODO TEST THIS
-    local _, _, profileDataA = private:GenericDecode(profileStringA, false, true)
-    local _, _, profileDataB = private:GenericDecode(profileStringB, false, true)
+    local _, _, profileDataA = private:GenericDecode(profileStringA:sub(7), true, true)
+    local _, _, profileDataB = private:GenericDecode(profileStringB:sub(7), true, true)
     if not profileDataA or not profileDataB then
       return false
     end
-    return private:DeepCompareAsync(profileDataA, profileDataB)
+    return private:DeepCompareAsync(profileDataA, profileDataB, { exportedAt = true }, true)
   end
 }
 private.modules[m.moduleName] = m
