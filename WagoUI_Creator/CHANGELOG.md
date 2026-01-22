@@ -1,5 +1,3 @@
-# 1.7.3 (2026-01-22)
+# 1.7.4 (2026-01-22)
 
-- Prat-3.0 support
-- DandersFrames support
-- Midnight Simple Unit Frames support
+- BugGrabber marked as included AddOn when exporting BugSack profile
