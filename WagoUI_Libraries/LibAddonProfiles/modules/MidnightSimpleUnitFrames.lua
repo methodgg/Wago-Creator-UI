@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Midnight Simple Unit Frames",
   wagoId = "XKq9aoKy",
-  oldestSupported = "1.62",
+  oldestSupported = "1.67",
   addonNames = { "MidnightSimpleUnitFrames" },
   conflictingAddons = { "BetterBlizzFrames", "UnhaltedUF", "ShadowedUnitFrames", "ShadowedUF_Options", "PitBull4" },
   icon = C_AddOns.GetAddOnMetadata("MidnightSimpleUnitFrames", "IconTexture"),
@@ -19,7 +19,7 @@ local m = {
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)
-    local loaded = C_AddOns.IsAddOnLoaded("UnhaltedUF")
+    local loaded = C_AddOns.IsAddOnLoaded("MidnightSimpleUnitFrames")
     return loaded
   end,
   isUpdated = function(self)
@@ -36,30 +36,37 @@ local m = {
     MSUF_StandaloneOptionsWindow:Hide()
   end,
   getProfileKeys = function(self)
-
+    return MSUF_GlobalDB.profiles
   end,
   getCurrentProfileKey = function(self)
-
+    local characterName = UnitName("player").."-"..GetRealmName()
+    return MSUF_GlobalDB.char and MSUF_GlobalDB.char[characterName].activeProfile
   end,
   isDuplicate = function(self, profileKey)
-
+    if not profileKey then return false end
+    return self:getProfileKeys()[profileKey] ~= nil
   end,
   setProfile = function(self, profileKey)
-
+    local characterName = UnitName("player").."-"..GetRealmName()
+    MSUF_GlobalDB.char[characterName].activeProfile = profileKey
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
 
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
+    local success
     xpcall(function()
-
+      success = MSUF_ImportExternal(profileString, profileKey)
     end, geterrorhandler())
+    if success then
+      self:setProfile(profileKey)
+    end
   end,
   exportProfile = function(self, profileKey)
-    local export
+    local export, _
     xpcall(function()
-
+      _, export = MSUF_ExportExternal(profileKey)
     end, geterrorhandler())
     return export
   end,
@@ -67,9 +74,8 @@ local m = {
     if not profileStringA or not profileStringB then
       return false
     end
-    -- TODO TEST THIS
-    local profileDataA = private:BlizzardDecodeB64CBOR(profileStringA)
-    local profileDataB = private:BlizzardDecodeB64CBOR(profileStringB)
+    local profileDataA = private:BlizzardDecodeB64CBOR(profileStringA:sub(7), true)
+    local profileDataB = private:BlizzardDecodeB64CBOR(profileStringB:sub(7), true)
     if not profileDataA or not profileDataB then
       return false
     end

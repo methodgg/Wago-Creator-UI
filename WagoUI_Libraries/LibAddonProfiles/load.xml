@@ -2,6 +2,7 @@
 	<Script file ="LibAddonProfiles.lua"/>
 	<Script file ="Utils.lua"/>
 	<Script file ="CompressionUtils.lua"/>
+	<!-- <Script file ="modules\TalentLoadoutsEx.lua"/> -->
 	<Script file ="modules\WeakAuras.lua"/>
 	<Script file ="modules\EchoRaidTools.lua"/>
 	<Script file ="modules\Details.lua"/>
@@ -9,7 +10,6 @@
 	<Script file ="modules\Bartender4.lua"/>
 	<Script file ="modules\BigWigs.lua"/>
 	<Script file ="modules\EditMode.lua"/>
-	<!-- <Script file ="modules\CooldownManager.lua"/> -->
 	<Script file ="modules\ElvUI.lua"/>
 	<Script file ="modules\ElvUIPrivate.lua"/>
 	<Script file ="modules\ElvUIGlobal.lua"/>
@@ -20,7 +20,6 @@
 	<Script file ="modules\OmniCC.lua"/>
 	<Script file ="modules\SexyMap.lua"/>
 	<Script file ="modules\ShadowedUnitFrames.lua"/>
-	<!-- <Script file ="modules\TalentLoadoutsEx.lua"/> -->
 	<Script file ="modules\TipTacReborn.lua"/>
 	<Script file ="modules\OmniCD.lua"/>
 	<Script file ="modules\OmniCDSpellEditor.lua"/>
@@ -50,8 +49,9 @@
   <Script file ="modules\EQOL_UF.lua"/>
   <Script file ="modules\EQOL_RESOURCE.lua"/>
   <Script file ="modules\DandersFrames.lua"/>
+	<Script file ="modules\MidnightSimpleUnitFrames.lua"/>
+	<!-- <Script file ="modules\CooldownManager.lua"/> -->
   <!-- <Script file ="modules\DandersFramesClickCasting.lua"/> -->
 	<!-- <Script file ="modules\SenseiClassResourceBar.lua"/> -->
-	<!-- <Script file ="modules\MidnightSimpleUnitFrames.lua"/> -->
 	<Script file ="finalize.lua"/>
 </Ui>

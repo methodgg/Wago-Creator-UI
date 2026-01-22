@@ -162,7 +162,9 @@
         "DandersFrames_ClickCast_Import",
         "BCDMG",
         "BCDMDB",
-        "Prat"
+        "Prat",
+        "MSUF_ImportExternal",
+        "MSUF_ExportExternal"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }
