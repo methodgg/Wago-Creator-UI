@@ -11,7 +11,7 @@ local m = {
     ["BugGrabber"] = "7x61oyG1",
   },
   oldestSupported = "v11.0.0",
-  addonNames = { "BugSack", "BugGrabber" },
+  addonNames = { "BugSack", "!BugGrabber" },
   icon = C_AddOns.GetAddOnMetadata("BugSack", "IconTexture"),
   slash = "/bugsack",
   needReloadOnImport = true,
