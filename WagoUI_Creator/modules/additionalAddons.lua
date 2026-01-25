@@ -60,9 +60,16 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
   local function updateFilteredData(searchString, data)
     wipe(filteredData)
     local initialData = scrollBoxData[scrollBoxIndex]
-    if searchString and searchString ~= "" then
-      for _, display in pairs(initialData) do
-        if display.id:lower():find(searchString) then
+    if searchString then
+      if searchString ~= "" then
+        for _, display in pairs(initialData) do
+          if display.id:lower():find(searchString) then
+            table.insert(filteredData, display)
+          end
+        end
+      else
+        --add all
+        for _, display in pairs(initialData) do
           table.insert(filteredData, display)
         end
       end
