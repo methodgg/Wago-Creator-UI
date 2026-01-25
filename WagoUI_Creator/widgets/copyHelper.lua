@@ -124,6 +124,15 @@ function addon:CreateCopyHelper()
     statusBar.bar.text:SetText(text)
   end
 
+  function addon:FinishProgressBar()
+    currentProgress = maxProgress
+    statusBar.bar:SetSmoothedValue(maxProgress)
+    local text = currentProgress.."/"..maxProgress
+    statusBar.bar.text:SetText(text)
+    ---@diagnostic disable-next-line: param-type-mismatch
+    UIFrameFadeOut(statusBar, 1, 1, 0)
+  end
+
   function addon.copyHelper:SmartFadeOut(seconds, text, anchorFrame, x, y)
     seconds = seconds or 0.3
     anchorFrame = anchorFrame or addon.frames.mainFrame
