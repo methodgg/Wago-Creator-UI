@@ -12,7 +12,7 @@ local m
 local frameWidth = 750
 local frameHeight = 600
 local scrollBoxWidth = 250
-local scrollBoxHeight = frameHeight - 350
+local scrollBoxHeight = frameHeight - 380
 local lineHeight = 30
 local scrollBoxData = {
   [1] = {},
@@ -497,7 +497,7 @@ local function createManageFrame(w, h)
   m.scrollBoxes = {}
   for idx, buttonConfig in ipairs(buttonConfigs) do
     local scrollBox = createGroupScrollBox(m, buttonConfig, idx)
-    scrollBox:SetPoint("TOPLEFT", m, "TOPLEFT", 60 + ((idx - 1) * (scrollBoxWidth + 110)), -260)
+    scrollBox:SetPoint("TOPLEFT", m, "TOPLEFT", 60 + ((idx - 1) * (scrollBoxWidth + 110)), -290)
     m.scrollBoxes[idx] = scrollBox
     local labelText = idx == 1 and L["Your Profiles"] or idx == 2 and L["Exported Profiles"]
     local label = DF:CreateLabel(scrollBox, labelText, 20, "white")
