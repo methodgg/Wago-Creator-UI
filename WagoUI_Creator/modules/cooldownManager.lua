@@ -130,7 +130,15 @@ local setProfileIncludedState = function(info, shouldInclude)
 end
 
 local function addToData(i, info)
-  tinsert(scrollBoxData[i], info)
+  local alreadyIncluded = false
+  for k, v in pairs(scrollBoxData[i]) do
+    if v.classAndSpecTag == info.classAndSpecTag and v.profileKey == info.profileKey then
+      alreadyIncluded = true
+    end
+  end
+  if not alreadyIncluded then
+    tinsert(scrollBoxData[i], info)
+  end
   setProfileIncludedState(info, true)
   m.scrollBoxes[i].onSearchBoxTextChanged()
   addon.frames.mainFrame.frameContent.contentScrollbox:Refresh()
