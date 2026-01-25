@@ -175,7 +175,8 @@ function addon:AddDataToStorageAddon(changesDetected)
       releaseNotes = pack.releaseNotes,
       profileKeys = pack.profileKeys,
       profiles = pack.profiles,
-      isLocal = true
+      isLocal = true,
+      cdmData = pack.cdmData
     }
     WagoUI_Storage[packName] = data
   end
