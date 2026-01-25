@@ -3,6 +3,11 @@
 local addon = select(2, ...)
 addon.L = {}
 local L = addon.L
+L["Blizzard Cooldown Manager"] = "Blizzard Cooldown Manager"
+L["Type to search for\nyour Profiles"] = "Type to search for\nyour Profiles"
+L["Add Profiles\nto Export"] = "Add Profiles\nto Export"
+L["Your Profiles"] = "Your Profiles"
+L["Exported Profiles"] = "Exported Profiles"
 L["Alternative"] = "Alternative"
 L["Add Alternative"] = "Add Alternative"
 L["Blocked"] = "Blocked"
@@ -119,3 +124,5 @@ L["DISABLE_RESOLUTION_BUTTON_TOOLTIP"] =
 L["WEAKAURA_WARNING_TOOLTIP"] =
   "Ensure that you have the author's permission to distribute any WeakAuras you wish to export.\nExported WeakAuras currently have their Wago IDs and URLs removed."
 L["ADDITIONAL_ADDONS_EXPLAINER"] = "You can specify additional AddOns that you want to include in your UI Pack. This is meant for AddOns that do not need any configuration to be exported. A good example is an AddOn that only includes your own custom media. AddOns specified this way are available to automatically download during the UI Pack installation process.\n\nThis feature is only available for AddOns that are hosted and publicly available on the Wago AddOns platform and have the X-Wago-ID field properly set in the toc file."
+L["CDM_PROFILES_EXPLAINER"] = "Ensure that your CDM profiles have unique names! If two profiles share the same name only one of them will be exported.\nA good name would be \"<YourName> - Prot Warrior\""
+L["CDM_EXPORT_WARNING"] = "CDM Profiles will only be exported when using the dedicated Export button within this window. They are not automatically exported when exporting all profiles via the main Creator UI!"

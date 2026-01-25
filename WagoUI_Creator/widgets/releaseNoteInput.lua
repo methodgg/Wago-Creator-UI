@@ -180,7 +180,7 @@ local function getRemovalString(removals)
   return res
 end
 
-function addon:OpenReleaseNoteInput(timestamp, updates, removals, includedAdded, includedRemoved)
+function addon:OpenReleaseNoteInput(timestamp, updates, removals, includedAdded, includedRemoved, cdmAdded, cdmRemoved)
   if not releaseNotesFrame then
     addon:CreateReleaseNoteInput()
   end
@@ -195,6 +195,12 @@ function addon:OpenReleaseNoteInput(timestamp, updates, removals, includedAdded,
       updateString = updateString.."- "..addedAddon.."\n"
     end
   end
+  if cdmAdded and #cdmAdded > 0 then
+    updateString = updateString or ""
+    for _, addedCdmProfile in pairs(cdmAdded) do
+      updateString = updateString.."- "..addedCdmProfile.."\n"
+    end
+  end
   if updateString then
     str = "## "..L["Updated / Added"]..":\n"..updateString
   end
@@ -204,6 +210,12 @@ function addon:OpenReleaseNoteInput(timestamp, updates, removals, includedAdded,
     removalString = removalString or ""
     for _, addedAddon in pairs(includedRemoved) do
       removalString = removalString.."- "..addedAddon.."\n"
+    end
+  end
+  if cdmRemoved and #cdmRemoved > 0 then
+    removalString = removalString or ""
+    for _, removedCdmProfile in pairs(cdmRemoved) do
+      removalString = removalString.."- "..removedCdmProfile.."\n"
     end
   end
   if removalString then

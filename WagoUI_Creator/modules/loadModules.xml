@@ -3,5 +3,6 @@
 	<Include file="weakAuras.lua"/>
 - <Include file="echoRaidTools.lua"/>
 - <Include file="additionalAddons.lua"/>
+- <Include file="cooldownManager.lua"/>
   <Include file="generic.lua"/>
 </Ui>

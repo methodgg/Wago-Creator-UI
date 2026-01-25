@@ -46,7 +46,7 @@ local m = {
   preventRename = false,
   willOverrideProfile = true,
   nonNativeProfileString = false,
-  needSpecialInterface = false,
+  needSpecialInterface = true,
   isLoaded = function(self)
     return true
   end,
@@ -67,7 +67,10 @@ local m = {
     local _, layouts = layoutManager:EnumerateLayouts()
     local profileKeys = {}
     for _, layout in pairs(layouts) do
-      profileKeys[layout.layoutName] = true
+      profileKeys[layout.layoutName] = {
+        profileKey = layout.layoutName,
+        classAndSpecTag = tonumber(layout.classAndSpecTag),
+      }
     end
     return profileKeys
   end,
@@ -160,8 +163,15 @@ local m = {
     return serializer:SerializeLayouts(layout.layoutID)
   end,
   areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
-    if not profileStringA or not profileStringB then return false end
-    return profileStringA == profileStringB
+    if not profileStringA or not profileStringB then
+      return false
+    end
+    local profileDataA = private:BlizzardDecodeB64CBOR(profileStringA:sub(3), true)
+    local profileDataB = private:BlizzardDecodeB64CBOR(profileStringB:sub(3), true)
+    if not profileDataA or not profileDataB then
+      return false
+    end
+    return private:DeepCompareAsync(profileDataA, profileDataB, nil)
   end,
   refreshHookList = {
     {
