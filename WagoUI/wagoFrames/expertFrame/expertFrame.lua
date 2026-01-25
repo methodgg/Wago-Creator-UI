@@ -171,15 +171,17 @@ function addon:CreateExpertFrame(f)
 
   addLine({ profileList.header }, 0, 0)
 
-  local text = L["Scroll down for WeakAuras!"]
-  local footer = DF:CreateLabel(expertFrame, text, 22, "white")
-  footer:SetJustifyH("CENTER")
-  footer:SetPoint("BOTTOM", expertFrame, "BOTTOM", 0, 15)
-  local waLap = LAP:GetModule("WeakAuras")
-  local warningIconLeft = LWF:CreateIconButton(expertFrame, 30, waLap.icon)
-  local warningIconRight = LWF:CreateIconButton(expertFrame, 30, waLap.icon)
-  warningIconLeft:SetPoint("RIGHT", footer, "LEFT", -5, 0)
-  warningIconRight:SetPoint("LEFT", footer, "RIGHT", 5, 0)
+  if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
+    local text = L["Scroll down for WeakAuras!"]
+    local footer = DF:CreateLabel(expertFrame, text, 22, "white")
+    footer:SetJustifyH("CENTER")
+    footer:SetPoint("BOTTOM", expertFrame, "BOTTOM", 0, 15)
+    local waLap = LAP:GetModule("WeakAuras")
+    local warningIconLeft = LWF:CreateIconButton(expertFrame, 30, waLap.icon)
+    local warningIconRight = LWF:CreateIconButton(expertFrame, 30, waLap.icon)
+    warningIconLeft:SetPoint("RIGHT", footer, "LEFT", -5, 0)
+    warningIconRight:SetPoint("LEFT", footer, "RIGHT", 5, 0)
+  end
 
   expertFrame:SetScript("OnShow", onShow)
 end
