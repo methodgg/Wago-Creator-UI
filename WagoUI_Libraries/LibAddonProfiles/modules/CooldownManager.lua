@@ -151,6 +151,7 @@ local m = {
     if StaticPopup1Button2Text:GetText() == "Ignore" then
       StaticPopup1Button2:Click()
     end
+    layoutManager:SaveLayouts()
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end
