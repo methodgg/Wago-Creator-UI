@@ -569,6 +569,8 @@ local function showManageFrame(anchor)
   wipe(scrollBoxData[1])
   wipe(scrollBoxData[2])
 
+  local timestamp = GetServerTime()
+
   -- fill with current characters cdm profiles
   for profileKey, profileData in pairs(lapModule:getProfileKeys()) do
     local info = {
@@ -576,6 +578,11 @@ local function showManageFrame(anchor)
       icon = getSpecIconFromClassAndSpecTag(profileData.classAndSpecTag),
       coloredName = wrapStringInClassColor(profileKey, profileData.classAndSpecTag),
       classAndSpecTag = profileData.classAndSpecTag,
+      metaData = {
+        lastUpdatedAt = {
+          [profileKey] = timestamp
+        }
+      }
     }
     tinsert(scrollBoxData[1], info)
   end
