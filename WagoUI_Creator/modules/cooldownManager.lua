@@ -89,10 +89,8 @@ local function updateCooldownManagerData()
 
       pack.cdmData.profileKeys[profileInfo.classAndSpecTag][profileInfo.profileKey].metaData = pack.cdmData.profileKeys
           [profileInfo.classAndSpecTag][profileInfo.profileKey].metaData or {}
-      pack.cdmData.profileKeys[profileInfo.classAndSpecTag][profileInfo.profileKey].metaData.lastUpdatedAt =
-      {
-        [profileInfo.profileKey] = timestamp
-      }
+      pack.cdmData.profileKeys[profileInfo.classAndSpecTag][profileInfo.profileKey].metaData.lastUpdatedAt = {
+        [profileInfo.profileKey] = timestamp }
       tinsert(added, profileInfo.profileKey)
     end
   end
