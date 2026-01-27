@@ -142,7 +142,7 @@ local m = {
         local playerTag = tonumber(tag);
         if math.abs(layoutTag - playerTag) > 5 then
           removeProfile(profileKey)
-          print("Imported layout's class does not match current specialization. Layout has been removed.")
+          print("Imported layout's class does not match current class. Layout has been removed.")
         end
         break
       end
