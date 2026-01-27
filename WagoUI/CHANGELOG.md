@@ -1,3 +1,3 @@
-# 1.7.4 (2026-01-22)
+# 1.7.5 (2026-01-27)
 
-- BugGrabber marked as included AddOn when exporting BugSack profile
+- Added support for Blizzard Cooldown Manager Imports
