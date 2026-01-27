@@ -19,10 +19,13 @@ end
 function addon:CreateActionButton(parent, width, height, fontSize)
   local actionButton = LWF:CreateButton(parent, width, height, "", fontSize)
 
-  function actionButton:UpdateAction(info, updateAvailable, lastUdatedAt, profileKey, latestVersion)
+  function actionButton:UpdateAction(info, updateAvailable, lastUdatedAt, profileKey, latestVersion, tooltipText)
     ---@type LibAddonProfilesModule
     local lap = info.lap
     local loaded = lap:isLoaded()
+    if info.matchingInfo then
+      loaded = loaded and info.matchingInfo.matching
+    end
     local updated = lap:isUpdated()
     local canEnable = LAP:CanEnableAnyAddOn(lap.addonNames)
     local askReimport
@@ -53,6 +56,9 @@ function addon:CreateActionButton(parent, width, height, fontSize)
         end
       )
       return
+    elseif info.matchingInfo then
+      actionButton:SetText(L["Class incompatible"])
+      actionButton:Disable()
     else
       actionButton:SetText(L["AddOn not installed"])
       actionButton:Disable()

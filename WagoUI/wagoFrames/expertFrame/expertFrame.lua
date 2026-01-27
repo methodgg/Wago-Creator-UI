@@ -154,8 +154,18 @@ function addon:CreateExpertFrame(f)
           if b.moduleName == "WeakAuras" then
             orderB = orderB - 100
           end
+          if a.moduleName == "Blizzard Cooldown Manager" then
+            orderA = orderA - 110
+          end
+          if b.moduleName == "Blizzard Cooldown Manager" then
+            orderB = orderB - 110
+          end
           if a.moduleName == "WeakAuras" and b.moduleName == "WeakAuras" then
             return a.entryName < b.entryName
+          elseif a.moduleName == "Blizzard Cooldown Manager" and b.moduleName == "Blizzard Cooldown Manager" then
+            local matchingA = a.matchingInfo.matching and 1 or 0
+            local matchingB = b.matchingInfo.matching and 1 or 0
+            return matchingA > matchingB
           elseif orderA == orderB then
             return a.moduleName < b.moduleName
           end

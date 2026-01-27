@@ -48,6 +48,54 @@ local findAppropriateProfileKey = function(profileKey, lap)
   return newProfileKey
 end
 
+local isClassAndSpecTagSameClass = function(tagA, tagB)
+  local classA = math.floor(tagA / 10)
+  local classB = math.floor(tagB / 10)
+  return classA == classB
+end
+
+--Blizzard Cooldown Manager
+local function addCdmData(source)
+  if not source.cdmData then return end
+  local lap = LAP:GetModule("Blizzard Cooldown Manager")
+  local currentClassAndSpecTag = CooldownViewerUtil.GetCurrentClassAndSpecTag()
+
+  if not lap then return end
+  local profilesToAdd = {}
+  for classAndSpecTag, profiles in pairs(source.cdmData.profileKeys) do
+    for profileKey, profile in pairs(profiles) do
+      local profileString = source.cdmData.profiles[classAndSpecTag] and
+          source.cdmData.profiles[classAndSpecTag][profileKey]
+      if profileString then
+        tinsert(profilesToAdd, {
+          profileData = profile,
+          profileKey = profile.profileKey,
+          entryName = profile.profileKey,
+          entryNameDisplay = "CDM: "..profile.coloredName,
+          icon = profile.icon,
+          lap = lap,
+          moduleName = lap.moduleName,
+          profileMetadata = profile.metaData,
+          profile = profileString,
+          enabled = true,
+          matchingInfo = {
+            matching = isClassAndSpecTagSameClass(currentClassAndSpecTag, profile.classAndSpecTag)
+          },
+        })
+      end
+    end
+  end
+
+  --add data to every resolution (only if there is atleast one entry for the resolution)
+  for _, data in pairs(addon.wagoData) do
+    if next(data) then
+      for _, profile in pairs(profilesToAdd) do
+        tinsert(data, profile)
+      end
+    end
+  end
+end
+
 function addon:SetupWagoData()
   db = addon.db
   if not db.selectedWagoData then
@@ -140,6 +188,7 @@ function addon:SetupWagoData()
       end
     end
   end
+  addCdmData(source)
   addon.db.introImportState = newIntroImportState
 end
 

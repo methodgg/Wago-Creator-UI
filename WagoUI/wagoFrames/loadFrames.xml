@@ -10,6 +10,7 @@
 	<Include file="introFrame/welcomePage.lua"/>
 	<Include file="introFrame/resolutionPage.lua"/>
 	<Include file="introFrame/weakaurasPage.lua"/>
+	<Include file="introFrame/cooldownManagerPage.lua"/>
 	<Include file="introFrame/directProfilesPage.lua"/>
 	<Include file="introFrame/installPage.lua"/>
 	<Include file="introFrame/donePage.lua"/>

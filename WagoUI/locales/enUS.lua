@@ -3,6 +3,8 @@
 local addon = select(2, ...)
 addon.L = {}
 local L = addon.L
+L["Class incompatible"] = "Class incompatible"
+L["CDM_IMPORT_INSTRUCTION"] = "Import the Cooldown Manager profiles you would like to use.\nProfiles can only be imported on a character matching the profile's class"
 L["Scroll down for WeakAuras!"] = "Scroll down for WeakAuras!"
 L["Open an issue on GitHub"] = "Open an issue on GitHub"
 L["Provide feedback in Discord"] = "Provide feedback in Discord"

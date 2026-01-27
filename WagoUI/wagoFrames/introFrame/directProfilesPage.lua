@@ -70,7 +70,7 @@ local function createPage()
     filtered = {}
     if data then
       for _, entry in ipairs(data) do
-        if entry.moduleName ~= "WeakAuras" and entry.moduleName ~= "Echo Raid Tools" then
+        if not entry.entryName then
           tinsert(filtered, entry)
         end
       end

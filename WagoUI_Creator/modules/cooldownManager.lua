@@ -74,7 +74,7 @@ local function updateCooldownManagerData()
     addon.copyHelper:SmartFadeOut(2, L["No Changes detected"])
     return
   end
-
+  local timestamp = GetServerTime()
   for _, profileInfo in pairs(profilesToExportForCurrentClass) do
     ---@type any
     local newExport = lapModule:exportProfile(profileInfo.profileKey)
@@ -85,12 +85,18 @@ local function updateCooldownManagerData()
       pack.cdmData.profiles = pack.cdmData.profiles or {}
       pack.cdmData.profiles[profileInfo.classAndSpecTag] = pack.cdmData.profiles[profileInfo.classAndSpecTag] or {}
       pack.cdmData.profiles[profileInfo.classAndSpecTag][profileInfo.profileKey] = newExport
+
+      pack.cdmData.profileKeys[profileInfo.classAndSpecTag][profileInfo.profileKey].metaData = pack.cdmData.profileKeys
+          [profileInfo.classAndSpecTag][profileInfo.profileKey].metaData or {}
+      pack.cdmData.profileKeys[profileInfo.classAndSpecTag][profileInfo.profileKey].metaData.lastUpdatedAt =
+      {
+        [profileInfo.profileKey] = timestamp
+      }
       tinsert(added, profileInfo.profileKey)
     end
   end
 
   if #added > 0 or #removed > 0 then
-    local timestamp = GetServerTime()
     pack.updatedAt = timestamp
     addon:OpenReleaseNoteInput(timestamp, {}, {}, {}, {}, added, removed)
   else

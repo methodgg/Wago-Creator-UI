@@ -79,6 +79,9 @@ function addon:CreateProfileList(parent, frameWidth, frameHeight)
         local lap = info.lap
         local line = self:GetLine(i)
         local loaded = lap:isLoaded() and lap:isUpdated()
+        if info.matchingInfo then
+          loaded = loaded and info.matchingInfo.matching
+        end
         if loaded then
           line:SetBackdropColor(unpack({ .8, .8, .8, 0.3 }))
         else
@@ -87,7 +90,7 @@ function addon:CreateProfileList(parent, frameWidth, frameHeight)
 
         -- icon
         -- need to test if the texture exists
-        local tex = addon:TestTexture(lap.icon) and lap.icon or QUESTION_MARK_ICON
+        local tex = info.icon or addon:TestTexture(lap.icon) and lap.icon or QUESTION_MARK_ICON
         line.icon:SetTexture(tex)
         line.icon:SetPushedTexture(tex)
         line.icon:SetDisabledTexture(tex)
@@ -107,7 +110,7 @@ function addon:CreateProfileList(parent, frameWidth, frameHeight)
         end
 
         -- name
-        line.nameLabel:SetText(info.entryName or info.moduleName)
+        line.nameLabel:SetText(info.entryNameDisplay or info.entryName or info.moduleName)
         if not loaded then
           line.nameLabel:SetTextColor(0.5, 0.5, 0.5, 1)
           line.profileKeyLabel:SetTextColor(0.5, 0.5, 0.5, 1)
