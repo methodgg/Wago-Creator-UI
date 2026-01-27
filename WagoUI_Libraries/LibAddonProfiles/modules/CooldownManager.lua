@@ -133,7 +133,7 @@ local m = {
     local layoutIDs = layoutManager:CreateLayoutsFromSerializedData(profileString)
     layoutManager:SetActiveLayoutByID(layoutIDs[1])
 
-    --check if spec matches, remove otherwise
+    --check if class matches, remove otherwise
     local tag = CooldownViewerUtil.GetCurrentClassAndSpecTag()
     local _, layouts = layoutManager:EnumerateLayouts()
     for i, layout in pairs(layouts) do
@@ -142,7 +142,7 @@ local m = {
         local playerTag = tonumber(tag);
         if math.abs(layoutTag - playerTag) > 5 then
           removeProfile(profileKey)
-          print("Imported layout's class does not match current specialization. Layout has been removed.")
+          print("Imported layout's class does not match current class. Layout has been removed.")
         end
         break
       end
