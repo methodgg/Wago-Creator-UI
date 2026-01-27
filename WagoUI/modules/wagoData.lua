@@ -29,25 +29,6 @@ function addon:GetLatestImportedProfile(characterName, moduleName)
   return latestProfileKey, latestUpdatedAt, latestImportedAt
 end
 
----@param profileKey string
----@param lap LibAddonProfilesModule
----@return string newProfileKey
-local findAppropriateProfileKey = function(profileKey, lap)
-  if profileKey == "Global" then
-    return profileKey
-  end
-  if not lap:isLoaded() then
-    return profileKey
-  end
-  local newProfileKey = profileKey
-  local i = 1
-  while lap:isDuplicate(newProfileKey) do
-    newProfileKey = profileKey.."_"..i
-    i = i + 1
-  end
-  return newProfileKey
-end
-
 local isClassAndSpecTagSameClass = function(tagA, tagB)
   local classA = math.floor(tagA / 10)
   local classB = math.floor(tagB / 10)
@@ -87,11 +68,19 @@ local function addCdmData(source)
   end
 
   --add data to every resolution (only if there is atleast one entry for the resolution)
+  local hasAdded = false
   for _, data in pairs(addon.wagoData) do
     if next(data) then
       for _, profile in pairs(profilesToAdd) do
         tinsert(data, profile)
       end
+      hasAdded = true
+    end
+  end
+  --Exception: There is no profiles in any resolution, add to "Any"
+  if not hasAdded then
+    for _, profile in pairs(profilesToAdd) do
+      tinsert(addon.wagoData[addon.resolutions.defaultValue], profile)
     end
   end
 end

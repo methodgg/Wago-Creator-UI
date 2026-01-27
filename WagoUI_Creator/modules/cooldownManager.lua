@@ -98,6 +98,7 @@ local function updateCooldownManagerData()
   end
 
   if #added > 0 or #removed > 0 then
+    pack.includedAddons = pack.includedAddons or {}
     pack.includedAddons[lapModule.moduleName] = lapModule.wagoId
     pack.updatedAt = timestamp
     addon:OpenReleaseNoteInput(timestamp, {}, {}, {}, {}, added, removed)
@@ -115,8 +116,15 @@ local function updateCooldownManagerData()
     end
   end
   if numCdmProfiles == 0 then
-    pack.includedAddons[lapModule.moduleName] = nil
+    if pack.includedAddons then pack.includedAddons[lapModule.moduleName] = nil end
+  else
+    addon:AddDataToStorageAddon(true)
   end
+  local gameVersion = select(4, GetBuildInfo())
+  pack.gameVersion = gameVersion
+  pack.gameFlavor = addon:GetGameFlavorString()
+  pack.createdBy = UnitName("player").."-"..GetRealmName()
+  addon.frames.mainFrame.frameContent.contentScrollbox:Refresh()
 end
 
 ---@param classAndSpecTag number class and spec tag like "121" for Havoc DH (12 = DH, 1 = Havoc)

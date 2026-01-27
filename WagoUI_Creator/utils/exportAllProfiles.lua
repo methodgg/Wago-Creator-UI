@@ -4,9 +4,9 @@ local L = addon.L
 local LAP = LibStub("LibAddonProfiles")
 local LWF = LibStub("LibWagoFramework")
 
-local function getGameFlavorString()
+function addon:GetGameFlavorString()
   local gameVersion = select(4, GetBuildInfo())
-  if gameVersion >= 110000 then
+  if gameVersion >= 120000 then
     return "retail"
   end
   if gameVersion >= 50500 then
@@ -33,7 +33,7 @@ function addon:ExportAllProfiles()
     return
   end
   currentUIPack.gameVersion = gameVersion
-  currentUIPack.gameFlavor = getGameFlavorString()
+  currentUIPack.gameFlavor = addon:GetGameFlavorString()
   currentUIPack.createdBy = UnitName("player").."-"..GetRealmName()
   -- set all export options from db
   for moduleName, options in pairs(addon.db.exportOptions) do
