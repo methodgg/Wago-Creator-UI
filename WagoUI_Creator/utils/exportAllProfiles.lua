@@ -169,6 +169,22 @@ function addon:UpdateIncludedAddons(pack)
       end
     end
   end
+
+  -- add cdm if there is cdm data
+  if pack.cdmData and pack.cdmData.profiles then
+    local hasCdmData = false
+    for _, profileStrings in pairs(pack.cdmData.profiles) do
+      if next(profileStrings) then
+        hasCdmData = true
+        break
+      end
+    end
+    if hasCdmData then
+      local lapModule = LAP:GetModule("Blizzard Cooldown Manager")
+      pack.includedAddons[lapModule.moduleName] = lapModule.wagoId
+    end
+  end
+
   -- add additional addons
   if pack.additionalAddons then
     for wagoId in pairs(pack.additionalAddons) do

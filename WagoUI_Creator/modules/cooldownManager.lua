@@ -79,7 +79,8 @@ local function updateCooldownManagerData()
     ---@type any
     local newExport = lapModule:exportProfile(profileInfo.profileKey)
     ---@type any
-    local oldExport = oldPack.cdmData.profiles and oldPack.cdmData.profiles[profileInfo.classAndSpecTag] and
+    local oldExport = oldPack.cdmData and oldPack.cdmData.profiles and
+        oldPack.cdmData.profiles[profileInfo.classAndSpecTag] and
         oldPack.cdmData.profiles[profileInfo.classAndSpecTag][profileInfo.profileKey]
     if not lapModule:areProfileStringsEqual(newExport, oldExport) then
       pack.cdmData.profiles = pack.cdmData.profiles or {}
@@ -97,10 +98,24 @@ local function updateCooldownManagerData()
   end
 
   if #added > 0 or #removed > 0 then
+    pack.includedAddons[lapModule.moduleName] = lapModule.wagoId
     pack.updatedAt = timestamp
     addon:OpenReleaseNoteInput(timestamp, {}, {}, {}, {}, added, removed)
   else
     addon.copyHelper:SmartFadeOut(2, L["No Changes detected"])
+  end
+
+  -- have to remove CDM from included addons if there are no profiles
+  local numCdmProfiles = 0
+  if pack.cdmData and pack.cdmData.profiles then
+    for _, profileStrings in pairs(pack.cdmData.profiles) do
+      for _, _ in pairs(profileStrings) do
+        numCdmProfiles = numCdmProfiles + 1
+      end
+    end
+  end
+  if numCdmProfiles == 0 then
+    pack.includedAddons[lapModule.moduleName] = nil
   end
 end
 
