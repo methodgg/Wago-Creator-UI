@@ -1,3 +1,3 @@
-# 1.7.7 (2026-01-28)
+# 1.7.8 (2026-01-30)
 
-- Added support for Blizzard Cooldown Manager Imports
+- Added support for SenseiClassResourceBar
