@@ -165,7 +165,9 @@
         "Prat",
         "MSUF_ImportExternal",
         "MSUF_ExportExternal",
-        "SmoothStatusBarMixin"
+        "SmoothStatusBarMixin",
+        "FalconAddOnDB",
+        "FalconPublicAPI"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }
