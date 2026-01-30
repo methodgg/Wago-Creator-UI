@@ -37,7 +37,7 @@ end
 
 --Blizzard Cooldown Manager
 local function addCdmData(source)
-  if not source.cdmData then return end
+  if not source.cdmData or not source.cdmData.profiles or not source.cdmData.profileKeys then return end
   local lap = LAP:GetModule("Blizzard Cooldown Manager")
   local currentClassAndSpecTag = CooldownViewerUtil.GetCurrentClassAndSpecTag()
 
