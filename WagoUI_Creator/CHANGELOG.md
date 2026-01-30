@@ -1,3 +1,3 @@
-# 1.7.8 (2026-01-30)
+# 1.7.9 (2026-01-30)
 
-- Added support for SenseiClassResourceBar
+- Added support for SenseiClassResourceBar and SkyridingFalcon

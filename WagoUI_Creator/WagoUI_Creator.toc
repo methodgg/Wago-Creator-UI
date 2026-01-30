@@ -3,7 +3,7 @@
 ## Group: WagoAppCompanion
 ## IconTexture: Interface\AddOns\WagoUI_Creator\media\logoSmall.png
 ## Author: The Wago Team
-## Version: 1.7.8
+## Version: 1.7.9
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
 ## SavedVariables: WagoUICreatorDB
