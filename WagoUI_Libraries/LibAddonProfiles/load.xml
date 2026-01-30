@@ -51,7 +51,7 @@
   <Script file ="modules\DandersFrames.lua"/>
 	<Script file ="modules\MidnightSimpleUnitFrames.lua"/>
 	<Script file ="modules\CooldownManager.lua"/>
+	<Script file ="modules\SenseiClassResourceBar.lua"/>
   <!-- <Script file ="modules\DandersFramesClickCasting.lua"/> -->
-	<!-- <Script file ="modules\SenseiClassResourceBar.lua"/> -->
 	<Script file ="finalize.lua"/>
 </Ui>

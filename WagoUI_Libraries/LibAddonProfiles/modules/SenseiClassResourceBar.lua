@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Sensei Class Resource Bar",
   wagoId = "ANzk0V64",
-  oldestSupported = "1.3.6",
+  oldestSupported = "1.4.7",
   addonNames = { "SenseiClassResourceBar" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("SenseiClassResourceBar", "IconTexture"),
@@ -36,12 +36,14 @@ local m = {
     EditModeManagerFrame.onCloseCallback()
   end,
   getProfileKeys = function(self)
-    return {
-      ["Global"] = true
-    }
+    local profileKeys = {}
+    for _, profileKey in pairs(SCRB.getAvailableProfiles()) do
+      profileKeys[profileKey] = true
+    end
+    return profileKeys
   end,
   getCurrentProfileKey = function(self)
-    return "Global"
+    return SCRB.getCurrentProfileName()
   end,
   isDuplicate = function(self, profileKey)
     return true
@@ -54,14 +56,12 @@ local m = {
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
     xpcall(function()
-      -- TODO: get proper global functions from author
       SCRB.importProfileFromString(profileString)
     end, geterrorhandler())
   end,
   exportProfile = function(self, profileKey)
     local export
     xpcall(function()
-      -- TODO: get proper global functions from author
       export = SCRB.exportProfileAsString(true, true)
     end, geterrorhandler())
     return export
