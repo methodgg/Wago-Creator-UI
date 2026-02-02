@@ -49,6 +49,7 @@ local m = {
     return true
   end,
   setProfile = function(self, profileKey)
+    --tied to editmode, we don't need to do anything here
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
 

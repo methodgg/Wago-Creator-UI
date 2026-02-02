@@ -52,7 +52,8 @@ local m = {
   setProfile = function(self, profileKey)
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-
+    -- FalconGlobalSettingsEnabled is a global settings, if not set then uses editmode profiles
+    -- we shouldnt need to have to do anything
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
