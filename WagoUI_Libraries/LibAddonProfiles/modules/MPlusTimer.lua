@@ -50,7 +50,7 @@ local m = {
   end,
   setProfile = function(self, profileKey)
     local characterName = UnitName("player").."-"..GetNormalizedRealmName()
-    UUFDB.profileKeys[characterName] = profileKey
+    MPTSV.ProfileKey[characterName] = profileKey
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
     if profileData and profileData.ChestTimer1 and profileData.ChestTimer2 then
