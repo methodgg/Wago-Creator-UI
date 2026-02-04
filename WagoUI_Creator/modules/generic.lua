@@ -53,7 +53,9 @@ local defaultSortOrder = {
   "Enhance QoL Resource Bars",
   "DandersFrames",
   "Prat3",
-  "Midnight Simple Unit Frames"
+  "Midnight Simple Unit Frames",
+  "Skyriding Falcon",
+  "BuffReminders",
 }
 
 for _, lapModule in pairs(LAP:GetAllModules()) do

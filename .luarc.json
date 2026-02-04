@@ -167,7 +167,9 @@
         "MSUF_ExportExternal",
         "SmoothStatusBarMixin",
         "FalconAddOnDB",
-        "FalconPublicAPI"
+        "FalconPublicAPI",
+        "BuffRemindersOptions",
+        "BuffReminders"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }
