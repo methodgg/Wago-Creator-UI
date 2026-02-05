@@ -55,6 +55,8 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
+    -- NOTE: importProfile does not create a new profile, instead it just overwrites the current one with the data of the imported profile
+    -- This is a choice by the EnhanceQoL author and not something we can change here
     xpcall(function()
       EnhanceQoL.importProfile(profileString)
     end, geterrorhandler())
