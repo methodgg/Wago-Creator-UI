@@ -4,3 +4,4 @@ WagoUI/libs/*
 !WagoUI/libs/loadLibs.xml
 WagoUI_Creator/libs/*
 !WagoUI_Creator/libs/loadLibs.xml
+AGENTS.local.md
