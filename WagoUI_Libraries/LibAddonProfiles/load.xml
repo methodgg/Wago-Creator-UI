@@ -35,6 +35,7 @@
 	<Script file ="modules\HidingBar.lua"/>
 	<Script file ="modules\NameplateAuras.lua"/>
 	<Script file ="modules\AdditionalAddons.lua"/>
+	<Script file ="modules\UIScale.lua"/>
 	<Script file ="modules\UnhaltedUnitFrames.lua"/>
 	<Script file ="modules\BetterCooldownManager.lua"/>
 	<Script file ="modules\MPlusTimer.lua"/>

@@ -176,7 +176,8 @@ function addon:AddDataToStorageAddon(changesDetected)
       profileKeys = pack.profileKeys,
       profiles = pack.profiles,
       isLocal = true,
-      cdmData = pack.cdmData
+      cdmData = pack.cdmData,
+      uiScaleSetup = pack.uiScaleSetup
     }
     WagoUI_Storage[packName] = data
   end
@@ -214,6 +215,11 @@ function addon.CreatePackStashed()
     profiles = {},
     profileMetadata = {},
     releaseNotes = {},
+    uiScaleSetup = {
+      enabled = false,
+      options = {},
+      recommended = nil
+    },
     resolutions = {
       enabled = {}
     }

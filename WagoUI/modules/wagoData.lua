@@ -3,6 +3,26 @@ local addon = select(2, ...)
 local LAP = LibStub:GetLibrary("LibAddonProfiles")
 local db
 
+---@param value number | string | nil
+---@return number | nil
+local function normalizeUiScale(value)
+  local n = tonumber(value)
+  if not n then
+    return nil
+  end
+  return tonumber(string.format("%.2f", n))
+end
+
+---@param value number | string | nil
+---@return string | nil
+local function getUiScaleKey(value)
+  local normalized = normalizeUiScale(value)
+  if not normalized then
+    return nil
+  end
+  return string.format("%.2f", normalized)
+end
+
 --- We want to get the latest imported profile for a character and module.
 --- This is most likely the profile the user wants to use.
 ---@param characterName string Character name in format "Playername - Realm Name"
@@ -85,6 +105,51 @@ local function addCdmData(source)
   end
 end
 
+---@param source table | nil
+---@return table | nil
+local function getUiScaleSetupFromSource(source)
+  if not source or type(source.uiScaleSetup) ~= "table" then
+    return nil
+  end
+  local rawData = source.uiScaleSetup
+  local optionsByKey = {}
+  if type(rawData.options) == "table" then
+    for key, value in pairs(rawData.options) do
+      local optionValue = value == true and key or value
+      local normalized = normalizeUiScale(optionValue or key)
+      local normalizedKey = getUiScaleKey(normalized)
+      if normalized and normalizedKey then
+        optionsByKey[normalizedKey] = {
+          key = normalizedKey,
+          value = normalized
+        }
+      end
+    end
+  end
+
+  local options = {}
+  for _, option in pairs(optionsByKey) do
+    tinsert(options, option)
+  end
+  table.sort(
+    options,
+    function(a, b)
+      return a.value < b.value
+    end
+  )
+
+  local recommended = getUiScaleKey(rawData.recommended)
+  if recommended and not optionsByKey[recommended] then
+    recommended = nil
+  end
+
+  return {
+    enabled = rawData.enabled == true,
+    options = options,
+    recommended = recommended
+  }
+end
+
 function addon:SetupWagoData()
   db = addon.db
   if not db.selectedWagoData then
@@ -98,9 +163,11 @@ function addon:SetupWagoData()
   if not WagoUI_Storage or not WagoUI_Storage[db.selectedWagoData] then
     db.selectedWagoData = nil
     addon.wagoData = nil
+    addon.state.uiScaleSetup = nil
     return
   end
   local source = WagoUI_Storage[db.selectedWagoData]
+  addon.state.uiScaleSetup = getUiScaleSetupFromSource(source)
   addon.wagoData = {}
   local newIntroImportState = {}
   for _, entry in pairs(addon.resolutions.entries) do

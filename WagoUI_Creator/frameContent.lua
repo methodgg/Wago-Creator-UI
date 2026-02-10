@@ -164,11 +164,20 @@ function addon:CreateProfileList(f, width, height)
           )
           --show how many WAs are marked
           local marked = 0
-          local exportedIds = currentUIPack.profileKeys[currentUIPack.resolutions.chosen][info.name]
-          if exportedIds then
-            for _, id in pairs(exportedIds) do
-              if id then
+          if info.name == "UI Scale" then
+            local uiScaleSetup = currentUIPack.uiScaleSetup
+            if uiScaleSetup and uiScaleSetup.enabled and uiScaleSetup.options then
+              for _ in pairs(uiScaleSetup.options) do
                 marked = marked + 1
+              end
+            end
+          else
+            local exportedIds = currentUIPack.profileKeys[currentUIPack.resolutions.chosen][info.name]
+            if exportedIds then
+              for _, id in pairs(exportedIds) do
+                if id then
+                  marked = marked + 1
+                end
               end
             end
           end

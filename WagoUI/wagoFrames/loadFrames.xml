@@ -13,5 +13,6 @@
 	<Include file="introFrame/cooldownManagerPage.lua"/>
 	<Include file="introFrame/directProfilesPage.lua"/>
 	<Include file="introFrame/installPage.lua"/>
+	<Include file="introFrame/uiScalePage.lua"/>
 	<Include file="introFrame/donePage.lua"/>
 </Ui>

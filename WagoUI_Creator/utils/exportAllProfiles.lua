@@ -23,6 +23,79 @@ function addon:GetGameFlavorString()
   end
 end
 
+---@param value number | string | nil
+---@return number | nil
+local function normalizeUiScaleValue(value)
+  local n = tonumber(value)
+  if not n then
+    return nil
+  end
+  return tonumber(string.format("%.2f", n))
+end
+
+---@param value number | string | nil
+---@return string | nil
+local function getUiScaleKey(value)
+  local normalized = normalizeUiScaleValue(value)
+  if not normalized then
+    return nil
+  end
+  return string.format("%.2f", normalized)
+end
+
+---@param setup table | nil
+---@return table
+local function normalizeUiScaleSetup(setup)
+  local normalized = {
+    enabled = false,
+    recommended = nil,
+    options = {}
+  }
+  if type(setup) ~= "table" then
+    return normalized
+  end
+  normalized.enabled = setup.enabled == true
+  if type(setup.options) == "table" then
+    for key, value in pairs(setup.options) do
+      local optionValue = value == true and key or value
+      local optionKey = getUiScaleKey(optionValue or key)
+      if optionKey then
+        normalized.options[optionKey] = true
+      end
+    end
+  end
+  local recommendedKey = getUiScaleKey(setup.recommended)
+  if recommendedKey and normalized.options[recommendedKey] then
+    normalized.recommended = recommendedKey
+  end
+  return normalized
+end
+
+---@param oldSetup table | nil
+---@param newSetup table | nil
+---@return boolean
+local function hasUiScaleSetupChanged(oldSetup, newSetup)
+  local oldNormalized = normalizeUiScaleSetup(oldSetup)
+  local newNormalized = normalizeUiScaleSetup(newSetup)
+  if oldNormalized.enabled ~= newNormalized.enabled then
+    return true
+  end
+  if oldNormalized.recommended ~= newNormalized.recommended then
+    return true
+  end
+  for key in pairs(oldNormalized.options) do
+    if not newNormalized.options[key] then
+      return true
+    end
+  end
+  for key in pairs(newNormalized.options) do
+    if not oldNormalized.options[key] then
+      return true
+    end
+  end
+  return false
+end
+
 function addon:ExportAllProfiles()
   -- set current toc version
   local gameVersion = select(4, GetBuildInfo())
@@ -48,6 +121,8 @@ function addon:ExportAllProfiles()
   -- only export the profiles that the user wants to export
   local timestamp = GetServerTime()
   local enabledResolutions = currentUIPack.resolutions.enabled
+  local packFromDb = addon.db.creatorUI[addon.db.chosenPack]
+  local uiScaleSetupChanged = hasUiScaleSetupChanged(packFromDb and packFromDb.uiScaleSetup, currentUIPack.uiScaleSetup)
   local countOperations = 0
   for _, module in pairs(addon.moduleConfigs) do
     ---@type LibAddonProfilesModule
@@ -70,6 +145,9 @@ function addon:ExportAllProfiles()
         countOperations = countOperations + 1
       end
     end
+  end
+  if uiScaleSetupChanged then
+    countOperations = countOperations + 1
   end
   --refresh list
   addon.frames.mainFrame.frameContent.contentScrollbox:Refresh()
@@ -119,6 +197,12 @@ function addon:ExportAllProfiles()
             addon:UpdateProgressBar()
           end
         end
+      end
+      if uiScaleSetupChanged then
+        local defaultResolution = addon.resolutions.defaultValue
+        updates[defaultResolution] = updates[defaultResolution] or {}
+        updates[defaultResolution]["UI Scale"] = true
+        addon:UpdateProgressBar()
       end
       addon.frames.mainFrame.frameContent.contentScrollbox:Refresh()
       local numUpdates = 0
