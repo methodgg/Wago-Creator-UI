@@ -105,13 +105,6 @@ L["Import All"] = "Import All"
 L["Enable AddOn"] = "Enable AddOn"
 L["This will neither change your resolution nor your UI Scale"] =
   "This will neither change your resolution nor your UI Scale"
-L["UISCALE_INTRO_HEADER"] = "Optional: Choose your UI Scale"
-L["UISCALE_INTRO_SUBHEADER"] = "You can skip this step"
-L["UISCALE_INTRO_RECOMMENDED"] = "(Recommended)"
-L["UISCALE_INTRO_CURRENT"] = "(Current)"
-L["UISCALE_INTRO_APPLY"] = "Use UI Scale %.2f"
-L["UISCALE_INTRO_APPLIED"] = "Applied UI Scale %.2f"
-L["UISCALE_INTRO_APPLY_ERROR"] = "Could not apply this UI Scale."
 L["Imported %s: %s"] = "Imported %s: %s"
 L["Set Profile %s: %s"] = "Set Profile %s: %s"
 L["altFrameHeader4"] =

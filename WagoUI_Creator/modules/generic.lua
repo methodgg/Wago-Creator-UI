@@ -4,7 +4,6 @@ local LAP = LibStub:GetLibrary("LibAddonProfiles")
 
 local defaultSortOrder = {
   "Additional Addons",
-  "UI Scale",
   "Blizzard Edit Mode",
   "Blizzard Cooldown Manager",
   "ElvUI",
