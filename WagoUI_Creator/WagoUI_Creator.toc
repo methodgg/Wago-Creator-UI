@@ -1,4 +1,4 @@
-## Interface: 120001, 120000, 50502, 40402, 11507, 20505
+## Interface: 120001, 120000, 50503, 20505, 11508
 ## Title: Wago UI Pack Creator
 ## Group: WagoAppCompanion
 ## IconTexture: Interface\AddOns\WagoUI_Creator\media\logoSmall.png
