@@ -1,6 +1,6 @@
 --If you would like to have your AddOn integrated into WagoUI Packs we need a couple of accessible functions that our AddOns can call to manage profiles.
 --In general the immplementation of the functions is up to you but make sure the behavior of your functions matches the expected behavior as described in the comments.
--- IMPORTANT NOTE: If your AddOn needs to ReloadUI() after importing / setting profiles make sure NOT to call reloads within these functions (or their tail calls) directly. WagoUI will instead mark your AddOn has "needing reload" and handle reloads for all AddOns at the end of the setup together.
+--IMPORTANT NOTE: If your AddOn needs to ReloadUI() after importing / setting profiles make sure NOT to call reloads within these functions (or their tail calls) directly. WagoUI will instead mark your AddOn has "needing reload" and handle reloads for all AddOns at the end of the setup together.
 
 --For WagoUI to have access to your functions it is recommended to create a separate global API table and place all the needed functions in it.
 YourAddonAPI = YourAddonAPI or {}
