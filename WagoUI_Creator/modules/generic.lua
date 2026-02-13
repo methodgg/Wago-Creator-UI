@@ -56,6 +56,7 @@ local defaultSortOrder = {
   "Midnight Simple Unit Frames",
   "Skyriding Falcon",
   "BuffReminders",
+  "CooldownCursorManager",
 }
 
 for _, lapModule in pairs(LAP:GetAllModules()) do

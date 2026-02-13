@@ -169,7 +169,8 @@
         "FalconAddOnDB",
         "FalconPublicAPI",
         "BuffRemindersOptions",
-        "BuffReminders"
+        "BuffReminders",
+        "CooldownCursorManagerAPI"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }

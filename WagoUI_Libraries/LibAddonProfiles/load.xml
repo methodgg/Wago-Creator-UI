@@ -54,6 +54,7 @@
 	<Script file ="modules\SenseiClassResourceBar.lua"/>
 	<Script file ="modules\SkyridingFalcon.lua"/>
 	<Script file ="modules\BuffReminders.lua"/>
+	<Script file ="modules\CooldownCursorManager.lua"/>
   <!-- <Script file ="modules\DandersFramesClickCasting.lua"/> -->
 	<Script file ="finalize.lua"/>
 </Ui>
