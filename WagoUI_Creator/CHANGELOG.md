@@ -1,3 +1,3 @@
-# 1.8.5 (2026-02-11)
+# 1.8.6 (2026-02-13)
 
-- Importing ElvUI Profile will no longer set the UI Scale
+- Added Cooldown Cursor Manager
