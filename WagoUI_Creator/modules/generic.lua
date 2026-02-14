@@ -41,6 +41,7 @@ local defaultSortOrder = {
   "MinimapStats",
   "MPlusTimer",
   "TargetedSpells",
+  "Advanced Focus Cast Bar",
   "AzortharionUI",
   "BetterBlizzFrames",
   "BetterBlizzPlates",

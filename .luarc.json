@@ -170,7 +170,8 @@
         "FalconPublicAPI",
         "BuffRemindersOptions",
         "BuffReminders",
-        "CooldownCursorManagerAPI"
+        "CooldownCursorManagerAPI",
+        "AdvancedFocusCastBarAPI"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }
