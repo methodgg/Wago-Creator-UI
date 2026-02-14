@@ -1,3 +1,3 @@
-# 1.8.6 (2026-02-13)
+# 1.8.7 (2026-02-14)
 
-- Added Cooldown Cursor Manager
+- Added Advanced Focus Cast Bar
