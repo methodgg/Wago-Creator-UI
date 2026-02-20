@@ -1,3 +1,3 @@
-# 1.8.7 (2026-02-14)
+# 1.8.8 (2026-02-20)
 
-- Added Advanced Focus Cast Bar
+- Wrapped LibAddonProfiles import/export module calls in `pcall` for safer profile operations.
