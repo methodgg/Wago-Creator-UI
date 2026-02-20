@@ -73,7 +73,7 @@ local m = {
     local decodedType, decodedKey, decodedData = D:Decode(profileString)
     -- important to use the supplied profileKey, as the decodedKey might be different
     local force = true
-    D:SetImportedProfile(decodedType, profileKey, decodedData, force)
+    pcall(D.SetImportedProfile, D, decodedType, profileKey, decodedData, force)
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end
@@ -82,7 +82,10 @@ local m = {
     --Core\General\Distributor.lua
     local E = ElvUI[1]
     local D = E:GetModule("Distributor")
-    local _, profileExport = D:GetProfileExport("styleFilters", profileKey, "text")
+    local success, _, profileExport = pcall(D.GetProfileExport, D, "styleFilters", profileKey, "text")
+    if not success then
+      return
+    end
     return profileExport
   end,
   areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)

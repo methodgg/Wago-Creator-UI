@@ -105,7 +105,10 @@ local m = {
 
     local profileExport
     local serialString = D:Serialize(profileData)
-    local exportString = D:CreateProfileExport('private', profileKey, serialString)
+    local success, exportString = pcall(D.CreateProfileExport, D, 'private', profileKey, serialString)
+    if not success then
+      return
+    end
     local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
     local compressedData = LibDeflate:CompressDeflate(exportString, { level = 5 })
     local printableString = LibDeflate:EncodeForPrint(compressedData)

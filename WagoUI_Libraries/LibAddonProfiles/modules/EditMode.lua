@@ -145,7 +145,10 @@ local m = {
     end
 
     local newLayoutInfo = C_EditMode.ConvertStringToLayoutInfo(profileString)
-    EditModeManagerFrame:ImportLayout(newLayoutInfo, 1, profileKey)
+    local success = pcall(EditModeManagerFrame.ImportLayout, EditModeManagerFrame, newLayoutInfo, 1, profileKey)
+    if not success then
+      return
+    end
     EditModeManagerFrame.CloseButton:Click()
     -- ignore taint warning
     if StaticPopup1Button2Text:GetText() == "Ignore" then
