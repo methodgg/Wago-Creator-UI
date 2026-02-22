@@ -39,6 +39,7 @@
 	<Script file ="modules\BetterCooldownManager.lua"/>
 	<Script file ="modules\MPlusTimer.lua"/>
 	<Script file ="modules\MinimapStats.lua"/>
+	<Script file ="modules\NorskenUI.lua"/>
 	<Script file ="modules\TargetedSpells.lua"/>
 	<Script file ="modules\AzortharionUI.lua"/>
 	<Script file ="modules\AdvancedFocusCastBar.lua"/>

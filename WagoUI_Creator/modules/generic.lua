@@ -58,6 +58,7 @@ local defaultSortOrder = {
   "Skyriding Falcon",
   "BuffReminders",
   "CooldownCursorManager",
+  "NorskenUI",
 }
 
 for _, lapModule in pairs(LAP:GetAllModules()) do
