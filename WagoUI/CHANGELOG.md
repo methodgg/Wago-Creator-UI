@@ -1,3 +1,4 @@
-# 1.8.8 (2026-02-20)
+# 1.8.9 (2026-02-22)
 
-- Wrapped LibAddonProfiles import/export module calls in `pcall` for safer profile operations.
+- Added LibAddonProfiles integration for `NorskenUI`.
+- Registered `NorskenUI` in Creator generic module sort order.
