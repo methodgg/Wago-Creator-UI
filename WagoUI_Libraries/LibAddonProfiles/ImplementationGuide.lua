@@ -9,7 +9,7 @@ YourAddonAPI = YourAddonAPI or {}
 ---@param profileKey string --the name of the profile to be exported
 ---@return string --the encoded profile string that can be imported by other users
 function YourAddonAPI:ExportProfile(profileKey)
-  -- NOTE: If you AddOn has no profile system we will call this function with "Global" as the profileKey
+  -- NOTE: If your AddOn has no profile system we will call this function with "Global" as the profileKey
   -- NOTE: This function should NOT just export the CURRENT profile (if your AddOn has a profile system) but should be able to export any profile by name.
 
   -- It is recommended to use Blizzard functions from C_EncodingUtil for encoding / decoding.
@@ -26,7 +26,7 @@ end
 ---@param profileString string --the encoded profile string to be imported
 ---@param profileKey string --the name of the profile to be imported
 function YourAddonAPI:ImportProfile(profileString, profileKey)
-  -- NOTE: If you AddOn has no profile system we will call this function with "Global" as the profileKey and you should just import the data to your global settings.
+  -- NOTE: If your AddOn has no profile system we will call this function with "Global" as the profileKey and you should just import the data to your global settings.
   -- NOTE: This function should import the profile data to your AddOn and make it the current active profile if your AddOn has a profile system.
   -- NOTE: Make sure that the new profile is named after the profileKey passed to the function if you have a profile system. For AddOns with only Global settings you can ignore the profileKey.
 
