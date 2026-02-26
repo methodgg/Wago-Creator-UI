@@ -305,6 +305,7 @@ end
 ---@param entryName? string
 function addon:StoreImportedProfileData(timestamp, moduleName, profileKey, entryName)
   local target = addon:GetImportedProfilesTarget()
+  if not target then return end
   if not target[moduleName] then
     target[moduleName] = entryName and { entries = {} } or {}
   end
