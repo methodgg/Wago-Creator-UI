@@ -50,7 +50,7 @@ local function setAllProfilesAsync()
       local profileKey, updatedAt = addon:GetLatestImportedProfile(currentSelectedCharacter, lapModule.moduleName)
       if profileKey then
         addon:AddonPrint(string.format("Module %s is not loaded, but imported profile found", lapModule.moduleName))
-        tinsert(needLoad, {moduleName = lapModule.moduleName, profileKey = profileKey})
+        tinsert(needLoad, { moduleName = lapModule.moduleName, profileKey = profileKey })
       end
     end
     coroutine.yield()
@@ -70,9 +70,11 @@ function addon:ContinueSetAllProfiles()
       for _, data in ipairs(addon.dbC.needLoad) do
         ---@type LibAddonProfilesModule
         local lap = LAP:GetModule(data.moduleName)
-        local profileKeys = lap.getProfileKeys and lap:getProfileKeys()
-        if profileKeys and data.profileKey and profileKeys[data.profileKey] then
-          lap:setProfile(data.profileKey)
+        if lap:isLoaded() then
+          local profileKeys = lap.getProfileKeys and lap:getProfileKeys()
+          if profileKeys and data.profileKey and profileKeys[data.profileKey] then
+            lap:setProfile(data.profileKey)
+          end
         end
       end
       addon.dbC.needLoad = nil
@@ -82,7 +84,7 @@ function addon:ContinueSetAllProfiles()
 end
 
 local function getImportedProfilesDataForDropdown()
-  local currentCharacter = UnitName("player") .. " - " .. GetRealmName()
+  local currentCharacter = UnitName("player").." - "..GetRealmName()
   local res = {}
   for key, data in pairs(addon.db.importedProfiles) do
     if key ~= currentCharacter then
@@ -121,13 +123,13 @@ local function getMostLikelyProfileSource()
 end
 
 function addon:CreateAltFrame(f)
-  altFrame = CreateFrame("Frame", addonName .. "AltFrame", f)
+  altFrame = CreateFrame("Frame", addonName.."AltFrame", f)
   altFrame:SetPoint("TOPLEFT", f, "TOPLEFT", 0, -10)
   altFrame:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", 0, 0)
   altFrame:Hide()
   addon.frames.altFrame = altFrame
 
-  local logo = DF:CreateImage(altFrame, [[Interface\AddOns\]] .. addonName .. [[\media\wagoLogo512]], 256, 256)
+  local logo = DF:CreateImage(altFrame, [[Interface\AddOns\]]..addonName..[[\media\wagoLogo512]], 256, 256)
   logo:SetPoint("TOP", altFrame, "TOP", 0, -15)
 
   local text = L["altFrameHeader"]
