@@ -171,7 +171,8 @@
         "BuffRemindersOptions",
         "BuffReminders",
         "CooldownCursorManagerAPI",
-        "AdvancedFocusCastBarAPI"
+        "AdvancedFocusCastBarAPI",
+        "Ayije_CDM_API"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }

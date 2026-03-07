@@ -58,6 +58,7 @@ local defaultSortOrder = {
   "Skyriding Falcon",
   "BuffReminders",
   "CooldownCursorManager",
+  "Ayije_CDM",
   "NorskenUI",
 }
 
