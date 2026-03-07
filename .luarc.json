@@ -172,7 +172,8 @@
         "BuffReminders",
         "CooldownCursorManagerAPI",
         "AdvancedFocusCastBarAPI",
-        "Ayije_CDM_API"
+        "Ayije_CDM_API",
+        "atrocityEssentialsAPI"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }
