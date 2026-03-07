@@ -1,5 +1,4 @@
-# 1.8.10 (2026-03-06)
+# 1.8.11 (2026-03-07)
 
-- Fixed alt profile loading so profiles are only applied after the target addon is loaded.
-- Added a guard to avoid nil errors while storing imported profile data.
-- Corrected wording in the LibAddonProfiles implementation guide.
+- Added LibAddonProfiles support for Ayije_CDM.
+- Added LibAddonProfiles support for atrocityEssentials and registered it in the creator module list.
