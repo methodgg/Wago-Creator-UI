@@ -1,4 +1,3 @@
-# 1.8.11 (2026-03-07)
+# 1.8.12 (2026-03-11)
 
-- Added LibAddonProfiles support for Ayije_CDM.
-- Added LibAddonProfiles support for atrocityEssentials and registered it in the creator module list.
+- Updated BuffReminders to use its native profile API for config, profile selection, import/export, and profile comparison.
