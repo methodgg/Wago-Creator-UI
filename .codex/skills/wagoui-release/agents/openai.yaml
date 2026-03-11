@@ -1,0 +1,4 @@
+interface:
+  display_name: "WagoUI Release"
+  short_description: "Run the WagoUI release workflow"
+  default_prompt: "Use $wagoui-release to perform the next WagoUI version release."
