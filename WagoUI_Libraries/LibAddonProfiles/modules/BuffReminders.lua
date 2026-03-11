@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "BuffReminders",
   wagoId = "qGYZZjNg",
-  oldestSupported = "2.6.0",
+  oldestSupported = "v4.3.9",
   addonNames = { "BuffReminders" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("BuffReminders", "IconTexture"),
@@ -29,25 +29,39 @@ local m = {
     return false
   end,
   openConfig = function(self)
-    SlashCmdList["BUFFREMINDERS"]("")
+    xpcall(function()
+      BuffRemindersAPI:OpenConfig()
+    end, geterrorhandler())
   end,
   closeConfig = function(self)
-    if BuffRemindersOptions then
-      BuffRemindersOptions:Hide()
-    end
+    xpcall(function()
+      BuffRemindersAPI:CloseConfig()
+    end, geterrorhandler())
   end,
   getProfileKeys = function(self)
-    return {
-      ["Global"] = true
-    }
+    local profileKeys
+    xpcall(function()
+      profileKeys = BuffRemindersAPI:GetProfileKeys()
+    end, geterrorhandler())
+    return profileKeys
   end,
   getCurrentProfileKey = function(self)
-    return "Global"
+    local profileKey
+    xpcall(function()
+      profileKey = BuffRemindersAPI:GetCurrentProfileKey()
+    end, geterrorhandler())
+    return profileKey
   end,
   isDuplicate = function(self, profileKey)
-    return true
+    if not profileKey then return false end
+    return self:getProfileKeys()[profileKey] ~= nil
   end,
   setProfile = function(self, profileKey)
+    if not profileKey then return end
+    if not self:getProfileKeys()[profileKey] then return end
+    xpcall(function()
+      BuffRemindersAPI:SetProfile(profileKey)
+    end, geterrorhandler())
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
 
@@ -55,7 +69,7 @@ local m = {
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
     xpcall(function()
-      BuffReminders:Import(profileString, profileKey)
+      BuffRemindersAPI:ImportProfile(profileString, profileKey)
     end, geterrorhandler())
   end,
   exportProfile = function(self, profileKey)
@@ -64,7 +78,7 @@ local m = {
     if not self:getProfileKeys()[profileKey] then return end
     local export
     xpcall(function()
-      export = BuffReminders:Export(profileKey)
+      export = BuffRemindersAPI:ExportProfile(profileKey)
     end, geterrorhandler())
     return export
   end,
@@ -72,8 +86,11 @@ local m = {
     if not profileStringA or not profileStringB then
       return false
     end
-    local profileDataA = private:BlizzardDecodeB64CBOR(profileStringA:sub(5), false)
-    local profileDataB = private:BlizzardDecodeB64CBOR(profileStringB:sub(5), false)
+    local profileDataA, profileDataB
+    xpcall(function()
+      profileDataA = BuffRemindersAPI:DecodeProfileString(profileStringA)
+      profileDataB = BuffRemindersAPI:DecodeProfileString(profileStringB)
+    end, geterrorhandler())
     if not profileDataA or not profileDataB then
       return false
     end
