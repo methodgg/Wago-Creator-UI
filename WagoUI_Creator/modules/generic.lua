@@ -59,6 +59,7 @@ local defaultSortOrder = {
   "BuffReminders",
   "CooldownCursorManager",
   "Ayije_CDM",
+  "NaowhQOL",
   "atrocityEssentials",
   "NorskenUI",
 }
