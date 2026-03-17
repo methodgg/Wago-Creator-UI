@@ -30,6 +30,9 @@ function YourAddonAPI:ImportProfile(profileString, profileKey)
   -- NOTE: This function should import the profile data to your AddOn and make it the current active profile if your AddOn has a profile system.
   -- NOTE: Make sure that the new profile is named after the profileKey passed to the function if you have a profile system. For AddOns with only Global settings you can ignore the profileKey.
 
+  -- NOTE: You do not NEED to implement your encoding like this, this code is just meant as an easy example. If you have your own / already existing encoding that is perfectly fine.
+  --       It is however expected that Profiles exported by the API are 100% compatible with your own internal import/export system for profile strings.
+
   local decoded = C_EncodingUtil.DecodeBase64(profileString)
   local decompressed = C_EncodingUtil.DecompressString(decoded, Enum.CompressionMethod.Deflate)
   local deserialized = C_EncodingUtil.DeserializeCBOR(decompressed)
@@ -42,6 +45,9 @@ end
 ---@return table --the decoded profile data as a table
 function YourAddonAPI:DecodeProfileString(profileString)
   -- NOTE: This function should decode the profile string and return the profile data as a table. This is used for comparing profiles and generating changelogs for creators.
+
+  -- NOTE: You do not NEED to implement your encoding like this, this code is just meant as an easy example. If you have your own / already existing encoding that is perfectly fine.
+  --       It is however expected that Profiles exported by the API are 100% compatible with your own internal import/export system for profile strings.
 
   local decoded = C_EncodingUtil.DecodeBase64(profileString)
   local decompressed = C_EncodingUtil.DecompressString(decoded, Enum.CompressionMethod.Deflate)
