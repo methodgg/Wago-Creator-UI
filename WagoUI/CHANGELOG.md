@@ -1,3 +1,3 @@
-# 1.8.12 (2026-03-11)
+# 1.8.13 (2026-03-17)
 
-- Updated BuffReminders to use its native profile API for config, profile selection, import/export, and profile comparison.
+- Added NaowhQOL to LibAddonProfiles with native profile import, export, selection, and comparison support.
