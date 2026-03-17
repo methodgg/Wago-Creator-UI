@@ -1,0 +1,4 @@
+interface:
+  display_name: "WagoUI LAP Integration"
+  short_description: "Create LibAddonProfiles integrations for locally installed WoW addons"
+  default_prompt: "Use $wagoui-libaddonprofiles-integration to add a new WagoUI LibAddonProfiles integration for a locally installed addon."
