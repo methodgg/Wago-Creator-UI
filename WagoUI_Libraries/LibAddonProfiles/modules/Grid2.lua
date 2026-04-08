@@ -34,13 +34,11 @@ local m = {
     return C_AddOns.IsAddOnLoaded("Grid2") and not self:isLoaded()
   end,
   openConfig = function(self)
-    vdt("open")
     xpcall(function()
       Grid2ProfileAPI:OpenConfig()
     end, geterrorhandler())
   end,
   closeConfig = function(self)
-    vdt("close")
     xpcall(function()
       Grid2ProfileAPI:CloseConfig()
     end, geterrorhandler())
