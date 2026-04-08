@@ -132,9 +132,15 @@ local m = {
     --import automation
     profileString = DetailsFramework:Trim(profileString)
     local profileData = Details:DecompressData(profileString, "print")
-    if profileData then
+    local importedProfile = profileData and profileData.profile
+    local importedInstances = importedProfile and importedProfile.instances
+    if type(importedInstances) == "table" then
       for i, v in Details:ListInstances() do
-        DetailsFramework.table.copy(v.hide_on_context, profileData.profile.instances[i].hide_on_context)
+        local importedInstance = importedInstances[i]
+        local importedHideOnContext = importedInstance and importedInstance.hide_on_context
+        if type(v.hide_on_context) == "table" and type(importedHideOnContext) == "table" then
+          DetailsFramework.table.copy(v.hide_on_context, importedHideOnContext)
+        end
       end
     end
   end,
