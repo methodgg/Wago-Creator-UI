@@ -28,8 +28,12 @@ end
 local removeProfile = function(profileKey)
   local layoutIndex = getLayoutIndexByName(profileKey)
   if layoutIndex then
-    EditModeManagerFrame:DeleteLayout(layoutIndex)
+    local success = pcall(EditModeManagerFrame.DeleteLayout, EditModeManagerFrame, layoutIndex)
+    if not success then
+      return false
+    end
   end
+  return true
 end
 
 local areGlobalLayoutsFull = function()
@@ -135,13 +139,19 @@ local m = {
       profileCount = profileCount + 1
     end
     if profileKeys[profileKey] then
-      removeProfile(profileKey) --need to remove old profile with same name first for updating to work and not be confusing
+      local success = removeProfile(profileKey) --need to remove old profile with same name first for updating to work and not be confusing
+      if not success then
+        return
+      end
     end
     if areGlobalLayoutsFull() then
       -- if people complain find a better solution
       -- users are warned in the UI
       EditModeManagerFrame:SelectLayout(3)
-      removeProfile(self:getCurrentProfileKey())
+      local success = removeProfile(self:getCurrentProfileKey())
+      if not success then
+        return
+      end
     end
 
     local newLayoutInfo = C_EditMode.ConvertStringToLayoutInfo(profileString)

@@ -1,4 +1,4 @@
-# 1.8.14 (2026-04-08)
+# 1.8.15 (2026-04-08)
 
-- Documented the LibAddonProfiles integration requirements for addon authors.
-- Bumped the bundled LibAddonProfiles minor to 18.
+- Guarded Blizzard Edit Mode layout deletion failures in the bundled Edit Mode import module.
+- Bumped the bundled LibAddonProfiles minor to 19.
