@@ -1,3 +1,4 @@
-# 1.8.13 (2026-03-17)
+# 1.8.14 (2026-04-08)
 
-- Added NaowhQOL to the creator module list for native profile import, export, selection, and comparison support.
+- Documented the LibAddonProfiles integration requirements for addon authors.
+- Bumped the bundled LibAddonProfiles minor to 18.
