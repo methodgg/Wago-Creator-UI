@@ -10,6 +10,14 @@ local L = addon.L
 
 local caughtErrors = {}
 
+local function getActivePackDiagnostics()
+  local packName = addon.db and addon.db.chosenPack
+  if not packName then
+    return "None"
+  end
+  return packName
+end
+
 local function getDiagnostics()
   local addonVersion = C_AddOns.GetAddOnMetadata(addonName, "Version")
   local locale = GetLocale()
@@ -29,6 +37,7 @@ local function getDiagnostics()
   local combatState = InCombatLockdown() and "In combat" or "Out of combat"
   local mapID = C_Map.GetBestMapForUnit("player")
   local zoneInfo = format("Zone: %s (%d)", C_Map.GetMapInfo(C_Map.GetMapInfo(mapID or 0).parentMapID).name, mapID)
+  local activePackName = getActivePackDiagnostics()
   return {
     addonVersion = addonVersion,
     locale = locale,
@@ -38,7 +47,8 @@ local function getDiagnostics()
     realm = realm,
     region = region,
     combatState = combatState,
-    zoneInfo = zoneInfo
+    zoneInfo = zoneInfo,
+    activePackName = activePackName
   }
 end
 
@@ -202,6 +212,7 @@ function addon:DisplayErrors(force)
                 " " ..
                   diagnostics.locale ..
                     "\nCharacter: " .. diagnostics.name .. "-" .. diagnostics.realm .. " (" .. diagnostics.region .. ")"
+  errorBoxText = errorBoxText .. "\nUI Pack: " .. diagnostics.activePackName
   errorBoxText = errorBoxText .. "\n" .. diagnostics.combatState .. "\n" .. diagnostics.zoneInfo .. "\n"
   errorBoxText = errorBoxText .. "\nStacktraces\n\n"
   for _, error in ipairs(caughtErrors) do
@@ -236,6 +247,7 @@ local function onError(msg, stackTrace, name)
     "\naddon: " ..
       diagnostics.addonVersion ..
         "\nClient: " .. diagnostics.gameVersion .. " " .. diagnostics.locale .. "\n" .. diagnostics.region
+  diagnosticString = diagnosticString .. "\nUI Pack: " .. diagnostics.activePackName
   -- addon.WagoAnalytics:Error(e..diagnosticString)
   if addon.errorTimer then
     addon.errorTimer:Cancel()
