@@ -74,6 +74,16 @@ function YourAddonAPI:GetProfileKeys()
   return profileKeys
 end
 
+---@return table<string, string> | nil --optional table in the format [characterKey] = profileKey
+function YourAddonAPI:GetProfileAssignments()
+  -- NOTE: WagoUI uses this to restore profile selections from another character without relying only on
+  --       its own import history.
+  -- NOTE: If your AddOn does not expose these assignments, or only the current character can be resolved,
+  --       just return nil.
+
+  return YourInternalDB.profileKeys
+end
+
 ---@return string --the profileKey of the currently active profile
 function YourAddonAPI:GetCurrentProfileKey()
   -- NOTE: This function should return the profile key of the currently active profile. This helps Creators exporting profiles correctly.
