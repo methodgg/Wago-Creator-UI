@@ -175,7 +175,8 @@
         "Ayije_CDM_API",
         "atrocityEssentialsAPI",
         "BuffRemindersAPI",
-        "NaowhQOL_API"
+        "NaowhQOL_API",
+        "DetailsAPI"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }
