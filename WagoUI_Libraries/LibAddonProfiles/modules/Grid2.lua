@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Grid2",
   wagoId = "vEGPyeN1",
-  oldestSupported = "3.3.12",
+  oldestSupported = "3.3.15",
   addonNames = { "Grid2", "Grid2Options", "Grid2LDB", "Grid2RaidDebuffs", "Grid2RaidDebuffsOptions" },
   conflictingAddons = { "VuhDo", "VuhDoOptions", "Cell" },
   icon = C_AddOns.GetAddOnMetadata("Grid2", "IconTexture"),
