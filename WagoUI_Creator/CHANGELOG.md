@@ -1,4 +1,5 @@
-# 1.8.15 (2026-04-08)
+# 1.8.16 (2026-04-13)
 
-- Guarded Blizzard Edit Mode layout deletion failures in the bundled Edit Mode import module.
-- Bumped the bundled LibAddonProfiles minor to 19.
+- Added `GetProfileAssignments` to the bundled LibAddonProfiles implementation guide.
+- Allowed GenericVersionCheck to accept alternate project version formats.
+- Migrated the bundled Grid2 integration to the new profile API and bumped its minimum supported version.
