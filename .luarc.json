@@ -177,6 +177,7 @@
         "BuffRemindersAPI",
         "NaowhQOL_API",
         "DetailsAPI"
+        "Grid2ProfileAPI"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }
