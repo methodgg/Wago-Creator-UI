@@ -1,5 +1,5 @@
-# 1.8.16 (2026-04-13)
+# 1.8.17 (2026-04-21)
 
-- Added `GetProfileAssignments` to the bundled LibAddonProfiles implementation guide.
-- Allowed GenericVersionCheck to accept alternate project version formats.
-- Migrated the bundled Grid2 integration to the new profile API and bumped its minimum supported version.
+- Updated WoW TOC interface versions for current clients.
+- Added automation to keep WoW interface metadata current.
+- Updated release workflows to use the latest checkout action.
