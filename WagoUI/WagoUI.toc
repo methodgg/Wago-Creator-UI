@@ -1,3 +1,4 @@
+# WOW_INTERFACE_TARGETS: mainline-test, mainline, mists, tbc, vanilla
 ## Interface: 120001, 120000, 50503, 20505, 11508
 ## Title: Wago UI Pack Installer
 ## Group: WagoAppCompanion
