@@ -1,5 +1,5 @@
-# 1.8.17 (2026-04-21)
+# 1.8.18 (2026-04-23)
 
-- Updated WoW TOC interface versions for current clients.
-- Added automation to keep WoW interface metadata current.
-- Updated release workflows to use the latest checkout action.
+- Migrated Details integration to the addon profile API.
+- Migrated Plater integration to the addon profile API.
+- Ignored transient Details runtime and cache fields when comparing profile strings.
