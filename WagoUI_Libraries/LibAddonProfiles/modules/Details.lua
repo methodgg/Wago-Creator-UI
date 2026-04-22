@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Details",
   wagoId = "qv63A7Gb",
-  oldestSupported = "#Details.20260411.14930.171",
+  oldestSupported = "#Details.20260422.15002.171",
   addonNames = { "Details" },
   icon = C_AddOns.GetAddOnMetadata("Details", "IconTexture"),
   slash = "/details config",
@@ -52,8 +52,11 @@ local m = {
     return profileKey
   end,
   getProfileAssignments = function(self)
-    -- Details only exposes the active profile for the current character through its pack API.
-    return nil
+    local profileAssignments
+    xpcall(function()
+      profileAssignments = DetailsAPI:GetProfileAssignments()
+    end, geterrorhandler())
+    return profileAssignments
   end,
   isDuplicate = function(self, profileKey)
     if not profileKey then
@@ -107,6 +110,7 @@ local m = {
       class_time_played = true,
       logons = true,
       main_help_button = true,
+      sessionId = true,
     })
   end,
   refreshHookList = {
