@@ -183,17 +183,19 @@ function addon:CreateProfileList(f, width, height)
         end
         local profileKey = currentUIPack.profileKeys[currentUIPack.resolutions.chosen][info.name]
         local fallbackOptions = function()
-          return profileKey and
-              {
-                {
-                  value = profileKey,
-                  label = profileKey,
-                  onclick = function()
-                    addon.UpdatePackSelectedUI()
-                  end
-                }
-              } or
-              {}
+          if not profileKey then
+            return {}
+          end
+          return {
+            addon.ModuleFunctions:CreateClearProfileExportOption(info.name),
+            {
+              value = profileKey,
+              label = profileKey,
+              onclick = function()
+                addon.UpdatePackSelectedUI()
+              end
+            }
+          }
         end
         line.profileDropdown.func = loaded and info.dropdown1Options or fallbackOptions
         line.profileDropdown:Refresh()
@@ -208,7 +210,12 @@ function addon:CreateProfileList(f, width, height)
             line.profileDropdown:NoOptionSelected()
           end
         end
-        if not loaded then
+        local canClearMissingProfile = not info.hasGroups and profileKey and not loaded
+        if canClearMissingProfile then
+          line.profileDropdown:Enable()
+          line.profileDropdown.myIsEnabled = true
+          line.manageButton:Disable()
+        elseif not loaded then
           line.profileDropdown:Disable()
           line.profileDropdown.myIsEnabled = false
           line.manageButton:Disable()

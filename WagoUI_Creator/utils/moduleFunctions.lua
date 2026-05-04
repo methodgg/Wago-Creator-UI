@@ -8,25 +8,34 @@ local LAP = LibStub:GetLibrary("LibAddonProfiles")
 
 ModuleFunctions.specialModules = {}
 
-function ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKeys, currentProfileKey)
+function ModuleFunctions:ClearProfileExport(moduleName)
   local currentUIPack = addon:GetCurrentPackStashed()
-  tinsert(
-    res,
-    {
-      value = 1,
-      label = "|A:common-icon-redx:16:16|a|cff808080None|r",
-      onclick = function(dropdown)
-        dropdown:NoOptionSelected()
-        currentUIPack.profileKeys[currentUIPack.resolutions.chosen][moduleName] = nil
-        currentUIPack.profiles[currentUIPack.resolutions.chosen][moduleName] = nil
-        addon.UpdatePackSelectedUI()
-        -- only mark for removal if it was previously set
-        if addon.db.creatorUI[addon.db.chosenPack].profiles[currentUIPack.resolutions.chosen][moduleName] then
-          addon:AddProfileRemoval(addon.db.chosenPack, currentUIPack.resolutions.chosen, moduleName)
-        end
-      end
-    }
-  )
+  if not currentUIPack then
+    return
+  end
+  local resolution = currentUIPack.resolutions.chosen
+  currentUIPack.profileKeys[resolution][moduleName] = nil
+  currentUIPack.profiles[resolution][moduleName] = nil
+  addon.UpdatePackSelectedUI()
+  -- only mark for removal if it was previously set
+  if addon.db.creatorUI[addon.db.chosenPack].profiles[resolution][moduleName] then
+    addon:AddProfileRemoval(addon.db.chosenPack, resolution, moduleName)
+  end
+end
+
+function ModuleFunctions:CreateClearProfileExportOption(moduleName)
+  return {
+    value = 1,
+    label = "|A:common-icon-redx:16:16|a|cff808080None|r",
+    onclick = function(dropdown)
+      dropdown:NoOptionSelected()
+      self:ClearProfileExport(moduleName)
+    end
+  }
+end
+
+function ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKeys, currentProfileKey)
+  tinsert(res, self:CreateClearProfileExportOption(moduleName))
 
   local orderedProfileKeys = {}
   for profileKey, _ in pairs(profileKeys) do

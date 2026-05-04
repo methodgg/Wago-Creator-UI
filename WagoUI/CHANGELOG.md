@@ -1,5 +1,3 @@
-# 1.8.18 (2026-04-23)
+# 1.8.19 (2026-05-05)
 
-- Migrated Details integration to the addon profile API.
-- Migrated Plater integration to the addon profile API.
-- Ignored transient Details runtime and cache fields when comparing profile strings.
+- Allowed creators to clear saved profile exports for add-ons that are not installed or loaded.
