@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Quartz",
   wagoId = "none",
-  oldestSupported = "3.7.13",
+  oldestSupported = "3.7.17",
   addonNames = { "Quartz" },
   icon = C_AddOns.GetAddOnMetadata("Quartz", "IconTexture"),
   slash = "/quartz",

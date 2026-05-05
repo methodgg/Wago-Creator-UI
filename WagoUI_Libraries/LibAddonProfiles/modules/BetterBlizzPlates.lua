@@ -9,7 +9,7 @@ local optionsFrame
 local m = {
   moduleName = "BetterBlizzPlates",
   wagoId = "b6mb47KP",
-  oldestSupported = "1.9.2",
+  oldestSupported = "v2.0.1",
   addonNames = { "BetterBlizzPlates" },
   conflictingAddons = {},
   icon = 135724,

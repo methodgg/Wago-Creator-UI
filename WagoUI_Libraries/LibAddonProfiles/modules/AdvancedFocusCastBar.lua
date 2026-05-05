@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Advanced Focus Cast Bar",
   wagoId = "96d2DPGO",
-  oldestSupported = "1.0.0",
+  oldestSupported = "1.0.12",
   addonNames = { "AdvancedFocusCastBar" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("AdvancedFocusCastBar", "IconTexture"),

@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Better Cooldown Manager",
   wagoId = "ANz030K4",
-  oldestSupported = "12.0.5",
+  oldestSupported = "V12.0.32",
   addonNames = { "BetterCooldownManager" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("BetterCooldownManager", "IconTexture"),

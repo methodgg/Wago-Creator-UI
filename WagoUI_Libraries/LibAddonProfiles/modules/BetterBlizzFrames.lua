@@ -9,7 +9,7 @@ local optionsFrame
 local m = {
   moduleName = "BetterBlizzFrames",
   wagoId = "qGZR02Gd",
-  oldestSupported = "1.8.7",
+  oldestSupported = "v1.9.7",
   addonNames = { "BetterBlizzFrames" },
   conflictingAddons = { "UnhaltedUF", "MidnightSimpleUnitFrames", "ShadowedUnitFrames", "ShadowedUF_Options", "PitBull4" },
   icon = 135724,

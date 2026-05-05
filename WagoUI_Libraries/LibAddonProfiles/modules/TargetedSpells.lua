@@ -9,7 +9,7 @@ local optionsFrame
 local m = {
   moduleName = "Targeted Spells",
   wagoId = "vNAe38No",
-  oldestSupported = "1.1.0",
+  oldestSupported = "3.2.6",
   addonNames = { "TargetedSpells" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("TargetedSpells", "IconTexture"),

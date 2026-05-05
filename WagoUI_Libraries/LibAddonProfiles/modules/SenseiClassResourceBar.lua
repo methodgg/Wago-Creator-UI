@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Sensei Class Resource Bar",
   wagoId = "ANzk0V64",
-  oldestSupported = "1.4.7",
+  oldestSupported = "1.5.21",
   addonNames = { "SenseiClassResourceBar" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("SenseiClassResourceBar", "IconTexture"),

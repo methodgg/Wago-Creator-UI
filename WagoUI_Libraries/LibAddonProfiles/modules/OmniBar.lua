@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "OmniBar",
   wagoId = "BO678XK3",
-  oldestSupported = "v27",
+  oldestSupported = "v34",
   addonNames = { "OmniBar" },
   icon = C_AddOns.GetAddOnMetadata("OmniBar", "IconTexture"),
   slash = "/omnibar",

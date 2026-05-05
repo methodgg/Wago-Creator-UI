@@ -28,7 +28,7 @@ end
 local m = {
   moduleName = "Kui Nameplates",
   wagoId = "kNMd8qGz",
-  oldestSupported = "2.29.18",
+  oldestSupported = "2.29.20",
   addonNames = { "Kui_Nameplates", "Kui_Nameplates_Core", "Kui_Nameplates_Core_Config" },
   conflictingAddons = { "Plater" },
   icon = C_AddOns.GetAddOnMetadata("Kui_Nameplates", "IconTexture"),

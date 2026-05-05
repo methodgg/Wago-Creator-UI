@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "MPlusTimer",
   wagoId = "BKpqWZGE",
-  oldestSupported = "1.0.13",
+  oldestSupported = "1.0.34",
   addonNames = { "MPlusTimer" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("MPlusTimer", "IconTexture"),

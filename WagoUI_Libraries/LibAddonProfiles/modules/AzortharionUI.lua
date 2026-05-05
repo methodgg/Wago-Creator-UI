@@ -9,7 +9,7 @@ local optionsFrame
 local m = {
   moduleName = "AzortharionUI",
   wagoId = "QNlzqDKe",
-  oldestSupported = "2.5",
+  oldestSupported = "6.4.2",
   addonNames = { "AzortharionUI" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("AzortharionUI", "IconTexture"),

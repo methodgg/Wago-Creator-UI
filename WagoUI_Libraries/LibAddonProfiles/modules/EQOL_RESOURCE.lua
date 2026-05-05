@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Enhance QoL Resource Bars",
   wagoId = "aN0Ykv6j",
-  oldestSupported = "7.2.0",
+  oldestSupported = "10.13.0",
   addonNames = { "EnhanceQoL" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("EnhanceQoL", "IconTexture"),

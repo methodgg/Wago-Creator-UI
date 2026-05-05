@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Prat-3.0",
   wagoId = "RNL9ae6o",
-  oldestSupported = "3.9.82",
+  oldestSupported = "3.9.100",
   addonNames = { "Prat-3.0" },
   conflictingAddons = { "Chattynator" },
   icon = C_AddOns.GetAddOnMetadata("Prat-3.0", "IconTexture"),

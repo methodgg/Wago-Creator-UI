@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Cell Unit Frames",
   wagoId = "ZKxqRdGk",
-  oldestSupported = "v1.4.63",
+  oldestSupported = "v1.4.70",
   addonNames = { "Cell_UnitFrames" },
   conflictingAddons = { "ShadowedUnitFrames", "ShadowedUF_Options" },
   icon = C_AddOns.GetAddOnMetadata("Cell_UnitFrames", "IconTexture"),

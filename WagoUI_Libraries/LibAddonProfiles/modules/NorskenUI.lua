@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "NorskenUI",
   wagoId = "96ELgPNg",
-  oldestSupported = "0.1.7",
+  oldestSupported = "v0.1.15",
   addonNames = { "NorskenUI" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("NorskenUI", "IconTexture"),

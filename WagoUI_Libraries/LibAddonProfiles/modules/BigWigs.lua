@@ -9,7 +9,7 @@ local optionsFrame
 local m = {
   moduleName = "BigWigs",
   wagoId = "5NRegwG3",
-  oldestSupported = "v355.3",
+  oldestSupported = "v414.9",
   addonNames = { "BigWigs", "BigWigs_Core", "BigWigs_Plugins", "BigWigs_Options" },
   conflictingAddons = { "DBM-Core" },
   icon = C_AddOns.GetAddOnMetadata("BigWigs", "IconTexture"),

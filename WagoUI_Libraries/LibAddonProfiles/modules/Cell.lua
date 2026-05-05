@@ -28,7 +28,7 @@ end
 local m = {
   moduleName = "Cell",
   wagoId = "qv63LLKb",
-  oldestSupported = "r261-release",
+  oldestSupported = "r274-release",
   addonNames = { "Cell" },
   conflictingAddons = { "VuhDo", "VuhDoOptions", "Grid2" },
   icon = C_AddOns.GetAddOnMetadata("Cell", "IconTexture"),

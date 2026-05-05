@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Unhalted Unit Frames",
   wagoId = "96do35NO",
-  oldestSupported = "12.0.5",
+  oldestSupported = "V12.0.21",
   addonNames = { "UnhaltedUnitFrames" },
   conflictingAddons = { "BetterBlizzFrames", "MidnightSimpleUnitFrames", "ShadowedUnitFrames", "ShadowedUF_Options", "PitBull4" },
   icon = C_AddOns.GetAddOnMetadata("UnhaltedUnitFrames", "IconTexture"),

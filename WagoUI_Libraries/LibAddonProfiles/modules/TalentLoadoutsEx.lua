@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Talent Loadouts Ex",
   wagoId = "Qb6mxnNP",
-  oldestSupported = "3.4.1",
+  oldestSupported = "3.13.5",
   addonNames = { "TalentLoadoutsEx" },
   icon = C_AddOns.GetAddOnMetadata("TalentLoadoutsEx", "IconTexture"),
   slash = "/run ToggleTalentFrame()",

@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "ShadowedUnitFrames",
   wagoId = "none",
-  oldestSupported = "v4.4.11",
+  oldestSupported = "v4.4.14",
   addonNames = { "ShadowedUnitFrames", "ShadowedUF_Options" },
   conflictingAddons = { "ElvUI", "ElvUI_Libraries", "ElvUI_Options", "PitBull4" },
   icon = C_AddOns.GetAddOnMetadata("ShadowedUnitFrames", "IconTexture"),

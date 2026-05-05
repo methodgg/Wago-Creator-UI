@@ -185,7 +185,7 @@ end
 local m = {
   moduleName = "WeakAuras",
   wagoId = "VBNBxKx5",
-  oldestSupported = "5.17.0",
+  oldestSupported = "5.21.1",
   addonNames = { "WeakAuras", "WeakAurasArchive", "WeakAurasModelPaths", "WeakAurasOptions", "WeakAurasTemplates" },
   icon = C_AddOns.GetAddOnMetadata("WeakAuras", "IconTexture"),
   slash = "/wa",
