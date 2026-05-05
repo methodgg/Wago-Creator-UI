@@ -1,3 +1,4 @@
-# 1.8.19 (2026-05-05)
+# 1.8.20 (2026-05-05)
 
-- Allowed creators to clear saved profile exports for add-ons that are not installed or loaded.
+- Updated WoW TOC interface versions.
+- Updated LibAddonProfiles minimum supported add-on versions.
