@@ -1,4 +1,3 @@
-# 1.8.20 (2026-05-05)
+# 1.8.21 (2026-05-08)
 
-- Updated WoW TOC interface versions.
-- Updated LibAddonProfiles minimum supported add-on versions.
+- Fixed creator profile selection not persisting after scrolling.
