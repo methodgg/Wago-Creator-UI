@@ -23,6 +23,15 @@ function ModuleFunctions:ClearProfileExport(moduleName)
   end
 end
 
+function ModuleFunctions:SetProfileExport(moduleName, profileKey)
+  local currentUIPack = addon:GetCurrentPackStashed()
+  if not currentUIPack then
+    return
+  end
+  currentUIPack.profileKeys[currentUIPack.resolutions.chosen][moduleName] = profileKey
+  addon.UpdatePackSelectedUI()
+end
+
 function ModuleFunctions:CreateClearProfileExportOption(moduleName)
   return {
     value = 1,
@@ -47,8 +56,7 @@ function ModuleFunctions:CreateDropdownOptions(moduleName, index, res, profileKe
           value = profileKey,
           label = isCurrentProfile and "|cff009ECC"..profileKey.."|r (active)" or profileKey,
           onclick = function()
-            currentUIPack.profileKeys[currentUIPack.resolutions.chosen][moduleName] = profileKey
-            addon.UpdatePackSelectedUI()
+            self:SetProfileExport(moduleName, profileKey)
           end
         },
         isCurrentProfile = isCurrentProfile
