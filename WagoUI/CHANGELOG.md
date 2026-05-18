@@ -1,3 +1,4 @@
-# 1.8.21 (2026-05-08)
+# 1.8.22 (2026-05-18)
 
-- Fixed creator profile selection not persisting after scrolling.
+- Added EllesmereUI profile import/export support.
+- Set the EllesmereUI minimum supported version to 7.7.6.
