@@ -11,6 +11,7 @@ local defaultSortOrder = {
   "ElvUI Account Settings",
   "ElvUI Style Filters",
   "ElvUI Aura Filters",
+  "EllesmereUI",
   "Details",
   "Plater",
   "Kui Nameplates",

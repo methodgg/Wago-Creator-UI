@@ -178,7 +178,8 @@
         "NaowhQOL_API",
         "DetailsAPI",
         "Grid2ProfileAPI",
-        "PlaterAPI"
+        "PlaterAPI",
+        "EllesmereUI"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }

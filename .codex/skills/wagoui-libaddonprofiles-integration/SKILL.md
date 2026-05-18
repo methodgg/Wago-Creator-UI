@@ -21,8 +21,11 @@ Use only these implementation references when deciding how the integration shoul
 4. The installed source of the target addon
 5. The installed source of `BuffReminders` and `Ayije_CDM` if you need to see how their addon-side APIs are implemented
 6. `WagoUI_Libraries/LibAddonProfiles/load.xml`
+7. For ignored comparison keys only: `WagoUI_Libraries/LibAddonProfiles/modules/Details.lua` and `WagoUI_Libraries/LibAddonProfiles/modules/Plater.lua`
 
 Do not study older LibAddonProfiles modules as design references. Ignore pre-guide integrations.
+
+Use `Details.lua` and `Plater.lua` only to copy the `private:DeepCompareAsync(..., ignoredKeys)` pattern for volatile ignored keys. Do not copy their addon-specific logic.
 
 ## Discover The Local AddOns Folder
 
@@ -95,6 +98,14 @@ Use these rules:
 6. Set `slash` from a proven slash command if you can find one quickly in the addon source. If not, use `"?"`.
 7. Set profile and reload flags from actual addon behavior. Do not guess.
 8. Keep `testImport` empty unless the target addon genuinely needs custom import validation.
+
+For profile comparison:
+
+1. Before finalizing `areProfileStringsEqual`, scan the target addon's decoded export payload shape and installed source for volatile, non-semantic keys that can legitimately differ between equivalent profiles.
+2. Good ignored-key candidates are timestamps, session ids, runtime caches, one-time migration flags, tutorial/dismissal flags, capture/setup sentinels, generated counters, and local environment state.
+3. Do not ignore real user settings, profile choices, layout data, enabled/disabled states, assignments, selected profile names, colors, fonts, or values that import/export should preserve.
+4. Only pass an ignored-key table to `private:DeepCompareAsync` when you can point to source or saved-variable evidence that the key is non-semantic.
+5. Keep ignored keys specific to the target addon and explain notable additions in the final summary.
 
 For addon API calls:
 
