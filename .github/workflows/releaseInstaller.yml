@@ -11,6 +11,9 @@ on:
       # match tags that start with "installer"
       - "installer*"
 
+permissions:
+  contents: write
+
 # a workflow is built up as jobs, and within these jobs are steps
 jobs:
   # "release" is a job, you can name it anything you want
@@ -30,9 +33,10 @@ jobs:
     steps:
       # we first have to clone the AddOn project, this is a required step
       - name: Clone project
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0 # gets entire git history, needed for automatic changelogs
+          persist-credentials: false
 
       # bigwigs packager needs the toc file and changelog to be in the root directory
       - name: copy toc file and changelog
@@ -40,6 +44,6 @@ jobs:
 
       # once cloned, we just run the GitHub Action for the packager project
       - name: Package and release
-        uses: BigWigsMods/packager@v2
+        uses: BigWigsMods/packager@5abb6e1ddbd98c818ac5ee3692613cd372619dc9 # v2
         with:
           args: -w 0 -p 0 -m "WagoUI/pkgmeta.yaml"
