@@ -44,6 +44,6 @@ jobs:
 
       # once cloned, we just run the GitHub Action for the packager project
       - name: Package and release
-        uses: BigWigsMods/packager@5abb6e1ddbd98c818ac5ee3692613cd372619dc9 # v2
+        uses: BigWigsMods/packager@6d50adb6e8517eefef63f4afb16a6518166a6b28 # v2
         with:
           args: -w 0 -p 0 -m "WagoUI/pkgmeta.yaml"

@@ -18,7 +18,7 @@ jobs:
           persist-credentials: false
 
       - id: toc
-        uses: Nnoggie/wow-interface-updater@c9190c81c0e78b47c9964dc1f8b8b9e9144607ab # v1
+        uses: Nnoggie/wow-interface-updater@93901525d233a0b31eefbbbeed9aef5777b4792a # v1
 
       - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
         if: steps.toc.outputs.changed == 'true'
