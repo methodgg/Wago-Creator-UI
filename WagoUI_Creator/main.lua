@@ -120,6 +120,9 @@ do
           )
         end
       elseif (event == "PLAYER_LOGOUT") then
+        if addon.CacheCooldownManagerProfilesOnLogout then
+          addon:CacheCooldownManagerProfilesOnLogout()
+        end
         addon:CommitExportStash()
       end
     end

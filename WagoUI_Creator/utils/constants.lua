@@ -61,6 +61,9 @@ addon.dbDefaults = {
     }
   },
   creatorUI = {},
+  cdmProfileCache = {
+    characters = {}
+  },
   profileRemovals = {}
 }
 
@@ -69,6 +72,8 @@ function addon:SetUpDB()
   WagoUICreatorDB.profileKeys = WagoUICreatorDB.profileKeys or {}
   WagoUICreatorDB.profiles = WagoUICreatorDB.profiles or {}
   WagoUICreatorDB.disabledModules = WagoUICreatorDB.disabledModules or {}
+  WagoUICreatorDB.cdmProfileCache = WagoUICreatorDB.cdmProfileCache or { characters = {} }
+  WagoUICreatorDB.cdmProfileCache.characters = WagoUICreatorDB.cdmProfileCache.characters or {}
   for _, config in pairs(addon.moduleConfigs) do
     WagoUICreatorDB.profileKeys[config.name] = WagoUICreatorDB.profileKeys[config.name] or {}
     WagoUICreatorDB.profiles[config.name] = WagoUICreatorDB.profiles[config.name] or {}

@@ -21,78 +21,232 @@ local scrollBoxData = {
 
 
 local isClassAndSpecTagSameClass = function(tagA, tagB)
+  if not tagA or not tagB then
+    return false
+  end
   local classA = math.floor(tagA / 10)
   local classB = math.floor(tagB / 10)
   return classA == classB
+end
+
+local function getCurrentCharacterInfo()
+  local characterName = UnitName("player")
+  local realmName = GetRealmName()
+  local characterKey = characterName.."-"..realmName
+  return characterKey, characterName, realmName
+end
+
+local function ensureCooldownManagerLoaded()
+  if CooldownViewerSettings and CooldownViewerUtil then
+    return true
+  end
+  if C_AddOns and C_AddOns.LoadAddOn then
+    pcall(C_AddOns.LoadAddOn, "Blizzard_CooldownViewer")
+  end
+  if UIParentLoadAddOn and not (CooldownViewerSettings and CooldownViewerUtil) then
+    pcall(UIParentLoadAddOn, "Blizzard_CooldownViewer")
+  end
+  return CooldownViewerSettings and CooldownViewerUtil
+end
+
+local function getProfileCache()
+  addon.db.cdmProfileCache = addon.db.cdmProfileCache or {}
+  addon.db.cdmProfileCache.version = 1
+  addon.db.cdmProfileCache.characters = addon.db.cdmProfileCache.characters or {}
+  return addon.db.cdmProfileCache
+end
+
+local function getCdmBucket(parent, classAndSpecTag)
+  if not parent then
+    return
+  end
+  return parent[classAndSpecTag] or parent[tonumber(classAndSpecTag)] or parent[tostring(classAndSpecTag)]
+end
+
+local function getCdmClassKey(classAndSpecTag)
+  return tonumber(classAndSpecTag) or classAndSpecTag
+end
+
+local function makeProfileMetaData(profileKey, timestamp)
+  return {
+    lastUpdatedAt = {
+      [profileKey] = timestamp
+    }
+  }
+end
+
+local function getCachedProfileForInfo(info)
+  local cache = addon.db and addon.db.cdmProfileCache
+  if not cache or not cache.characters then
+    return
+  end
+
+  local classAndSpecTag = tonumber(info.classAndSpecTag)
+  if info.characterKey then
+    local characterCache = cache.characters[info.characterKey]
+    local profileCache = characterCache and characterCache.profiles and characterCache.profiles[info.profileKey]
+    if profileCache and (not classAndSpecTag or tonumber(profileCache.classAndSpecTag) == classAndSpecTag) then
+      return profileCache, characterCache
+    end
+  end
+
+  local newestProfile, newestCharacter
+  local newestTimestamp = 0
+  for _, characterCache in pairs(cache.characters) do
+    local profileCache = characterCache.profiles and characterCache.profiles[info.profileKey]
+    if profileCache and (not classAndSpecTag or tonumber(profileCache.classAndSpecTag) == classAndSpecTag) then
+      local updatedAt = profileCache.updatedAt or characterCache.updatedAt or 0
+      if updatedAt > newestTimestamp then
+        newestTimestamp = updatedAt
+        newestProfile = profileCache
+        newestCharacter = characterCache
+      end
+    end
+  end
+  return newestProfile, newestCharacter
+end
+
+local function removeSelectedProfile(pack, info)
+  local classKey = getCdmClassKey(info.classAndSpecTag)
+  local profileKey = info.profileKey
+  local profileKeys = pack.cdmData and pack.cdmData.profileKeys
+  local selectedProfiles = getCdmBucket(profileKeys, classKey)
+  if selectedProfiles then
+    selectedProfiles[profileKey] = nil
+  end
+
+  local profileStrings = getCdmBucket(pack.cdmData and pack.cdmData.profiles, classKey)
+  if profileStrings then
+    profileStrings[profileKey] = nil
+  end
+end
+
+local function countCdmProfileStrings(pack)
+  local numCdmProfiles = 0
+  if pack.cdmData and pack.cdmData.profiles then
+    for _, profileStrings in pairs(pack.cdmData.profiles) do
+      for _, _ in pairs(profileStrings) do
+        numCdmProfiles = numCdmProfiles + 1
+      end
+    end
+  end
+  return numCdmProfiles
 end
 
 
 -- the reason we export separately is that CDM profiles swap around values in their tables a lot
 -- and areProfileStringsEqual is not reliable because of that
 local function updateCooldownManagerData()
+  if not ensureCooldownManagerLoaded() then
+    addon.copyHelper:SmartFadeOut(4, L["CDM_CACHE_UNAVAILABLE"])
+    return
+  end
+
   local pack = addon:GetCurrentPackStashed()
-  local oldPack = addon.db.creatorUI[addon.db.chosenPack]
+  local oldPack = addon.db.creatorUI[addon.db.chosenPack] or {}
   local currentClassAndSpecTag = CooldownViewerUtil.GetCurrentClassAndSpecTag()
+  local currentCharacterKey, currentCharacterName, currentRealmName = getCurrentCharacterInfo()
   local added = {}
   local removed = {}
-  if not pack.cdmData or not pack.cdmData.profileKeys then
+  if not pack.cdmData then
     addon.copyHelper:SmartFadeOut(2, L["No profiles to export!"])
     return
   end
+  pack.cdmData.profileKeys = pack.cdmData.profileKeys or {}
   ---@type LibAddonProfilesModule
   local lapModule = LAP:GetModule("Blizzard Cooldown Manager")
 
   --need to hide the config window to save any unsaved changes
   lapModule:closeConfig()
+  addon:CacheCooldownManagerProfilesOnLogout()
 
-  local profilesToExportForCurrentClass = {}
-  local actualProfilesOfCurrentCharacter = lapModule.getProfileKeys and lapModule:getProfileKeys()
+  local profilesToExport = {}
+  local actualProfilesOfCurrentCharacter = lapModule.getProfileKeys and lapModule:getProfileKeys() or {}
 
-  for classAndSpecTag, profiles in pairs(pack.cdmData.profileKeys) do
-    if isClassAndSpecTagSameClass(classAndSpecTag, currentClassAndSpecTag) then
-      for _, profile in pairs(profiles) do
-        if actualProfilesOfCurrentCharacter[profile.profileKey] then
-          tinsert(profilesToExportForCurrentClass, profile)
-        end
-      end
+  for _, profiles in pairs(pack.cdmData.profileKeys) do
+    for _, profile in pairs(profiles) do
+      tinsert(profilesToExport, profile)
     end
   end
 
-  --check for removed profiles
+  --check for removed profiles that are no longer marked for export
   if pack.cdmData.profiles then
     for classAndSpecTag, profiles in pairs(pack.cdmData.profiles) do
       for profileKey, _ in pairs(profiles) do
-        if not pack.cdmData.profileKeys[classAndSpecTag] or not pack.cdmData.profileKeys[classAndSpecTag][profileKey] then
-          pack.cdmData.profiles[classAndSpecTag][profileKey] = nil
+        local selectedProfiles = getCdmBucket(pack.cdmData.profileKeys, classAndSpecTag)
+        if not selectedProfiles or not selectedProfiles[profileKey] then
+          profiles[profileKey] = nil
           tinsert(removed, profileKey)
         end
       end
     end
   end
 
-  if not next(profilesToExportForCurrentClass) and #removed == 0 then
-    addon.copyHelper:SmartFadeOut(2, L["No Changes detected"])
+  if not next(profilesToExport) and #removed == 0 then
+    addon.copyHelper:SmartFadeOut(2, L["No profiles to export!"])
     return
   end
-  local timestamp = GetServerTime()
-  for _, profileInfo in pairs(profilesToExportForCurrentClass) do
-    ---@type any
-    local newExport = lapModule:exportProfile(profileInfo.profileKey)
-    ---@type any
-    local oldExport = oldPack.cdmData and oldPack.cdmData.profiles and
-        oldPack.cdmData.profiles[profileInfo.classAndSpecTag] and
-        oldPack.cdmData.profiles[profileInfo.classAndSpecTag][profileInfo.profileKey]
-    if not lapModule:areProfileStringsEqual(newExport, oldExport) then
-      pack.cdmData.profiles = pack.cdmData.profiles or {}
-      pack.cdmData.profiles[profileInfo.classAndSpecTag] = pack.cdmData.profiles[profileInfo.classAndSpecTag] or {}
-      pack.cdmData.profiles[profileInfo.classAndSpecTag][profileInfo.profileKey] = newExport
 
-      pack.cdmData.profileKeys[profileInfo.classAndSpecTag][profileInfo.profileKey].metaData = pack.cdmData.profileKeys
-          [profileInfo.classAndSpecTag][profileInfo.profileKey].metaData or {}
-      pack.cdmData.profileKeys[profileInfo.classAndSpecTag][profileInfo.profileKey].metaData.lastUpdatedAt = {
-        [profileInfo.profileKey] = timestamp }
-      tinsert(added, profileInfo.profileKey)
+  local timestamp = GetServerTime()
+  for _, profileInfo in pairs(profilesToExport) do
+    local classAndSpecTag = tonumber(profileInfo.classAndSpecTag)
+    local actualProfile = actualProfilesOfCurrentCharacter[profileInfo.profileKey]
+    local actualProfileClassAndSpecTag = actualProfile and tonumber(actualProfile.classAndSpecTag)
+    local canExportCurrentCharacterProfile = actualProfileClassAndSpecTag and
+        isClassAndSpecTagSameClass(classAndSpecTag, currentClassAndSpecTag) and
+        isClassAndSpecTagSameClass(classAndSpecTag, actualProfileClassAndSpecTag) and
+        (not profileInfo.characterKey or profileInfo.characterKey == currentCharacterKey)
+
+    local newExport, updatedAt, sourceCharacterKey, sourceCharacterName, sourceRealmName
+    if canExportCurrentCharacterProfile then
+      newExport = lapModule:exportProfile(profileInfo.profileKey)
+      updatedAt = timestamp
+      sourceCharacterKey = currentCharacterKey
+      sourceCharacterName = currentCharacterName
+      sourceRealmName = currentRealmName
+    else
+      local cachedProfile, characterCache = getCachedProfileForInfo(profileInfo)
+      if cachedProfile then
+        newExport = cachedProfile.exportString
+        updatedAt = cachedProfile.updatedAt or characterCache.updatedAt or timestamp
+        sourceCharacterKey = characterCache.characterKey
+        sourceCharacterName = characterCache.characterName
+        sourceRealmName = characterCache.realmName
+      end
     end
+
+    if not newExport then
+      removeSelectedProfile(pack, profileInfo)
+      tinsert(removed, profileInfo.profileKey)
+    else
+      local classKey = getCdmClassKey(profileInfo.classAndSpecTag)
+      local oldProfileStrings = getCdmBucket(oldPack.cdmData and oldPack.cdmData.profiles, classKey)
+      ---@type any
+      local oldExport = oldProfileStrings and oldProfileStrings[profileInfo.profileKey]
+      if not lapModule:areProfileStringsEqual(newExport, oldExport) then
+        pack.cdmData.profiles = pack.cdmData.profiles or {}
+        pack.cdmData.profiles[classKey] = pack.cdmData.profiles[classKey] or {}
+        pack.cdmData.profiles[classKey][profileInfo.profileKey] = newExport
+
+        pack.cdmData.profileKeys[classKey] = pack.cdmData.profileKeys[classKey] or {}
+        pack.cdmData.profileKeys[classKey][profileInfo.profileKey] = {
+          profileKey = profileInfo.profileKey,
+          icon = profileInfo.icon,
+          coloredName = profileInfo.coloredName,
+          classAndSpecTag = classKey,
+          characterKey = sourceCharacterKey or profileInfo.characterKey,
+          characterName = sourceCharacterName or profileInfo.characterName,
+          realmName = sourceRealmName or profileInfo.realmName,
+          metaData = makeProfileMetaData(profileInfo.profileKey, updatedAt)
+        }
+        tinsert(added, profileInfo.profileKey)
+      end
+    end
+  end
+
+  if #added == 0 and #removed == 0 then
+    addon.copyHelper:SmartFadeOut(2, L["No Changes detected"])
+    return
   end
 
   if #added > 0 or #removed > 0 then
@@ -105,17 +259,11 @@ local function updateCooldownManagerData()
   end
 
   -- have to remove CDM from included addons if there are no profiles
-  local numCdmProfiles = 0
-  if pack.cdmData and pack.cdmData.profiles then
-    for _, profileStrings in pairs(pack.cdmData.profiles) do
-      for _, _ in pairs(profileStrings) do
-        numCdmProfiles = numCdmProfiles + 1
-      end
-    end
-  end
+  local numCdmProfiles = countCdmProfileStrings(pack)
   if numCdmProfiles == 0 then
     if pack.includedAddons then pack.includedAddons[lapModule.moduleName] = nil end
-  else
+  end
+  if #added > 0 or #removed > 0 then
     addon:AddDataToStorageAddon(true)
   end
   local gameVersion = select(4, GetBuildInfo())
@@ -148,18 +296,188 @@ local function wrapStringInClassColor(s, classAndSpecTag)
   return s
 end
 
+local function getCharacterDisplayName(characterName, realmName)
+  if not characterName then
+    return
+  end
+  if realmName and realmName ~= "" then
+    return characterName.."-"..realmName
+  end
+  return characterName
+end
+
+local function createProfileInfo(profileKey, classAndSpecTag, characterKey, characterName, realmName, updatedAt,
+                                 showCharacter)
+  classAndSpecTag = tonumber(classAndSpecTag)
+  if not profileKey or not classAndSpecTag then
+    return
+  end
+
+  local coloredName = wrapStringInClassColor(profileKey, classAndSpecTag)
+  local characterDisplayName = getCharacterDisplayName(characterName, realmName)
+  if showCharacter and characterDisplayName then
+    coloredName = coloredName.." |cff808080("..characterDisplayName..")|r"
+  end
+
+  return {
+    profileKey = profileKey,
+    icon = getSpecIconFromClassAndSpecTag(classAndSpecTag),
+    coloredName = coloredName,
+    classAndSpecTag = classAndSpecTag,
+    characterKey = characterKey,
+    characterName = characterName,
+    realmName = realmName,
+    searchText = string.lower(profileKey.." "..(characterDisplayName or "")),
+    metaData = makeProfileMetaData(profileKey, updatedAt)
+  }
+end
+
+local function getProfileInfoUpdatedAt(info)
+  local lastUpdatedAt = info.metaData and info.metaData.lastUpdatedAt
+  if type(lastUpdatedAt) == "table" then
+    return lastUpdatedAt[info.profileKey] or 0
+  end
+  if type(lastUpdatedAt) == "number" then
+    return lastUpdatedAt
+  end
+  return 0
+end
+
+local function createProfileInfoForStorage(info)
+  if not info or not info.profileKey or not info.classAndSpecTag then
+    return
+  end
+  return {
+    profileKey = info.profileKey,
+    icon = info.icon,
+    coloredName = info.coloredName,
+    classAndSpecTag = getCdmClassKey(info.classAndSpecTag),
+    characterKey = info.characterKey,
+    characterName = info.characterName,
+    realmName = info.realmName,
+    metaData = info.metaData and CopyTable(info.metaData) or nil
+  }
+end
+
+local function addAvailableProfileInfo(profileInfoByKey, info, force)
+  if not info then
+    return
+  end
+  local key = info.classAndSpecTag.."|"..info.profileKey
+  local currentInfo = profileInfoByKey[key]
+  if force or not currentInfo or getProfileInfoUpdatedAt(info) > getProfileInfoUpdatedAt(currentInfo) then
+    profileInfoByKey[key] = info
+  end
+end
+
+local function buildAvailableProfileInfos()
+  local profileInfoByKey = {}
+  local currentCharacterKey, currentCharacterName, currentRealmName = getCurrentCharacterInfo()
+  local cache = addon.db and addon.db.cdmProfileCache
+
+  if cache and cache.characters then
+    for characterKey, characterCache in pairs(cache.characters) do
+      for profileKey, profileCache in pairs(characterCache.profiles or {}) do
+        addAvailableProfileInfo(
+          profileInfoByKey,
+          createProfileInfo(
+            profileKey,
+            profileCache.classAndSpecTag,
+            characterKey,
+            characterCache.characterName,
+            characterCache.realmName,
+            profileCache.updatedAt or characterCache.updatedAt or 0,
+            characterKey ~= currentCharacterKey
+          )
+        )
+      end
+    end
+  end
+
+  if ensureCooldownManagerLoaded() then
+    local timestamp = GetServerTime()
+    for profileKey, profileData in pairs(lapModule:getProfileKeys() or {}) do
+      addAvailableProfileInfo(
+        profileInfoByKey,
+        createProfileInfo(
+          profileKey,
+          profileData.classAndSpecTag,
+          currentCharacterKey,
+          currentCharacterName,
+          currentRealmName,
+          timestamp,
+          false
+        ),
+        true
+      )
+    end
+  end
+
+  local profileInfos = {}
+  for _, info in pairs(profileInfoByKey) do
+    tinsert(profileInfos, info)
+  end
+  table.sort(
+    profileInfos,
+    function(a, b)
+      if a.classAndSpecTag == b.classAndSpecTag then
+        return a.profileKey < b.profileKey
+      end
+      return a.classAndSpecTag < b.classAndSpecTag
+    end
+  )
+  return profileInfos
+end
+
+function addon:CacheCooldownManagerProfilesOnLogout()
+  if not addon.db or not lapModule or not lapModule.getProfileKeys or not lapModule.exportProfile then
+    return
+  end
+  if not ensureCooldownManagerLoaded() then
+    return
+  end
+
+  lapModule:closeConfig()
+
+  local characterKey, characterName, realmName = getCurrentCharacterInfo()
+  local timestamp = GetServerTime()
+  local profiles = {}
+  for profileKey, profileData in pairs(lapModule:getProfileKeys() or {}) do
+    local classAndSpecTag = tonumber(profileData.classAndSpecTag)
+    local exportString = lapModule:exportProfile(profileKey)
+    if classAndSpecTag and exportString then
+      profiles[profileKey] = {
+        profileKey = profileKey,
+        classAndSpecTag = classAndSpecTag,
+        exportString = exportString,
+        updatedAt = timestamp
+      }
+    end
+  end
+
+  local cache = getProfileCache()
+  cache.characters[characterKey] = {
+    characterKey = characterKey,
+    characterName = characterName,
+    realmName = realmName,
+    updatedAt = timestamp,
+    profiles = profiles
+  }
+end
+
 local setProfileIncludedState = function(info, shouldInclude)
   local pack = addon:GetCurrentPackStashed()
   pack.cdmData = pack.cdmData or {}
   pack.cdmData.profileKeys = pack.cdmData.profileKeys or {}
-  pack.cdmData.profileKeys[info.classAndSpecTag] = pack.cdmData.profileKeys[info.classAndSpecTag] or {}
-  pack.cdmData.profileKeys[info.classAndSpecTag][info.profileKey] = shouldInclude and info or nil
+  local classKey = getCdmClassKey(info.classAndSpecTag)
+  pack.cdmData.profileKeys[classKey] = pack.cdmData.profileKeys[classKey] or {}
+  pack.cdmData.profileKeys[classKey][info.profileKey] = shouldInclude and createProfileInfoForStorage(info) or nil
 end
 
 local function addToData(i, info)
   local alreadyIncluded = false
   for k, v in pairs(scrollBoxData[i]) do
-    if v.classAndSpecTag == info.classAndSpecTag and v.profileKey == info.profileKey then
+    if tonumber(v.classAndSpecTag) == tonumber(info.classAndSpecTag) and v.profileKey == info.profileKey then
       alreadyIncluded = true
     end
   end
@@ -173,7 +491,7 @@ end
 
 local function removeFromData(i, info)
   for idx, existingInfo in ipairs(scrollBoxData[i]) do
-    if existingInfo.profileKey == info.profileKey and existingInfo.classAndSpecTag == info.classAndSpecTag then
+    if existingInfo.profileKey == info.profileKey and tonumber(existingInfo.classAndSpecTag) == tonumber(info.classAndSpecTag) then
       tremove(scrollBoxData[i], idx)
       setProfileIncludedState(info, false)
       m.scrollBoxes[i].onSearchBoxTextChanged()
@@ -192,7 +510,8 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
     if searchString then
       if searchString ~= "" then
         for _, display in pairs(initialData) do
-          if display.profileKey:lower():find(searchString) then
+          local searchText = display.searchText or display.profileKey:lower()
+          if searchText:find(searchString, 1, true) then
             table.insert(filteredData, display)
           end
         end
@@ -225,7 +544,7 @@ local function createGroupScrollBox(frame, buttonConfig, scrollBoxIndex)
       local info = filteredData[index]
       if (info) then
         local line = self:GetLine(i)
-        line.nameLabel:SetText(info.coloredName)
+        line.nameLabel:SetText(info.coloredName or info.profileKey)
 
         local iconSource = info.icon or 135724
         line.icon:SetTexture(iconSource)
@@ -569,21 +888,8 @@ local function showManageFrame(anchor)
   wipe(scrollBoxData[1])
   wipe(scrollBoxData[2])
 
-  local timestamp = GetServerTime()
-
-  -- fill with current characters cdm profiles
-  for profileKey, profileData in pairs(lapModule:getProfileKeys()) do
-    local info = {
-      profileKey = profileKey,
-      icon = getSpecIconFromClassAndSpecTag(profileData.classAndSpecTag),
-      coloredName = wrapStringInClassColor(profileKey, profileData.classAndSpecTag),
-      classAndSpecTag = profileData.classAndSpecTag,
-      metaData = {
-        lastUpdatedAt = {
-          [profileKey] = timestamp
-        }
-      }
-    }
+  -- fill with cached account profiles plus current character's live profiles
+  for _, info in ipairs(buildAvailableProfileInfos()) do
     tinsert(scrollBoxData[1], info)
   end
 
