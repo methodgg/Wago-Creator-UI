@@ -134,12 +134,12 @@ local function countCdmProfileStrings(pack)
 end
 
 
--- the reason we export separately is that CDM profiles swap around values in their tables a lot
--- and areProfileStringsEqual is not reliable because of that
-local function updateCooldownManagerData()
+-- CDM uses a custom export path because selected profiles can come from the
+-- current character or the account-wide logout cache instead of normal profile dropdowns.
+function addon:UpdateCooldownManagerData(timestamp, silent)
   if not ensureCooldownManagerLoaded() then
-    addon.copyHelper:SmartFadeOut(4, L["CDM_CACHE_UNAVAILABLE"])
-    return
+    if not silent then addon.copyHelper:SmartFadeOut(4, L["CDM_CACHE_UNAVAILABLE"]) end
+    return false
   end
 
   local pack = addon:GetCurrentPackStashed()
@@ -149,8 +149,8 @@ local function updateCooldownManagerData()
   local added = {}
   local removed = {}
   if not pack.cdmData then
-    addon.copyHelper:SmartFadeOut(2, L["No profiles to export!"])
-    return
+    if not silent then addon.copyHelper:SmartFadeOut(2, L["No profiles to export!"]) end
+    return false
   end
   pack.cdmData.profileKeys = pack.cdmData.profileKeys or {}
   ---@type LibAddonProfilesModule
@@ -183,11 +183,11 @@ local function updateCooldownManagerData()
   end
 
   if not next(profilesToExport) and #removed == 0 then
-    addon.copyHelper:SmartFadeOut(2, L["No profiles to export!"])
-    return
+    if not silent then addon.copyHelper:SmartFadeOut(2, L["No profiles to export!"]) end
+    return false
   end
 
-  local timestamp = GetServerTime()
+  timestamp = timestamp or GetServerTime()
   for _, profileInfo in pairs(profilesToExport) do
     local classAndSpecTag = tonumber(profileInfo.classAndSpecTag)
     local actualProfile = actualProfilesOfCurrentCharacter[profileInfo.profileKey]
@@ -245,17 +245,17 @@ local function updateCooldownManagerData()
   end
 
   if #added == 0 and #removed == 0 then
-    addon.copyHelper:SmartFadeOut(2, L["No Changes detected"])
-    return
+    if not silent then addon.copyHelper:SmartFadeOut(2, L["No Changes detected"]) end
+    return false, added, removed
   end
 
   if #added > 0 or #removed > 0 then
     pack.includedAddons = pack.includedAddons or {}
     pack.includedAddons[lapModule.moduleName] = lapModule.wagoId
     pack.updatedAt = timestamp
-    addon:OpenReleaseNoteInput(timestamp, {}, {}, {}, {}, added, removed)
+    if not silent then addon:OpenReleaseNoteInput(timestamp, {}, {}, {}, {}, added, removed) end
   else
-    addon.copyHelper:SmartFadeOut(2, L["No Changes detected"])
+    if not silent then addon.copyHelper:SmartFadeOut(2, L["No Changes detected"]) end
   end
 
   -- have to remove CDM from included addons if there are no profiles
@@ -263,7 +263,7 @@ local function updateCooldownManagerData()
   if numCdmProfiles == 0 then
     if pack.includedAddons then pack.includedAddons[lapModule.moduleName] = nil end
   end
-  if #added > 0 or #removed > 0 then
+  if not silent and (#added > 0 or #removed > 0) then
     addon:AddDataToStorageAddon(true)
   end
   local gameVersion = select(4, GetBuildInfo())
@@ -271,6 +271,24 @@ local function updateCooldownManagerData()
   pack.gameFlavor = addon:GetGameFlavorString()
   pack.createdBy = UnitName("player").."-"..GetRealmName()
   addon.frames.mainFrame.frameContent.contentScrollbox:Refresh()
+  return #added > 0 or #removed > 0, added, removed
+end
+
+function addon:HasCooldownManagerDataToExport(pack)
+  if not pack or not pack.cdmData then
+    return false
+  end
+  for _, profiles in pairs(pack.cdmData.profileKeys or {}) do
+    if next(profiles) then
+      return true
+    end
+  end
+  for _, profileStrings in pairs(pack.cdmData.profiles or {}) do
+    if next(profileStrings) then
+      return true
+    end
+  end
+  return false
 end
 
 ---@param classAndSpecTag number class and spec tag like "121" for Havoc DH (12 = DH, 1 = Havoc)
@@ -858,25 +876,13 @@ local function createManageFrame(w, h)
     label:SetPoint("BOTTOM", scrollBox, "TOP", 0, 55)
   end
 
-  local okayButton = LWF:CreateButton(m, 200, 40, L["Cancel"], 16)
+  local okayButton = LWF:CreateButton(m, 200, 40, L["Okay"], 16)
   okayButton:SetClickFunction(
     function()
       m:Hide()
     end
   )
-  okayButton:SetPoint("BOTTOM", m, "BOTTOM", -120, 20)
-
-  local exportButton = LWF:CreateButton(m, 200, 40, L["Export"], 16)
-  exportButton:SetClickFunction(
-    function()
-      addon:Async(
-        function()
-          updateCooldownManagerData()
-        end, "updateCooldownManagerData")
-      m:Hide()
-    end
-  )
-  exportButton:SetPoint("BOTTOM", m, "BOTTOM", 120, 20)
+  okayButton:SetPoint("BOTTOM", m, "BOTTOM", 0, 20)
 
   return m
 end

@@ -71,6 +71,9 @@ function addon:ExportAllProfiles()
       end
     end
   end
+  if addon:HasCooldownManagerDataToExport(currentUIPack) then
+    countOperations = countOperations + 1
+  end
   --refresh list
   addon.frames.mainFrame.frameContent.contentScrollbox:Refresh()
   if countOperations == 0 then
@@ -84,6 +87,8 @@ function addon:ExportAllProfiles()
     function()
       local updates = {}
       local removals = {}
+      local cdmAdded = {}
+      local cdmRemoved = {}
       for _, module in pairs(addon.moduleConfigs) do
         ---@type LibAddonProfilesModule
         local lapModule = module.lapModule
@@ -120,6 +125,12 @@ function addon:ExportAllProfiles()
           end
         end
       end
+      if addon:HasCooldownManagerDataToExport(currentUIPack) then
+        local _, added, removed = addon:UpdateCooldownManagerData(timestamp, true)
+        cdmAdded = added or cdmAdded
+        cdmRemoved = removed or cdmRemoved
+        addon:UpdateProgressBar()
+      end
       addon.frames.mainFrame.frameContent.contentScrollbox:Refresh()
       local numUpdates = 0
       for _, data in pairs(updates) do
@@ -128,12 +139,13 @@ function addon:ExportAllProfiles()
         end
       end
       numUpdates = numUpdates + addon:CountRemovedProfiles(addon.db.chosenPack)
+      numUpdates = numUpdates + #cdmAdded + #cdmRemoved
       local includedAdded, includedRemoved = addon:UpdateIncludedAddons(currentUIPack)
       numUpdates = numUpdates + #includedAdded + #includedRemoved
       if numUpdates > 0 then
         addon.copyHelper:SmartHide()
         currentUIPack.updatedAt = timestamp
-        addon:OpenReleaseNoteInput(timestamp, updates, removals, includedAdded, includedRemoved)
+        addon:OpenReleaseNoteInput(timestamp, updates, removals, includedAdded, includedRemoved, cdmAdded, cdmRemoved)
       else
         addon.copyHelper:SmartFadeOut(2, L["No Changes detected"])
         LWF:ToggleLockoutFrame(false, addon.frames, addon.frames.mainFrame)

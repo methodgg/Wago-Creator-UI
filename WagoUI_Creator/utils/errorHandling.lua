@@ -288,7 +288,8 @@ end
 function addon:RegisterErrorHandledFunctions()
   --register all functions except the ones that have to run as coroutines
   local blacklisted = {
-    ["exampleCoroutineFuncName"] = true
+    ["exampleCoroutineFuncName"] = true,
+    ["UpdateCooldownManagerData"] = true
   }
   local tablesToAdd = {
     addon,
