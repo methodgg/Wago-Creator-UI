@@ -1,4 +1,4 @@
-# 1.8.22 (2026-05-18)
+# 1.8.23 (2026-06-03)
 
-- Added EllesmereUI profile import/export support.
-- Set the EllesmereUI minimum supported version to 7.7.6.
+- Cached Blizzard Cooldown Manager profiles on logout so profiles from other characters can be exported.
+- Exported selected Blizzard Cooldown Manager profiles through Save All Profiles.
