@@ -1,4 +1,5 @@
-# 1.8.23 (2026-06-03)
+# 1.8.24 (2026-06-04)
 
-- Cached Blizzard Cooldown Manager profiles on logout so profiles from other characters can be exported.
-- Exported selected Blizzard Cooldown Manager profiles through Save All Profiles.
+- Updated WoW interface metadata for Mists of Pandaria 5.5.4.
+- Kept the TOC Interface header as the first line for addon compatibility.
+- Pinned the WoW interface updater workflow action to its current v1 SHA.
