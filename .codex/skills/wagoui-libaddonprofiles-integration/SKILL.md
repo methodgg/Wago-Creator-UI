@@ -175,6 +175,14 @@ Keep the new entry near the other recent module entries unless the surrounding o
 
 Also add the module name to the `defaultSortOrder` list in `WagoUI_Creator/modules/generic.lua` so the creator UI can place the addon correctly in the generic module list.
 
+## Update Lua Diagnostics Globals
+
+Add the target addon's verified public API global to `.luarc.json` under `diagnostics.globals` so Lua diagnostics recognize the wrapper calls.
+
+Use the exact global table from the installed addon source, such as `EXBossWagoAPI`, `BuffRemindersAPI`, or `Ayije_CDM_API`. Do not add guessed aliases or internal locals.
+
+Preserve the existing `.luarc.json` shape and append only when the global is missing.
+
 ## Validate Before Finishing
 
 Confirm all of the following:
@@ -184,7 +192,8 @@ Confirm all of the following:
 3. No invented addon globals or methods appear in the module.
 4. `load.xml` includes the new module.
 5. `WagoUI_Creator/modules/generic.lua` includes the module name in `defaultSortOrder`.
-6. The module fields come from real addon metadata or real source findings.
+6. `.luarc.json` includes the verified addon API global used by the module.
+7. The module fields come from real addon metadata or real source findings.
 
 ## Concrete Good Examples
 
