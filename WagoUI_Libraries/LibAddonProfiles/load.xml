@@ -61,6 +61,7 @@
 	<Script file ="modules\Ayije_CDM.lua"/>
 	<Script file ="modules\NaowhQOL.lua"/>
 	<Script file ="modules\AtrocityEssentials.lua"/>
+	<Script file ="modules\EXBoss.lua"/>
   <!-- <Script file ="modules\DandersFramesClickCasting.lua"/> -->
 	<Script file ="finalize.lua"/>
 </Ui>

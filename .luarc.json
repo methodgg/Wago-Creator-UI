@@ -179,7 +179,9 @@
         "DetailsAPI",
         "Grid2ProfileAPI",
         "PlaterAPI",
-        "EllesmereUI"
+        "EllesmereUI",
+        "EXBossWagoAPI",
+        "ExBoss_MetaData"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }
