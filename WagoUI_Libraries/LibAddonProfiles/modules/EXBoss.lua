@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "EXBoss",
   wagoId = "vNAgrRKo",
-  oldestSupported = "1.0.0",
+  oldestSupported = "v26.6.10.2213",
   addonNames = { "EXBoss", "ExwindCore", "EXBossData", "EXBOSS-Locale", "EXBOSS-LocaleBase", "EXBOSS-EXWIND", "EXBOSS-ENG" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("EXBoss", "IconTexture"),
@@ -23,7 +23,9 @@ local m = {
     return loaded
   end,
   isUpdated = function(self)
-    return private:GenericVersionCheck(self)
+    local currentVersionString = ExBoss_MetaData and ExBoss_MetaData.version
+    if not currentVersionString then return false end
+    return private:IsSemverSameOrHigher(currentVersionString, self.oldestSupported)
   end,
   needsInitialization = function(self)
     return false
