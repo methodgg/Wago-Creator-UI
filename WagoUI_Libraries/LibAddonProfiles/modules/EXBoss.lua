@@ -6,7 +6,7 @@ if (not private) then return end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "EXBoss",
-  wagoId = "none",
+  wagoId = "vNAgrRKo",
   oldestSupported = "1.0.0",
   addonNames = { "EXBoss", "ExwindCore", "EXBossData", "EXBOSS-Locale" },
   conflictingAddons = {},
@@ -41,7 +41,7 @@ local m = {
   getProfileKeys = function(self)
     local profileKeys = {}
     xpcall(function()
-      profileKeys = EXBossWagoAPI:GetProfileKeys() or {}
+      profileKeys = EXBossWagoAPI:GetProfileKeys()
     end, geterrorhandler())
     return profileKeys
   end,
