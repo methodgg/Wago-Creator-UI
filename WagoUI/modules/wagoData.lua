@@ -48,11 +48,12 @@ local function addCdmData(source)
       local profileString = source.cdmData.profiles[classAndSpecTag] and
           source.cdmData.profiles[classAndSpecTag][profileKey]
       if profileString then
+        local coloredName = (profile.coloredName or profile.profileKey):gsub(" |cff808080%([^%)]*%)|r$", "")
         tinsert(profilesToAdd, {
           profileData = profile,
           profileKey = profile.profileKey,
           entryName = profile.profileKey,
-          entryNameDisplay = "CDM: "..profile.coloredName,
+          entryNameDisplay = "CDM: "..coloredName,
           icon = profile.icon,
           lap = lap,
           moduleName = lap.moduleName,
