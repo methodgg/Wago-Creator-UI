@@ -5,7 +5,7 @@ if (not private) then return end
 
 ---@type LibAddonProfilesModule
 local m = {
-  moduleName = "MRT",
+  moduleName = "Method Raid Tools",
   wagoId = "5bGoJnK0",
   oldestSupported = "5300",
   addonNames = { "MRT" },

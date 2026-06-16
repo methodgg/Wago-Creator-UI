@@ -25,7 +25,7 @@ local defaultSortOrder = {
   "ShadowedUnitFrames",
   "WeakAuras",
   "Echo Raid Tools",
-  "MRT",
+  "Method Raid Tools",
   "EXBoss",
   "Talent Loadout Ex",
   "OmniCC",
