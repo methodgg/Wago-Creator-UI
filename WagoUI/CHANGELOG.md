@@ -1,4 +1,4 @@
-# 1.8.25 (2026-06-10)
+# 1.8.26 (2026-06-16)
 
-- Added EXBoss LibAddonProfiles integration.
-- Added EXBoss addon metadata and Lua diagnostics globals.
+- Added Method Raid Tools LibAddonProfiles integration.
+- Removed character names from CDM profile labels on import.
