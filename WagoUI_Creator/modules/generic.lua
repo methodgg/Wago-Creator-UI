@@ -16,6 +16,7 @@ local defaultSortOrder = {
   "Plater",
   "Kui Nameplates",
   "BigWigs",
+  "BigWigs Boss Options",
   "Bartender4",
   "Cell",
   "Cell Unit Frames",
