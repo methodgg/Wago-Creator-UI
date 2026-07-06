@@ -27,6 +27,7 @@ local defaultSortOrder = {
   "Echo Raid Tools",
   "Method Raid Tools",
   "EXBoss",
+  "BliZzi Party Tools",
   "Talent Loadout Ex",
   "OmniCC",
   "NameplateSCT",
