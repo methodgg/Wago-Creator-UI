@@ -3,25 +3,38 @@ local _, loadingAddonNamespace = ...
 local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
 if (not private) then return end
 
+local WAGOUI_ADDON_NAME = "WagoUI"
 local optionsFrame
+
+---@param profileString string
+---@return table | nil
+local function decodeBigWigsProfileString(profileString)
+  if type(profileString) ~= "string" then return end
+  local versionPlain, importData = profileString:match("^(%w+):(.+)$")
+  if not versionPlain or not versionPlain:match("^BW") then return end
+  local data = private:BlizzardDecodeB64CBOR(importData, true)
+  if not data or data.version ~= versionPlain or data.bossExport then return end
+  return data
+end
 
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "BigWigs",
   wagoId = "5NRegwG3",
-  oldestSupported = "v414.9",
+  oldestSupported = "v418.1",
   addonNames = { "BigWigs", "BigWigs_Core", "BigWigs_Plugins", "BigWigs_Options" },
   conflictingAddons = { "DBM-Core" },
   icon = C_AddOns.GetAddOnMetadata("BigWigs", "IconTexture"),
   slash = "/bigwigs",
-  needReloadOnImport = true,
+  needReloadOnImport = false,
   needProfileKey = false,
   preventRename = false,
-  willOverrideProfile = false,
-  nonNativeProfileString = true,
+  willOverrideProfile = true,
+  nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)
-    return BigWigs and true or false
+    local loaded = C_AddOns.IsAddOnLoaded("BigWigs") and BigWigsAPI ~= nil
+    return loaded
   end,
   isUpdated = function(self)
     if BigWigsAPI and BigWigsAPI.GetVersion then
@@ -31,7 +44,7 @@ local m = {
     return private:GenericVersionCheck(self)
   end,
   needsInitialization = function(self)
-    return C_AddOns.IsAddOnLoaded("BigWigs") and not self:isLoaded()
+    return false
   end,
   openConfig = function(self)
     if not SlashCmdList["BigWigs"] then
@@ -59,11 +72,14 @@ local m = {
     return BigWigs3DB.profiles
   end,
   getCurrentProfileKey = function(self)
-    local characterName = UnitName("player").." - "..GetRealmName()
-    return BigWigs3DB.profileKeys and BigWigs3DB.profileKeys[characterName]
+    local profileKey
+    xpcall(function()
+      profileKey = BigWigsAPI.GetProfileName()
+    end, geterrorhandler())
+    return profileKey
   end,
   getProfileAssignments = function(self)
-    return BigWigs3DB.profileKeys
+    -- Missing in BigWigsAPI: GetProfileAssignments()
   end,
   isDuplicate = function(self, profileKey)
     if not profileKey then return false end
@@ -71,104 +87,43 @@ local m = {
   end,
   setProfile = function(self, profileKey)
     if not profileKey then return end
-    BigWigsLoader.db:SetProfile(profileKey)
+    if not self:getProfileKeys()[profileKey] then return end
+    if profileKey == self:getCurrentProfileKey() then return end
+    xpcall(function()
+      BigWigsAPI.SwapProfile(WAGOUI_ADDON_NAME, profileKey)
+    end, geterrorhandler())
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
-    if not profileString then return end
-    if profileKey and profileData and profileData.BigWigs3DB then
-      return profileKey
-    end
+
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    local _, pData = private:GenericDecode(profileString)
-    if not pData then
-      return
-    end
-    local bw3db = pData.BigWigs3DB
-    local bw3Idb = pData.BigWigsIconDB
-    --namespaces
-    for namespaceKey, namespace in pairs(bw3db.namespaces) do
-      if namespace.profiles then
-        for _, profile in pairs(namespace.profiles) do
-          BigWigs3DB.namespaces = BigWigs3DB.namespaces or {}
-          BigWigs3DB.namespaces[namespaceKey] = BigWigs3DB.namespaces[namespaceKey] or {}
-          BigWigs3DB.namespaces[namespaceKey].profiles = BigWigs3DB.namespaces[namespaceKey].profiles or {}
-          BigWigs3DB.namespaces[namespaceKey].profiles[profileKey] = profile
-        end
-      end
-    end
-    --profileKey
-    BigWigs3DB.profileKeys = BigWigs3DB.profileKeys or {}
-    BigWigs3DB.profileKeys[UnitName("player").." - "..GetRealmName()] = profileKey
-    --profiles
-    for _, profile in pairs(bw3db.profiles) do
-      BigWigs3DB.profiles = BigWigs3DB.profiles or {}
-      BigWigs3DB.profiles[profileKey] = profile
-    end
-    --icon position
-    BigWigsIconDB = bw3Idb
-  end,
-  exportOptions = {
-    example = false
-  },
-  setExportOptions = function(self, options)
-    for k, v in pairs(options) do
-      self.exportOptions[k] = v
-    end
+    if profileKey == "" then profileKey = nil end
+    xpcall(function()
+      BigWigsAPI.RegisterProfile(WAGOUI_ADDON_NAME, profileString, profileKey)
+    end, geterrorhandler())
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end
     if type(profileKey) ~= "string" then return end
     if not self:getProfileKeys()[profileKey] then return end
-    local data = {
-      BigWigs3DB = {
-        profiles = {
-          [profileKey] = BigWigs3DB.profiles[profileKey]
-        },
-        profileKeys = {
-          [""] = profileKey
-        },
-        namespaces = {}
-      },
-      BigWigsIconDB = {
-        hide = BigWigsIconDB.hide,
-        minimapPos = BigWigsIconDB.minimapPos
-      }
-    }
-    for namespaceKey, namespace in pairs(BigWigs3DB.namespaces) do
-      if namespace.profiles then
-        for pKey, p in pairs(namespace.profiles) do
-          if pKey == profileKey then
-            data.BigWigs3DB.namespaces[namespaceKey] = {
-              profiles = {
-                [profileKey] = p
-              }
-            }
-          end
-        end
-      end
-    end
-    return private:GenericEncode(profileKey, data, self.moduleName)
+    local export
+    xpcall(function()
+      -- expect bw to provide this argument for now
+      export = BigWigsAPI.RequestProfile(WAGOUI_ADDON_NAME, profileKey)
+    end, geterrorhandler())
+    return export
   end,
   areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
     if not profileStringA or not profileStringB then
       return false
     end
-    local _, profileDataA = private:GenericDecode(profileStringA)
-    local _, profileDataB = private:GenericDecode(profileStringB)
+    local profileDataA = decodeBigWigsProfileString(profileStringA)
+    local profileDataB = decodeBigWigsProfileString(profileStringB)
     if not profileDataA or not profileDataB then
       return false
     end
     return private:DeepCompareAsync(profileDataA, profileDataB)
-  end,
-  refreshHookList = {
-    {
-      tableFunc = function()
-        return BigWigsLoader.db
-      end,
-      functionNames = { "SetProfile", "DeleteProfile" }
-    }
-  }
+  end
 }
 private.modules[m.moduleName] = m
