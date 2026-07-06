@@ -884,6 +884,22 @@ local function createManageFrame(w, h)
   )
   okayButton:SetPoint("BOTTOM", m, "BOTTOM", 0, 20)
 
+  local updateCdmExportsCheckbox =
+      LWF:CreateCheckbox(
+        m,
+        25,
+        function(_, _, value)
+          local pack = addon:GetCurrentPackStashed()
+          pack.cdmExportsFrozen = not value
+        end,
+        true
+      )
+  updateCdmExportsCheckbox:SetPoint("LEFT", okayButton, "RIGHT", 20, 0)
+  m.updateCdmExportsCheckbox = updateCdmExportsCheckbox
+
+  local updateCdmExportsLabel = DF:CreateLabel(m, L["Update CDM exports on Save"], 12, "white")
+  updateCdmExportsLabel:SetPoint("LEFT", updateCdmExportsCheckbox, "RIGHT", 10, 0)
+
   return m
 end
 
@@ -901,6 +917,7 @@ local function showManageFrame(anchor)
 
   -- fill profiles to export from pack data
   local pack = addon:GetCurrentPackStashed()
+  m.updateCdmExportsCheckbox:SetValue(not pack.cdmExportsFrozen)
   if pack.cdmData and pack.cdmData.profileKeys then
     for _, profiles in pairs(pack.cdmData.profileKeys) do
       for _, info in pairs(profiles) do

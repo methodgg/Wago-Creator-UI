@@ -127,3 +127,4 @@ L["ADDITIONAL_ADDONS_EXPLAINER"] = "You can specify additional AddOns that you w
 L["CDM_PROFILES_EXPLAINER"] = "Ensure that your CDM profiles have unique names! If two profiles share the same name only one of them will be exported.\nA good name would be \"<YourName> <Spec>\""
 L["CDM_EXPORT_WARNING"] = "Profiles from other characters are only available after logging into those characters at least once."
 L["CDM_CACHE_UNAVAILABLE"] = "Blizzard Cooldown Manager is not loaded yet, so CDM profiles could not be cached."
+L["Update CDM exports on Save"] = "Update CDM exports on Save"

@@ -71,7 +71,7 @@ function addon:ExportAllProfiles()
       end
     end
   end
-  if addon:HasCooldownManagerDataToExport(currentUIPack) then
+  if not currentUIPack.cdmExportsFrozen and addon:HasCooldownManagerDataToExport(currentUIPack) then
     countOperations = countOperations + 1
   end
   --refresh list
@@ -125,7 +125,7 @@ function addon:ExportAllProfiles()
           end
         end
       end
-      if addon:HasCooldownManagerDataToExport(currentUIPack) then
+      if not currentUIPack.cdmExportsFrozen and addon:HasCooldownManagerDataToExport(currentUIPack) then
         local _, added, removed = addon:UpdateCooldownManagerData(timestamp, true)
         cdmAdded = added or cdmAdded
         cdmRemoved = removed or cdmRemoved
