@@ -1,4 +1,5 @@
-# 1.8.26 (2026-06-16)
+# 1.8.27 (2026-07-06)
 
-- Added Method Raid Tools LibAddonProfiles integration.
-- Removed character names from CDM profile labels on import.
+- Added BliZzi Party Tools LibAddonProfiles integration.
+- Added an option to freeze CDM exports when saving packs.
+- Updated WoW TOC interface versions.
