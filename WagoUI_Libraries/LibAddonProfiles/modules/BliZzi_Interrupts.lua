@@ -7,14 +7,14 @@ if (not private) then return end
 local m = {
   moduleName = "BliZzi Party Tools",
   wagoId = "BKpgeB6E",
-  oldestSupported = "4.1.4",
+  oldestSupported = "4.1.5",
   addonNames = { "BliZzi_Interrupts" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("BliZzi_Interrupts", "IconTexture"),
   slash = "/blizzi",
   needReloadOnImport = false,
-  needProfileKey = false,
-  preventRename = true,
+  needProfileKey = true,
+  preventRename = false,
   willOverrideProfile = true,
   nonNativeProfileString = false,
   needSpecialInterface = false,
@@ -30,28 +30,38 @@ local m = {
   end,
   openConfig = function(self)
     xpcall(function()
-      BIT.SettingsUI:Toggle()
+      BliZziPartyToolsAPI:OpenConfig()
     end, geterrorhandler())
   end,
   closeConfig = function(self)
     xpcall(function()
-      BIT.SettingsUI:Toggle()
+      BliZziPartyToolsAPI:CloseConfig()
     end, geterrorhandler())
   end,
   getProfileKeys = function(self)
-    local profileKeys = {
-      ["Global"] = true,
-    }
+    local profileKeys = {}
+    xpcall(function()
+      profileKeys = BliZziPartyToolsAPI:GetProfileKeys() or {}
+    end, geterrorhandler())
     return profileKeys
   end,
   getCurrentProfileKey = function(self)
-    return "Global"
+    local profileKey
+    xpcall(function()
+      profileKey = BliZziPartyToolsAPI:GetCurrentProfileKey()
+    end, geterrorhandler())
+    return profileKey
   end,
   isDuplicate = function(self, profileKey)
-    return true
+    if not profileKey then return false end
+    return self:getProfileKeys()[profileKey] ~= nil
   end,
   setProfile = function(self, profileKey)
-
+    if not profileKey then return end
+    if not self:getProfileKeys()[profileKey] then return end
+    xpcall(function()
+      BliZziPartyToolsAPI:SetProfile(profileKey)
+    end, geterrorhandler())
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
 
@@ -59,15 +69,16 @@ local m = {
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
     xpcall(function()
-      BIT.ImportProfile(profileString)
+      BliZziPartyToolsAPI:ImportProfile(profileString, profileKey)
     end, geterrorhandler())
   end,
   exportProfile = function(self, profileKey)
-    if profileKey and type(profileKey) ~= "string" then return end
-    if profileKey and not self:getProfileKeys()[profileKey] then return end
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
     local export
     xpcall(function()
-      export = BIT.ExportProfile(nil, true)
+      export = BliZziPartyToolsAPI:ExportProfile(profileKey)
     end, geterrorhandler())
     return export
   end,
@@ -80,16 +91,13 @@ local m = {
     end
     local profileDataA, profileDataB
     xpcall(function()
-      -- TODO: Missing in installed addon source: BIT.DecodeProfileString(profileString)
-      -- implement when fixed in addon source
+      profileDataA = BliZziPartyToolsAPI:DecodeProfileString(profileStringA)
+      profileDataB = BliZziPartyToolsAPI:DecodeProfileString(profileStringB)
     end, geterrorhandler())
     if not profileDataA or not profileDataB then
       return false
     end
-    return private:DeepCompareAsync(profileDataA, profileDataB, {
-      addonVersion = true,
-      formatVersion = true,
-    })
+    return private:DeepCompareAsync(profileDataA, profileDataB)
   end
 }
 
