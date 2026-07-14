@@ -51,7 +51,7 @@ local m = {
     return bigWigsModule:getCurrentProfileKey()
   end,
   getProfileAssignments = function(self)
-    -- Missing in BigWigsAPI: GetProfileAssignments()
+    return bigWigsModule:getProfileAssignments()
   end,
   isDuplicate = function(self, profileKey)
     if not profileKey then return false end

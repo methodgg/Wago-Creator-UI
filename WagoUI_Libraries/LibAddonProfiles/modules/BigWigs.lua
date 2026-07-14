@@ -79,7 +79,7 @@ local m = {
     return profileKey
   end,
   getProfileAssignments = function(self)
-    -- Missing in BigWigsAPI: GetProfileAssignments()
+    return BigWigs3DB.profileKeys
   end,
   isDuplicate = function(self, profileKey)
     if not profileKey then return false end
