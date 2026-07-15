@@ -57,7 +57,13 @@ local m = {
     SlashCmdList["BigWigs"]()
   end,
   getProfileKeys = function(self)
-    return BigWigs3DB.profiles
+    local profileKeys = {}
+    xpcall(function()
+      for _, profileKey in ipairs(BigWigsAPI.GetProfileList()) do
+        profileKeys[profileKey] = true
+      end
+    end, geterrorhandler())
+    return profileKeys
   end,
   getCurrentProfileKey = function(self)
     local profileKey
