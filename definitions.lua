@@ -80,6 +80,7 @@
 
 ---@class LibAsync : table
 ---@field GetHandler fun(self, config: LibAsyncConfig | nil) : LibAsyncHandler
+---@field Await fun(self, register: fun(resolve: function)): any, any
 
 ---@class LibAsyncConfig
 ---@field type "everyFrame" The type of handler to create.
