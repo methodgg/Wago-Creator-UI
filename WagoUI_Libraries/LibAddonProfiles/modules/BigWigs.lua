@@ -23,8 +23,7 @@ end
 local m = {
   moduleName = "BigWigs",
   wagoId = "5NRegwG3",
-  -- TODO: Update after BigWigs releases the profile-name and boss-options RequestProfile API.
-  oldestSupported = "v418.1",
+  oldestSupported = "v419",
   addonNames = { "BigWigs", "BigWigs_Core", "BigWigs_Plugins", "BigWigs_Options" },
   conflictingAddons = { "DBM-Core" },
   icon = C_AddOns.GetAddOnMetadata("BigWigs", "IconTexture"),

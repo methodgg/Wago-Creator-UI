@@ -13,7 +13,6 @@ local LibAsync = LibStub("LibAsync")
 local m = {
   moduleName = "BigWigs Boss Options",
   wagoId = bigWigsModule.wagoId,
-  -- TODO: Update after BigWigs releases the profile-name and boss-options RequestProfile API.
   oldestSupported = bigWigsModule.oldestSupported,
   addonNames = bigWigsModule.addonNames,
   conflictingAddons = bigWigsModule.conflictingAddons,
