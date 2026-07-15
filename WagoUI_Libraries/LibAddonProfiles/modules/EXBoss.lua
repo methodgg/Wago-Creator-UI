@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "EXBoss",
   wagoId = "vNAgrRKo",
-  oldestSupported = "v26.6.10.2213",
+  oldestSupported = "v26.7.13.2130",
   addonNames = { "EXBoss", "ExwindCore", "EXBossData", "EXBOSS-Locale", "EXBOSS-LocaleBase", "EXBOSS-EXWIND", "EXBOSS-ENG" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("EXBoss", "IconTexture"),
