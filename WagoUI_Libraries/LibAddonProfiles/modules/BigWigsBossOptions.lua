@@ -25,6 +25,9 @@ local m = {
   willOverrideProfile = bigWigsModule.willOverrideProfile,
   nonNativeProfileString = bigWigsModule.nonNativeProfileString,
   needSpecialInterface = bigWigsModule.needSpecialInterface,
+  isProfileStringCompatible = function(self, profileString)
+    return type(profileString) == "string" and profileString:sub(1, 5) == "BWB1:"
+  end,
   isLoaded = function(self)
     return bigWigsModule:isLoaded()
   end,
@@ -60,7 +63,7 @@ local m = {
   end,
   ---@async
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString then return end
+    if not self:isProfileStringCompatible(profileString) then return false end
     -- BigWigs imports boss options into its active profile; profileKey is intentionally unused.
     return LibAsync:Await(function(done)
       local success = xpcall(function()

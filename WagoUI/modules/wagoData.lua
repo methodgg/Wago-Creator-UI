@@ -111,10 +111,11 @@ function addon:SetupWagoData()
     addon.wagoData[resolution] = {}
     for moduleName, moduleData in pairs(modules) do
       if type(moduleData) == "string" then
-        newIntroImportState[resolution][moduleName] = {}
         local profileData = source.profiles[resolution][moduleName]
         local lap = LAP:GetModule(moduleName)
-        if profileData and lap then
+        if profileData and lap and
+            (not lap.isProfileStringCompatible or lap:isProfileStringCompatible(profileData)) then
+          newIntroImportState[resolution][moduleName] = {}
           if lap:needsInitialization() then
             lap:openConfig()
             C_Timer.After(

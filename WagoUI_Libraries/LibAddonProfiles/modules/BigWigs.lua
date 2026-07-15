@@ -35,6 +35,9 @@ local m = {
   willOverrideProfile = true,
   nonNativeProfileString = false,
   needSpecialInterface = false,
+  isProfileStringCompatible = function(self, profileString)
+    return type(profileString) == "string" and profileString:sub(1, 4) == "BW2:"
+  end,
   isLoaded = function(self)
     local loaded = C_AddOns.IsAddOnLoaded("BigWigs") and BigWigsAPI ~= nil
     return loaded
@@ -108,7 +111,7 @@ local m = {
   end,
   ---@async
   importProfile = function(self, profileString, profileKey, fromIntro)
-    if not profileString then return end
+    if not self:isProfileStringCompatible(profileString) then return false end
     if profileKey == "" then profileKey = nil end
     return LibAsync:Await(function(done)
       local success = xpcall(function()
