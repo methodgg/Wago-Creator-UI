@@ -7,7 +7,8 @@ local L = addon.L
 ---@param lapModule LibAddonProfilesModule
 ---@param profileString string
 local function importProfile(lapModule, profileString, profileKey, latestVersion, entryName)
-  lapModule:importProfile(profileString, profileKey, false)
+  local accepted = lapModule:importProfile(profileString, profileKey, false)
+  if accepted == false then return false end
   addon:StoreImportedProfileData(latestVersion, lapModule.moduleName, profileKey, entryName)
   if lapModule.needReloadOnImport then
     addon:ToggleReloadIndicator(true, L["IMPORT_RELOAD_WARNING3"])
@@ -66,9 +67,23 @@ function addon:CreateActionButton(parent, width, height, fontSize)
     actionButton:SetClickFunction(
       function()
         local importCallback = function()
+          actionButton:Disable()
+          actionButton:SetText(L["Please wait..."])
           addon:Async(
             function()
-              importProfile(lap, info.profile, profileKey, latestVersion, info.entryName)
+              local accepted = importProfile(lap, info.profile, profileKey, latestVersion, info.entryName)
+              if accepted == false then
+                actionButton:UpdateAction(
+                  info,
+                  updateAvailable,
+                  lastUdatedAt,
+                  profileKey,
+                  latestVersion,
+                  tooltipText
+                )
+                return
+              end
+              actionButton:UpdateAction(info, false, latestVersion, profileKey, latestVersion, tooltipText)
               if lap.moduleName == "WeakAuras" then
                 if not addon.state.hasSetupSplitView then
                   LWF:StartSplitView(addon.frames.mainFrame, WeakAurasOptions, false)
