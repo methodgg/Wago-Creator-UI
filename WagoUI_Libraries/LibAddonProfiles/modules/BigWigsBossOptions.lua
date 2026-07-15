@@ -6,18 +6,14 @@ if (not private) then return end
 local bigWigsModule = private.modules.BigWigs
 if (not bigWigsModule) then return end
 
----@param profileString string
-local function importBossOptionsAsync(profileString)
-  -- Simulates the future BigWigs async boss-options import.
-  C_Timer.After(1, function()
-    print("done")
-  end)
-end
+local REQUESTER_NAME = "LibAddonProfiles"
+local LibAsync = LibStub("LibAsync")
 
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "BigWigs Boss Options",
   wagoId = bigWigsModule.wagoId,
+  -- TODO: Update after BigWigs releases the profile-name and boss-options RequestProfile API.
   oldestSupported = bigWigsModule.oldestSupported,
   addonNames = bigWigsModule.addonNames,
   conflictingAddons = bigWigsModule.conflictingAddons,
@@ -54,26 +50,50 @@ local m = {
     return bigWigsModule:getProfileAssignments()
   end,
   isDuplicate = function(self, profileKey)
-    if not profileKey then return false end
-    return self:getProfileKeys()[profileKey] ~= nil
+    return bigWigsModule:isDuplicate(profileKey)
   end,
   setProfile = function(self, profileKey)
-    -- Missing in BigWigsAPI: SetProfile(profileKey); SwapProfile() opens a confirmation popup.
+    -- This is a no-op because BigWigs Boss Options does not have its own profiles. It uses the same profile as the main BigWigs module.
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
 
   end,
+  ---@async
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    -- need to see if we need to pass a callback here or wait for it to finish before we can continue
-    importBossOptionsAsync(profileString)
+    -- BigWigs imports boss options into its active profile; profileKey is intentionally unused.
+    return LibAsync:Await(function(done)
+      local success = xpcall(function()
+        BigWigsAPI.ImportBossOptions(REQUESTER_NAME, profileString, done)
+      end, geterrorhandler())
+      if not success then done(false) end
+    end)
   end,
+  ---@async
   exportProfile = function(self, profileKey)
-    -- Missing in BigWigsAPI: RequestBossOptions(addonName, optionalCallbackFunction)
+    if not profileKey then return end
+    if type(profileKey) ~= "string" then return end
+    if not self:getProfileKeys()[profileKey] then return end
+    -- pass true for now, but we may want to make this configurable in the UI for the creator
+    local includeRaids, includeSeasonalDungeons, includeExpansionDungeons = true, true, true
+    local _, bossString = LibAsync:Await(function(done)
+      local success = xpcall(function()
+        BigWigsAPI.RequestProfile(
+          REQUESTER_NAME,
+          profileKey,
+          done,
+          includeRaids,
+          includeSeasonalDungeons,
+          includeExpansionDungeons
+        )
+      end, geterrorhandler())
+      if not success then done() end
+    end)
+    return bossString
   end,
+  ---@async
   areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
-    -- Missing in BigWigsAPI: DecodeBossOptionsString(profileString)
-    return false
+    return bigWigsModule:areProfileStringsEqual(profileStringA, profileStringB, tableA, tableB)
   end
 }
 
