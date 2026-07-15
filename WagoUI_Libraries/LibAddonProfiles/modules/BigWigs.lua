@@ -3,9 +3,11 @@ local _, loadingAddonNamespace = ...
 local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
 if (not private) then return end
 
-local WAGOUI_ADDON_NAME = "WagoUI"
+local REQUESTER_NAME = "LibAddonProfiles"
+local LibAsync = LibStub("LibAsync")
 local optionsFrame
 
+---@async
 ---@param profileString string
 ---@return table | nil
 local function decodeBigWigsProfileString(profileString)
@@ -13,7 +15,7 @@ local function decodeBigWigsProfileString(profileString)
   local versionPlain, importData = profileString:match("^(%w+):(.+)$")
   if not versionPlain or not versionPlain:match("^BW") then return end
   local data = private:BlizzardDecodeB64CBOR(importData, true)
-  if not data or data.version ~= versionPlain or data.bossExport then return end
+  if not data or data.version ~= versionPlain then return end
   return data
 end
 
@@ -21,6 +23,7 @@ end
 local m = {
   moduleName = "BigWigs",
   wagoId = "5NRegwG3",
+  -- TODO: Update after BigWigs releases the profile-name and boss-options RequestProfile API.
   oldestSupported = "v418.1",
   addonNames = { "BigWigs", "BigWigs_Core", "BigWigs_Plugins", "BigWigs_Options" },
   conflictingAddons = { "DBM-Core" },
@@ -82,38 +85,56 @@ local m = {
     return BigWigs3DB.profileKeys
   end,
   isDuplicate = function(self, profileKey)
-    if not profileKey then return false end
-    return self:getProfileKeys()[profileKey] ~= nil
-  end,
-  setProfile = function(self, profileKey)
-    if not profileKey then return end
-    if not self:getProfileKeys()[profileKey] then return end
-    if profileKey == self:getCurrentProfileKey() then return end
+    local duplicate = false
     xpcall(function()
-      BigWigsAPI.SwapProfile(WAGOUI_ADDON_NAME, profileKey)
+      duplicate = BigWigsAPI.IsValidProfile(profileKey)
     end, geterrorhandler())
+    return duplicate
+  end,
+  ---@async
+  setProfile = function(self, profileKey)
+    if type(profileKey) ~= "string" then return end
+    if not self:isDuplicate(profileKey) then return end
+    if profileKey == self:getCurrentProfileKey() then return end
+    LibAsync:Await(function(done)
+      local success, swapStarted = xpcall(function()
+        return BigWigsAPI.SwapProfile(REQUESTER_NAME, profileKey, done)
+      end, geterrorhandler())
+      if not success or not swapStarted then done() end
+    end)
   end,
   testImport = function(self, profileString, profileKey, profileData, rawData, moduleName)
 
   end,
+  ---@async
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
     if profileKey == "" then profileKey = nil end
-    xpcall(function()
-      BigWigsAPI.RegisterProfile(WAGOUI_ADDON_NAME, profileString, profileKey)
-    end, geterrorhandler())
+    return LibAsync:Await(function(done)
+      local success = xpcall(function()
+        BigWigsAPI.RegisterProfile(REQUESTER_NAME, profileString, profileKey, done)
+      end, geterrorhandler())
+      if not success then done(false) end
+    end)
   end,
+  ---@async
   exportProfile = function(self, profileKey)
     if not profileKey then return end
     if type(profileKey) ~= "string" then return end
     if not self:getProfileKeys()[profileKey] then return end
-    local export
-    xpcall(function()
-      -- expect bw to provide this argument for now
-      export = BigWigsAPI.RequestProfile(WAGOUI_ADDON_NAME, profileKey)
-    end, geterrorhandler())
-    return export
+    local profileString = LibAsync:Await(function(done)
+      local success = xpcall(function()
+        BigWigsAPI.RequestProfile(
+          REQUESTER_NAME,
+          profileKey,
+          done
+        )
+      end, geterrorhandler())
+      if not success then done() end
+    end)
+    return profileString
   end,
+  ---@async
   areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
     if not profileStringA or not profileStringB then
       return false
