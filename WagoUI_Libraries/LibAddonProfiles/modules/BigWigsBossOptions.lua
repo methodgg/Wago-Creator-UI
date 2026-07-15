@@ -39,9 +39,6 @@ local m = {
   openConfig = function(self)
     bigWigsModule:openConfig()
   end,
-  closeConfig = function(self)
-    bigWigsModule:closeConfig()
-  end,
   getProfileKeys = function(self)
     return bigWigsModule:getProfileKeys()
   end,

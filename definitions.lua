@@ -29,7 +29,7 @@
 ---@field isUpdated fun(self: LibAddonProfilesModule) : boolean Check if the AddOn is updated
 ---@field needsInitialization fun(self: LibAddonProfilesModule) : boolean Some AddOns need to be initialized before we can access certain interals like the profiles and / or profile keys
 ---@field openConfig fun(self: LibAddonProfilesModule) : nil Open the AddOn config window
----@field closeConfig fun(self: LibAddonProfilesModule) : nil Close the AddOn config window
+---@field closeConfig? fun(self: LibAddonProfilesModule) : nil Close the AddOn config window
 ---@field getProfileKeys? fun(self: LibAddonProfilesModule,) : table<string, any> A list of profile keys. The values can be anything. If the function is not defined the module has global profiles or no profiles.
 ---@field getCurrentProfileKey? fun(self: LibAddonProfilesModule,) : string The profile key of the profile that is active on the current character. If the function is not defined the module has global or no profiles.
 ---@field getProfileAssignments? fun(self: LibAddonProfilesModule) : table<string, string> | nil The key should be in format "Playername - RealmName". The value should be the profile key. A nil return value means that the profile not character specific and can not be directly retrieved. Use WagoUI db to get the profile key. If the function is not defined the module has global profiles.

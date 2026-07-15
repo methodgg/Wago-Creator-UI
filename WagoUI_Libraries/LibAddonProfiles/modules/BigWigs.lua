@@ -5,7 +5,6 @@ if (not private) then return end
 
 local REQUESTER_NAME = "LibAddonProfiles"
 local LibAsync = LibStub("LibAsync")
-local optionsFrame
 
 ---@async
 ---@param profileString string
@@ -56,22 +55,6 @@ local m = {
       return
     end
     SlashCmdList["BigWigs"]()
-  end,
-  closeConfig = function(self)
-    local function findBWFrame()
-      for i = 1, select("#", UIParent:GetChildren()) do
-        local childFrame = select(i, UIParent:GetChildren())
-        if childFrame and childFrame.obj and childFrame.obj.titletext then
-          if childFrame.obj.titletext:GetText() == "BigWigs" then
-            return childFrame
-          end
-        end
-      end
-    end
-    optionsFrame = optionsFrame or findBWFrame()
-    if optionsFrame then
-      optionsFrame:Hide()
-    end
   end,
   getProfileKeys = function(self)
     return BigWigs3DB.profiles
