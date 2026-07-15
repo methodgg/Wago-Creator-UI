@@ -15,6 +15,7 @@ local altFrame, header, dropdownData, uiPackDropdown, sourceLabel, cancelButton,
 --- Set all profiles for the current selected character.
 --- This function will try to lookup matching profiles key in the addon's SV.
 --- If it can't find it, it will look for the latest imported profile key for that character and module as stored in the WagoUI SV.
+---@async
 local function setAllProfilesAsync()
   if not currentSelectedCharacter then
     return
@@ -60,25 +61,33 @@ end
 function addon:ContinueSetAllProfiles()
   addon:SuppressAddOnSpam()
   header:Hide()
-  setProfilesButton:SetText(L["Load remaining and Reload"])
+  setProfilesButton:SetText(L["Load remaining"])
   uiPackDropdown:Hide()
   sourceLabel:Hide()
   setProfilesButton:ClearAllPoints()
   setProfilesButton:SetPoint("CENTER", altFrame, "CENTER", 0, -100)
   setProfilesButton:SetClickFunction(
     function()
-      for _, data in ipairs(addon.dbC.needLoad) do
-        ---@type LibAddonProfilesModule
-        local lap = LAP:GetModule(data.moduleName)
-        if lap:isLoaded() then
-          local profileKeys = lap.getProfileKeys and lap:getProfileKeys()
-          if profileKeys and data.profileKey and profileKeys[data.profileKey] then
-            lap:setProfile(data.profileKey)
+      setProfilesButton:Disable()
+      setProfilesButton:SetText(L["Please wait..."])
+      addon:Async(function()
+        for _, data in ipairs(addon.dbC.needLoad) do
+          ---@type LibAddonProfilesModule
+          local lap = LAP:GetModule(data.moduleName)
+          if lap:isLoaded() then
+            local profileKeys = lap.getProfileKeys and lap:getProfileKeys()
+            if profileKeys and data.profileKey and profileKeys[data.profileKey] then
+              lap:setProfile(data.profileKey)
+            end
           end
         end
-      end
-      addon.dbC.needLoad = nil
-      ReloadUI()
+        addon.dbC.needLoad = nil
+        setProfilesButton:Enable()
+        setProfilesButton:SetText(L["Reload UI"])
+        setProfilesButton:SetClickFunction(function()
+          ReloadUI()
+        end)
+      end)
     end
   )
 end
