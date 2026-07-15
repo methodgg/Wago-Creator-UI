@@ -35,7 +35,7 @@
 ---@field isDuplicate fun(self: LibAddonProfilesModule, profileKey: string) : boolean Check if a profile with the given key already exists
 ---@field setProfile? fun(self: LibAddonProfilesModule, profileKey: string) Set the profile to the given profile key. If the function is not defined the module has global profiles or no profiles.
 ---@field testImport fun(self: LibAddonProfilesModule, profileString: string, profileKey: string | nil, profileData: table| nil, rawData: table | nil, moduleName: string | nil) : string | table | nil Test the profile string to see if it can be imported. Return the profile key if it can, nil otherwise. Tests profileData, rawData, and moduleName if they are provided, otherwise decodes the profileString and tests that.
----@field importProfile fun(self: LibAddonProfilesModule, profileString: string, profileKey: string, fromIntro: boolean) : nil Import the profile string. Does nothing if the module has global profiles.
+---@field importProfile fun(self: LibAddonProfilesModule, profileString: string, profileKey: string, fromIntro: boolean) : boolean | nil Import the profile string. Returns false when declined or failed, true when accepted, and nil for synchronous integrations.
 ---@field exportProfile fun(self: LibAddonProfilesModule, profileKey: string | table) : string | table | nil Export the profile string. If the function returns a table it will contain multiple profile strings.
 ---@field exportOptions table<any, any> | nil A table of options that can be used to customize the export. The options are used in the exportProfile function.
 ---@field setExportOptions? fun(self: LibAddonProfilesModule, options: table) : nil  Set the export options. The options are used in the exportProfile function.

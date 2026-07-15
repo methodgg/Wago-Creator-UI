@@ -106,6 +106,7 @@ L["Enable AddOn"] = "Enable AddOn"
 L["This will neither change your resolution nor your UI Scale"] =
   "This will neither change your resolution nor your UI Scale"
 L["Imported %s: %s"] = "Imported %s: %s"
+L["Skipped %s: %s"] = "Skipped %s: %s"
 L["Set Profile %s: %s"] = "Set Profile %s: %s"
 L["altFrameHeader4"] =
   "Some Addons were not enabled before and have now been enabled.\nReload and continue loading the profiles afterwards."

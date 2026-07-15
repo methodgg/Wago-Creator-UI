@@ -65,15 +65,19 @@ local setupInstallButton = function(enabled, needEnableAddons, introImportState)
             local data = introImportState[moduleName]
             local lap = LAP:GetModule(moduleName)
             if data.checked and lap:isLoaded() and lap:isUpdated() then
-              lap:importProfile(data.profile, data.profileKey, true)
-              if lap.conflictingAddons then
-                LAP:DisableConflictingAddons(lap.conflictingAddons, introImportState)
-              end
-              addon:AddonPrint(string.format(L["Imported %s: %s"], data.profileKey, moduleName))
-              addon:StoreImportedProfileData(data.profileMetadata.lastUpdatedAt, moduleName, data.profileKey)
-              if lap.needReloadOnImport then
-                addon:ToggleReloadIndicator(true, L["IMPORT_RELOAD_WARNING1"])
-                addon.state.needReload = true
+              local accepted = lap:importProfile(data.profile, data.profileKey, true)
+              if accepted == false then
+                addon:AddonPrint(string.format(L["Skipped %s: %s"], data.profileKey, moduleName))
+              else
+                if lap.conflictingAddons then
+                  LAP:DisableConflictingAddons(lap.conflictingAddons, introImportState)
+                end
+                addon:AddonPrint(string.format(L["Imported %s: %s"], data.profileKey, moduleName))
+                addon:StoreImportedProfileData(data.profileMetadata.lastUpdatedAt, moduleName, data.profileKey)
+                if lap.needReloadOnImport then
+                  addon:ToggleReloadIndicator(true, L["IMPORT_RELOAD_WARNING1"])
+                  addon.state.needReload = true
+                end
               end
               addon:UpdateCopyHelperProgressBar()
               coroutine.yield()
