@@ -48,17 +48,21 @@ local setupInstallButton = function(enabled, needEnableAddons, introImportState)
       installButton:SetEnabled(false)
       addon.state.isImporting = true
       local countOperations = 0
+      local moduleNames = {}
       for moduleName, data in pairs(introImportState) do
+        tinsert(moduleNames, moduleName)
         local lap = LAP:GetModule(moduleName)
         if data.checked and lap:isLoaded() and lap:isUpdated() then
           countOperations = countOperations + 1
         end
       end
+      table.sort(moduleNames)
       addon:StartCopyHelperProgressBar(countOperations)
       addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 0, L["Importing profiles..."])
       addon:Async(
         function()
-          for moduleName, data in pairs(introImportState) do
+          for _, moduleName in ipairs(moduleNames) do
+            local data = introImportState[moduleName]
             local lap = LAP:GetModule(moduleName)
             if data.checked and lap:isLoaded() and lap:isUpdated() then
               lap:importProfile(data.profile, data.profileKey, true)
