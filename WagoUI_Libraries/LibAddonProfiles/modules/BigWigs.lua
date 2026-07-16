@@ -42,7 +42,7 @@ local m = {
   end,
   isUpdated = function(self)
     if BigWigsAPI and BigWigsAPI.GetVersion then
-      local _, guildVersion = BigWigsAPI:GetVersion()
+      local _, guildVersion = BigWigsAPI.GetVersion()
       if guildVersion and guildVersion ~= 0 then return true end
     end
     return private:GenericVersionCheck(self)
