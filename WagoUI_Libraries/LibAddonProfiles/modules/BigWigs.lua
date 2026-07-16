@@ -43,6 +43,7 @@ local m = {
   isUpdated = function(self)
     if BigWigsAPI and BigWigsAPI.GetVersion then
       local _, guildVersion = BigWigsAPI.GetVersion()
+      -- 0 identifies upstream BigWigs; non-zero identifies guild-maintained builds that own compatibility and are trusted as current.
       if guildVersion and guildVersion ~= 0 then return true end
     end
     return private:GenericVersionCheck(self)
