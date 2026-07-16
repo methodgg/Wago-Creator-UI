@@ -60,7 +60,8 @@ local m = {
   ---@async
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not self:isProfileStringCompatible(profileString) then return false end
-    -- BigWigs imports boss options into its active profile; profileKey is intentionally unused.
+    -- Boss options may be imported independently from the main BigWigs profile.
+    -- They intentionally apply to the currently active profile, so profileKey is unused.
     return LibAsync:Await(function(done)
       local success = xpcall(function()
         BigWigsAPI.ImportBossOptions(REQUESTER_NAME, profileString, done)
