@@ -22,7 +22,7 @@ end
 local m = {
   moduleName = "BigWigs",
   wagoId = "5NRegwG3",
-  oldestSupported = "v419",
+  oldestSupported = "v419.1",
   addonNames = { "BigWigs", "BigWigs_Core", "BigWigs_Plugins", "BigWigs_Options" },
   conflictingAddons = { "DBM-Core" },
   icon = C_AddOns.GetAddOnMetadata("BigWigs", "IconTexture"),
