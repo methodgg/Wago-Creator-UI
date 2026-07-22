@@ -48,28 +48,36 @@ local setupInstallButton = function(enabled, needEnableAddons, introImportState)
       installButton:SetEnabled(false)
       addon.state.isImporting = true
       local countOperations = 0
+      local moduleNames = {}
       for moduleName, data in pairs(introImportState) do
+        tinsert(moduleNames, moduleName)
         local lap = LAP:GetModule(moduleName)
         if data.checked and lap:isLoaded() and lap:isUpdated() then
           countOperations = countOperations + 1
         end
       end
+      table.sort(moduleNames)
       addon:StartCopyHelperProgressBar(countOperations)
       addon.copyHelper:SmartShow(addon.frames.mainFrame, 0, 0, L["Importing profiles..."])
       addon:Async(
         function()
-          for moduleName, data in pairs(introImportState) do
+          for _, moduleName in ipairs(moduleNames) do
+            local data = introImportState[moduleName]
             local lap = LAP:GetModule(moduleName)
             if data.checked and lap:isLoaded() and lap:isUpdated() then
-              lap:importProfile(data.profile, data.profileKey, true)
-              if lap.conflictingAddons then
-                LAP:DisableConflictingAddons(lap.conflictingAddons, introImportState)
-              end
-              addon:AddonPrint(string.format(L["Imported %s: %s"], data.profileKey, moduleName))
-              addon:StoreImportedProfileData(data.profileMetadata.lastUpdatedAt, moduleName, data.profileKey)
-              if lap.needReloadOnImport then
-                addon:ToggleReloadIndicator(true, L["IMPORT_RELOAD_WARNING1"])
-                addon.state.needReload = true
+              local accepted = lap:importProfile(data.profile, data.profileKey, true)
+              if accepted == false then
+                addon:AddonPrint(string.format(L["Skipped %s: %s"], data.profileKey, moduleName))
+              else
+                if lap.conflictingAddons then
+                  LAP:DisableConflictingAddons(lap.conflictingAddons, introImportState)
+                end
+                addon:AddonPrint(string.format(L["Imported %s: %s"], data.profileKey, moduleName))
+                addon:StoreImportedProfileData(data.profileMetadata.lastUpdatedAt, moduleName, data.profileKey)
+                if lap.needReloadOnImport then
+                  addon:ToggleReloadIndicator(true, L["IMPORT_RELOAD_WARNING1"])
+                  addon.state.needReload = true
+                end
               end
               addon:UpdateCopyHelperProgressBar()
               coroutine.yield()

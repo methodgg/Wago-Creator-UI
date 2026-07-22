@@ -12,9 +12,24 @@ local currentSelectedCharacter = nil
 local needLoad
 local altFrame, header, dropdownData, uiPackDropdown, sourceLabel, cancelButton, setProfilesButton
 
+---@async
+---@param lapModule LibAddonProfilesModule
+---@param profileKey string
+---@return boolean
+local function setModuleProfile(lapModule, profileKey)
+  lapModule:setProfile(profileKey)
+  if lapModule.getCurrentProfileKey and lapModule:getCurrentProfileKey() ~= profileKey then
+    addon:AddonPrint(string.format(L["Skipped %s: %s"], profileKey, lapModule.moduleName))
+    return false
+  end
+  addon:AddonPrint(string.format(L["Set Profile %s: %s"], profileKey, lapModule.moduleName))
+  return true
+end
+
 --- Set all profiles for the current selected character.
 --- This function will try to lookup matching profiles key in the addon's SV.
 --- If it can't find it, it will look for the latest imported profile key for that character and module as stored in the WagoUI SV.
+---@async
 local function setAllProfilesAsync()
   if not currentSelectedCharacter then
     return
@@ -31,17 +46,16 @@ local function setAllProfilesAsync()
         -- it should be a retrievable key, the addon stores it in accessible SV
         local profileKey = profileAssignments[currentSelectedCharacter]
         if profileKey then
-          lapModule:setProfile(profileKey)
-          addon:AddonPrint(string.format(L["Set Profile %s: %s"], profileKey, lapModule.moduleName))
+          setModuleProfile(lapModule, profileKey)
         end
       else
         -- the place where the keys are stored is not accessible, see if we have imported via WagoUI on that character
         local profileKey, updatedAt = addon:GetLatestImportedProfile(currentSelectedCharacter, lapModule.moduleName)
         local profileKeys = lapModule.getProfileKeys and lapModule:getProfileKeys()
         if profileKey and updatedAt and profileKeys[profileKey] then
-          lapModule:setProfile(profileKey)
-          addon:AddonPrint(string.format(L["Set Profile %s: %s"], profileKey, lapModule.moduleName))
-          addon:StoreImportedProfileData(updatedAt, lapModule.moduleName, profileKey)
+          if setModuleProfile(lapModule, profileKey) then
+            addon:StoreImportedProfileData(updatedAt, lapModule.moduleName, profileKey)
+          end
         end
       end
     elseif LAP:CanEnableAnyAddOn(lapModule.addonNames) then
@@ -60,25 +74,33 @@ end
 function addon:ContinueSetAllProfiles()
   addon:SuppressAddOnSpam()
   header:Hide()
-  setProfilesButton:SetText(L["Load remaining and Reload"])
+  setProfilesButton:SetText(L["Load remaining"])
   uiPackDropdown:Hide()
   sourceLabel:Hide()
   setProfilesButton:ClearAllPoints()
   setProfilesButton:SetPoint("CENTER", altFrame, "CENTER", 0, -100)
   setProfilesButton:SetClickFunction(
     function()
-      for _, data in ipairs(addon.dbC.needLoad) do
-        ---@type LibAddonProfilesModule
-        local lap = LAP:GetModule(data.moduleName)
-        if lap:isLoaded() then
-          local profileKeys = lap.getProfileKeys and lap:getProfileKeys()
-          if profileKeys and data.profileKey and profileKeys[data.profileKey] then
-            lap:setProfile(data.profileKey)
+      setProfilesButton:Disable()
+      setProfilesButton:SetText(L["Please wait..."])
+      addon:Async(function()
+        for _, data in ipairs(addon.dbC.needLoad) do
+          ---@type LibAddonProfilesModule
+          local lap = LAP:GetModule(data.moduleName)
+          if lap:isLoaded() then
+            local profileKeys = lap.getProfileKeys and lap:getProfileKeys()
+            if profileKeys and data.profileKey and profileKeys[data.profileKey] then
+              lap:setProfile(data.profileKey)
+            end
           end
         end
-      end
-      addon.dbC.needLoad = nil
-      ReloadUI()
+        addon.dbC.needLoad = nil
+        setProfilesButton:Enable()
+        setProfilesButton:SetText(L["Reload UI"])
+        setProfilesButton:SetClickFunction(function()
+          ReloadUI()
+        end)
+      end)
     end
   )
 end
