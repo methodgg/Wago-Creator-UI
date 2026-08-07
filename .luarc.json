@@ -183,7 +183,8 @@
         "PlaterAPI",
         "EllesmereUI",
         "EXBossWagoAPI",
-        "ExBoss_MetaData"
+        "ExBoss_MetaData",
+        "NorskenUIAPI"
     ],
     "diagnostics.disable": ["need-check-nil"]
 }
