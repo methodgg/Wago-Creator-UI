@@ -1,3 +1,3 @@
-# 1.8.29 (2026-07-24)
+# 1.9.0 (2026-08-11)
 
-- Fixed a startup error in the BigWigs integration by loading LibAsync before LibAddonProfiles.
+- 12.1 Support
