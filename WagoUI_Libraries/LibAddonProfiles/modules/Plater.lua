@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Plater",
   wagoId = "kRNLep6o",
-  oldestSupported = "Plater-v643-Retail",
+  oldestSupported = "Plater-v648-Retail",
   addonNames = { "Plater" },
   conflictingAddons = { "Kui_Nameplates", "Kui_Nameplates_Core", "Kui_Nameplates_Core_Config" },
   icon = C_AddOns.GetAddOnMetadata("Plater", "IconTexture"),

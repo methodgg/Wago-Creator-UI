@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "BuffReminders",
   wagoId = "qGYZZjNg",
-  oldestSupported = "v6.0.1",
+  oldestSupported = "v6.3.2",
   addonNames = { "BuffReminders" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("BuffReminders", "IconTexture"),

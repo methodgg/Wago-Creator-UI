@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "BliZzi Party Tools",
   wagoId = "BKpgeB6E",
-  oldestSupported = "4.1.5",
+  oldestSupported = "4.1.12",
   addonNames = { "BliZzi_Interrupts" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("BliZzi_Interrupts", "IconTexture"),

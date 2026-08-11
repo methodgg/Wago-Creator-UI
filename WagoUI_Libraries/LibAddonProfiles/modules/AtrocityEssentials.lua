@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "atrocityEssentials",
   wagoId = "rNkyJ3Ka",
-  oldestSupported = "v3",
+  oldestSupported = "v4.0.203",
   addonNames = { "atrocityEssentials" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("atrocityEssentials", "IconTexture"),

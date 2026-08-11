@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Cooldown Cursor Manager",
   wagoId = "96d2elGO",
-  oldestSupported = "13.1.25",
+  oldestSupported = "15.0.14",
   addonNames = { "CooldownCursorManager" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("CooldownCursorManager", "IconTexture"),

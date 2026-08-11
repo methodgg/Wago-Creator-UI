@@ -6,7 +6,7 @@ if (not private) then return end
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "OmniCD Spell Editor",
-  oldestSupported = "v2.8.32",
+  oldestSupported = "v2.8.34",
   addonNames = { "OmniCD" },
   icon = C_AddOns.GetAddOnMetadata("OmniCD", "IconTexture"),
   slash = "/omnicd",

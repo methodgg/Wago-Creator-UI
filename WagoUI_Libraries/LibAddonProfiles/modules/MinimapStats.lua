@@ -9,7 +9,7 @@ local optionsFrame
 local m = {
   moduleName = "MinimapStats",
   wagoId = "qGYM7vGg",
-  oldestSupported = "V12.0.10",
+  oldestSupported = "V12.0.18",
   addonNames = { "MinimapStats" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("MinimapStats", "IconTexture"),

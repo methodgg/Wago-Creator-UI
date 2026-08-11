@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "sArena Reloaded",
   wagoId = "5NRebvG3",
-  oldestSupported = "v2.5.1",
+  oldestSupported = "v2.5.9",
   addonNames = { "sArena_Reloaded" },
   conflictingAddons = {},
   icon = 135884,

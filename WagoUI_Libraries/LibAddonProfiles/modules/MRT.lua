@@ -7,7 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Method Raid Tools",
   wagoId = "5bGoJnK0",
-  oldestSupported = "5300",
+  oldestSupported = "5315",
   addonNames = { "MRT" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("MRT", "IconTexture"),
