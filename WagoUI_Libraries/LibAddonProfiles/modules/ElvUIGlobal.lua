@@ -2,12 +2,12 @@ local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
 local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
 if (not private) then return end
-local EXPORT_PREFIX = "!E1!"
+local EXPORT_PREFIX = "!E2!"
 
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "ElvUI Account Settings",
-  oldestSupported = "v13.76",
+  oldestSupported = "v15.19",
   addonNames = { "ElvUI", "ElvUI_Libraries", "ElvUI_Options" },
   icon = C_AddOns.GetAddOnMetadata("ElvUI", "IconTexture"),
   slash = "/ec",

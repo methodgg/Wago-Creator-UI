@@ -2,12 +2,12 @@ local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
 local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
 if (not private) then return end
-local EXPORT_PREFIX = "!E1!"
+local EXPORT_PREFIX = "!E2!"
 
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "ElvUI Private Profile",
-  oldestSupported = "v13.76",
+  oldestSupported = "v15.19",
   addonNames = { "ElvUI", "ElvUI_Libraries", "ElvUI_Options" },
   icon = C_AddOns.GetAddOnMetadata("ElvUI", "IconTexture"),
   slash = "/ec",
@@ -103,18 +103,13 @@ local m = {
     profileData = E:FilterTableFromBlacklist(profileData, D.blacklistedKeys.private)
     if not profileData or (profileData and type(profileData) ~= 'table') then return end
 
-    local profileExport
-    local serialString = D:Serialize(profileData)
+    local serialString = C_EncodingUtil.SerializeCBOR(profileData)
     local success, exportString = pcall(D.CreateProfileExport, D, 'private', profileKey, serialString)
-    if not success then
-      return
-    end
-    local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
-    local compressedData = LibDeflate:CompressDeflate(exportString, { level = 5 })
-    local printableString = LibDeflate:EncodeForPrint(compressedData)
-    profileExport = printableString and format('%s%s', EXPORT_PREFIX, printableString) or nil
+    if not success then return end
 
-    return profileExport
+    local compressedData = C_EncodingUtil.CompressString(exportString, Enum.CompressionMethod.Deflate or 0, Enum.CompressionLevel.Default or 0)
+    local printableString = C_EncodingUtil.EncodeBase64(compressedData)
+    return printableString and format('%s%s', EXPORT_PREFIX, printableString) or nil
   end,
   areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
     if not profileStringA or not profileStringB then
