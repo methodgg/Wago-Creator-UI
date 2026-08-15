@@ -35,11 +35,15 @@ local m = {
   end,
   openConfig = function(self)
     if not SlashCmdList["ACECONSOLE_ELVUI"] then return end
-    SlashCmdList["ACECONSOLE_ELVUI"]()
+    xpcall(function()
+      SlashCmdList["ACECONSOLE_ELVUI"]()
+    end, geterrorhandler())
   end,
   closeConfig = function(self)
-    local E = unpack(ElvUI)
-    E.Config_CloseWindow()
+    xpcall(function()
+      local E = unpack(ElvUI)
+      E.Config_CloseWindow()
+    end, geterrorhandler())
   end,
   getProfileKeys = function(self)
     return ElvPrivateDB.profiles
@@ -69,8 +73,12 @@ local m = {
     if prefix ~= EXPORT_PREFIX then
       return nil
     end
-    local distributor = ElvUI[1]:GetModule("Distributor")
-    local profileType, _, data = distributor:Decode(profileString)
+    local profileType, data
+    local success = xpcall(function()
+      local distributor = ElvUI[1]:GetModule("Distributor")
+      profileType, _, data = distributor:Decode(profileString)
+    end, geterrorhandler())
+    if not success then return end
     if profileType == "private" and data then
       return ""
     end
@@ -79,48 +87,53 @@ local m = {
     if not profileString then return end
     -- TODO: do we even want to change this to use D:ImportProfile?
     -- seems simple enough as it is and sets the profile key (maybe this is not wanted?)
-    local E = ElvUI[1]
-    local D = E:GetModule("Distributor")
-    local _, _, data = D:Decode(profileString)
-    if not data then
-      return
-    end
+    local E, data
+    local success = xpcall(function()
+      E = ElvUI[1]
+      local D = E:GetModule("Distributor")
+      _, _, data = D:Decode(profileString)
+      if not data then return end
+      data = E:FilterTableFromBlacklist(data, D.blacklistedKeys.private) --Remove unwanted options from import
+    end, geterrorhandler())
+    if not success or not data then return end
     ElvPrivateDB.profileKeys[E.mynameRealm] = profileKey
-    data = E:FilterTableFromBlacklist(data, D.blacklistedKeys.private) --Remove unwanted options from import
     ElvPrivateDB.profiles[profileKey] = data
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end
     if type(profileKey) ~= "string" then return end
     if not self:getProfileKeys()[profileKey] then return end
-    --Core\General\Distributor.lua
-    local E, L, V, P, G = unpack(ElvUI)
-    local D = E:GetModule("Distributor")
+    local printableString
+    local success = xpcall(function()
+      --Core\General\Distributor.lua
+      local E, _, V = unpack(ElvUI)
+      local D = E:GetModule("Distributor")
+      local profileData = E:CopyTable({}, ElvPrivateDB.profiles[profileKey])
+      profileData = E:RemoveTableDuplicates(profileData, V, D.GeneratedKeys.private)
+      profileData = E:FilterTableFromBlacklist(profileData, D.blacklistedKeys.private)
+      if type(profileData) ~= "table" then return end
 
-    local profileData = {}
-    profileData = E:CopyTable(profileData, ElvPrivateDB.profiles[profileKey])
-    profileData = E:RemoveTableDuplicates(profileData, V, D.GeneratedKeys.private)
-    profileData = E:FilterTableFromBlacklist(profileData, D.blacklistedKeys.private)
-    if not profileData or (profileData and type(profileData) ~= 'table') then return end
-
-    local serialString = C_EncodingUtil.SerializeCBOR(profileData)
-    local success, exportString = pcall(D.CreateProfileExport, D, 'private', profileKey, serialString)
-    if not success then return end
-
-    local compressedData = C_EncodingUtil.CompressString(exportString, Enum.CompressionMethod.Deflate or 0, Enum.CompressionLevel.Default or 0)
-    local printableString = C_EncodingUtil.EncodeBase64(compressedData)
-    return printableString and format('%s%s', EXPORT_PREFIX, printableString) or nil
+      local serialString = C_EncodingUtil.SerializeCBOR(profileData)
+      local exportString = D:CreateProfileExport("private", profileKey, serialString)
+      local compressedData = C_EncodingUtil.CompressString(exportString, Enum.CompressionMethod.Deflate or 0, Enum.CompressionLevel.Default or 0)
+      printableString = C_EncodingUtil.EncodeBase64(compressedData)
+    end, geterrorhandler())
+    if not success or not printableString then return nil, false end
+    return format("%s%s", EXPORT_PREFIX, printableString), true
   end,
   areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
     if not profileStringA or not profileStringB then
       return false
     end
-    local E = ElvUI[1]
-    local D = E:GetModule("Distributor")
-    local _, _, profileDataA = D:Decode(profileStringA)
-    local _, _, profileDataB = D:Decode(profileStringB)
-    if not profileDataA or not profileDataB then
-      return false
+    local profileDataA, profileDataB
+    local success = xpcall(function()
+      local E = ElvUI[1]
+      local D = E:GetModule("Distributor")
+      _, _, profileDataA = D:Decode(profileStringA)
+      _, _, profileDataB = D:Decode(profileStringB)
+    end, geterrorhandler())
+    if not success or not profileDataA or not profileDataB then
+      return nil, nil, nil, false
     end
     return private:DeepCompareAsync(profileDataA, profileDataB)
   end,

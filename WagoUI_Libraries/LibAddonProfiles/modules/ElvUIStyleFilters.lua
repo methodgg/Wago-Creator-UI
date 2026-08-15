@@ -35,11 +35,15 @@ local m = {
   end,
   openConfig = function(self)
     if not SlashCmdList["ACECONSOLE_ELVUI"] then return end
-    SlashCmdList["ACECONSOLE_ELVUI"]()
+    xpcall(function()
+      SlashCmdList["ACECONSOLE_ELVUI"]()
+    end, geterrorhandler())
   end,
   closeConfig = function(self)
-    local E = unpack(ElvUI)
-    E.Config_CloseWindow()
+    xpcall(function()
+      local E = unpack(ElvUI)
+      E.Config_CloseWindow()
+    end, geterrorhandler())
   end,
   getProfileKeys = function(self)
     return {
@@ -60,44 +64,55 @@ local m = {
     if prefix ~= EXPORT_PREFIX then
       return nil
     end
-    local distributor = ElvUI[1]:GetModule("Distributor")
-    local profileType, _, data = distributor:Decode(profileString)
+    local profileType, data
+    local success = xpcall(function()
+      local distributor = ElvUI[1]:GetModule("Distributor")
+      profileType, _, data = distributor:Decode(profileString)
+    end, geterrorhandler())
+    if not success then return end
     if profileType == "styleFilters" and data then
       return ""
     end
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    local E = ElvUI[1]
-    local D = E:GetModule("Distributor")
-    local decodedType, decodedKey, decodedData = D:Decode(profileString)
-    -- important to use the supplied profileKey, as the decodedKey might be different
-    local force = true
-    pcall(D.SetImportedProfile, D, decodedType, profileKey, decodedData, force)
+    xpcall(function()
+      local E = ElvUI[1]
+      local D = E:GetModule("Distributor")
+      local decodedType, _, decodedData = D:Decode(profileString)
+      if not decodedType or not decodedData then return end
+      -- important to use the supplied profileKey, as the decoded key might be different
+      local force = true
+      D:SetImportedProfile(decodedType, profileKey, decodedData, force)
+    end, geterrorhandler())
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end
     if type(profileKey) ~= "string" then return end
     if not self:getProfileKeys()[profileKey] then return end
     --Core\General\Distributor.lua
-    local E = ElvUI[1]
-    local D = E:GetModule("Distributor")
-    local success, _, profileExport = pcall(D.GetProfileExport, D, "styleFilters", profileKey, "text")
-    if not success then
-      return
-    end
-    return profileExport
+    local profileExport
+    local success = xpcall(function()
+      local E = ElvUI[1]
+      local D = E:GetModule("Distributor")
+      _, profileExport = D:GetProfileExport("styleFilters", profileKey, "text")
+    end, geterrorhandler())
+    if not success or not profileExport then return nil, false end
+    return profileExport, true
   end,
   areProfileStringsEqual = function(self, profileStringA, profileStringB, tableA, tableB)
     if not profileStringA or not profileStringB then
       return false
     end
-    local E = ElvUI[1]
-    local D = E:GetModule("Distributor")
-    local _, _, profileDataA = D:Decode(profileStringA)
-    local _, _, profileDataB = D:Decode(profileStringB)
-    if not profileDataA or not profileDataB then
-      return false
+    local profileDataA, profileDataB
+    local success = xpcall(function()
+      local E = ElvUI[1]
+      local D = E:GetModule("Distributor")
+      _, _, profileDataA = D:Decode(profileStringA)
+      _, _, profileDataB = D:Decode(profileStringB)
+    end, geterrorhandler())
+    if not success or not profileDataA or not profileDataB then
+      return nil, nil, nil, false
     end
     return private:DeepCompareAsync(profileDataA, profileDataB)
   end

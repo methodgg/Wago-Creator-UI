@@ -95,7 +95,10 @@ local function exportFunc(moduleName, resolution, timestamp)
     end
   end
   ---@type any
-  local newExport = lapModule:exportProfile(stashed.profileKeys[resolution][moduleName])
+  local newExport, exportSucceeded = lapModule:exportProfile(stashed.profileKeys[resolution][moduleName])
+  if exportSucceeded == false then
+    return false
+  end
   ---@type any
   local oldExport = packFromDb.profiles[resolution][moduleName]
   local tableA, tableB
@@ -103,8 +106,11 @@ local function exportFunc(moduleName, resolution, timestamp)
     tableA = oldExport
     tableB = newExport
   end
-  local areEqual, changedEntries, removedEntries =
+  local areEqual, changedEntries, removedEntries, comparisonSucceeded =
       lapModule:areProfileStringsEqual(oldExport, newExport, tableA, tableB)
+  if comparisonSucceeded == false then
+    return false
+  end
 
   --check for old keys for which the data is now nonexistent here
   if moduleName == "WeakAuras" or moduleName == "Echo Raid Tools" then
