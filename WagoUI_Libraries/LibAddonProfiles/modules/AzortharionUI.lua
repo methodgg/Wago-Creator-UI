@@ -60,9 +60,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      AUIG:Import(profileString, profileKey)
+    local ok, accepted = xpcall(function()
+      return AUIG:Import(profileString, profileKey)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end

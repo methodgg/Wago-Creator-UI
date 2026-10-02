@@ -5,42 +5,24 @@ local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAdd
 if (not private) then return end
 
 do
-  local cache = {}
+  local cache
   --- Checks if any addon from the list can enabled.
   ---@param addonNames table<number, string> | nil
   ---@return boolean
   function private:CanEnableAnyAddOn(addonNames)
-    if not addonNames then
+    if not addonNames or not next(addonNames) then
       return false
     end
-    --- Check is expensive so we cache it
-    for _, module in pairs(addonNames) do
-      if cache[module] then
-        if cache[module].canEnable == true then
-          return true
-        end
-      else
-        for i = 1, C_AddOns.GetNumAddOns() do
-          local name, _, _, loadable, reason = C_AddOns.GetAddOnInfo(i)
-          if name == module then
-            if loadable then
-              cache[module] = {
-                canEnable = true
-              }
-              return true
-            end
-            if not loadable and (reason == "DISABLED" or reason == "DEP_DISABLED" or reason == "DEMAND_LOADED") then
-              cache[module] = {
-                canEnable = true
-              }
-              return true
-            end
-          end
-        end
-        cache[module] = {
-          canEnable = false
-        }
+    -- Build one inventory per session, instead of rescanning it for every missing addon.
+    if not cache then
+      cache = {}
+      for i = 1, C_AddOns.GetNumAddOns() do
+        local name, _, _, loadable, reason = C_AddOns.GetAddOnInfo(i)
+        if name then cache[name] = loadable or reason == "DISABLED" or reason == "DEP_DISABLED" or reason == "DEMAND_LOADED" end
       end
+    end
+    for _, module in pairs(addonNames) do
+      if cache[module] then return true end
     end
     return false
   end
@@ -58,13 +40,13 @@ do
 end
 
 ---Disables a list of AddOns.
----If the Addon is in introImportState and has field checked set to true, it will not be disabled
+---If the Addon is in selectedModules and has field checked set to true, it will not be disabled
 ---@param addonNames table<number, string>
----@param introImportState table<string, IntroImportState>
-function private:DisableConflictingAddons(addonNames, introImportState)
-  if not addonNames or not introImportState then return end
+---@param selectedModules table<string, {checked: boolean}>
+function private:DisableConflictingAddons(addonNames, selectedModules)
+  if not addonNames or not selectedModules then return end
   local doNotDisable = {}
-  for moduleName, state in pairs(introImportState) do
+  for moduleName, state in pairs(selectedModules) do
     ---@type LibAddonProfilesModule
     local lap = private.modules[moduleName]
     if lap and lap.addonNames and state.checked then

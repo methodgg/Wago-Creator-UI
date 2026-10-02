@@ -10,6 +10,12 @@ local asyncConfig = {
   maxTime = 40,
   maxTimeCombat = 8,
   errorHandler = function(msg, stackTrace, name)
+    addon.state.busy, addon.state.isImporting = false, false
+    if addon.frames.mainFrame then
+      addon:ToggleReloadIndicator(addon.state.needReload)
+      if addon.state.needReopen then addon.frames.mainFrame:Show(); addon.state.needReopen = nil end
+    end
+    addon:RefreshWorkspace()
     addon:OnError(msg, stackTrace, name)
   end
 }

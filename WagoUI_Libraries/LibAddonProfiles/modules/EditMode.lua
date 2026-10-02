@@ -141,7 +141,7 @@ local m = {
     if profileKeys[profileKey] then
       local success = removeProfile(profileKey) --need to remove old profile with same name first for updating to work and not be confusing
       if not success then
-        return
+        return false
       end
     end
     if areGlobalLayoutsFull() then
@@ -150,14 +150,14 @@ local m = {
       EditModeManagerFrame:SelectLayout(3)
       local success = removeProfile(self:getCurrentProfileKey())
       if not success then
-        return
+        return false
       end
     end
 
     local newLayoutInfo = C_EditMode.ConvertStringToLayoutInfo(profileString)
-    local success = pcall(EditModeManagerFrame.ImportLayout, EditModeManagerFrame, newLayoutInfo, 1, profileKey)
-    if not success then
-      return
+    local success, accepted = pcall(EditModeManagerFrame.ImportLayout, EditModeManagerFrame, newLayoutInfo, 1, profileKey)
+    if not success or accepted == false then
+      return false
     end
     EditModeManagerFrame.CloseButton:Click()
     -- ignore taint warning

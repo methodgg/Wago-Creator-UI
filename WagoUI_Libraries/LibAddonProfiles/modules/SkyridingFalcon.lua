@@ -57,9 +57,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      FalconPublicAPI:Import(profileString, profileKey)
+    local ok, accepted = xpcall(function()
+      return FalconPublicAPI:Import(profileString, profileKey)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     local export

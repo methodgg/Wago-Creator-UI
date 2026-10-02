@@ -2,7 +2,11 @@
   <Include file="libs\loadLibs.xml"/>
   <Include file="locales\loadLocales.xml"/>
   <Include file="utils\loadUtils.xml"/>
+  <Script file="core\Packs.lua"/>
+  <Script file="core\Capture.lua"/>
+  <Script file="core\Install.lua"/>
   <Include file="modules\loadModules.xml"/>
   <Include file="wagoFrames\loadFrames.xml"/>
-	<Include file="main.lua"/>
+  <Script file="ui\Workspace.lua"/>
+  <Script file="main.lua"/>
 </Ui>

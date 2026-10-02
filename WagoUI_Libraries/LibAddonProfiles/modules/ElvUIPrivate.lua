@@ -95,7 +95,7 @@ local m = {
       if not data then return end
       data = E:FilterTableFromBlacklist(data, D.blacklistedKeys.private) --Remove unwanted options from import
     end, geterrorhandler())
-    if not success or not data then return end
+    if not success or not data then return false end
     ElvPrivateDB.profileKeys[E.mynameRealm] = profileKey
     ElvPrivateDB.profiles[profileKey] = data
   end,

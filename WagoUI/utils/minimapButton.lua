@@ -56,15 +56,12 @@ local LDB =
             addon:ToggleFrame()
           end
         end,
-        OnTooltipShow = function(tooltip)
-          if not tooltip or not tooltip.AddLine then
-            return
-          end
-          tooltip:AddLine("|c"..addon.color.."Wago".."|r UI Packs")
-          tooltip:AddLine(L["Click to toggle AddOn Window"])
-          tooltip:AddLine(L["Right-click to lock Minimap Button"])
-          tooltip:AddLine(L["Middle-click to disable Minimap Button"])
-        end
+        OnEnter = function(button)
+          addon.ShowWidgetTooltip(button, "|c"..addon.color.."Wago|r UI Packs\n" ..
+            L["Click to toggle AddOn Window"] .. "\n" .. L["Right-click to lock Minimap Button"] .. "\n" ..
+            L["Middle-click to disable Minimap Button"])
+        end,
+        OnLeave = addon.HideWidgetTooltip
       }
     )
 

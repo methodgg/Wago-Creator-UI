@@ -5,9 +5,8 @@ local addon = select(2, ...)
 
 local function handleDBLoad(database, force, defaults)
   for k, v in pairs(defaults) do
-    -- migrate from faulty values
-    if (force or (type(database[k]) ~= "boolean" and not database[k])) then
-      database[k] = v
+    if force or database[k] == nil or (type(v) == "table" and type(database[k]) ~= "table") then
+      database[k] = type(v) == "table" and CopyTable(v) or v
     end
     if type(v) == "table" then
       handleDBLoad(database[k], force, v)
@@ -23,7 +22,6 @@ local function setUpDB(dbKey, dbCKey)
 end
 
 function addon.ResetOptions()
-  _G[addon.dbKey] = nil
   _G[addon.dbCKey] = nil
   handleDBLoad(addon.db, true, addon.dbDefaults)
   ReloadUI()
@@ -34,12 +32,8 @@ local function shouldAutoStart()
   if addon.db.autoStart then
     return true
   end
-  if addon.dbC.needLoad then
+  if addon.dbC.pendingAlt then
     return true
-  end
-  -- do not auto start for creators, they can open up the addon via a button in WagoUI_Creator
-  if C_AddOns.IsAddOnLoaded("WagoUI_Creator") then
-    addon.db.introEnabled = false
   end
   -- intro enabled
   if addon.db.introEnabled then
@@ -57,11 +51,6 @@ do
   eventListener:RegisterEvent("PLAYER_ENTERING_WORLD")
   eventListener:RegisterEvent("ADDON_LOADED")
 
-  local postDBLoads = {}
-  function addon:RegisterPostDBLoad(func)
-    table.insert(postDBLoads, func)
-  end
-
   eventListener:SetScript(
     "OnEvent",
     function(self, event, ...)
@@ -71,6 +60,7 @@ do
           eventListener:UnregisterEvent("ADDON_LOADED")
           setUpDB(addon.dbKey, addon.dbCKey)
           handleDBLoad(addon.db, nil, addon.dbDefaults)
+          addon:InitializePacks()
           addon:RegisterMinimapButton()
           if not addon.db.minimap.hide then
             addon:ShowMinimapButton()
@@ -78,15 +68,7 @@ do
           if not addon.db.minimap.compartmentHide then
             addon:ShowCompartmentButton()
           end
-          --have to do this on next frame
-          C_Timer.After(
-            0,
-            function()
-              for _, func in pairs(postDBLoads) do
-                func()
-              end
-            end
-          )
+
         end
       elseif (event == "PLAYER_ENTERING_WORLD") then
         eventListener:UnregisterEvent("PLAYER_ENTERING_WORLD")

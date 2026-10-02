@@ -6,7 +6,11 @@ ignore:
   - WagoUI/pkgmeta.yaml
   - WagoUI_Libraries
   - WagoUI_Storage
-  - WagoUI_Creator
+  - docs
+  - tests
+  - .codex
+  - AGENTS.md
+  - AGENTS.local.md
 enable-nolib-creation: no
 package-as: WagoUI
 

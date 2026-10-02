@@ -223,7 +223,9 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     local data = decodeWeakAuraString(profileString)
-    pcall(WeakAuras.Import, data)
+    if not data then return false end
+    local ok, accepted = pcall(WeakAuras.Import, data)
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if type(profileKey) ~= "table" then return end

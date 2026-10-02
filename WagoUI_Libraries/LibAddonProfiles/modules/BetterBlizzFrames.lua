@@ -54,9 +54,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      BBF.ImportProfile(profileString)
+    local ok, accepted = xpcall(function()
+      return BBF.ImportProfile(profileString)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     local export
