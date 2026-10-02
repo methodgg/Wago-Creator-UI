@@ -55,9 +55,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      EnhanceQoL.importUFProfile(profileString, "ALL")
+    local ok, accepted = xpcall(function()
+      return EnhanceQoL.importUFProfile(profileString, "ALL")
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end

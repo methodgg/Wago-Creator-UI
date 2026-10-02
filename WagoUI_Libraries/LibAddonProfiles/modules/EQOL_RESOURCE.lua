@@ -55,9 +55,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      EnhanceQoL.importResourceProfile(profileString, "ALL_CLASSES")
+    local ok, accepted = xpcall(function()
+      return EnhanceQoL.importResourceProfile(profileString, "ALL_CLASSES")
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end

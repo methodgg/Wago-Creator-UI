@@ -1,5 +1,22 @@
 # WagoUI
 
+WagoUI includes Install and Create workspaces. Packs contain independent profile records tagged into one or more variations; resolution is optional variation metadata.
+
+Local drafts live in WagoUIDB.creator.packs. Explicitly saved captures live in WagoUIDB.creator.saved; reload writes them to disk for the companion app. WagoUI does not read or migrate the old creator database.
+
+The companion app must adopt the [schema-v2 transport contract](docs/wagoui-redesign/transport.md) before this version can be distributed. Old resolution-shaped packs are rejected with an update message.
+
+Development checks, from the repository root with Lua 5.1:
+
+    lua tests/check.lua
+    lua tests/ui.lua
+    lua tests/capture_async.lua
+    lua tests/cooldown.lua
+    lua tests/import_wrappers.lua
+    lua tests/addon_availability.lua
+
+These are model, integration-contract and headless widget checks. Validate the actual layout and addon imports in WoW before release.
+
 ## Add-on authors
 
 If you want your add-on to be supported in Wago and Wago UI packs, start by submitting it through the Wago add-on request form:

@@ -48,7 +48,7 @@ end
 local function PrintNewUpdate(packId, pack)
   local prefix, suffix = GenerateCommandHyperlink("open", packId)
   local link = string.format(L["UPDATE_LINK_TEXT"], prefix, suffix)
-  addon:AddonPrint("Updates available for " .. pack.localName .. "! " .. link)
+  addon:AddonPrint("Updates available for " .. pack.name .. "! " .. link)
 end
 
 function addon:CheckAvailableUpdates()
@@ -59,8 +59,8 @@ function addon:CheckAvailableUpdates()
     UPDATE_CHECK_DELAY,
     function()
       for packId, pack in pairs(WagoUI_Storage) do
-        if not pack.isLocal then
-          local latest = GetLatestReleaseNoteTimestamp(pack.releaseNotes)
+        if addon.Packs.Validate(pack) then
+          local latest = GetLatestReleaseNoteTimestamp(pack.releaseNotes or {})
           local latestSeen = addon.db.latestSeenReleasenotes[packId]
           if not latestSeen then -- don't notify on new pack
             addon.db.latestSeenReleasenotes[packId] = latest

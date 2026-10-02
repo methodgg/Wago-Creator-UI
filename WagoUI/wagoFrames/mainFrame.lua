@@ -15,7 +15,7 @@ function addon:CreateMainFrame()
     -- UseScaleBar = true, --disable for now might use it later on
     NoCloseButton = false
   }
-  local addonTitle = "|cFFC1272DWago|r UI Packs".." - Slash command: "..addon.slashPrefixes[1]
+  local addonTitle = "|cFFC1272DWago|r UI Packs"
   local frame =
       DF:CreateSimplePanel(
         UIParent,
@@ -33,6 +33,7 @@ function addon:CreateMainFrame()
   frame:SetFrameStrata("HIGH")
   frame:SetFrameLevel(100)
   frame:SetToplevel(true)
+  frame:SetClampedToScreen(true)
   LWF:ScaleFrameByUIParentScale(frame, 0.5333333333333)
   frame:SetPoint(addon.db.anchorTo, UIParent, addon.db.anchorFrom, addon.db.xoffset, addon.db.yoffset)
   hooksecurefunc(
@@ -55,20 +56,25 @@ function addon:CreateMainFrame()
   versionString:SetText("v"..metaVersion)
   versionString:SetPoint("LEFT", frame.TitleBar, "LEFT", 2, 0)
 
+  local logo = frame:CreateTexture(nil, "ARTWORK")
+  logo:SetTexture([[Interface\AddOns\]] .. addonName .. [[\media\wagoLogo512]])
+  logo:SetSize(100, 100)
+  logo:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -24, -34)
+
   local reloadIndicator = DF:CreateButton(frame, nil, 40, 40, "", nil, nil, "UI-RefreshButton", nil, nil, nil, nil)
-  reloadIndicator:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -10, -45)
+  reloadIndicator:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -12, -38)
   reloadIndicator:SetTooltip(L["IMPORT_RELOAD_WARNING1"])
+  addon:UseWidgetTooltip(reloadIndicator)
   reloadIndicator:SetFrameStrata("DIALOG")
   reloadIndicator:Hide()
   reloadIndicator:SetClickFunction(
     function()
-      if not addon.db.introEnabled then
-        ReloadUI()
-      end
+      ReloadUI()
     end
   )
 
   function addon:ToggleReloadIndicator(show, text)
+    logo:SetShown(not show)
     if show then
       reloadIndicator:Show()
     else
@@ -162,24 +168,11 @@ function addon:CreateMainFrame()
         return
       end
       if addon.state.needReload then
-        if addon.db.introEnabled then
-          if addon.db.introState.currentPage == "DonePage" then
-            promptFunc(L["IMPORT_RELOAD_WARNING2"], ReloadUI, cancelFunc, L["Reload UI"], L["Cancel"])
-          else
-            local notFinishedFunc = function()
-              addon.state.needReload = false
-              addon:ToggleReloadIndicator(false)
-              addon:GotoPage("WelcomePage")
-              frame:Hide()
-            end
-            promptFunc(L["INTRO_NOTFINISHED_WARNING"], notFinishedFunc, cancelFunc, L["Abort"], L["Cancel"])
-          end
-        else
-          promptFunc(L["IMPORT_RELOAD_WARNING2"], ReloadUI, cancelFunc, L["Reload UI"], L["Cancel"])
-        end
+        promptFunc(L["IMPORT_RELOAD_WARNING2"], ReloadUI, cancelFunc, L["Reload UI"], L["Cancel"])
       end
     end
   )
 
+  addon:ApplyFont(frame)
   return frame
 end

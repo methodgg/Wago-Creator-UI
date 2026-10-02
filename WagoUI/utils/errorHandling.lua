@@ -11,15 +11,14 @@ local L = addon.L
 local caughtErrors = {}
 
 local function getActivePackDiagnostics()
-  local packId = addon.db and addon.db.selectedWagoData
+  local packId = addon.dbC and addon.dbC.selection and addon.dbC.selection.packID
   if not packId then
     return "None", nil, nil
   end
 
-  local pack = WagoUI_Storage and WagoUI_Storage[packId]
-  local packName = pack and pack.localName or nil
-  local resolution = addon.db and addon.db.selectedWagoDataResolution or nil
-  return packId, packName, resolution
+  local pack = addon:GetPack(packId)
+  local packName = type(pack) == "table" and pack.name or nil
+  return packId, packName, addon.dbC.selection.variationID
 end
 
 local function getDiagnostics()
@@ -40,7 +39,8 @@ local function getDiagnostics()
   local region = regions[regionId]
   local combatState = InCombatLockdown() and "In combat" or "Out of combat"
   local mapID = C_Map.GetBestMapForUnit("player")
-  local zoneInfo = format("Zone: %s (%d)", C_Map.GetMapInfo(C_Map.GetMapInfo(mapID or 0).parentMapID).name, mapID)
+  local mapInfo = mapID and C_Map.GetMapInfo(mapID)
+  local zoneInfo = format("Zone: %s (%d)", mapInfo and mapInfo.name or "Unknown", mapID or 0)
   local activePackId, activePackName, activePackResolution = getActivePackDiagnostics()
   return {
     addonVersion = addonVersion,
@@ -112,6 +112,7 @@ function addon:DisplayErrors(force)
     for _, dest in ipairs(addon.externalLinks) do
       errorFrame[dest.name .. "EditBox"] = AceGUI:Create("EditBox")
       local editBox = errorFrame[dest.name .. "EditBox"]
+      addon:StyleEditBox(editBox.editbox)
       local copyButton
       editBox:SetLabel(dest.name .. ":")
       editBox:DisableButton(true)
@@ -158,6 +159,7 @@ function addon:DisplayErrors(force)
     local errorBox, errorBoxCopyButton
     errorFrame.errorBox = AceGUI:Create("MultiLineEditBox")
     errorBox = errorFrame.errorBox
+    addon:StyleEditBox(errorBox.editBox, errorBox.scrollBG)
     errorBox:SetWidth(800)
     errorBox:SetLabel(L["Error Message"] .. ":")
     errorBox:DisableButton(true)
@@ -199,6 +201,7 @@ function addon:DisplayErrors(force)
 
     errorFrame:AddChild(errorFrame.errorBox)
     errorFrame:AddChild(errorFrame.errorBoxCopyButton)
+    addon:ApplyFont(errorFrame.frame)
   end
 
   for _, error in ipairs(caughtErrors) do
@@ -300,33 +303,4 @@ function addon:TestErrorHandling()
     "asyncErrorTest"
   )
   addon:NonExistingFunction()
-end
-
-function addon:RegisterErrorHandledFunctions()
-  --register all functions except the ones that have to run as coroutines
-  local blacklisted = {
-    ["exampleCoroutineFuncName"] = true
-  }
-  local tablesToAdd = {
-    addon
-  }
-  for k, table in pairs(tablesToAdd) do
-    for funcName, func in pairs(table) do
-      if type(func) == "function" and not blacklisted[funcName] then
-        table[funcName] = function(...)
-          currentFunc = funcName
-          local results = {xpcall(func, onError, ...)}
-          local ok = select(1, unpack(results))
-          if not ok then
-            if addTrace then
-              --add stackTrace to the latest error
-              caughtErrors[#caughtErrors].stackTrace = currentFunc .. ":\n" .. debugstack()
-            end
-            return
-          end
-          return select(2, unpack(results))
-        end
-      end
-    end
-  end
 end

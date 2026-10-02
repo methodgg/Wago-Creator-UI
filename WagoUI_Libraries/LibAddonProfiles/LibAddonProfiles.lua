@@ -1,7 +1,7 @@
 ---@class LAPLoadingNamespace
 local loadingAddonNamespace = select(2, ...)
 local MAJOR = "LibAddonProfiles"
-local MINOR = 19
+local MINOR = 21
 
 ---@class LibAddonProfiles
 local LibAddonProfiles = LibStub:NewLibrary(MAJOR, MINOR)
@@ -61,11 +61,11 @@ if LibAddonProfiles then
   end
 
   ---Disables a list of AddOns.
-  ---If the Addon is in introImportState and has field checked set to true, it will not be disabled
+  ---If the Addon is in selectedModules and has field checked set to true, it will not be disabled
   ---@param addonNames table<number, string>
-  ---@param introImportState table<string, IntroImportState>
-  function LibAddonProfiles:DisableConflictingAddons(addonNames, introImportState)
-    return LibAddonProfilesInternal:DisableConflictingAddons(addonNames, introImportState)
+  ---@param selectedModules table<string, {checked: boolean}>
+  function LibAddonProfiles:DisableConflictingAddons(addonNames, selectedModules)
+    return LibAddonProfilesInternal:DisableConflictingAddons(addonNames, selectedModules)
   end
 
   ---@param ... any

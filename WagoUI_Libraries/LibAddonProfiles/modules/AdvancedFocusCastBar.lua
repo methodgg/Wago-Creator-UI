@@ -59,11 +59,11 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      if AdvancedFocusCastBarAPI and AdvancedFocusCastBarAPI.ImportProfile then
-        AdvancedFocusCastBarAPI.ImportProfile(profileString)
-      end
+    if not AdvancedFocusCastBarAPI or not AdvancedFocusCastBarAPI.ImportProfile then return false end
+    local ok, accepted = xpcall(function()
+      return AdvancedFocusCastBarAPI.ImportProfile(profileString)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     local export

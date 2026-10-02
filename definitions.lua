@@ -1,10 +1,4 @@
 ---@meta
----@class ModuleConfig : table
----@field moduleName string
----@field lapModule LibAddonProfilesModule
----@field dropdownOptions fun(index: number): table
----@field copyFunc fun() | nil
----@field sortIndex number | nil
 ---@class RefreshHook : table
 ---@field tableFunc fun() : table The target table that we want to hook functions on
 ---@field functionNames table<number, string> The names of the functions that we want to hook
@@ -45,18 +39,6 @@
 ---@field refreshHookList table<number, RefreshHook> | nil Defines what functions should be hooked when wanting to monitor additions / deletions of profiles and changes to the currently active profile key.
 ---@field getCollectedWagoIds? fun(self: LibAddonProfilesModule) : table<string, string> Returns a list of collected Wago IDs.
 
----@class AddonResolutionEntry
----@field value string
----@field displayNameLong string
----@field displayNameShort string
----@field width number | nil
----@field height number | nil
----@field defaultEnabled boolean
-
----@class AddonResolutions
----@field entries table<number, AddonResolutionEntry>
----@field defaultValue string
-
 ---@class LibDeflateAsync
 ---@field CompressDeflate fun(self: LibDeflateAsync, input: string, options: table): string
 ---@field EncodeForPrint fun(self: LibDeflateAsync, input: string): string)
@@ -95,9 +77,3 @@
 ---@field update table
 ---@field CancelAsync fun(self, name: string)
 ---@field Async fun(self, func: function, name: string, singleton: boolean)
-
----@class IntroImportState
----@field checked boolean
----@field profileMetadata table
----@field profileKey string
----@field profile string

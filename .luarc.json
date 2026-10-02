@@ -57,6 +57,8 @@
         "strtrim",
         "GameFontNormalLarge",
         "UnitName",
+        "UnitGUID",
+        "GetPhysicalScreenSize",
         "GetRealmName",
         "bit",
         "PlaterOptionsPanelFrame",

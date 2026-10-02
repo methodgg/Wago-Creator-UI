@@ -63,39 +63,16 @@ function addon:ShowFrame()
 end
 
 function init()
-  addon:RegisterErrorHandledFunctions()
-  addon:SetupWagoData()
   addon:CreateCopyHelper()
   local mainFrame = addon:CreateMainFrame()
-  addon:CreateIntroFrame(mainFrame)
-  addon:CreateAltFrame(mainFrame)
-  addon:CreateExpertFrame(mainFrame)
-  if addon.db.introEnabled then
-    addon:ShowIntroFrame()
-    addon:GotoPage(addon.db.introState.currentPage)
-  elseif not addon.dbC.hasLoggedIn and addon.db.anyInstalled then
-    addon:ShowAltFrame()
-    addon:ResetFramePosition()
-  else
-    addon:ShowExpertFrame()
-  end
-  if not addon.dbC.hasLoggedIn or addon.db.introEnabled then
-    addon:SuppressAddOnSpam()
-  end
+  addon:CreateWorkspace(mainFrame)
+  mainFrame:HookScript("OnHide", function() addon.db.introEnabled = false end)
   addon.dbC.hasLoggedIn = true
-  if addon.db.introEnabled then
-    -- if the user just clicks away the addon disable the intro and dont auto start again
-    addon.frames.mainFrame:HookScript(
-      "OnHide",
-      function()
-        addon.db.introEnabled = false
-      end
-    )
-  end
-  if addon.dbC.needLoad then
-    addon.frames.introFrame:Hide()
-    addon.frames.expertFrame:Hide()
-    addon:ShowAltFrame()
-    addon:ContinueSetAllProfiles()
+  if addon.dbC.pendingAlt then
+    addon:ShowPrompt("Continue alt setup?", function()
+      addon:ApplyAlt(addon.dbC.pendingAlt, function(failed)
+        if #failed > 0 then addon:AddonPrintError(table.concat(failed, ", ")) end
+      end)
+    end)
   end
 end

@@ -173,7 +173,7 @@ Add the new script entry to `WagoUI_Libraries/LibAddonProfiles/load.xml` so the 
 
 Keep the new entry near the other recent module entries unless the surrounding ordering gives a better obvious fit.
 
-Also add the module name to the `defaultSortOrder` list in `WagoUI_Creator/modules/generic.lua` so the creator UI can place the addon correctly in the generic module list.
+WagoUI discovers supported integrations through `LAP:GetAllModules()` and sorts their names in the integrated creator. No separate creator registration or sort list is needed.
 
 ## Update Lua Diagnostics Globals
 
@@ -191,7 +191,7 @@ Confirm all of the following:
 2. Every real addon API call is wrapped in `xpcall`.
 3. No invented addon globals or methods appear in the module.
 4. `load.xml` includes the new module.
-5. `WagoUI_Creator/modules/generic.lua` includes the module name in `defaultSortOrder`.
+5. The integrated creator discovers the module through `LAP:GetAllModules()`.
 6. `.luarc.json` includes the verified addon API global used by the module.
 7. The module fields come from real addon metadata or real source findings.
 

@@ -78,10 +78,11 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
+    local ok, accepted = xpcall(function()
       ---profileString string, profileName string?, ignoredIndicesExternal table<string, boolean>?
-      Cell.ImportProfile(profileString, profileKey, { ["nicknames"] = true, ["clickCastings"] = true })
+      return Cell.ImportProfile(profileString, profileKey, { ["nicknames"] = true, ["clickCastings"] = true })
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end

@@ -120,18 +120,30 @@ local m = {
     if not profileString then return end
 
     local profileKeys = self:getProfileKeys()
+    local layoutManager = CooldownViewerSettings:GetLayoutManager()
+    local previousExport = profileKeys[profileKey] and self:exportProfile(profileKey)
+    if not profileKeys[profileKey] and layoutManager:AreLayoutsFullyMaxed() then
+      print("WagoUI: Cooldown Manager is full. Remove a layout before importing.")
+      return false
+    end
+    if profileKeys[profileKey] and not previousExport then return false end
     if profileKeys[profileKey] then
       removeProfile(profileKey) --need to remove old profile with same name first for updating to work and not be confusing
     end
-    local layoutManager = CooldownViewerSettings:GetLayoutManager()
-    if layoutManager:AreLayoutsFullyMaxed() then
-      -- if people complain find a better solution
-      -- users are warned in the UI
-      removeProfile(self:getCurrentProfileKey())
+    local function restorePrevious()
+      if previousExport then
+        local restored = layoutManager:CreateLayoutsFromSerializedData(previousExport)
+        if restored and restored[1] then layoutManager:SetActiveLayoutByID(restored[1]) end
+      end
+      layoutManager:SaveLayouts()
     end
-
-    local layoutIDs = layoutManager:CreateLayoutsFromSerializedData(profileString)
-    layoutManager:SetActiveLayoutByID(layoutIDs[1])
+    local success, layoutIDs = pcall(layoutManager.CreateLayoutsFromSerializedData, layoutManager, profileString)
+    if not success then
+      restorePrevious()
+      geterrorhandler()(layoutIDs)
+      return false
+    end
+    if not layoutIDs or not layoutIDs[1] then restorePrevious(); return false end
 
     --check if class matches, remove otherwise
     local tag = CooldownViewerUtil.GetCurrentClassAndSpecTag()
@@ -140,13 +152,16 @@ local m = {
       if layout.layoutID == layoutIDs[1] then
         local layoutTag = tonumber(layout.classAndSpecTag);
         local playerTag = tonumber(tag);
-        if math.abs(layoutTag - playerTag) > 5 then
-          removeProfile(profileKey)
+        if not layoutTag or not playerTag or math.floor(layoutTag / 10) ~= math.floor(playerTag / 10) then
+          layoutManager:RemoveLayout(layoutIDs[1])
           print("Imported layout's class does not match current class. Layout has been removed.")
+          restorePrevious()
+          return false
         end
         break
       end
     end
+    layoutManager:SetActiveLayoutByID(layoutIDs[1])
     -- ignore taint warning
     if StaticPopup1Button2Text:GetText() == "Ignore" then
       StaticPopup1Button2:Click()

@@ -56,9 +56,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      DandersFrames_ClickCast_Import(profileString, true)
+    local ok, accepted = xpcall(function()
+      return DandersFrames_ClickCast_Import(profileString, true)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end
