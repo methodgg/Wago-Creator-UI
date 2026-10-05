@@ -4,8 +4,7 @@ local LWF = LibStub("LibWagoFramework")
 local Packs = addon.Packs
 local UI = addon.UI
 local ui = UI.view
-local button, check, dropdown, input, label = UI.button, UI.check, UI.dropdown, UI.input, UI.label
-local widget = UI.widget
+local button, dropdown, input, label, widget = UI.button, UI.dropdown, UI.input, UI.label, UI.widget
 local closeModal, dangerButton, modal, safely = UI.closeModal, UI.dangerButton, UI.modal, UI.safely
 local function render() UI.render() end
 
@@ -15,15 +14,15 @@ local function resolutionText(variation)
   return #parts > 0 and table.concat(parts, ", ") or "Any resolution"
 end
 
--- Radix dark scales: background 3, hover 4, border 7, high-contrast text 12.
+-- Radix dark scales: background 3, border 7, high-contrast text 12.
 -- https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale
 local variationStyles = {
-  { background = 0x0d2847, hover = 0x003362, border = 0x205d9e, text = 0xc2e6ff }, -- blue
-  { background = 0x0d2d2a, hover = 0x023b37, border = 0x1c6961, text = 0xadf0dd }, -- teal
-  { background = 0x291f43, hover = 0x33255b, border = 0x56468b, text = 0xe2ddfe }, -- violet
-  { background = 0x302008, hover = 0x3f2700, border = 0x714f19, text = 0xffe7b3 }, -- amber
-  { background = 0x37172f, hover = 0x4b143d, border = 0x833869, text = 0xfdd1ea }, -- pink
-  { background = 0x132d21, hover = 0x113b29, border = 0x28684a, text = 0xb1f1cb }, -- green
+  { background = 0x0d2847, border = 0x205d9e, text = 0xc2e6ff }, -- blue
+  { background = 0x0d2d2a, border = 0x1c6961, text = 0xadf0dd }, -- teal
+  { background = 0x291f43, border = 0x56468b, text = 0xe2ddfe }, -- violet
+  { background = 0x302008, border = 0x714f19, text = 0xffe7b3 }, -- amber
+  { background = 0x37172f, border = 0x833869, text = 0xfdd1ea }, -- pink
+  { background = 0x132d21, border = 0x28684a, text = 0xb1f1cb }, -- green
 }
 for _, style in ipairs(variationStyles) do
   for key, hex in pairs(style) do
@@ -38,6 +37,7 @@ local function variationStyle(id)
 end
 
 local unassignedChip = { background = { .07, .07, .07, 1 }, border = { .24, .24, .24, 1 }, text = { .6, .6, .6, 1 } }
+local previewChip = { .12, .12, .12, 1 }
 
 -- Every variation is a toggle: filled when the row is in it, outlined when not.
 local function variationToggle(parent, name, id, assigned, onClick, locked)
@@ -64,10 +64,16 @@ local function variationToggle(parent, name, id, assigned, onClick, locked)
   chip:SetScript("OnLeave", nil)
   local function paint()
     local hovered = not locked and ui.scroll:IsMouseOver() and chip:IsMouseOver() and not addon.state.busy and not ui.modal:IsShown()
-    local colors = (assigned or hovered) and style or unassignedChip
-    chip:SetBackdropColor(unpack(assigned and hovered and style.hover or colors.background))
-    chip:SetBackdropBorderColor(unpack(colors.border))
-    chip.text_overlay:SetTextColor(unpack(colors.text))
+    -- Selected chips are filled. Hovering an unselected one previews it as a colored outline on a neutral fill.
+    if assigned then
+      chip:SetBackdropColor(unpack(style.background))
+      chip:SetBackdropBorderColor(unpack(hovered and style.text or style.border))
+      chip.text_overlay:SetTextColor(unpack(style.text))
+    else
+      chip:SetBackdropColor(unpack(hovered and previewChip or unassignedChip.background))
+      chip:SetBackdropBorderColor(unpack(hovered and style.border or unassignedChip.border))
+      chip.text_overlay:SetTextColor(unpack(hovered and style.text or unassignedChip.text))
+    end
     -- Unassigned toggles recede until hovered.
     frame:SetAlpha((assigned or hovered) and 1 or .5)
   end
@@ -114,7 +120,7 @@ end
 local function variationEditor(pack, id)
   local v = id and pack.variations[id]
   -- Form state survives redraws when resolutions are added or removed.
-  local state = { name = v and v.name or "", description = v and v.description or "", includeDefault = false, sizes = {} }
+  local state = { name = v and v.name or "", description = v and v.description or "", sizes = {} }
   for _, size in ipairs(v and v.resolutions or {}) do
     table.insert(state.sizes, { width = tostring(size.width), height = tostring(size.height) })
   end
@@ -134,9 +140,9 @@ local function variationEditor(pack, id)
     local top = 56
     -- Each resolution after the first adds a row; the add button needs one more line.
     local extra = state.any and 0 or (#state.sizes - 1) * 42 + (#state.sizes < Packs.MAX_RESOLUTIONS and 36 or 0)
-    local f = modal(v and "Edit variation" or "New variation", 460, 400 + top + extra)
+    local f = modal(v and "Edit variation" or "New variation", 460, 342 + top + extra)
     label(f, "Variations let you offer different versions of your UI, such as a healer layout or a different "
-      .. "resolution. Each one bundles the profiles that make up that version, and users can install from any of them.",
+      .. "resolution.\nAfter creating the variation, select which profiles should belong to it.",
       24, 58, 412, 13, { .7, .7, .7 }):SetWordWrap(true)
     label(f, "Name", 24, top + 68, 412, 14)
     local title = input(f, state.name, 24, top + 92, 412)
@@ -184,10 +190,6 @@ local function variationEditor(pack, id)
     local description = input(f, state.description, 24, top + 238 + extra, 412)
     fields.description = description
     description:SetMaxLetters(2000)
-    if not v then
-      check(f, "Start with the profiles from " .. pack.variations.default.name, state.includeDefault, 24, top + 286 + extra,
-        function(value) state.includeDefault = value end)
-    end
     local function save()
       collect()
       local sizes
@@ -198,18 +200,18 @@ local function variationEditor(pack, id)
         end
       end
       local ok = safely(function()
-        Packs.SaveVariation(pack, id, state.name, sizes, state.description, state.includeDefault)
+        Packs.SaveVariation(pack, id, state.name, sizes, state.description)
       end)
       if not ok then return end
       closeModal(); render()
     end
     if v and id ~= "default" then
-      dangerButton(f, "Delete", 24, top + 344 + extra, 110, function()
+      dangerButton(f, "Delete", 24, top + 286 + extra, 110, function()
         confirmVariationDelete(pack, id, function() variationEditor(pack, id) end)
       end)
     end
-    button(f, "Cancel", 216, top + 344 + extra, 100, closeModal)
-    button(f, v and "Save" or "Create", 328, top + 344 + extra, 108, save)
+    button(f, "Cancel", 216, top + 286 + extra, 100, closeModal)
+    button(f, v and "Save" or "Create", 328, top + 286 + extra, 108, save)
     title:SetScript("OnEnterPressed", save)
     title:SetScript("OnEscapePressed", closeModal)
     if focus == "newest" and newest then
