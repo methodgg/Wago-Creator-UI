@@ -4,13 +4,15 @@ local LWF = LibStub("LibWagoFramework")
 local Packs = addon.Packs
 local UI = addon.UI
 local ui = UI.view
-local button, check, input, label, widget = UI.button, UI.check, UI.input, UI.label, UI.widget
+local button, check, dropdown, input, label = UI.button, UI.check, UI.dropdown, UI.input, UI.label
+local widget = UI.widget
 local closeModal, dangerButton, modal, safely = UI.closeModal, UI.dangerButton, UI.modal, UI.safely
 local function render() UI.render() end
 
 local function resolutionText(variation)
-  local size = variation.resolution
-  return size and (size.width .. " × " .. size.height) or "Any resolution"
+  local parts = {}
+  for _, size in ipairs(variation.resolutions or {}) do parts[#parts + 1] = size.width .. " × " .. size.height end
+  return #parts > 0 and table.concat(parts, ", ") or "Any resolution"
 end
 
 -- Radix dark scales: background 3, hover 4, border 7, high-contrast text 12.
@@ -111,58 +113,113 @@ end
 -- Manages one variation's details; assignments happen on the profile rows.
 local function variationEditor(pack, id)
   local v = id and pack.variations[id]
-  -- New variations explain the concept first; the fields move down to make room.
-  local top = v and 0 or 56
-  local f = modal(v and "Edit variation" or "New variation", 460, 400 + top)
-  local any, includeDefault = not (v and v.resolution), false
-  if not v then
+  -- Form state survives redraws when resolutions are added or removed.
+  local state = { name = v and v.name or "", description = v and v.description or "", includeDefault = false, sizes = {} }
+  for _, size in ipairs(v and v.resolutions or {}) do
+    table.insert(state.sizes, { width = tostring(size.width), height = tostring(size.height) })
+  end
+  state.any = #state.sizes == 0
+  local fields
+  -- Copy typed text into the state before a redraw or save rebuilds the inputs.
+  local function collect()
+    if not fields then return end
+    state.name, state.description = fields.title:GetText(), fields.description:GetText()
+    for index, row in ipairs(fields.sizes) do
+      state.sizes[index].width, state.sizes[index].height = row.width:GetText(), row.height:GetText()
+    end
+  end
+  local function draw(focus)
+    collect()
+    fields = { sizes = {} }
+    local top = 56
+    -- Each resolution after the first adds a row; the add button needs one more line.
+    local extra = state.any and 0 or (#state.sizes - 1) * 42 + (#state.sizes < Packs.MAX_RESOLUTIONS and 36 or 0)
+    local f = modal(v and "Edit variation" or "New variation", 460, 400 + top + extra)
     label(f, "Variations let you offer different versions of your UI, such as a healer layout or a different "
       .. "resolution. Each one bundles the profiles that make up that version, and users can install from any of them.",
       24, 58, 412, 13, { .7, .7, .7 }):SetWordWrap(true)
+    label(f, "Name", 24, top + 68, 412, 14)
+    local title = input(f, state.name, 24, top + 92, 412)
+    fields.title = title
+    title:SetMaxLetters(120)
+    label(f, "Resolution", 24, top + 142, 412, 14)
+    dropdown(f, state.any and "any" or "specific", {
+      { value = "any", label = "Any resolution", onclick = function() state.any = true; draw() end },
+      { value = "specific", label = "Specific resolution(s)", onclick = function()
+        state.any = false
+        -- Prefill the creator's own screen; it is usually the resolution they designed for.
+        if #state.sizes == 0 then
+          local screenWidth, screenHeight = GetPhysicalScreenSize()
+          state.sizes[1] = { width = tostring(screenWidth), height = tostring(screenHeight) }
+        end
+        draw()
+      end },
+    }, 24, top + 165, 180)
+    local newest
+    if not state.any then
+      for index, size in ipairs(state.sizes) do
+        local y = top + 164 + (index - 1) * 42
+        newest = input(f, size.width, 216, y, 84)
+        label(f, "×", 306, y + 8, 14, 14)
+        fields.sizes[index] = { width = newest, height = input(f, size.height, 324, y, 84) }
+        if #state.sizes > 1 then
+          local remove = widget(f, "resolutionRemove", function()
+            local icon = LWF:CreateIconButton(f, 20, [[Interface\Buttons\UI-GroupLoot-Pass-Up]])
+            addon:UseWidgetTooltip(icon)
+            icon:SetTooltip("Remove resolution")
+            return icon
+          end)
+          remove:SetPoint("TOPLEFT", f, "TOPLEFT", 416, -(y + 7))
+          remove:SetClickFunction(function() remove:HideTooltip(); collect(); table.remove(state.sizes, index); fields = nil; draw() end)
+        end
+      end
+      if #state.sizes < Packs.MAX_RESOLUTIONS then
+        button(f, "+ Add resolution", 216, top + 164 + #state.sizes * 42, 192, function()
+          table.insert(state.sizes, { width = "", height = "" })
+          draw("newest")
+        end, nil, 28, 13)
+      end
+    end
+    label(f, "Description (optional)", 24, top + 214 + extra, 412, 14)
+    local description = input(f, state.description, 24, top + 238 + extra, 412)
+    fields.description = description
+    description:SetMaxLetters(2000)
+    if not v then
+      check(f, "Start with the profiles from " .. pack.variations.default.name, state.includeDefault, 24, top + 286 + extra,
+        function(value) state.includeDefault = value end)
+    end
+    local function save()
+      collect()
+      local sizes
+      if not state.any then
+        sizes = {}
+        for _, size in ipairs(state.sizes) do
+          table.insert(sizes, { width = tonumber(size.width), height = tonumber(size.height) })
+        end
+      end
+      local ok = safely(function()
+        Packs.SaveVariation(pack, id, state.name, sizes, state.description, state.includeDefault)
+      end)
+      if not ok then return end
+      closeModal(); render()
+    end
+    if v and id ~= "default" then
+      dangerButton(f, "Delete", 24, top + 344 + extra, 110, function()
+        confirmVariationDelete(pack, id, function() variationEditor(pack, id) end)
+      end)
+    end
+    button(f, "Cancel", 216, top + 344 + extra, 100, closeModal)
+    button(f, v and "Save" or "Create", 328, top + 344 + extra, 108, save)
+    title:SetScript("OnEnterPressed", save)
+    title:SetScript("OnEscapePressed", closeModal)
+    if focus == "newest" and newest then
+      newest:SetFocus()
+    elseif focus == "name" then
+      title:SetFocus()
+      title:HighlightText()
+    end
   end
-  label(f, "Name", 24, top + 68, 412, 14)
-  local title = input(f, v and v.name or "", 24, top + 92, 412)
-  title:SetMaxLetters(120)
-  label(f, "Resolution", 24, top + 142, 412, 14)
-  -- Prefill the creator's own screen; it is usually the resolution they designed for.
-  local screenWidth, screenHeight = GetPhysicalScreenSize()
-  local width = input(f, tostring(v and v.resolution and v.resolution.width or screenWidth), 200, top + 164, 96)
-  local times = label(f, "×", 304, top + 172, 20, 14)
-  local height = input(f, tostring(v and v.resolution and v.resolution.height or screenHeight), 324, top + 164, 96)
-  local function sync()
-    width:SetShown(not any); height:SetShown(not any); times:SetShown(not any)
-  end
-  check(f, "Any resolution", any, 24, top + 166, function(value) any = value; sync() end)
-  sync()
-  label(f, "Description (optional)", 24, top + 214, 412, 14)
-  local description = input(f, v and v.description or "", 24, top + 238, 412)
-  description:SetMaxLetters(2000)
-  if not v then
-    check(f, "Start with the profiles from " .. pack.variations.default.name, false, 24, top + 286,
-      function(value) includeDefault = value end)
-  end
-  local function save()
-    local savedID
-    local ok = safely(function()
-      local size = not any and { width = tonumber(width:GetText()), height = tonumber(height:GetText()) } or nil
-      savedID = Packs.SaveVariation(pack, id, title:GetText(), size, description:GetText(), includeDefault)
-    end)
-    if not ok then return end
-    -- A new variation is usually followed by assigning profiles to it.
-    if not id then ui.variationTabs[pack.id] = savedID end
-    closeModal(); render()
-  end
-  if v and id ~= "default" then
-    dangerButton(f, "Delete", 24, top + 344, 110, function()
-      confirmVariationDelete(pack, id, function() variationEditor(pack, id) end)
-    end)
-  end
-  button(f, "Cancel", 216, top + 344, 100, closeModal)
-  button(f, v and "Save" or "Create", 328, top + 344, 108, save)
-  title:SetScript("OnEnterPressed", save)
-  title:SetScript("OnEscapePressed", closeModal)
-  title:SetFocus()
-  title:HighlightText()
+  draw("name")
 end
 
 local allTabStyle = { background = { .2, .2, .2, 1 }, border = { .55, .55, .55, 1 }, text = { .95, .95, .95, 1 } }
@@ -241,13 +298,16 @@ local function variationTab(parent, entry, active)
   tab.label:SetText(entry.name)
   tab.count:SetText(entry.count and tostring(entry.count) or "")
   tab:SetEnabled(not addon.state.busy)
+  -- Locked tabs ignore the mouse entirely: no hover, tooltip, actions or clicks.
+  tab:EnableMouse(not entry.locked)
+  tab:SetAlpha(entry.locked and .5 or 1)
   paintTab(tab)
   tab.updateActions()
   return tab
 end
 
 -- "All", one tab per variation, then the entry point for creating variations.
-local function variationTabs(pack, filter)
+local function variationTabs(pack, filter, locked)
   local function open(id)
     ui.variationTabs[pack.id] = id
     ui.scroll:SetVerticalScroll(0)
@@ -268,6 +328,7 @@ local function variationTabs(pack, filter)
   -- Tabs keep their natural width and wrap onto extra lines, pushing the list down.
   local right, gap, x, y = ui.tabs:GetWidth() - 4, 4, 4, 0
   for _, entry in ipairs(tabs) do
+    entry.locked = locked
     local tab = variationTab(ui.tabs, entry, entry.active)
     local lead, trail = entry.id and 26 or 12, entry.onDelete and 46 or entry.onEdit and 26 or 12
     local counter = entry.count and 6 + tab.count:GetStringWidth() or 0

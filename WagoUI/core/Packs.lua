@@ -18,15 +18,30 @@ local function nextID(pack, prefix)
   return prefix .. pack.nextID
 end
 
-local function resolution(value)
-  if value == nil then return end
-  assert(type(value) == "table", "Invalid resolution.")
-  for _, key in ipairs({ "width", "height" }) do
-    local n = value[key]
-    assert(type(n) == "number" and n >= 1 and n <= 32768 and n == math.floor(n),
-      "Enter a valid width and height.")
+local MAX_RESOLUTIONS = 10
+Packs.MAX_RESOLUTIONS = MAX_RESOLUTIONS
+
+-- A variation lists the screens it was designed for; none means Any resolution.
+local function resolutions(list)
+  if list == nil then return end
+  assert(type(list) == "table" and #list <= MAX_RESOLUTIONS, "Invalid resolutions.")
+  local count = 0
+  for _ in pairs(list) do count = count + 1 end
+  assert(count == #list, "Invalid resolutions.")
+  local result, seen = {}, {}
+  for _, value in ipairs(list) do
+    assert(type(value) == "table", "Invalid resolution.")
+    for _, key in ipairs({ "width", "height" }) do
+      local n = value[key]
+      assert(type(n) == "number" and n >= 1 and n <= 32768 and n == math.floor(n),
+        "Enter a valid width and height.")
+    end
+    local key = value.width .. "x" .. value.height
+    assert(not seen[key], "That resolution is already listed.")
+    seen[key] = true
+    table.insert(result, { width = value.width, height = value.height })
   end
-  return { width = value.width, height = value.height }
+  return #result > 0 and result or nil
 end
 
 local function membership(pack, tags, required)
@@ -54,17 +69,17 @@ function Packs.Rename(pack, label)
   touch(pack)
 end
 
-function Packs.SaveVariation(pack, id, label, size, description, includeDefault)
+function Packs.SaveVariation(pack, id, label, sizes, description, includeDefault)
   label = name(label)
   for otherID, variation in pairs(pack.variations) do
     assert(otherID == id or variation.name:lower() ~= label:lower(), "That variation already exists.")
   end
-  size = resolution(size)
+  sizes = resolutions(sizes)
   assert(type(description or "") == "string" and #(description or "") <= 2000, "Description is too long.")
   if id then assert(pack.variations[id], "Unknown variation.") end
   local isNew = not id
   id = id or nextID(pack, "v")
-  pack.variations[id] = { name = label, resolution = size, description = description or "" }
+  pack.variations[id] = { name = label, resolutions = sizes, description = description or "" }
   if isNew then
     table.insert(pack.variationOrder, id)
     if includeDefault then
@@ -144,6 +159,15 @@ function Packs.RemoveProfile(pack, id)
   touch(pack)
 end
 
+-- Drafts saved before variations supported several resolutions stored a single one.
+function Packs.Upgrade(pack)
+  for _, v in pairs(type(pack) == "table" and type(pack.variations) == "table" and pack.variations or {}) do
+    if type(v) == "table" and v.resolution ~= nil then
+      v.resolutions, v.resolution = v.resolutions or { v.resolution }, nil
+    end
+  end
+end
+
 function Packs.Profiles(pack, variationID)
   local profiles = {}
   for _, id in ipairs(pack.profileOrder) do
@@ -183,7 +207,8 @@ function Packs.Validate(pack)
       local label = name(v.name):lower()
       assert(not names[label], "Duplicate variation name.")
       names[label] = true
-      resolution(v.resolution)
+      assert(v.resolution == nil, "This pack needs the new WagoUI format. Download an updated pack.")
+      resolutions(v.resolutions)
       assert(type(v.description or "") == "string" and #(v.description or "") <= 2000, "Invalid description.")
     end
     local bytes = 0

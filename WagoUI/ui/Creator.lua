@@ -8,10 +8,11 @@ local ui = UI.view
 local PROFILE_WIDTH, PROFILE_X, VARIATIONS_RIGHT = UI.PROFILE_WIDTH, UI.PROFILE_X, UI.VARIATIONS_RIGHT
 local VARIATIONS_X, addonRow, button, dropdown, label = UI.VARIATIONS_X, UI.addonRow, UI.button, UI.dropdown, UI.label
 local profileConnector, rowBackground, widget = UI.profileConnector, UI.rowBackground, UI.widget
-local notice, safely = UI.notice, UI.safely
+local safely = UI.safely
 local variationTabs, variationToggle = UI.variationTabs, UI.variationToggle
 local additionalAddons, exportOptions, saveCapture = UI.additionalAddons, UI.exportOptions, UI.saveCapture
-local startSetup, wagoAddons = UI.startSetup, UI.wagoAddons
+local wagoAddons = UI.wagoAddons
+local ctaButton, startSetup = UI.ctaButton, UI.startSetup
 local function render() UI.render() end
 
 -- Empty row slots are creator state, never installable profiles in published packs.
@@ -105,16 +106,36 @@ local function unassignedRow(parent, y, height, tooltip)
   icon.tooltip = tooltip
 end
 
+-- Disables Save All and explains why; disabled buttons do not reliably report hover, so a frame above them does.
+local function blockSave(saveAll, reason)
+  saveAll:SetEnabled(not addon.state.busy and reason == nil)
+  local blocker = widget(ui.footer, "saveBlocker", function()
+    local f = CreateFrame("Frame", nil, ui.footer)
+    f:EnableMouse(true)
+    f:SetScript("OnEnter", function(self) addon.ShowWidgetTooltip(self, self.tooltip) end)
+    f:SetScript("OnLeave", function(self) addon.HideWidgetTooltip(self) end)
+    return f
+  end)
+  local saveFrame = saveAll.widget or saveAll.button or saveAll
+  blocker:SetAllPoints(saveFrame)
+  blocker:SetFrameLevel(saveFrame:GetFrameLevel() + 5)
+  blocker.tooltip = reason
+  blocker:SetShown(reason ~= nil)
+end
+
+-- Without a UI Pack the creator keeps its layout but locks it; the only action creates the first pack.
+local function lockedCreator(body)
+  variationTabs(Packs.New("locked", "UI Pack"), nil, true)
+  blockSave(button(ui.footer, "Save All Profiles", (ui.footer:GetWidth() - 300) / 2, -14, 300, nil, nil, 50, 20),
+    "Create your UI Pack first.")
+  local height = ui.scroll:GetHeight()
+  ctaButton(body, "Create your UI Pack", (body:GetWidth() - 320) / 2, (height - 56) / 2, 320, 56, startSetup, "primary", 20)
+  body:SetHeight(height)
+end
+
 local function creator(pack)
   local body = ui.content
-  if not pack then
-    label(body, "Want to share a UI Pack?", 0, 100, body:GetWidth(), 24):SetJustifyH("CENTER")
-    label(body, "Build and share your setup through the Wago App.", 0, 142, body:GetWidth(), 14,
-      { 0.65, 0.65, 0.65 }):SetJustifyH("CENTER")
-    button(body, "Start Setup", (body:GetWidth() - 230) / 2, 194, 230, startSetup, nil, 44)
-    body:SetHeight(300)
-    return
-  end
+  if not pack then lockedCreator(body); return end
   ui.variationTabs = ui.variationTabs or {}
   local filter = ui.variationTabs[pack.id]
   if filter and not pack.variations[filter] then filter, ui.variationTabs[pack.id] = nil, nil end
@@ -189,7 +210,8 @@ local function creator(pack)
         table.insert(shown, index)
       end
     end
-    if #shown > 0 and (info.status ~= "Not installed" or ui.showNotInstalled or query ~= "") then
+    -- Previews list everything the variation installs, so missing addons are never collapsed there.
+    if #shown > 0 and (info.status ~= "Not installed" or ui.showNotInstalled or query ~= "" or filter) then
       listed, profilesListed = true, true
       local lap = LAP:GetModule(moduleName)
       local groupStart, lastBranch = y, nil
@@ -327,9 +349,6 @@ local function creator(pack)
   if extrasPending then additionalRow() end
   local saveAll = button(ui.footer, "Save All Profiles", (ui.footer:GetWidth() - 300) / 2, -14, 300,
     function()
-      if #pack.profileOrder == 0 and not next(pack.additionalAddons) and not addon.db.creator.saved[pack.id] then
-        notice("No profiles to export!"); return
-      end
       addon:CapturePack(pack, nil, saveCapture, function(current, total)
         if current == 0 then
           ui.captureProgress.fade = 0; ui.captureProgress:SetAlpha(1)
@@ -348,20 +367,14 @@ local function creator(pack)
   end
   for moduleName in pairs(unassigned) do table.insert(blocked, moduleName) end
   table.sort(blocked)
-  saveAll:SetEnabled(not addon.state.busy and #blocked == 0)
-  -- Disabled buttons do not reliably report hover; explain the block from a frame above it.
-  local blocker = widget(ui.footer, "saveBlocker", function()
-    local f = CreateFrame("Frame", nil, ui.footer)
-    f:EnableMouse(true)
-    f:SetScript("OnEnter", function(self) addon.ShowWidgetTooltip(self, self.tooltip) end)
-    f:SetScript("OnLeave", function(self) addon.HideWidgetTooltip(self) end)
-    return f
-  end)
-  local saveFrame = saveAll.widget or saveAll.button or saveAll
-  blocker:SetAllPoints(saveFrame)
-  blocker:SetFrameLevel(saveFrame:GetFrameLevel() + 5)
-  blocker.tooltip = "Fix the rows marked with a warning before saving.\nIncomplete: " .. table.concat(blocked, ", ")
-  blocker:SetShown(#blocked > 0)
+  local reason
+  if #blocked > 0 then
+    reason = "Fix the rows marked with a warning before saving.\nIncomplete: " .. table.concat(blocked, ", ")
+  elseif #pack.profileOrder == 0 and not next(pack.additionalAddons) and not saved then
+    -- A previously saved pack may still save an emptied draft; a fresh one needs something to export.
+    reason = "Select a profile for at least one AddOn before saving."
+  end
+  blockSave(saveAll, reason)
   if filter and query == "" and not profilesListed then
     label(body, "No profiles are assigned to " .. pack.variations[filter].name .. " yet.", 0, y + 40, body:GetWidth(), 16,
       { .65, .65, .65 }):SetJustifyH("CENTER")
@@ -370,7 +383,7 @@ local function creator(pack)
     label(body, "Nothing matches \"" .. ui.searchText .. "\"", 0, 40, body:GetWidth(), 16, { .65, .65, .65 }):SetJustifyH("CENTER")
     y = 100
   end
-  if hasNotInstalled and query == "" then
+  if hasNotInstalled and query == "" and not filter then
     local row = widget(body, "missingAddonsRow", function()
       local f = CreateFrame("Button", nil, body)
       f.line = f:CreateTexture(nil, "BACKGROUND")

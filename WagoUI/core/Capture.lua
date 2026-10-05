@@ -71,6 +71,9 @@ function addon:InitializePacks()
   self.db.profileHistory = self.db.profileHistory or {}
   self.dbC.selection = self.dbC.selection or { choices = {} }
   self.dbC.selection.choices = self.dbC.selection.choices or {}
+  for _, packs in ipairs({ self.db.creator.packs, self.db.creator.saved }) do
+    for _, pack in pairs(packs) do self.Packs.Upgrade(pack) end
+  end
 end
 
 function addon:NewPack(label)
@@ -258,6 +261,13 @@ function addon:CapturePack(pack, onlyProfileID, callback, progress)
   end, "CapturePack")
 end
 
+-- Compares a variation's resolution list by value.
+local function sizesKey(v)
+  local parts = {}
+  for _, size in ipairs(v.resolutions or {}) do parts[#parts + 1] = size.width .. "x" .. size.height end
+  return table.concat(parts, ",")
+end
+
 function addon:BuildReleaseNotes(pack)
   local previous = self.db.creator.saved[pack.id]
   local added, removed = {}, {}
@@ -296,9 +306,7 @@ function addon:BuildReleaseNotes(pack)
   if not previous or previous.name ~= pack.name then settings[#settings + 1] = "- UI Pack: " .. pack.name end
   for _, id in ipairs(pack.variationOrder) do
     local v, old = pack.variations[id], previous and previous.variations[id]
-    if not old or old.name ~= v.name or old.description ~= v.description
-      or (old.resolution and old.resolution.width) ~= (v.resolution and v.resolution.width)
-      or (old.resolution and old.resolution.height) ~= (v.resolution and v.resolution.height) then
+    if not old or old.name ~= v.name or old.description ~= v.description or sizesKey(old) ~= sizesKey(v) then
       settings[#settings + 1] = "- Variation: " .. v.name
     end
   end

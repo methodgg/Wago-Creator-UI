@@ -4,6 +4,7 @@
   <Script file="Modal.lua"/>
   <Script file="Variations.lua"/>
   <Script file="Dialogs.lua"/>
+  <Script file="Welcome.lua"/>
   <Script file="Creator.lua"/>
   <Script file="Installer.lua"/>
   <Script file="Workspace.lua"/>

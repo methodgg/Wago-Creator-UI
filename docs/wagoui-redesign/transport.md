@@ -18,7 +18,7 @@ Required fields:
 | --- | --- |
 | schemaVersion | 2 |
 | id, name | Nonempty strings |
-| variations | Map of ID to {name, resolution?, description?} |
+| variations | Map of ID to {name, resolutions?, description?} |
 | variationOrder | Ordered IDs; includes default |
 | profiles | Map of ID to profile record |
 | profileOrder | Ordered profile IDs |
@@ -29,7 +29,7 @@ Profile records have id, moduleName, name, sourceKey, kind, variations, and, onc
 
 Kinds are profile, snapshot, group (WeakAuras/Echo), and cdm. CDM records additionally retain classAndSpecTag and creator-side sourceCharacter. Global snapshots retain their last capture until explicitly recaptured. Source keys identify the actual addon profile; names are editable display labels.
 
-Resolution is absent for Any resolution, otherwise {width = integer, height = integer}. It is advisory metadata, not a storage bucket or eligibility restriction.
+Resolutions is absent for Any resolution, otherwise an ordered list of 1–10 distinct {width = integer, height = integer} entries the variation was designed for. It is advisory metadata, not a storage bucket or eligibility restriction. The singular resolution field is rejected.
 
 Capture also supplies gameVersion, gameFlavor, createdBy, updatedAt, includedAddons (addon name to Wago ID), and collectedWagoIds. Preserve the draft's revision, nextID, exportOptions and blockedAuras when retaining creator snapshots. No server-side migration from creator v1 is provided.
 
