@@ -1,12 +1,9 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
   <Include file="libs\loadLibs.xml"/>
-  <Include file="locales\loadLocales.xml"/>
-  <Include file="utils\loadUtils.xml"/>
-  <Script file="core\Packs.lua"/>
-  <Script file="core\Capture.lua"/>
-  <Script file="core\Install.lua"/>
-  <Include file="modules\loadModules.xml"/>
-  <Include file="wagoFrames\loadFrames.xml"/>
-  <Script file="ui\Workspace.lua"/>
+  <Include file="locales\load.xml"/>
+  <Include file="utils\load.xml"/>
+  <Include file="core\load.xml"/>
+  <Include file="modules\load.xml"/>
+  <Include file="ui\load.xml"/>
   <Script file="main.lua"/>
 </Ui>
