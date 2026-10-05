@@ -2,7 +2,6 @@
 local addon = select(2, ...)
 local LAP = LibStub("LibAddonProfiles")
 local UI = addon.UI
-local ui = UI.view
 local button, check, label, rowBackground, scroll = UI.button, UI.check, UI.label, UI.rowBackground, UI.scroll
 local widget = UI.widget
 local closeModal, modal, modalList, notice, safely = UI.closeModal, UI.modal, UI.modalList, UI.notice, UI.safely
@@ -182,21 +181,7 @@ local function exportOptions(pack, moduleName)
 end
 
 local function startSetup()
-  local function continue()
-    textDialog("New UI pack", "", "Create", function(value) addon:NewPack(value) end)
-  end
-  if next(addon.db.creator.packs) then continue(); return end
-  addon:ShowPrompt(
-    "Creator tools are for people who want to share their UI and AddOn profiles publicly\nwith other users through the Wago App and Wago Website.\n\nWould you like to continue?",
-    continue,
-    function()
-      closeModal()
-      addon.db.workspaceMode = "install"
-      ui.scroll:SetVerticalScroll(0)
-      render()
-    end,
-    "Continue", "Back to UI Packs"
-  )
+  textDialog("New UI pack", "", "Create", function(value) addon:NewPack(value) end)
 end
 
 UI.additionalAddons = additionalAddons

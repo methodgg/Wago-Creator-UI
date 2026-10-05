@@ -64,11 +64,14 @@ local function install(pack)
       y = y + 100
     end
     body:SetHeight(math.max(1, y))
-    button(ui.footer, "Next", 664, 0, 120, function()
-      local size = pack.variations[s.variationID].resolution
+    button(ui.footer, "Next", 592, 0, 120, function()
+      local sizes = pack.variations[s.variationID].resolutions
       local function nextStep() s.step = "profiles"; render() end
       local w, h = GetPhysicalScreenSize()
-      if size and (size.width ~= w or size.height ~= h) then
+      -- Only warn when the screen matches none of the resolutions the variation was designed for.
+      local matches = not sizes
+      for _, size in ipairs(sizes or {}) do matches = matches or (size.width == w and size.height == h) end
+      if not matches then
         addon:ShowPrompt("Designed for " .. resolutionText(pack.variations[s.variationID]) .. ". Continue?", nextStep, nil, "Continue")
       else nextStep() end
     end)
@@ -123,8 +126,8 @@ local function install(pack)
   if not expert then
     button(ui.footer, "Back", 0, 0, 100, function() s.step = "variations"; render() end)
     local plan, problem = addon:BuildInstallPlan(pack, s.variationID)
-    label(ui.footer, problem or "", 120, 8, 520, 14)
-    local b = button(ui.footer, "Install", 664, 0, 120, function() addon:ImportProfiles(pack, plan, installResult) end)
+    label(ui.footer, problem or "", 120, 8, 460, 14)
+    local b = button(ui.footer, "Install", 592, 0, 120, function() addon:ImportProfiles(pack, plan, installResult) end)
     b:SetEnabled(not addon.state.busy and plan and #plan > 0)
   end
 end

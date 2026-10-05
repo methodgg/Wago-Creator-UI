@@ -4,9 +4,10 @@ local DF = DetailsFramework
 local Packs = addon.Packs
 local UI = addon.UI
 local ui = UI.view
-local button, dropdown, input, label, reset, scroll = UI.button, UI.dropdown, UI.input, UI.label, UI.reset, UI.scroll
+local dropdown, input, label, reset, scroll = UI.dropdown, UI.input, UI.label, UI.reset, UI.scroll
 local textDialog = UI.textDialog
 local startSetup = UI.startSetup
+local ctaButton, enterCreator, welcome = UI.ctaButton, UI.enterCreator, UI.welcome
 local creator = UI.creator
 local install = UI.install
 
@@ -15,12 +16,6 @@ local function render()
   reset(ui.header); reset(ui.content); reset(ui.footer); reset(ui.tabs)
   ui.notice:SetText(addon.state.busy and "Working…" or addon.state.packError or addon.state.notice or "")
   local creating = addon.db.workspaceMode == "create"
-  local switch = button(ui.footer, creating and "UI packs" or "Creator tools", 808, 0, 144, function()
-    addon.db.workspaceMode = creating and "install" or "create"
-    ui.scroll:SetVerticalScroll(0)
-    render()
-  end, nil, 26)
-  switch:SetBackdropColor(0.12, 0.12, 0.12, 0.8)
   local selected = creating and addon.db.creator.selected or addon.dbC.selection.packID
   local entries, available = {}, addon:GetPacks(creating)
   for id, pack in pairs(available) do
@@ -49,14 +44,28 @@ local function render()
     selected = entries[1] and entries[1].value
     if creating then addon.db.creator.selected = selected else addon.dbC.selection.packID = selected end
   end
-  if #entries > 0 then
+  if #entries > 0 or creating then
     if creating then table.insert(entries, { label = "+ Add UI Pack", action = true, onclick = startSetup }) end
     label(ui.header, "UI Pack", 0, 9, 64, 14, { .65, .65, .65 })
-    dropdown(ui.header, selected, entries, 68, 0, 300, "UI pack")
+    local selector = dropdown(ui.header, selected, entries, 68, 0, 300, selected and "UI pack" or "No UI Pack yet")
+    -- Until the first pack exists, the creator stays locked behind its centered create button.
+    if not selected then selector:Disable() end
   end
-  local tableVisible = creating and selected ~= nil
+  -- With no UI Pack anywhere the welcome screen carries both actions, so the switch would repeat it.
+  local empty = not creating and #entries == 0
+  if not empty then
+    ctaButton(ui.footer, creating and "Back to UI Packs" or "Create your own UI Pack", 732, 0, 220, 36, function()
+      if not creating then enterCreator(); return end
+      addon.db.workspaceMode = "install"
+      ui.scroll:SetVerticalScroll(0)
+      render()
+    end, creating and "neutral" or "outline", 15)
+  end
+  local tableVisible = creating
   local searching = ui.searchText ~= nil and ui.searchText ~= ""
   ui.search:SetShown(tableVisible)
+  ui.search:SetEnabled(selected ~= nil)
+  ui.search:SetAlpha(selected and 1 or .5)
   ui.tabs:SetShown(tableVisible)
   ui.scroll:ClearAllPoints()
   ui.scroll:SetPoint("TOPLEFT", addon.frames.mainFrame, "TOPLEFT", 24, tableVisible and -172 or -130)
@@ -66,6 +75,8 @@ local function render()
   if creating then
     local pack = selected and available[selected]
     creator(pack)
+  elseif empty then
+    welcome(ui.content)
   else
     local pack = addon:CurrentInstallPack()
     if selected and not pack then

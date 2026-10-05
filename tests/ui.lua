@@ -270,61 +270,29 @@ for _, f in ipairs(visible("button")) do
   assert(f.text ~= "Create" and f.text ~= "+ Create" and f.text ~= "+ UI pack" and f.text ~= "Import string",
     "Creator/import controls surfaced on the installer landing page")
 end
-click("Creator tools")
-assert(#visible("dropdown") == 0 and #visible("EditBox") == 0, "Empty creator shows selector/search")
-local createCount, explanation = 0, false
-for _, f in ipairs(visible("button")) do if f.text == "Start Setup" then createCount = createCount + 1 end end
-for _, f in ipairs(visible("font")) do
-  if f.text == "Build and share your setup through the Wago App." then explanation = true end
-end
-assert(createCount == 1 and explanation, "Creator empty state needs one action and its purpose")
-for _, f in ipairs(visible("button")) do assert(f.text ~= "Import string", "Raw string import is still exposed") end
-click("UI packs")
-click("Creator tools")
-local oldPrompt, setupPrompt, setupPromptCount = addon.ShowPrompt, nil, 0
-function addon:ShowPrompt(message, yes, no, yesText, noText)
-  setupPromptCount = setupPromptCount + 1
-  setupPrompt = { message = message, yes = yes, no = no, yesText = yesText, noText = noText }
-end
-click("Start Setup")
-assert(setupPrompt.yesText == "Continue" and setupPrompt.noText == "Back to UI Packs")
-assert(setupPrompt.message:find("publicly", 1, true) and setupPrompt.message:find("Wago Website", 1, true))
-assert(#visible("EditBox") == 0 and not next(addon.db.creator.packs), "Setup proceeded before a choice")
-setupPrompt.yes()
-assert(#visible("EditBox") == 1, "Continue did not open pack setup")
-local nameEntry = visible("EditBox")[1]
+click("Create a UI Pack")
+for _, f in ipairs(visible("dropdown")) do assert(not f.enabled, "Empty creator leaves the pack selector unlocked") end
+for _, f in ipairs(visible("EditBox")) do assert(not f.enabled, "Empty creator leaves search unlocked") end
+local createCount = 0
+for _, f in ipairs(visible("button")) do if f.text == "Create your UI Pack" then createCount = createCount + 1 end end
+assert(createCount == 1, "Creator empty state needs one action")
+click("Create your UI Pack")
+local nameEntry = visible("EditBox")[#visible("EditBox")]
 assert(nameEntry.parent:GetWidth() == 440 and nameEntry.parent:GetHeight() == 224, "Naming dialog is not compact")
 assert(nameEntry:HasFocus() and nameEntry.borderColor[1] == 0.76, "Name field is not focused/styled")
 nameEntry.scripts.OnEnterPressed(nameEntry)
 assert(not next(addon.db.creator.packs) and nameEntry:IsShown(), "Enter accepted an empty name")
 closeDialog()
-addon:InitializePacks()
-addon.db.creator.setupExplained = true -- A previous version's flag must not suppress the warning.
-click("Start Setup")
-assert(setupPromptCount == 2 and #visible("EditBox") == 0, "Warning skipped despite having no created packs")
-setupPrompt.no()
-button("Creator tools")
-assert(#visible("EditBox") == 0 and not next(addon.db.creator.packs))
-click("Creator tools")
-click("Start Setup")
-assert(setupPromptCount == 3, "Going back suppressed the zero-pack warning")
-setupPrompt.yes()
+for _, f in ipairs(visible("button")) do assert(f.text ~= "Import string", "Raw string import is still exposed") end
+click("Create your UI Pack")
 local fields = visible("EditBox")
 fields[#fields]:SetText("Smoke UI")
 fields[#fields].scripts.OnEnterPressed(fields[#fields])
 local pack = addon.db.creator.packs[addon.db.creator.selected]
 assert(pack and pack.name == "Smoke UI")
 newPack()
-assert(setupPromptCount == 3 and #visible("EditBox") == 2, "Existing creator was warned again")
+assert(#visible("EditBox") == 2, "Adding another pack did not open naming")
 closeDialog()
-addon.db.creator.packs[pack.id] = nil
-addon:RefreshWorkspace()
-click("Start Setup")
-assert(setupPromptCount == 4, "Removing the last pack did not restore the warning")
-setupPrompt.no()
-addon.db.creator.packs[pack.id] = pack
-click("Creator tools")
-addon.ShowPrompt = oldPrompt
 assert(#visible("dropdown") > 0 and #visible("EditBox") > 0, "Pack controls did not return after creation")
 for _, f in ipairs(visible("button")) do
   assert(f.text ~= "+ UI pack" and f.tooltip ~= "Pack actions", "Separate pack management buttons remain")
@@ -537,21 +505,20 @@ local function findButton(text)
   error("Missing button: " .. text)
 end
 local function variationForm()
-  local form = {}
-  local top = hasText("New variation") and 56 or 0
-  for _, box in ipairs(frames) do
-    if box.kind == "EditBox" and box.parent:IsShown() and box.parent.kind == "Frame" and box.parent:GetWidth() == 460
-      and (box.visible or box.point[5] == -(top + 164)) then
+  local form, top = {}, 56
+  for _, box in ipairs(visible("EditBox")) do
+    if box.parent.kind == "Frame" and box.parent:GetWidth() == 460 then
       if box.point[5] == -(top + 92) then form.name = box
-      elseif box.point[5] == -(top + 164) then if box.point[4] == 200 then form.width = box else form.height = box end
-      elseif box.point[5] == -(top + 238) then form.description = box end
+      elseif box.point[5] == -(top + 164) then if box.point[4] == 216 then form.width = box else form.height = box end
+      elseif box.point[4] == 24 then form.description = box end
     end
   end
-  assert(form.name and form.width and form.height and form.description, "Missing variation editor fields")
+  assert(form.name and form.description, "Missing variation editor fields")
+  for _, box in ipairs(visible("dropdown")) do
+    if box.parent == form.name.parent and box.point[5] == -(top + 165) then form.resolution = box end
+  end
   for _, box in ipairs(visible("checkbox")) do
-    if box.parent == form.name.parent then
-      if box.point[5] == -(top + 169) then form.any = box elseif box.point[5] == -(top + 289) then form.includeDefault = box end
-    end
+    if box.parent == form.name.parent then form.includeDefault = box end
   end
   return form
 end
@@ -612,14 +579,13 @@ local addTab = tabNamed("+ Add variation")
 assert(addTab == variationTabs()[#variationTabs()] and addTab.count.text == "" and not addTab.swatch:IsShown())
 addTab.scripts.OnClick(addTab)
 local form = variationForm()
-assert(hasText("New variation") and form.name:HasFocus() and not form.width:IsShown(), "New variation form is incomplete")
+assert(hasText("New variation") and form.name:HasFocus() and not form.width, "New variation form is incomplete")
 assert(form.includeDefault and not hasText("Profile Variations"), "Variation manager shows assignments")
 form.name:SetText("Raid alternate")
 click("Create")
 local raidAlternate = pack.variationOrder[3]
 assert(pack.variations[raidAlternate].name == "Raid alternate" and #addon.Packs.Profiles(pack, raidAlternate) == 0)
-assert(tabNamed("Raid alternate").active, "Creating a variation did not open its tab")
-openTab(1)
+assert(variationTabs()[1].active, "Creating a variation left the current tab")
 chipFor(profileSelectors()[2], "Raid alternate").click()
 assert(blankRow.variations[raidAlternate] and #pack.profileOrder == 1, "Blank row assignment changed saved profiles")
 assert(#warningIcons() == 1 and warningIcons()[1].tooltip:find("No profile selected", 1, true), "Variation without profile is not flagged")
@@ -733,16 +699,19 @@ form.name:SetText("Default")
 click("Save")
 assert(form.name:IsShown() and pack.variations[compactID].name == "Compact", "Duplicate name escaped validation")
 form.name:SetText("Compact")
-form.any:SetValue(false, "RUN_CALLBACK")
+for _, option in ipairs(form.resolution.options()) do
+  if option.label == "Specific resolution(s)" then option.onclick() end
+end
+form = variationForm()
 assert(form.width:IsShown() and form.width:GetText() == "1920" and form.height:GetText() == "1080",
   "Specific resolution is not prefilled with the screen size")
 form.width:SetText("0")
 click("Save")
-assert(form.name:IsShown() and not pack.variations[compactID].resolution, "Invalid resolution changed the pack")
+assert(form.name:IsShown() and not pack.variations[compactID].resolutions, "Invalid resolution changed the pack")
 form.width:SetText("1920")
 form.description:SetText("Compact layout")
 click("Save")
-assert(not form.name:IsShown() and pack.variations[compactID].resolution.width == 1920
+assert(not form.name:IsShown() and pack.variations[compactID].resolutions[1].width == 1920
   and pack.variations[compactID].description == "Compact layout")
 assert(tabNamed("Compact").tooltip:find("1920 × 1080", 1, true), "Tab tooltip lacks the resolution")
 -- New variations can start from Default's profiles.
@@ -882,7 +851,7 @@ for index, info in ipairs(addon:CreatorAddons()) do
   assert(displayed[index] == info.name, "Creator no longer follows automatic status/default order")
 end
 for _, f in ipairs(visible("button")) do assert(f.text ~= "Preview", "Creator preview button remains") end
-click("UI packs")
+click("Back to UI Packs")
 for _, selector in ipairs(visible("dropdown")) do
   for _, option in ipairs(selector.options()) do
     if option.label == "Compact" then option.onclick() end
@@ -893,7 +862,7 @@ click("Install")
 click("Back")
 click("Expert")
 click("Re-import")
-click("Creator tools")
+click("Create your own UI Pack")
 assert(#profileSelectors() == 2)
 for _, f in ipairs(visible("button")) do assert(f.text ~= "Capture" and f.text ~= "Copy", "Removed profile actions remain") end
 local search = visible("EditBox")[1]
@@ -1102,7 +1071,8 @@ function addon:ShowPrompt(_, yes) deletePrompt = yes end
 packSelector().options()[1].delete()
 assert(addon.db.creator.packs[pack.id], "Dropdown deleted without confirmation")
 deletePrompt()
-assert(not addon.db.creator.packs[pack.id] and #visible("dropdown") == 0)
+assert(not addon.db.creator.packs[pack.id])
+for _, f in ipairs(visible("dropdown")) do assert(not f.enabled, "Deleting the last pack left the selector unlocked") end
 -- Rebuild the workspace with only persisted database values, as after /reload.
 local function reopenWorkspace()
   addon.frames.mainFrame:Hide()
@@ -1113,19 +1083,11 @@ local function reopenWorkspace()
 end
 assert(addon.db.workspaceMode == "create")
 reopenWorkspace()
-button("UI packs") -- Still in creator mode, including with no created packs.
-click("UI packs")
+button("Back to UI Packs") -- Still in creator mode, including with no created packs.
+click("Back to UI Packs")
 assert(addon.db.workspaceMode == "install")
 reopenWorkspace()
-button("Creator tools")
-click("Creator tools")
-local goBack
-function addon:ShowPrompt(_, _, no) goBack = no end
-click("Start Setup")
-goBack()
-assert(addon.db.workspaceMode == "install", "Setup warning's back action did not persist user mode")
-reopenWorkspace()
-button("Creator tools")
+button("Create a UI Pack") -- With no UI Pack anywhere, the welcome screen offers creating one.
 addon.db.workspaceMode = "unknown"
 reopenWorkspace()
 assert(addon.db.workspaceMode == "install", "Invalid stored mode must fall back to user mode")
