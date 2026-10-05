@@ -44,6 +44,13 @@ local function resolutions(list)
   return #result > 0 and result or nil
 end
 
+-- Cooldown Manager layouts are class-specific and ship with every variation.
+local function everyVariation(pack)
+  local tags = {}
+  for _, id in ipairs(pack.variationOrder) do tags[id] = true end
+  return tags
+end
+
 local function membership(pack, tags, required)
   assert(type(tags) == "table", "Choose a variation.")
   local result = {}
@@ -78,11 +85,17 @@ function Packs.SaveVariation(pack, id, label, sizes, description)
   sizes = resolutions(sizes)
   assert(type(description or "") == "string" and #(description or "") <= 2000, "Description is too long.")
   if id then assert(pack.variations[id], "Unknown variation.") end
-  if not id then
+  local isNew = not id
+  if isNew then
     id = nextID(pack, "v")
     table.insert(pack.variationOrder, id)
   end
   pack.variations[id] = { name = label, resolutions = sizes, description = description or "" }
+  if isNew then
+    for _, profile in pairs(pack.profiles) do
+      if profile.kind == "cdm" then profile.variations[id] = true end
+    end
+  end
   touch(pack)
   return id
 end
@@ -115,6 +128,7 @@ function Packs.AddProfile(pack, moduleName, sourceKey, label, tags, kind, source
     end
   end
   -- Alternates may start without variations; the creator assigns them on the row.
+  if kind == "cdm" then tags = everyVariation(pack) end
   tags = membership(pack, tags or (first and { default = true }), tags == nil)
   local id = nextID(pack, "p")
   pack.profiles[id] = {
@@ -154,11 +168,17 @@ function Packs.RemoveProfile(pack, id)
   touch(pack)
 end
 
--- Drafts saved before variations supported several resolutions stored a single one.
+-- Brings older drafts up to date: single resolutions become lists, and layouts join every variation.
 function Packs.Upgrade(pack)
-  for _, v in pairs(type(pack) == "table" and type(pack.variations) == "table" and pack.variations or {}) do
+  if type(pack) ~= "table" or type(pack.variations) ~= "table" then return end
+  for _, v in pairs(pack.variations) do
     if type(v) == "table" and v.resolution ~= nil then
       v.resolutions, v.resolution = v.resolutions or { v.resolution }, nil
+    end
+  end
+  for _, profile in pairs(type(pack.profiles) == "table" and pack.profiles or {}) do
+    if type(profile) == "table" and profile.kind == "cdm" and type(pack.variationOrder) == "table" then
+      profile.variations = everyVariation(pack)
     end
   end
 end

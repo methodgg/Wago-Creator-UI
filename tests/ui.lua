@@ -833,6 +833,12 @@ for _, f in ipairs(visible("button")) do
 end
 local orderedSelectors = {}
 for _, f in ipairs(visible("dropdown")) do if f.moduleName then table.insert(orderedSelectors, f) end end
+-- Cooldown Manager is managed through its own button instead of a profile dropdown.
+for _, f in ipairs(visible("button")) do
+  if f.tooltip == "Choose Cooldown Manager profiles to include" then
+    table.insert(orderedSelectors, { moduleName = "Blizzard Cooldown Manager", point = f.point })
+  end
+end
 table.sort(orderedSelectors, function(a, b) return a.point[5] > b.point[5] end)
 local displayed, last = {}, nil
 for _, f in ipairs(orderedSelectors) do

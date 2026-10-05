@@ -31,7 +31,7 @@ Kinds are profile, snapshot, group (WeakAuras/Echo), and cdm. CDM records additi
 
 Resolutions is absent for Any resolution, otherwise an ordered list of 1–10 distinct {width = integer, height = integer} entries the variation was designed for. It is advisory metadata, not a storage bucket or eligibility restriction. The singular resolution field is rejected.
 
-Capture also supplies gameVersion, gameFlavor, createdBy, updatedAt, includedAddons (addon name to Wago ID), and collectedWagoIds. Preserve the draft's revision, nextID, exportOptions and blockedAuras when retaining creator snapshots. No server-side migration from creator v1 is provided.
+Capture also supplies gameVersion, gameFlavor, createdBy, updatedAt, includedAddons (addon name to Wago ID), and collectedWagoIds. Preserve the draft's revision, nextID, exportOptions, blockedAuras and cdmExportsFrozen when retaining creator snapshots. No server-side migration from creator v1 is provided.
 
 Unassigned profiles and uncaptured records may exist in saved drafts; the installer excludes unassigned records and displays uncaptured records as unavailable. The publishing UI should report uncaptured records before upload.
 

@@ -210,7 +210,9 @@ function addon:CapturePack(pack, onlyProfileID, callback, progress)
     for index, id in ipairs(captured.profileOrder) do
       if InCombatLockdown() then error("Capture stopped: combat. Previous captures kept.") end
       local p = captured.profiles[id]
-      if (not onlyProfileID or onlyProfileID == id) and (p.kind ~= "snapshot" or not p.data or onlyProfileID == id) then
+      -- Snapshots, and Cooldown Manager layouts while their exports are frozen, keep their capture unless asked.
+      local keep = (p.kind == "snapshot" or p.kind == "cdm" and captured.cdmExportsFrozen) and p.data and onlyProfileID ~= id
+      if (not onlyProfileID or onlyProfileID == id) and not keep then
         local data, problem = exportRecord(captured, p)
         if type(data) == "string" and #data > 0 then
           p.lastSavedAt = timestamp
