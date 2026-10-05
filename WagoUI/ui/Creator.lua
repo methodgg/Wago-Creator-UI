@@ -12,6 +12,7 @@ local safely = UI.safely
 local variationTabs, variationToggle = UI.variationTabs, UI.variationToggle
 local additionalAddons, exportOptions, saveCapture = UI.additionalAddons, UI.exportOptions, UI.saveCapture
 local wagoAddons = UI.wagoAddons
+local CDM, cooldownManager, includedLayouts = UI.CDM, UI.cooldownManager, UI.includedLayouts
 local ctaButton, startSetup = UI.ctaButton, UI.startSetup
 local function render() UI.render() end
 
@@ -202,7 +203,10 @@ local function creator(pack)
     if extrasPending and info.group ~= 1 then additionalRow() end
     if info.status == "Not installed" then hasNotInstalled = true end
     local moduleName, ready = info.name, info.status == "Ready"
-    local rows = creatorRows(pack, moduleName)
+    -- Cooldown Manager layouts are picked in their own manager and ship with every variation: one manage row.
+    local cdm = moduleName == CDM
+    local rows = cdm and { { manage = true } } or creatorRows(pack, moduleName)
+    local layouts = cdm and includedLayouts(pack) or {}
     local addonFound, shown = found(moduleName), {}
     for index, row in ipairs(rows) do
       local p = row.profileID and pack.profiles[row.profileID]
@@ -211,6 +215,12 @@ local function creator(pack)
       if (not filter or tags[filter]) and (addonFound or p and found(p.name) or variationFound(tags)) then
         table.insert(shown, index)
       end
+    end
+    if cdm then
+      -- Listed when it or a layout matches; previews show it whenever layouts are included.
+      local match = addonFound
+      for _, p in ipairs(layouts) do match = match or found(p.name) end
+      shown = match and (not filter or #layouts > 0) and { 1 } or {}
     end
     -- Previews list everything the variation installs, so missing addons are never collapsed there.
     if #shown > 0 and (info.status ~= "Not installed" or ui.showNotInstalled or query ~= "" or filter) then
@@ -231,7 +241,7 @@ local function creator(pack)
           render()
         end
         local chipX, chipY = VARIATIONS_X, y + 9
-        for _, id in ipairs(pack.variationOrder) do
+        for _, id in ipairs(row.manage and {} or pack.variationOrder) do
           -- A variation tab shows only what is assigned; "All" offers every toggle.
           if tags[id] or not filter then
             local chip, width = variationToggle(body, pack.variations[id].name, id, tags[id],
@@ -244,7 +254,7 @@ local function creator(pack)
         local height = math.max(44, chipY - y + 35)
         local warning, rowHeight = rowWarning(index, p, tags), position == #shown and height - 1 or height
         if warning then unassignedRow(body, y, rowHeight, warning)
-        elseif not p then emptyRow(body, y, rowHeight) end
+        elseif not p and not (row.manage and #layouts > 0) then emptyRow(body, y, rowHeight) end
         if position == 1 then
           local status = info.status ~= "Ready" and info.status or nil
           if info.status == "Addon disabled" then status = "AddOn disabled - click to enable" end
@@ -273,43 +283,49 @@ local function creator(pack)
           else table.remove(rows, index) end
           render()
         end
-        local current = ready and lap.getCurrentProfileKey and lap:getCurrentProfileKey()
-        local entries = {}
-        if p then entries[1] = { value = p.id, label = current == p.sourceKey and ("|cff009ECC" .. p.name .. "|r (active)") or p.name } end
-        -- DF needs an initial option to open; enumerate profiles only when opened.
-        entries[#entries + 1] = { value = "none", label = "Not selected", onclick = clear }
-        local indent = position == 1 and 0 or 16
-        local selector = dropdown(body, p and p.id or "none", entries, PROFILE_X + indent, y + 6, PROFILE_WIDTH - indent)
-        selector.moduleName, selector.profileRow = moduleName, row
-        local prior = p and p.data and saved and saved.profiles[p.id]
-        if prior and (prior.sourceKey ~= p.sourceKey or prior.sourceCharacter ~= p.sourceCharacter) then prior = nil end
-        local timestamp = prior and (prior.lastSavedAt or prior.lastUpdatedAt)
-        local savedText = timestamp and ("Last save: " .. date("%b %d, %H:%M", timestamp)) or "Not saved yet"
-        selector:SetTooltip(p and (position == 1 and savedText or (moduleName .. "\n" .. savedText)) or nil)
-        addon:UseWidgetTooltip(selector)
-        selector.OnMouseDownHook = function(_, _, options)
-          for i = #options, 1, -1 do options[i] = nil end
-          options[1] = { value = "none", label = "Not selected", font = addon.FONT, onclick = clear }
-          local sources = addon:ProfileSources(moduleName)
-          for sourceIndex, source in ipairs(sources) do
-            options[#options + 1] = { value = sourceIndex, label = source.active and ("|cff009ECC" .. source.key .. "|r (active)") or source.label,
-              font = addon.FONT, onclick = function()
-              safely(function()
-                if row.profileID then Packs.SetSource(pack, row.profileID, source)
-                else
-                  -- Chips picked beforehand win; otherwise an addon's first profile joins Default.
-                  local tags = row.variations and next(row.variations) and row.variations or (index == 1 and { default = true } or {})
-                  row.profileID = Packs.AddProfile(pack, moduleName, source.key, source.key,
-                    tags, source.kind, source.character, source.classAndSpecTag)
-                end
-                addon.state.notice = nil
-              end)
-              render()
-            end }
+        if row.manage then
+          local manage = button(body, #layouts > 0 and ("Manage (" .. #layouts .. ")") or "Manage", PROFILE_X, y + 6,
+            PROFILE_WIDTH, function() cooldownManager(pack) end, "Choose Cooldown Manager profiles to include", 32)
+          manage:SetEnabled(ready and not locked and not addon.state.busy)
+        else
+          local current = ready and lap.getCurrentProfileKey and lap:getCurrentProfileKey()
+          local entries = {}
+          if p then entries[1] = { value = p.id, label = current == p.sourceKey and ("|cff009ECC" .. p.name .. "|r (active)") or p.name } end
+          -- DF needs an initial option to open; enumerate profiles only when opened.
+          entries[#entries + 1] = { value = "none", label = "Not selected", onclick = clear }
+          local indent = position == 1 and 0 or 16
+          local selector = dropdown(body, p and p.id or "none", entries, PROFILE_X + indent, y + 6, PROFILE_WIDTH - indent)
+          selector.moduleName, selector.profileRow = moduleName, row
+          local prior = p and p.data and saved and saved.profiles[p.id]
+          if prior and (prior.sourceKey ~= p.sourceKey or prior.sourceCharacter ~= p.sourceCharacter) then prior = nil end
+          local timestamp = prior and (prior.lastSavedAt or prior.lastUpdatedAt)
+          local savedText = timestamp and ("Last save: " .. date("%b %d, %H:%M", timestamp)) or "Not saved yet"
+          selector:SetTooltip(p and (position == 1 and savedText or (moduleName .. "\n" .. savedText)) or nil)
+          addon:UseWidgetTooltip(selector)
+          selector.OnMouseDownHook = function(_, _, options)
+            for i = #options, 1, -1 do options[i] = nil end
+            options[1] = { value = "none", label = "Not selected", font = addon.FONT, onclick = clear }
+            local sources = addon:ProfileSources(moduleName)
+            for sourceIndex, source in ipairs(sources) do
+              options[#options + 1] = { value = sourceIndex, label = source.active and ("|cff009ECC" .. source.key .. "|r (active)") or source.label,
+                font = addon.FONT, onclick = function()
+                safely(function()
+                  if row.profileID then Packs.SetSource(pack, row.profileID, source)
+                  else
+                    -- Chips picked beforehand win; otherwise an addon's first profile joins Default.
+                    local tags = row.variations and next(row.variations) and row.variations or (index == 1 and { default = true } or {})
+                    row.profileID = Packs.AddProfile(pack, moduleName, source.key, source.key,
+                      tags, source.kind, source.character, source.classAndSpecTag)
+                  end
+                  addon.state.notice = nil
+                end)
+                render()
+              end }
+            end
           end
+          if locked or not ready or addon.state.busy then selector:Disable() end
         end
-        if locked or not ready or addon.state.busy then selector:Disable() end
-        if not locked then
+        if not locked and not row.manage then
           local add = rowAction(body, nil, 838, y, "Add alternate profile", function()
             -- New alternates start unassigned until a variation chip is chosen.
             table.insert(rows, { variations = {}, moduleName = moduleName })

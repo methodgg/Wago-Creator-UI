@@ -7,6 +7,7 @@ local addonRow, button, check, dropdown, label = UI.addonRow, UI.button, UI.chec
 local rowBackground = UI.rowBackground
 local closeModal, modal, notice = UI.closeModal, UI.modal, UI.notice
 local resolutionText = UI.resolutionText
+local layoutName = UI.layoutName
 local function render() UI.render() end
 
 local function installResult(imported, failed)
@@ -79,17 +80,24 @@ local function install(pack)
   end
   local choices = addon:InstallChoices(pack, s.variationID)
   local profiles = Packs.Profiles(pack, s.variationID)
+  local statuses = {}
+  for _, p in ipairs(profiles) do statuses[p] = addon:ProfileStatus(p) end
   table.sort(profiles, function(a, b)
-    if a.moduleName == b.moduleName then return a.name < b.name end
-    return a.moduleName < b.moduleName
+    if a.moduleName ~= b.moduleName then return a.moduleName < b.moduleName end
+    -- Cooldown Manager layouts for the current class come first; the rest cannot be imported here.
+    local aReady, bReady = statuses[a] == "Ready", statuses[b] == "Ready"
+    if a.kind == "cdm" and aReady ~= bReady then return aReady end
+    return a.name < b.name
   end)
   local y, current = 0, nil
   for _, p in ipairs(profiles) do
-    local status = addon:ProfileStatus(p)
+    local status = statuses[p]
     if current ~= p.moduleName then
       current = p.moduleName
       addonRow(body, current, y)
-      if not expert and p.kind ~= "group" then
+      if p.kind == "cdm" then
+        label(body, addon.L["CDM_IMPORT_INSTRUCTION"], 554, y + 10, 348, 12, { .65, .65, .65 }):SetWordWrap(true)
+      elseif not expert and p.kind ~= "group" then
         local options, eligible = { { value = "skip", label = "Skip", onclick = function() choices[p.moduleName] = false; render() end } }, {}
         for _, other in ipairs(profiles) do
           local otherStatus = addon:ProfileStatus(other)
@@ -105,9 +113,12 @@ local function install(pack)
       y = y + 56
     end
     rowBackground(body, y, 38, 0.06)
-    if not expert and p.kind == "group" then
-      check(body, p.name, choices[p.id] ~= false, 18, y, function(value) choices[p.id] = value; render() end)
-    else label(body, p.name, 28, y + 8, 500, 15) end
+    local name = p.kind == "cdm" and layoutName(p.name, p.classAndSpecTag) or p.name
+    if not expert and (p.kind == "group" or p.kind == "cdm") then
+      local usable = status == "Ready" or status == "Enable addon"
+      local box = check(body, name, usable and choices[p.id] ~= false, 18, y, function(value) choices[p.id] = value; render() end)
+      if not usable then box:Disable() end
+    else label(body, name, 28, y + 8, 500, 15) end
     local history = addon:GetProfileHistory(pack.id, p.id)
     local action = not history and "Import" or (history.lastUpdatedAt or 0) < (p.lastUpdatedAt or 0) and "Update" or "Re-import"
     label(body, status == "Ready" and (history and "Imported" or "") or status, 550, y + 8, 175, 13)

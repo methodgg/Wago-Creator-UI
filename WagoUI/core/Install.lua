@@ -50,7 +50,8 @@ function addon:BuildInstallPlan(pack, variationID)
   for _, p in ipairs(self.Packs.Profiles(pack, variationID)) do
     local status = self:ProfileStatus(p)
     if status == "Ready" or status == "Enable addon" then
-      if p.kind == "group" then
+      -- Groups and class-specific Cooldown Manager layouts are picked one by one, not as one choice per addon.
+      if p.kind == "group" or p.kind == "cdm" then
         if choices[p.id] ~= false then table.insert(plan, p) end
       else
         if not groups[p.moduleName] then groups[p.moduleName] = {}; table.insert(order, p.moduleName) end
