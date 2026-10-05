@@ -517,9 +517,6 @@ local function variationForm()
   for _, box in ipairs(visible("dropdown")) do
     if box.parent == form.name.parent and box.point[5] == -(top + 165) then form.resolution = box end
   end
-  for _, box in ipairs(visible("checkbox")) do
-    if box.parent == form.name.parent then form.includeDefault = box end
-  end
   return form
 end
 local function warningIcons()
@@ -580,7 +577,7 @@ assert(addTab == variationTabs()[#variationTabs()] and addTab.count.text == "" a
 addTab.scripts.OnClick(addTab)
 local form = variationForm()
 assert(hasText("New variation") and form.name:HasFocus() and not form.width, "New variation form is incomplete")
-assert(form.includeDefault and not hasText("Profile Variations"), "Variation manager shows assignments")
+assert(not hasText("Profile Variations"), "Variation manager shows assignments")
 form.name:SetText("Raid alternate")
 click("Create")
 local raidAlternate = pack.variationOrder[3]
@@ -694,7 +691,7 @@ defaultTab.scripts.OnLeave(defaultTab)
 -- Editing validates before changing the pack.
 tabNamed("Compact").edit.click()
 form = variationForm()
-assert(hasText("Edit variation") and form.name:GetText() == "Compact" and not form.includeDefault)
+assert(hasText("Edit variation") and form.name:GetText() == "Compact")
 form.name:SetText("Default")
 click("Save")
 assert(form.name:IsShown() and pack.variations[compactID].name == "Compact", "Duplicate name escaped validation")
@@ -714,17 +711,11 @@ click("Save")
 assert(not form.name:IsShown() and pack.variations[compactID].resolutions[1].width == 1920
   and pack.variations[compactID].description == "Compact layout")
 assert(tabNamed("Compact").tooltip:find("1920 × 1080", 1, true), "Tab tooltip lacks the resolution")
--- New variations can start from Default's profiles.
-addon.Packs.SetMembership(pack, id, { default = true, [compactID] = true })
-addon:RefreshWorkspace()
 tabNamed("+ Add variation").scripts.OnClick(tabNamed("+ Add variation"))
 form = variationForm()
 form.name:SetText("Disposable")
-form.includeDefault:SetValue(true, "RUN_CALLBACK")
 click("Create")
 local disposable = pack.variationOrder[4]
-assert(pack.profiles[id].variations[disposable] and not pack.profiles[pack.profileOrder[2]].variations[disposable],
-  "Start with Default did not copy Default's profiles")
 -- Deletion always asks first, from the tab or from the editor.
 addon.Packs.SetMembership(pack, id, { [disposable] = true })
 addon:RefreshWorkspace()

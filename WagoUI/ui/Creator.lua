@@ -194,6 +194,8 @@ local function creator(pack)
       y = lineY + 44
     end
     rowBackground(body, groupStart, y - groupStart - 1, .18)
+    -- Like an unused addon row, an empty extras row recedes until addons are chosen.
+    if #extras == 0 then emptyRow(body, groupStart, y - groupStart - 1) end
   end
   for _, info in ipairs(infos) do
     -- Sits below the last loaded addon, ahead of disabled and missing ones.

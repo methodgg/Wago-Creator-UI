@@ -69,7 +69,8 @@ function Packs.Rename(pack, label)
   touch(pack)
 end
 
-function Packs.SaveVariation(pack, id, label, sizes, description, includeDefault)
+-- New variations start empty; the creator assigns profiles on their rows.
+function Packs.SaveVariation(pack, id, label, sizes, description)
   label = name(label)
   for otherID, variation in pairs(pack.variations) do
     assert(otherID == id or variation.name:lower() ~= label:lower(), "That variation already exists.")
@@ -77,17 +78,11 @@ function Packs.SaveVariation(pack, id, label, sizes, description, includeDefault
   sizes = resolutions(sizes)
   assert(type(description or "") == "string" and #(description or "") <= 2000, "Description is too long.")
   if id then assert(pack.variations[id], "Unknown variation.") end
-  local isNew = not id
-  id = id or nextID(pack, "v")
-  pack.variations[id] = { name = label, resolutions = sizes, description = description or "" }
-  if isNew then
+  if not id then
+    id = nextID(pack, "v")
     table.insert(pack.variationOrder, id)
-    if includeDefault then
-      for _, profile in pairs(pack.profiles) do
-        if profile.variations.default then profile.variations[id] = true end
-      end
-    end
   end
+  pack.variations[id] = { name = label, resolutions = sizes, description = description or "" }
   touch(pack)
   return id
 end
