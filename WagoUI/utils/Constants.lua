@@ -21,20 +21,24 @@ function addon:StyleEditBox(box, surface)
   box:SetHighlightColor(.76, .15, .18, .45)
   local padding = surface == box and 10 or 0
   box:SetTextInsets(padding, padding, 0, 0)
-  local function border()
-    if box:HasFocus() then surface:SetBackdropBorderColor(.76, .15, .18, 1)
+  -- Focus events pass their state: HasFocus() can still report true while focus moves to another field.
+  local function border(focused)
+    if focused == nil then focused = box:HasFocus() end
+    if focused then surface:SetBackdropBorderColor(.76, .15, .18, 1)
     elseif box:IsMouseOver() or surface:IsMouseOver() then surface:SetBackdropBorderColor(.65, .65, .65, 1)
     else surface:SetBackdropBorderColor(.45, .45, .45, 1) end
   end
-  box:HookScript("OnEnter", border)
-  box:HookScript("OnLeave", border)
-  box:HookScript("OnEditFocusGained", border)
-  box:HookScript("OnEditFocusLost", border)
+  -- Script handlers pass the frame first, which border() would read as focused.
+  local function hover() border() end
+  box:HookScript("OnEnter", hover)
+  box:HookScript("OnLeave", hover)
+  box:HookScript("OnEditFocusGained", function() border(true) end)
+  box:HookScript("OnEditFocusLost", function() border(false) end)
   box:HookScript("OnHide", function() box:ClearFocus() end)
   if surface ~= box then
     surface:EnableMouse(true)
-    surface:HookScript("OnEnter", border)
-    surface:HookScript("OnLeave", border)
+    surface:HookScript("OnEnter", hover)
+    surface:HookScript("OnLeave", hover)
     surface:HookScript("OnMouseDown", function() box:SetFocus() end)
   end
   border()
