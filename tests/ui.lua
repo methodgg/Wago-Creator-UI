@@ -1,7 +1,7 @@
 -- Headless widget-contract smoke test; does not substitute for in-game rendering.
 local addon, modules = dofile("tests/check.lua")
 addon.L = setmetatable({}, { __index = function(_, key) return key end })
-assert(loadfile("WagoUI/utils/constants.lua"))("WagoUI", addon)
+assert(loadfile("WagoUI/utils/Constants.lua"))("WagoUI", addon)
 local frames = {}
 local methods = {}
 local function new(kind, parent)
@@ -243,10 +243,15 @@ local function newPack()
     end
   end
 end
+-- Load the workspace files in ui/load.xml order, as the client does.
+local function loadWorkspace()
+  local xml = assert(io.open("WagoUI/ui/load.xml")):read("*a")
+  for file in xml:gmatch('<Script file="([^"]+)"') do assert(loadfile("WagoUI/ui/" .. file))("WagoUI", addon) end
+end
 local openedSettings = 0
 modules.Test.icon = 123456
 modules.Test.openConfig = function() openedSettings = openedSettings + 1 end
-assert(loadfile("WagoUI/ui/Workspace.lua"))("WagoUI", addon)
+loadWorkspace()
 addon.frames.mainFrame = new("root")
 addon:CreateWorkspace(addon.frames.mainFrame)
 assert(#visible("dropdown") == 0, "Empty pack selector is visible")
@@ -1102,7 +1107,7 @@ assert(not addon.db.creator.packs[pack.id] and #visible("dropdown") == 0)
 local function reopenWorkspace()
   addon.frames.mainFrame:Hide()
   addon.db = CopyTable(addon.db)
-  assert(loadfile("WagoUI/ui/Workspace.lua"))("WagoUI", addon)
+  loadWorkspace()
   addon.frames.mainFrame = new("root")
   addon:CreateWorkspace(addon.frames.mainFrame)
 end
