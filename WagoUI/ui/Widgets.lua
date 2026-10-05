@@ -112,6 +112,8 @@ local function input(parent, text, x, y, width, changed)
   f:SetMaxLetters(0)
   f:SetScript("OnEnterPressed", function(self) self:ClearFocus() end)
   f:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
+  -- Pooled inputs move between dialogs; drop any tab order a previous one set.
+  f:SetScript("OnTabPressed", nil)
   f:SetScript("OnTextChanged", nil)
   f:SetText(text or "")
   f:SetCursorPosition(0)

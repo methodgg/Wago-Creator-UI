@@ -214,6 +214,17 @@ local function variationEditor(pack, id)
     button(f, v and "Save" or "Create", 328, top + 286 + extra, 108, save)
     title:SetScript("OnEnterPressed", save)
     title:SetScript("OnEscapePressed", closeModal)
+    -- Tab walks the fields top to bottom (Shift+Tab backwards), wrapping around.
+    local order = { title }
+    for _, row in ipairs(fields.sizes) do table.insert(order, row.width); table.insert(order, row.height) end
+    table.insert(order, description)
+    for index, field in ipairs(order) do
+      field:SetScript("OnTabPressed", function(self)
+        local step = IsShiftKeyDown() and -1 or 1
+        self:ClearFocus()
+        order[(index - 1 + step) % #order + 1]:SetFocus()
+      end)
+    end
     if focus == "newest" and newest then
       newest:SetFocus()
     elseif focus == "name" then
