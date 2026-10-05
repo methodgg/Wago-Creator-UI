@@ -391,6 +391,13 @@ local function creator(pack)
   elseif #pack.profileOrder == 0 and not next(pack.additionalAddons) and not saved then
     -- A previously saved pack may still save an emptied draft; a fresh one needs something to export.
     reason = "Select a profile for at least one AddOn before saving."
+  else
+    -- Every variation must install something; an empty one would offer users nothing.
+    local empty = {}
+    for _, id in ipairs(pack.variationOrder) do
+      if #Packs.Profiles(pack, id) == 0 then table.insert(empty, pack.variations[id].name) end
+    end
+    if #empty > 0 then reason = "Every variation needs at least one profile before saving.\nEmpty: " .. table.concat(empty, ", ") end
   end
   blockSave(saveAll, reason)
   if filter and query == "" and not profilesListed then

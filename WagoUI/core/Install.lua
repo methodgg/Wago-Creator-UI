@@ -43,34 +43,86 @@ function addon:InstallChoices(pack, variationID)
   return choices[pack.id][variationID]
 end
 
-function addon:BuildInstallPlan(pack, variationID)
-  if not pack.variations[variationID] then return nil, "Choose a variation." end
-  local groups, order, plan = {}, {}, {}
+-- New: never imported on this character. Update: the creator published a newer version since. Current: unchanged.
+function addon:ProfileState(pack, p)
+  local history = self:GetProfileHistory(pack.id, p.id)
+  if not history then return "new" end
+  return (history.lastUpdatedAt or 0) < (p.lastUpdatedAt or 0) and "update" or "current"
+end
+
+local function installable(status) return status == "Ready" or status == "Enable addon" end
+
+-- What a variation installs by default and what the user changed. Choices hold false to skip, true or a profile
+-- ID to include; without a choice, anything new or updated is included and up-to-date profiles are left alone.
+function addon:InstallSelection(pack, variationID)
+  local selection = { modules = {}, order = {}, included = {}, plan = {} }
+  if not pack.variations[variationID] then selection.problem = "Choose a variation."; return selection end
   local choices = self:InstallChoices(pack, variationID)
   for _, p in ipairs(self.Packs.Profiles(pack, variationID)) do
-    local status = self:ProfileStatus(p)
-    if status == "Ready" or status == "Enable addon" then
+    if installable(self:ProfileStatus(p)) then
       -- Groups and class-specific Cooldown Manager layouts are picked one by one, not as one choice per addon.
       if p.kind == "group" or p.kind == "cdm" then
-        if choices[p.id] ~= false then table.insert(plan, p) end
+        local choice = choices[p.id]
+        if choice == true or (choice == nil and self:ProfileState(pack, p) ~= "current") then
+          selection.included[p.id] = true
+          table.insert(selection.plan, p)
+        end
       else
-        if not groups[p.moduleName] then groups[p.moduleName] = {}; table.insert(order, p.moduleName) end
-        table.insert(groups[p.moduleName], p)
+        local module = selection.modules[p.moduleName]
+        if not module then
+          module = { profiles = {} }
+          selection.modules[p.moduleName] = module
+          table.insert(selection.order, p.moduleName)
+        end
+        table.insert(module.profiles, p)
       end
     end
   end
-  for _, moduleName in ipairs(order) do
-    local profiles = groups[moduleName]
-    local chosen = choices[moduleName]
-    if chosen ~= false then
-      if not chosen and #profiles == 1 then chosen = profiles[1].id end
-      local match
-      for _, p in ipairs(profiles) do if p.id == chosen then match = p end end
-      if not match then return nil, "Choose a profile for " .. moduleName .. "." end
-      table.insert(plan, match)
+  for _, moduleName in ipairs(selection.order) do
+    local module, choice = selection.modules[moduleName], choices[moduleName]
+    for _, p in ipairs(module.profiles) do
+      if p.id == choice then module.chosen = p end
+    end
+    if not module.chosen and #module.profiles == 1 then module.chosen = module.profiles[1] end
+    -- Returning users keep the profile they installed before.
+    for _, p in ipairs(module.profiles) do
+      if not module.chosen and self:GetProfileHistory(pack.id, p.id) then module.chosen = p end
+    end
+    if choice ~= false then
+      if not module.chosen then
+        selection.problem = selection.problem or ("Choose a profile for " .. moduleName .. ".")
+      elseif choice or self:ProfileState(pack, module.chosen) ~= "current" then
+        module.included = true
+        selection.included[module.chosen.id] = true
+        table.insert(selection.plan, module.chosen)
+      end
     end
   end
-  return plan
+  return selection
+end
+
+function addon:BuildInstallPlan(pack, variationID)
+  local selection = self:InstallSelection(pack, variationID)
+  if selection.problem then return nil, selection.problem end
+  return selection.plan
+end
+
+-- Imported profiles whose creator has published a newer version since, across every variation.
+function addon:PackUpdates(pack)
+  local updates = {}
+  for _, p in ipairs(self.Packs.Profiles(pack)) do
+    if next(p.variations) and self:ProfileState(pack, p) == "update" and installable(self:ProfileStatus(p)) then
+      table.insert(updates, p)
+    end
+  end
+  return updates
+end
+
+function addon:LastInstalledAt(pack)
+  local history = self.db.profileHistory[self:CharacterKey()]
+  local latest
+  for _, info in pairs(history and history[pack.id] or {}) do latest = math.max(latest or 0, info.importedAt or 0) end
+  return latest
 end
 
 function addon:GetProfileHistory(packID, profileID)
@@ -90,18 +142,25 @@ function addon:RecordImport(pack, p, profileKey)
   self.db.anyInstalled = true
 end
 
-function addon:ImportProfiles(pack, records, callback)
+-- Optional hooks: onRecord(profile, succeeded) reports each import as it finishes; onCancel runs when the
+-- import does not start (refused, or a confirmation prompt was cancelled).
+function addon:ImportProfiles(pack, records, callback, hooks)
+  hooks = hooks or {}
+  local function cancel(problem)
+    if problem then self:AddonPrintError(problem) end
+    if hooks.onCancel then hooks.onCancel() end
+  end
   if self.state.busy then return end
-  if InCombatLockdown() then self:AddonPrintError("Cannot install profiles in combat."); return end
+  if InCombatLockdown() then cancel("Cannot install profiles in combat."); return end
   local valid, problem = self.Packs.Validate(pack)
-  if not valid then self:AddonPrintError(problem); return end
-  if #records == 0 then self:AddonPrintError("No profiles selected."); return end
+  if not valid then cancel(problem); return end
+  if #records == 0 then cancel("No profiles selected."); return end
   local warnings, enable, checked = {}, false, {}
   for _, p in ipairs(records) do
-    if pack.profiles[p.id] ~= p then self:AddonPrintError("Profile changed. Select it again."); return end
+    if pack.profiles[p.id] ~= p then cancel("Profile changed. Select it again."); return end
     local status = self:ProfileStatus(p)
     if status == "Enable addon" then enable = true
-    elseif status ~= "Ready" then self:AddonPrintError(p.name .. ": " .. status); return end
+    elseif status ~= "Ready" then cancel(p.name .. ": " .. status); return end
     checked[p.moduleName] = { checked = true }
     local lap = LAP:GetModule(p.moduleName)
     if status == "Ready" then
@@ -117,13 +176,17 @@ function addon:ImportProfiles(pack, records, callback)
   end
   if enable then
     self:ShowPrompt("Enable required addons and reload?", function()
+      local ids = {}
       for _, p in ipairs(records) do
         local lap = LAP:GetModule(p.moduleName)
         if not lap:isLoaded() then LAP:EnableAddOns(lap.addonNames) end
+        table.insert(ids, p.id)
       end
-      self.dbC.selection.step = "profiles"
+      -- The installer resumes these imports after the reload.
+      self.dbC.selection.pendingInstall = { packID = pack.id, ids = ids }
+      self.dbC.selection.step = "install"
       ReloadUI()
-    end)
+    end, function() cancel() end)
     return
   end
   local function run()
@@ -140,6 +203,7 @@ function addon:ImportProfiles(pack, records, callback)
         local compatible = not lap.isProfileStringCompatible or lap:isProfileStringCompatible(p.data)
         local accepted = false
         if compatible then accepted = lap:importProfile(p.data, p.sourceKey, true) end
+        if hooks.onRecord then hooks.onRecord(p, accepted ~= false) end
         if accepted == false then
           table.insert(failed, p.moduleName .. ": " .. p.name)
         else
@@ -157,7 +221,8 @@ function addon:ImportProfiles(pack, records, callback)
       callback(imported, failed)
     end, "ImportProfiles")
   end
-  if #warnings > 0 then self:ShowPrompt("Replace existing settings?\n" .. table.concat(warnings, "\n"), run, nil, "Import")
+  if #warnings > 0 then
+    self:ShowPrompt("Replace existing settings?\n" .. table.concat(warnings, "\n"), run, function() cancel() end, "Import")
   else run() end
 end
 

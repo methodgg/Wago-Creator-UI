@@ -2,7 +2,8 @@
 local addon = select(2, ...)
 local UI = addon.UI
 local ui = UI.view
-local button, input, label, reset, widget = UI.button, UI.input, UI.label, UI.reset, UI.widget
+local button, ctaButton, input, label, reset = UI.button, UI.ctaButton, UI.input, UI.label, UI.reset
+local widget = UI.widget
 local function render() UI.render() end
 
 local function notice(text)
@@ -21,14 +22,19 @@ local function safely(callback)
   return ok
 end
 
+-- Closing a dialog by any means runs its onClose, so a prompt's × counts as cancelling it.
 local function closeModal()
+  local onClose = ui.modal.onClose
+  ui.modal.onClose = nil
   ui.modal:Hide()
   ui.modalShade:Hide()
+  if onClose then onClose() end
 end
 
 local function modal(title, width, height)
   width, height = width or 600, height or 524
   local f = ui.modal
+  f.onClose = nil
   reset(f)
   reset(f.content)
   f:ClearAllPoints()
@@ -58,6 +64,44 @@ local function modal(title, width, height)
   ui.modalShade:SetScript("OnMouseDown", nil)
   ui.modalShade:Show()
   return f
+end
+
+-- The one confirmation style: an optional title, a warning icon with the message and grey details below it,
+-- then cancel on the left and the confirming action on the right. Sizes itself to the text.
+local function confirm(options)
+  local width = 440
+  local f = modal(options.title or "", width, 400)
+  f.error:Hide()
+  local top = options.title and 68 or 28
+  local alert = widget(f, "confirmAlert", function() return f:CreateTexture(nil, "ARTWORK") end)
+  alert:SetTexture([[Interface\DialogFrame\UI-Dialog-Icon-AlertNew]])
+  alert:SetSize(32, 32)
+  alert:SetPoint("TOPLEFT", f, "TOPLEFT", 24, -top)
+  local message = label(f, options.message, 70, top, width - 94, 16)
+  message:SetWordWrap(true)
+  local bottom = top + message:GetStringHeight()
+  if options.details then
+    local details = label(f, options.details, 70, bottom + 8, width - 94, 14, { .6, .6, .6 })
+    details:SetWordWrap(true)
+    bottom = bottom + 8 + details:GetStringHeight()
+  end
+  local buttons = math.max(top + 32, bottom) + 28
+  f:SetHeight(buttons + 36 + 24)
+  ctaButton(f, options.cancelText or addon.L["Cancel"], 24, buttons, 150, 36, closeModal, "neutral", 15)
+  ctaButton(f, options.confirmText or addon.L["Okay"], 196, buttons, 220, 36, function()
+    f.onClose = nil
+    closeModal()
+    if options.onConfirm then options.onConfirm() end
+  end, "primary", 15)
+  f.onClose = options.onCancel
+  return f
+end
+
+-- Every prompt in the addon uses the confirmation dialog: the first line is the message, the rest details.
+function addon:ShowPrompt(text, onConfirm, onCancel, confirmText, cancelText)
+  local message, details = tostring(text):match("^([^\n]*)\n?(.*)$")
+  confirm({ message = message, details = details ~= "" and details or nil, onConfirm = onConfirm, onCancel = onCancel,
+    confirmText = confirmText, cancelText = cancelText })
 end
 
 local function modalList(f, height)
@@ -90,6 +134,7 @@ local function dangerButton(parent, text, x, y, width, onClick)
 end
 
 UI.closeModal = closeModal
+UI.confirm = confirm
 UI.dangerButton = dangerButton
 UI.modal = modal
 UI.modalList = modalList
