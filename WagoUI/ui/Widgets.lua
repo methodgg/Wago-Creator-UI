@@ -59,6 +59,37 @@ local function button(parent, text, x, y, width, onClick, tooltip, height, fontS
   return f
 end
 
+-- "primary" is the filled Wago red, "outline" a quieter red entry point, "neutral" a plain way back.
+local function ctaButton(parent, text, x, y, width, height, onClick, style, fontSize)
+  local red = addon.colorRGB
+  local f = button(parent, text, x, y, width, onClick, nil, height, fontSize or 18, "ctaButton")
+  local frame = f.widget or f.button or f
+  if not f.paintCta then
+    f.paintCta = function()
+      local hovered = frame:IsMouseOver() and not addon.state.busy
+      if f.ctaStyle == "neutral" then
+        local shade = hovered and .2 or .13
+        f:SetBackdropColor(shade, shade, shade, 1)
+        f:SetBackdropBorderColor(.35, .35, .35, 1)
+      elseif f.ctaStyle == "outline" then
+        f:SetBackdropColor(red[1], red[2], red[3], hovered and .45 or .15)
+        f:SetBackdropBorderColor(red[1], red[2], red[3], 1)
+      else
+        local lift = hovered and .12 or 0
+        f:SetBackdropColor(red[1] + lift, red[2] + lift, red[3] + lift, 1)
+        f:SetBackdropBorderColor(math.min(1, red[1] + .3), red[2] + .2, red[3] + .2, 1)
+      end
+    end
+    -- Hooks run after the framework's own hover handlers, so the CTA colors win.
+    frame:HookScript("OnEnter", f.paintCta)
+    frame:HookScript("OnLeave", f.paintCta)
+  end
+  f.ctaStyle = style or "primary"
+  f.text_overlay:SetTextColor(1, 1, 1, 1)
+  f.paintCta()
+  return f
+end
+
 local function rowBackground(parent, y, height, alpha)
   local texture = widget(parent, "rowBackground", function() return parent:CreateTexture(nil, "BACKGROUND") end)
   texture:SetPoint("TOPLEFT", parent, "TOPLEFT", 4, -y)
@@ -286,6 +317,7 @@ UI.VARIATIONS_X = VARIATIONS_X
 UI.addonRow = addonRow
 UI.button = button
 UI.check = check
+UI.ctaButton = ctaButton
 UI.dropdown = dropdown
 UI.input = input
 UI.label = label

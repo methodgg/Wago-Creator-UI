@@ -5,7 +5,8 @@ local Packs = addon.Packs
 local UI = addon.UI
 local ui = UI.view
 local button, dropdown, input, label, widget = UI.button, UI.dropdown, UI.input, UI.label, UI.widget
-local closeModal, dangerButton, modal, safely = UI.closeModal, UI.dangerButton, UI.modal, UI.safely
+local closeModal, confirm, dangerButton, modal = UI.closeModal, UI.confirm, UI.dangerButton, UI.modal
+local safely = UI.safely
 local function render() UI.render() end
 
 local function resolutionText(variation)
@@ -102,18 +103,20 @@ local function confirmVariationDelete(pack, id, back)
     for other in pairs(p.variations) do elsewhere = elsewhere or other ~= id end
     if not elsewhere then orphans = orphans + 1 end
   end
-  local f = modal("Delete variation", 460, 250)
-  label(f, "Delete " .. v.name .. "?", 24, 66, 412, 18)
   local details = (users == 1 and "1 profile uses" or (users .. " profiles use")) .. " this variation. Profiles are kept."
   if orphans > 0 then
     details = details .. "\n" .. (orphans == 1 and "1 profile is" or (orphans .. " profiles are"))
       .. " only in " .. v.name .. " and must be assigned to another variation before saving."
   end
-  label(f, details, 24, 98, 412, 14, { .7, .7, .7 }):SetWordWrap(true)
-  button(f, back and "Back" or "Cancel", 176, 194, 120, back or closeModal)
-  dangerButton(f, "Delete", 308, 194, 128, function()
-    if safely(function() removeVariation(pack, id) end) then closeModal(); render() end
-  end)
+  -- Cancelling from the editor returns to it.
+  confirm({
+    title = "Delete variation", message = "Delete " .. v.name .. "?", details = details,
+    cancelText = back and "Back" or "Cancel", onCancel = back, confirmText = "Delete",
+    onConfirm = function()
+      safely(function() removeVariation(pack, id) end)
+      render()
+    end,
+  })
 end
 
 -- Manages one variation's details; assignments happen on the profile rows.

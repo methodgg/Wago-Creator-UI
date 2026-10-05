@@ -31,6 +31,7 @@ function methods:SetFrameStrata(value) self.strata = value end
 function methods:SetClampedToScreen(value) self.clamped = value end
 function methods:SetTexCoord(...) self.texCoords = { ... } end
 function methods:SetDesaturated(value) self.desaturated = value end
+function methods:SetVertexColor(...) self.vertexColor = { ... } end
 function methods:SetText(value) self.text = value end
 function methods:GetText() return self.text end
 function methods:SetScript(event, callback) self.scripts[event] = callback end
@@ -587,6 +588,8 @@ chipFor(profileSelectors()[2], "Raid alternate").click()
 assert(blankRow.variations[raidAlternate] and #pack.profileOrder == 1, "Blank row assignment changed saved profiles")
 assert(#warningIcons() == 1 and warningIcons()[1].tooltip:find("No profile selected", 1, true), "Variation without profile is not flagged")
 selectSource(profileSelectors()[2], "Other")
+-- Saving also needs every variation to have a profile; Default would otherwise be empty here.
+chipFor(profileSelectors()[1], "Default").click()
 assert(#warningIcons() == 0 and button("Save All Profiles"), "Completed row is still flagged")
 assert(#pack.profileOrder == 2)
 assert(pack.profiles[pack.profileOrder[2]].variations[raidAlternate])
@@ -742,6 +745,7 @@ assert(findButton("Save All Profiles").enabled == false and #warningIcons() == 1
   "Profile left without variations is not flagged")
 chipFor(profileSelectors()[1], "Compact").click()
 assert(pack.profiles[id].variations[compactID] and #warningIcons() == 0)
+chipFor(profileSelectors()[1], "Default").click()
 local saveAll = button("Save All Profiles")
 assert(saveAll:GetWidth() == 300 and saveAll:GetHeight() == 50 and saveAll.text_overlay.fontSize == 20)
 assert(saveAll.point[4] == (saveAll.parent:GetWidth() - 300) / 2 and saveAll.point[5] == 14,
@@ -849,15 +853,16 @@ for index, info in ipairs(addon:CreatorAddons()) do
 end
 for _, f in ipairs(visible("button")) do assert(f.text ~= "Preview", "Creator preview button remains") end
 click("Back to UI Packs")
-for _, selector in ipairs(visible("dropdown")) do
-  for _, option in ipairs(selector.options()) do
-    if option.label == "Compact" then option.onclick() end
-  end
+local function buttonStarting(prefix)
+  for _, f in ipairs(visible("button")) do if (f.text or ""):find(prefix, 1, true) == 1 then return f end end
 end
-click("Next")
-click("Install")
-click("Back")
-click("Expert")
+if buttonStarting("Review everything instead") then click("Review everything instead") end
+for _, f in ipairs(frames) do
+  if f.visible and f.onClick and f.name and f.name.text == "Compact" then f.onClick() end
+end
+click("Next >>")
+buttonStarting("Install (").click()
+click("Individual Profiles")
 click("Re-import")
 click("Create your own UI Pack")
 assert(#profileSelectors() == 2)

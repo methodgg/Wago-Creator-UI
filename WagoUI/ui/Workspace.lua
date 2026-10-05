@@ -4,7 +4,7 @@ local DF = DetailsFramework
 local Packs = addon.Packs
 local UI = addon.UI
 local ui = UI.view
-local dropdown, input, label, reset, scroll = UI.dropdown, UI.input, UI.label, UI.reset, UI.scroll
+local button, dropdown, input, label, reset, scroll = UI.button, UI.dropdown, UI.input, UI.label, UI.reset, UI.scroll
 local textDialog = UI.textDialog
 local startSetup = UI.startSetup
 local ctaButton, enterCreator, welcome = UI.ctaButton, UI.enterCreator, UI.welcome
@@ -29,7 +29,7 @@ local function render()
         textDialog("Rename UI pack", pack.name, "Save", function(value) Packs.Rename(pack, value) end)
       end
       entry.delete = function()
-        addon:ShowPrompt("Delete " .. pack.name .. " and its local captures?", function()
+        addon:ShowPrompt("Delete " .. pack.name .. "?", function()
           addon.db.creator.packs[id], addon.db.creator.saved[id] = nil, nil
           if addon.db.creator.profileRows then addon.db.creator.profileRows[id] = nil end
           if addon.db.creator.selected == id then addon.db.creator.selected = nil end
@@ -53,7 +53,9 @@ local function render()
   end
   -- With no UI Pack anywhere the welcome screen carries both actions, so the switch would repeat it.
   local empty = not creating and #entries == 0
-  if not empty then
+  -- Full Install keeps first-time users on their install; creating lives behind Individual Profiles.
+  local fullInstall = not creating and not empty and selected ~= nil and not addon.dbC.selection.expert
+  if not empty and not fullInstall then
     ctaButton(ui.footer, creating and "Back to UI Packs" or "Create your own UI Pack", 732, 0, 220, 36, function()
       if not creating then enterCreator(); return end
       addon.db.workspaceMode = "install"
@@ -61,7 +63,23 @@ local function render()
       render()
     end, creating and "neutral" or "outline", 15)
   end
-  local tableVisible = creating
+  -- Installing offers a full install flow and an individual profile list, which shares the creator's search bar.
+  local expert = not creating and not empty and selected ~= nil and addon.dbC.selection.expert
+  if not creating and not empty and selected then
+    for index, mode in ipairs({ "Full Install", "Individual Profiles" }) do
+      local active = (mode == "Individual Profiles") == (expert == true)
+      local segment = button(ui.header, mode, 380 + (index - 1) * 152, 0, 150, function()
+        addon.dbC.selection.expert = mode == "Individual Profiles"
+        ui.scroll:SetVerticalScroll(0)
+        render()
+      end, nil, 32, 14, "modeSegment")
+      local red = addon.colorRGB
+      segment:SetBackdropColor(unpack(active and { red[1], red[2], red[3], 1 } or { .1, .1, .1, 1 }))
+      segment.text_overlay:SetTextColor(unpack(active and { 1, 1, 1, 1 } or { .65, .65, .65, 1 }))
+    end
+  end
+  local tableVisible = creating or expert
+  ui.searchHint:SetText(creating and "Search AddOns, profiles or variations…" or "Search AddOns or profiles…")
   local searching = ui.searchText ~= nil and ui.searchText ~= ""
   ui.search:SetShown(tableVisible)
   ui.search:SetEnabled(selected ~= nil)
@@ -207,8 +225,17 @@ function addon:CreateWorkspace(frame)
   ui.modal:SetBackdropColor(0.08, 0.08, 0.08, 1)
   ui.modal.scroll, ui.modal.content = scroll(ui.modal, 24, 78, 526, 350)
   ui.modal:Hide()
-  frame:HookScript("OnShow", render)
-  render()
+  -- After a full install, the window opens on individual profiles from then on.
+  local function open()
+    local selection = addon.dbC.selection
+    if selection.openProfilesNext then
+      selection.openProfilesNext, selection.expert, selection.step = nil, true, "home"
+      ui.run = nil
+    end
+    render()
+  end
+  frame:HookScript("OnShow", open)
+  open()
 end
 
 UI.render = render

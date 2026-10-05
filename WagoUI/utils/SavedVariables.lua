@@ -35,6 +35,10 @@ local function shouldAutoStart()
   if addon.dbC.pendingAlt then
     return true
   end
+  -- an install paused to enable addons resumes after the reload
+  if addon.dbC.selection and addon.dbC.selection.pendingInstall then
+    return true
+  end
   -- intro enabled
   if addon.db.introEnabled then
     return true

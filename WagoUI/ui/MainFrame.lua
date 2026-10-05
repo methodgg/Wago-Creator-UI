@@ -111,39 +111,6 @@ function addon:CreateMainFrame()
     forceErrorButton:Show()
   end
 
-  addon.promptFrame = LWF:CreatePrompFrame(frame, L["Okay"], L["Cancel"])
-
-  ---Show the prompt frame
-  ---@param promptText string
-  ---@param successCallback function | nil
-  ---@param cancelCallback function | nil
-  ---@param okayText string | nil
-  ---@param cancelText string | nil
-  function addon:ShowPrompt(promptText, successCallback, cancelCallback, okayText, cancelText)
-    okayText = okayText or addon.promptFrame.defaultOkayText
-    cancelText = cancelText or addon.promptFrame.defaultCancelText
-    addon.promptFrame.label:SetText(promptText)
-    addon.promptFrame.okayButton:SetText(okayText)
-    addon.promptFrame.okayButton:SetClickFunction(
-      function()
-        addon.promptFrame:Hide()
-        if successCallback then
-          successCallback()
-        end
-      end
-    )
-    addon.promptFrame.cancelButton:SetText(cancelText)
-    addon.promptFrame.cancelButton:SetClickFunction(
-      function()
-        addon.promptFrame:Hide()
-        if cancelCallback then
-          cancelCallback()
-        end
-      end
-    )
-    addon.promptFrame:Show()
-  end
-
   addon.frames.mainFrame = frame
 
   hooksecurefunc(
