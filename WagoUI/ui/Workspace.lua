@@ -4,7 +4,9 @@ local LWF = LibStub("LibWagoFramework")
 local LAP = LibStub("LibAddonProfiles")
 local Packs = addon.Packs
 local ui = {}
-local render, profileEditor
+local render, variationEditor
+-- Creator columns: addon, profile selector, variation toggles, then row actions.
+local PROFILE_X, PROFILE_WIDTH, VARIATIONS_X, VARIATIONS_RIGHT = 300, 210, 524, 826
 
 -- Reuse widgets across redraws.
 local function reset(parent)
@@ -86,9 +88,9 @@ local function addonRow(parent, moduleName, y, color, status, shade, compact)
   icon:SetClickFunction(function() if canOpen then lap:openConfig() end end)
   icon:SetClickFunction(nil, nil, nil, "RightButton")
   label(parent, moduleName, compact and 56 or 62, y + (status and (compact and 7 or 8) or (compact and 13 or 17)),
-    compact and 325 or 476, compact and 16 or 18, color)
+    compact and PROFILE_X - 86 or 476, compact and 16 or 18, color)
   if status then
-    label(parent, status, compact and 56 or 62, y + (compact and 27 or 31), compact and 325 or 560,
+    label(parent, status, compact and 56 or 62, y + (compact and 27 or 31), compact and PROFILE_X - 86 or 560,
       compact and 10 or 13, compact and { .6, .6, .6 } or { .65, .65, .65 })
   end
   return icon
@@ -376,187 +378,140 @@ local function variationStyle(id)
   return variationStyles[2 + (index - 1) % (#variationStyles - 1)]
 end
 
-local function variationChip(parent, name, id, x, y, width, onClick, onRemove, fontSize)
-  local chip = button(parent, name, x, y, width or 132, onClick, nil, 26, fontSize, "variationChip")
-  chip.variationID = id
+local unassignedChip = { background = { .07, .07, .07, 1 }, border = { .24, .24, .24, 1 }, text = { .6, .6, .6, 1 } }
+
+-- Every variation is a toggle: filled when the row is in it, outlined when not.
+local function variationToggle(parent, name, id, assigned, onClick, locked)
+  local chip = button(parent, name, 0, 0, 132, onClick, nil, 26, 13, "variationChip")
+  chip.variationID, chip.assigned = id, assigned
   local frame = chip.widget or chip.button or chip
   chip.text_overlay:SetText(name)
-  width = width or math.min(132, math.max(64, chip.text_overlay:GetStringWidth() + 40))
+  local width = math.min(132, math.max(56, chip.text_overlay:GetStringWidth() + 24))
   chip:SetWidth(width)
-  chip:SetTextTruncated(name, width - 40)
-  chip.text_overlay:SetWidth(width - 40)
-  chip.text_overlay:ClearAllPoints()
-  chip.text_overlay:SetPoint("CENTER", frame, "CENTER", -12, -2)
-  if not chip.removeButton then
-    local remove = CreateFrame("Button", nil, frame)
-    chip.removeButton = remove
-    remove:SetSize(24, 24)
-    remove:SetPoint("RIGHT", frame, "RIGHT", -1, 0)
-    remove:SetHighlightTexture([[Interface\Buttons\WHITE8X8]])
-    remove:GetHighlightTexture():SetColorTexture(1, 1, 1, .12)
-    local cross = remove:CreateFontString(nil, "OVERLAY")
-    cross:SetFont(addon.FONT, 20, "")
-    cross:SetPoint("CENTER", remove, "CENTER", 0, -1)
-    cross:SetText("×")
-    remove.cross = cross
+  chip:SetTextTruncated(name, width - 16)
+  chip.text_overlay:SetWidth(width - 16)
+  if not chip.alignText then
     -- Native hooks run after the framework's pressed/released text offsets.
-    local function alignText()
+    chip.alignText = function()
       chip.text_overlay:ClearAllPoints()
-      chip.text_overlay:SetPoint("CENTER", frame, "CENTER", -12, -2)
+      chip.text_overlay:SetPoint("CENTER", frame, "CENTER", 0, -2)
     end
-    frame:HookScript("OnMouseDown", alignText)
-    frame:HookScript("OnMouseUp", alignText)
+    frame:HookScript("OnMouseDown", chip.alignText)
+    frame:HookScript("OnMouseUp", chip.alignText)
   end
-  local remove, style = chip.removeButton, variationStyle(id)
-  remove:SetScript("OnClick", function() onRemove() end)
-  remove:SetEnabled(not addon.state.busy)
-  remove.cross:SetTextColor(unpack(style.text))
-  remove:Hide()
-  chip:SetBackdropColor(unpack(style.background))
-  chip:SetBackdropBorderColor(unpack(style.border))
-  chip.text_overlay:SetTextColor(unpack(style.text))
+  chip.alignText()
+  local style = variationStyle(id)
   chip:SetScript("OnEnter", nil)
   chip:SetScript("OnLeave", nil)
-  chip:SetScript("OnUpdate", function()
-    local scroller = parent == ui.content and ui.scroll or ui.modal.scroll
-    local hovered = scroller:IsMouseOver() and (chip:IsMouseOver() or remove:IsShown() and remove:IsMouseOver())
-      and not addon.state.busy and (parent ~= ui.content or not ui.modal:IsShown())
-    remove:SetShown(onRemove ~= nil and hovered)
-    chip:SetBackdropColor(unpack(hovered and style.hover or style.background))
-  end)
+  local function paint()
+    local hovered = not locked and ui.scroll:IsMouseOver() and chip:IsMouseOver() and not addon.state.busy and not ui.modal:IsShown()
+    local colors = (assigned or hovered) and style or unassignedChip
+    chip:SetBackdropColor(unpack(assigned and hovered and style.hover or colors.background))
+    chip:SetBackdropBorderColor(unpack(colors.border))
+    chip.text_overlay:SetTextColor(unpack(colors.text))
+    -- Unassigned toggles recede until hovered.
+    frame:SetAlpha((assigned or hovered) and 1 or .5)
+  end
+  -- Locked chips only show membership; they ignore the mouse entirely.
+  frame:EnableMouse(not locked)
+  chip:SetScript("OnUpdate", paint)
+  paint()
   return chip, width
 end
 
-profileEditor = function(pack, row, after, selectedID)
-  local p = row.profileID and pack.profiles[row.profileID]
-  local draft = CopyTable(pack)
-  local tags = CopyTable(p and p.variations or row.variations or {})
-  for id in pairs(tags) do if not draft.variations[id] then tags[id] = nil end end
-  local selected = selectedID or "default"
-  local edits, created, pendingDelete = {}, {}, nil
-  local title, width, height, description, any, includeDefault
-  local show
-  local function readFields()
-    if not title then return end
-    edits[selected] = { name = title:GetText(), width = width:GetText(), height = height:GetText(),
-      description = description:GetText(), any = any, includeDefault = includeDefault }
+local function removeVariation(pack, id)
+  Packs.RemoveVariation(pack, id)
+  for _, rows in pairs(addon.db.creator.profileRows and addon.db.creator.profileRows[pack.id] or {}) do
+    for _, row in ipairs(rows) do
+      if row.variations then row.variations[id] = nil end
+    end
   end
-  local function fields(id)
-    if edits[id] then return edits[id] end
-    local v = draft.variations[id]
-    return { name = v.name, description = v.description or "", any = not v.resolution,
-      width = v.resolution and tostring(v.resolution.width) or "",
-      height = v.resolution and tostring(v.resolution.height) or "" }
+end
+
+local function dangerButton(parent, text, x, y, width, onClick)
+  local f = button(parent, text, x, y, width, onClick, nil, nil, nil, "dangerButton")
+  f:SetBackdropColor(.55, .1, .12, 1)
+  return f
+end
+
+local function confirmVariationDelete(pack, id, back)
+  local v = pack.variations[id]
+  local users, orphans = 0, 0
+  for _, p in ipairs(Packs.Profiles(pack, id)) do
+    users = users + 1
+    local elsewhere = false
+    for other in pairs(p.variations) do elsewhere = elsewhere or other ~= id end
+    if not elsewhere then orphans = orphans + 1 end
+  end
+  local f = modal("Delete variation", 460, 250)
+  label(f, "Delete " .. v.name .. "?", 24, 66, 412, 18)
+  local details = (users == 1 and "1 profile uses" or (users .. " profiles use")) .. " this variation. Profiles are kept."
+  if orphans > 0 then
+    details = details .. "\n" .. (orphans == 1 and "1 profile is" or (orphans .. " profiles are"))
+      .. " only in " .. v.name .. " and must be assigned to another variation before saving."
+  end
+  label(f, details, 24, 98, 412, 14, { .7, .7, .7 }):SetWordWrap(true)
+  button(f, back and "Back" or "Cancel", 176, 194, 120, back or closeModal)
+  dangerButton(f, "Delete", 308, 194, 128, function()
+    if safely(function() removeVariation(pack, id) end) then closeModal(); render() end
+  end)
+end
+
+-- Manages one variation's details; assignments happen on the profile rows.
+variationEditor = function(pack, id)
+  local v = id and pack.variations[id]
+  -- New variations explain the concept first; the fields move down to make room.
+  local top = v and 0 or 56
+  local f = modal(v and "Edit variation" or "New variation", 460, 400 + top)
+  local any, includeDefault = not (v and v.resolution), false
+  if not v then
+    label(f, "Variations let you offer different versions of your UI, such as a healer layout or a different "
+      .. "resolution. Each one bundles the profiles that make up that version, and users can install from any of them.",
+      24, 58, 412, 13, { .7, .7, .7 }):SetWordWrap(true)
+  end
+  label(f, "Name", 24, top + 68, 412, 14)
+  local title = input(f, v and v.name or "", 24, top + 92, 412)
+  title:SetMaxLetters(120)
+  label(f, "Resolution", 24, top + 142, 412, 14)
+  -- Prefill the creator's own screen; it is usually the resolution they designed for.
+  local screenWidth, screenHeight = GetPhysicalScreenSize()
+  local width = input(f, tostring(v and v.resolution and v.resolution.width or screenWidth), 200, top + 164, 96)
+  local times = label(f, "×", 304, top + 172, 20, 14)
+  local height = input(f, tostring(v and v.resolution and v.resolution.height or screenHeight), 324, top + 164, 96)
+  local function sync()
+    width:SetShown(not any); height:SetShown(not any); times:SetShown(not any)
+  end
+  check(f, "Any resolution", any, 24, top + 166, function(value) any = value; sync() end)
+  sync()
+  label(f, "Description (optional)", 24, top + 214, 412, 14)
+  local description = input(f, v and v.description or "", 24, top + 238, 412)
+  description:SetMaxLetters(2000)
+  if not v then
+    check(f, "Start with the profiles from " .. pack.variations.default.name, false, 24, top + 286,
+      function(value) includeDefault = value end)
   end
   local function save()
-    safely(function()
-      readFields()
-      assert(p or next(tags), "Choose at least one variation.")
-      local captured = CopyTable(draft)
-      for _, id in ipairs(captured.variationOrder) do
-        local values = fields(id)
-        captured.variations[id] = { name = values.name:match("^%s*(.-)%s*$"), description = values.description,
-          resolution = not values.any and { width = tonumber(values.width), height = tonumber(values.height) } or nil }
-        if created[id] and values.includeDefault then
-          for _, profile in pairs(captured.profiles) do
-            if profile.variations.default then profile.variations[id] = true end
-          end
-        end
-      end
-      if p then Packs.SetMembership(captured, p.id, tags) end
-      local valid, problem = Packs.Validate(captured)
-      assert(valid, problem)
-      pack.variations, pack.variationOrder, pack.nextID = captured.variations, captured.variationOrder, captured.nextID
-      pack.revision = pack.revision + 1
-      for id, profile in pairs(pack.profiles) do profile.variations = captured.profiles[id].variations end
-      for _, rows in pairs(addon.db.creator.profileRows and addon.db.creator.profileRows[pack.id] or {}) do
-        for _, otherRow in ipairs(rows) do
-          for id in pairs(otherRow.variations or {}) do if not pack.variations[id] then otherRow.variations[id] = nil end end
-        end
-      end
-      if not p then row.variations = CopyTable(tags) end
-      if after then after() end
-      closeModal(); render()
+    local savedID
+    local ok = safely(function()
+      local size = not any and { width = tonumber(width:GetText()), height = tonumber(height:GetText()) } or nil
+      savedID = Packs.SaveVariation(pack, id, title:GetText(), size, description:GetText(), includeDefault)
+    end)
+    if not ok then return end
+    -- A new variation is usually followed by assigning profiles to it.
+    if not id then ui.variationTabs[pack.id] = savedID end
+    closeModal(); render()
+  end
+  if v and id ~= "default" then
+    dangerButton(f, "Delete", 24, top + 344, 110, function()
+      confirmVariationDelete(pack, id, function() variationEditor(pack, id) end)
     end)
   end
-  show = function(focusName)
-    title = nil
-    local f = modal("Profile Variations", 680, 420)
-    f.scroll:ClearAllPoints()
-    f.scroll:SetPoint("TOPLEFT", f, "TOPLEFT", 24, -82)
-    f.scroll:SetWidth(254); f.content:SetWidth(254)
-    local content = modalList(f, 250)
-    for index, id in ipairs(draft.variationOrder) do
-      local values, y = fields(id), (index - 1) * 52
-      if selected == id then rowBackground(content, y, 51, .1) end
-      check(content, "", tags[id], 4, y + 8, function(value) readFields(); tags[id] = value or nil; show() end)
-      variationChip(content, values.name, id, 36, y + 9, 210, function()
-        readFields(); selected, pendingDelete = id, nil; show()
-      end, tags[id] and function() readFields(); tags[id] = nil; show() end or nil, 16)
-      label(content, values.any and "Any resolution" or (values.width .. " × " .. values.height),
-        36, y + 37, 210, 12, { .6, .6, .6 })
-    end
-    button(content, "+ Add variation", 36, #draft.variationOrder * 52 + 9, 210, function()
-      readFields()
-      local name, suffix = "New variation", 1
-      local function exists(value)
-        for _, id in ipairs(draft.variationOrder) do
-          if fields(id).name:lower() == value:lower() or draft.variations[id].name:lower() == value:lower() then return true end
-        end
-      end
-      while exists(name) do suffix = suffix + 1; name = "New variation " .. suffix end
-      selected = Packs.SaveVariation(draft, nil, name, nil, "")
-      created[selected], tags[selected], pendingDelete = true, true, nil
-      show(true)
-    end, nil, 26, 16)
-    content:SetHeight((#draft.variationOrder + 1) * 52)
-    local divider = widget(f, "variationDivider", function() return f:CreateTexture(nil, "ARTWORK") end)
-    divider:SetColorTexture(.25, .25, .25, 1)
-    divider:SetSize(1, 250); divider:SetPoint("TOPLEFT", f, "TOPLEFT", 308, -82)
-    if pendingDelete then
-      label(f, "Delete " .. fields(selected).name .. "?", 328, 88, 328, 20)
-      local warning = label(f, #Packs.Profiles(draft, selected) .. " profiles use this variation.\nTheir profiles will be kept.",
-        328, 130, 328, 14, { .7, .7, .7 })
-      warning:SetWordWrap(true)
-      button(f, "Keep variation", 328, 206, 152, function() pendingDelete = nil; show() end)
-      button(f, "Delete", 496, 206, 160, function()
-        Packs.RemoveVariation(draft, selected)
-        tags[selected], edits[selected], created[selected] = nil, nil, nil
-        selected, pendingDelete = "default", nil
-        show()
-      end)
-    else
-      local values = fields(selected)
-      label(f, "Name", 328, 84, 260, 14)
-      title = input(f, values.name, 328, 110, selected == "default" and 328 or 286)
-      title:SetMaxLetters(120)
-      if selected ~= "default" then
-        local delete = widget(f, "variationDelete", function() return LWF:CreateIconButton(f, 28, [[Interface\Buttons\UI-GroupLoot-Pass-Up]]) end)
-        delete:SetPoint("TOPLEFT", f, "TOPLEFT", 628, -113)
-        delete:SetBackdrop(nil); delete.disabled_overlay:SetTexture(nil)
-        delete:SetTooltip("Delete variation"); addon:UseWidgetTooltip(delete)
-        delete:SetClickFunction(function() readFields(); pendingDelete = selected; show() end)
-      end
-      any, includeDefault = values.any, values.includeDefault
-      width = input(f, values.width, 328, 202, 120)
-      local separator = label(f, "×", 466, 209, 20, 14)
-      height = input(f, values.height, 496, 202, 120)
-      check(f, "Any resolution", any, 328, 164, function(value)
-        any = value; width:SetShown(not value); height:SetShown(not value); separator:SetShown(not value)
-      end)
-      width:SetShown(not any); height:SetShown(not any); separator:SetShown(not any)
-      label(f, "Description (optional)", 328, 252, 328, 14)
-      description = input(f, values.description, 328, 276, 328)
-      description:SetMaxLetters(2000)
-      if created[selected] then
-        check(f, "Include Default profiles", includeDefault, 328, 316, function(value) includeDefault = value end)
-      end
-      if focusName then title:SetFocus(); title:HighlightText() end
-    end
-    button(f, "Cancel", 440, 364, 96, closeModal)
-    button(f, "Save", 552, 364, 104, save):SetEnabled(not pendingDelete and not addon.state.busy)
-  end
-  show()
+  button(f, "Cancel", 216, top + 344, 100, closeModal)
+  button(f, v and "Save" or "Create", 328, top + 344, 108, save)
+  title:SetScript("OnEnterPressed", save)
+  title:SetScript("OnEscapePressed", closeModal)
+  title:SetFocus()
+  title:HighlightText()
 end
 
 local function saveCapture(pack, changes, issues)
@@ -632,24 +587,64 @@ local function saveCapture(pack, changes, issues)
     :SetBackdropColor(0, .8, 0, 1)
 end
 
-local function additionalAddons(pack)
-  local f = modal("Additional addons")
-  local content = modalList(f)
-  local selected, entries = CopyTable(pack.additionalAddons), {}
+-- Installed AddOns that can be shipped as extras, keyed by their Wago ID.
+local function wagoAddons()
+  local found = {}
   for index = 1, C_AddOns.GetNumAddOns() do
     local id = C_AddOns.GetAddOnMetadata(index, "X-Wago-ID")
     local name = C_AddOns.GetAddOnInfo(index)
-    if id and name ~= "WagoUI" and name ~= "WagoUI_Creator" then entries[id] = name end
+    if id and name ~= "WagoUI" and name ~= "WagoUI_Creator" then
+      found[id] = { name = name, icon = C_AddOns.GetAddOnMetadata(index, "IconTexture") }
+    end
   end
-  for id, name in pairs(selected) do entries[id] = name end
+  return found
+end
+
+local function additionalAddons(pack)
+  local f = modal("Additional AddOns", 600, 600)
+  local explainer = label(f, "Include AddOns that need no configuration to be exported, such as an AddOn that only "
+    .. "contains your custom media. Users can download them automatically while installing your UI Pack.\n\n"
+    .. "Only AddOns that are publicly available on Wago AddOns and set the X-Wago-ID field in their TOC file are listed.",
+    24, 62, 552, 13, { .7, .7, .7 })
+  explainer:SetWordWrap(true)
+  local top = 62 + explainer:GetStringHeight() + 16
+  local height = 600 - top - 96
+  -- A framed, padded box makes the scrollable region obvious.
+  local panel = widget(f, "addonListPanel", function()
+    local frame = CreateFrame("Frame", nil, f, "BackdropTemplate")
+    frame:SetBackdrop({ bgFile = [[Interface\Buttons\WHITE8X8]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1 })
+    frame:SetBackdropColor(.05, .05, .05, 1)
+    frame:SetBackdropBorderColor(.22, .22, .22, 1)
+    return frame
+  end)
+  panel:SetPoint("TOPLEFT", f, "TOPLEFT", 24, -top)
+  panel:SetSize(552, height)
+  panel:SetFrameLevel(f:GetFrameLevel() + 1)
+  f.scroll:ClearAllPoints()
+  f.scroll:SetPoint("TOPLEFT", panel, "TOPLEFT", 4, -4)
+  f.scroll:SetFrameLevel(panel:GetFrameLevel() + 1)
+  local content = modalList(f, height - 8)
+  local selected, entries = CopyTable(pack.additionalAddons), wagoAddons()
+  for id, name in pairs(selected) do entries[id] = entries[id] or { name = name } end
   local ordered = {}
-  for id, name in pairs(entries) do table.insert(ordered, { id = id, name = name }) end
-  table.sort(ordered, function(a, b) return a.name < b.name end)
+  for id, entry in pairs(entries) do table.insert(ordered, { id = id, name = entry.name, icon = entry.icon }) end
+  table.sort(ordered, function(a, b) return a.name:lower() < b.name:lower() end)
   for index, item in ipairs(ordered) do
-    check(content, item.name, selected[item.id], 0, (index - 1) * 34, function(value) selected[item.id] = value and item.name or nil end)
+    local y = (index - 1) * 36
+    if index % 2 == 0 then rowBackground(content, y, 36, .04) end
+    check(content, "", selected[item.id], 10, y + 4, function(value) selected[item.id] = value and item.name or nil end)
+    local icon = widget(content, "addonListIcon", function() return content:CreateTexture(nil, "ARTWORK") end)
+    icon:SetPoint("TOPLEFT", content, "TOPLEFT", 44, -(y + 6))
+    icon:SetSize(24, 24)
+    icon:SetTexture(tonumber(item.icon) or item.icon or 134400)
+    icon:SetTexCoord(1 / 12, 11 / 12, 1 / 12, 11 / 12)
+    label(content, item.name, 78, y + 10, content:GetWidth() - 90, 14)
   end
-  content:SetHeight(math.max(1, #ordered * 34))
-  button(f, "Save", 424, 476, 150, function()
+  if #ordered == 0 then
+    label(content, "No AddOns with an X-Wago-ID are installed.", 12, 14, content:GetWidth() - 24, 14, { .6, .6, .6 })
+  end
+  content:SetHeight(math.max(1, #ordered * 36))
+  button(f, "Save", 426, 552, 150, function()
     pack.additionalAddons = selected
     pack.revision = pack.revision + 1
     closeModal(); render()
@@ -713,14 +708,24 @@ end
 local function creatorRows(pack, moduleName)
   addon.db.creator.profileRows = addon.db.creator.profileRows or {}
   local stored = addon.db.creator.profileRows
+  if not addon.db.creator.emptyRowsUnseeded then
+    -- Unused main rows used to be pre-seeded with Default, which now reads as a half-done row.
+    for _, modules in pairs(stored) do
+      for _, rows in pairs(modules) do
+        if rows[1] and not rows[1].profileID then rows[1].variations = {} end
+      end
+    end
+    addon.db.creator.emptyRowsUnseeded = true
+  end
   stored[pack.id] = stored[pack.id] or {}
-  local rows = stored[pack.id][moduleName] or { { variations = { default = true } } }
+  local rows = stored[pack.id][moduleName] or { { variations = {} } }
   stored[pack.id][moduleName] = rows
   local seen = {}
   for index = #rows, 1, -1 do
     local row = rows[index]
     if row.profileID and not pack.profiles[row.profileID] then
-      if index == 1 then row.profileID = nil else table.remove(rows, index) end
+      if index == 1 then row.profileID, row.variations = nil, {}
+      else table.remove(rows, index) end
     elseif row.profileID then seen[row.profileID] = true end
   end
   for _, p in ipairs(Packs.Profiles(pack)) do
@@ -751,6 +756,196 @@ local function rowAction(parent, texture, x, y, tooltip, callback)
   return icon
 end
 
+local allTabStyle = { background = { .2, .2, .2, 1 }, border = { .55, .55, .55, 1 }, text = { .95, .95, .95, 1 } }
+
+local function paintTab(tab)
+  local style = tab.style
+  if tab.ghost then
+    -- An action, not a variation: no fill or border until hovered.
+    local hovered = tab:IsMouseOver()
+    tab:SetBackdropColor(.14, .14, .14, hovered and 1 or 0)
+    tab:SetBackdropBorderColor(.35, .35, .35, hovered and 1 or 0)
+    local text = hovered and 1 or .75
+    tab.label:SetTextColor(text, text, text, 1)
+  elseif tab.active then
+    tab:SetBackdropColor(unpack(style.background))
+    tab:SetBackdropBorderColor(unpack(style.border))
+    tab.label:SetTextColor(unpack(style.text))
+  else
+    local shade = tab:IsMouseOver() and .14 or .09
+    tab:SetBackdropColor(shade, shade, shade, 1)
+    tab:SetBackdropBorderColor(.22, .22, .22, 1)
+    local text = tab:IsMouseOver() and .95 or .65
+    tab.label:SetTextColor(text, text, text, 1)
+  end
+  tab.count:SetTextColor(.55, .55, .55, 1)
+end
+
+local function variationTab(parent, entry, active)
+  local tab = widget(parent, "variationTab", function()
+    local f = CreateFrame("Button", nil, parent, "BackdropTemplate")
+    f:SetBackdrop({ bgFile = [[Interface\Buttons\WHITE8X8]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1 })
+    f.swatch = f:CreateTexture(nil, "ARTWORK")
+    f.swatch:SetSize(8, 8)
+    f.swatch:SetPoint("LEFT", f, "LEFT", 11, 0)
+    f.label = f:CreateFontString(nil, "OVERLAY")
+    f.label:SetFont(addon.FONT, 14, "")
+    f.label:SetJustifyH("LEFT")
+    f.label:SetWordWrap(false)
+    f.count = f:CreateFontString(nil, "OVERLAY")
+    f.count:SetFont(addon.FONT, 12, "")
+    -- Actions always reserve their space and only appear while the tab is hovered.
+    f.updateActions = function()
+      local hovered = f:IsMouseOver() and not addon.state.busy
+      f.edit:SetShown(hovered and f.onEdit ~= nil)
+      f.delete:SetShown(hovered and f.onDelete ~= nil)
+    end
+    local function action(texture, tooltip, offset, desaturate, callback)
+      local icon = LWF:CreateIconButton(f, 16, texture)
+      addon:UseWidgetTooltip(icon)
+      icon:SetTooltip(tooltip)
+      icon:SetPoint("RIGHT", f, "RIGHT", offset, 0)
+      icon:SetTexture(texture, true, true, true)
+      for _, region in ipairs({ icon:GetNormalTexture(), icon:GetPushedTexture(), icon:GetHighlightTexture(), icon:GetDisabledTexture() }) do
+        region:SetDesaturated(desaturate)
+      end
+      icon:HookScript("OnEnter", f.updateActions)
+      icon:HookScript("OnLeave", f.updateActions)
+      icon:SetClickFunction(function() icon:HideTooltip(); callback() end)
+      return icon
+    end
+    f.edit = action([[Interface\Buttons\UI-OptionsButton]], "Edit variation", -26, true, function() f.onEdit() end)
+    f.delete = action([[Interface\Buttons\UI-GroupLoot-Pass-Up]], "Delete variation", -6, false, function() f.onDelete() end)
+    f:SetScript("OnEnter", function(self) paintTab(self); self.updateActions(); addon.ShowWidgetTooltip(self, self.tooltip) end)
+    f:SetScript("OnLeave", function(self) paintTab(self); self.updateActions(); addon.HideWidgetTooltip(self) end)
+    f:SetScript("OnClick", function(self) self.onClick() end)
+    return f
+  end)
+  tab.style, tab.active, tab.tooltip, tab.ghost = entry.style, active, entry.tooltip, entry.ghost
+  tab.onClick, tab.onEdit, tab.onDelete = entry.onClick, entry.onEdit, entry.onDelete
+  -- The cogwheel sits in the reserved slot beside delete, or at the edge when delete is unavailable.
+  tab.edit:ClearAllPoints()
+  tab.edit:SetPoint("RIGHT", tab, "RIGHT", entry.onDelete and -26 or -6, 0)
+  tab.swatch:SetShown(entry.id ~= nil)
+  tab.swatch:SetColorTexture(unpack(entry.style.border))
+  tab.label:SetWidth(0)
+  tab.label:SetText(entry.name)
+  tab.count:SetText(entry.count and tostring(entry.count) or "")
+  tab:SetEnabled(not addon.state.busy)
+  paintTab(tab)
+  tab.updateActions()
+  return tab
+end
+
+-- "All", one tab per variation, then the entry point for creating variations.
+local function variationTabs(pack, filter)
+  local function open(id)
+    ui.variationTabs[pack.id] = id
+    ui.scroll:SetVerticalScroll(0)
+    render()
+  end
+  local tabs = { { name = "All", count = #pack.profileOrder, style = allTabStyle, active = not filter, width = 120,
+    tooltip = "Profiles from every variation", onClick = function() open(nil) end } }
+  for _, id in ipairs(pack.variationOrder) do
+    local v = pack.variations[id]
+    local tooltip = v.name .. "\n" .. resolutionText(v)
+    if v.description and v.description ~= "" then tooltip = tooltip .. "\n" .. v.description end
+    table.insert(tabs, { id = id, name = v.name, count = #Packs.Profiles(pack, id), style = variationStyle(id),
+      active = id == filter, tooltip = tooltip, onClick = function() open(id) end,
+      onEdit = function() variationEditor(pack, id) end,
+      onDelete = id ~= "default" and function() confirmVariationDelete(pack, id) end or nil })
+  end
+  table.insert(tabs, { name = "+ Add variation", style = allTabStyle, ghost = true, onClick = function() variationEditor(pack) end })
+  -- Tabs keep their natural width and wrap onto extra lines, pushing the list down.
+  local right, gap, x, y = ui.tabs:GetWidth() - 4, 4, 4, 0
+  for _, entry in ipairs(tabs) do
+    local tab = variationTab(ui.tabs, entry, entry.active)
+    local lead, trail = entry.id and 26 or 12, entry.onDelete and 46 or entry.onEdit and 26 or 12
+    local counter = entry.count and 6 + tab.count:GetStringWidth() or 0
+    local width = entry.width or math.min(right - 4, lead + tab.label:GetStringWidth() + counter + trail)
+    if x + width > right and x > 4 then x, y = 4, y + 30 + gap end
+    tab:SetPoint("TOPLEFT", ui.tabs, "TOPLEFT", x, -y)
+    tab:SetSize(width, 30)
+    tab.label:SetPoint("LEFT", tab, "LEFT", lead, -1)
+    tab.label:SetWidth(math.max(1, width - lead - counter - trail))
+    tab.count:SetPoint("LEFT", tab.label, "RIGHT", 6, 0)
+    x = x + width + gap
+  end
+  local top = 134 + y + 30 + 8
+  if filter then
+    local v = pack.variations[filter]
+    local style = variationStyle(filter)
+    local banner = widget(ui.tabs, "lockBanner", function()
+      local f = CreateFrame("Frame", nil, ui.tabs, "BackdropTemplate")
+      f:SetBackdrop({ bgFile = [[Interface\Buttons\WHITE8X8]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1 })
+      f.icon = f:CreateTexture(nil, "OVERLAY")
+      f.icon:SetTexture([[Interface\PetBattles\PetBattle-LockIcon]])
+      f.icon:SetSize(16, 16)
+      f.icon:SetPoint("LEFT", f, "LEFT", 10, 0)
+      f.text = f:CreateFontString(nil, "OVERLAY")
+      f.text:SetFont(addon.FONT, 13, "")
+      f.text:SetJustifyH("LEFT")
+      f.text:SetWordWrap(false)
+      f.text:SetPoint("LEFT", f, "LEFT", 34, -1)
+      return f
+    end)
+    banner:SetPoint("TOPLEFT", ui.tabs, "TOPLEFT", 4, -(top - 134 - 2))
+    banner:SetSize(ui.tabs:GetWidth() - 8, 32)
+    banner:SetFrameLevel(ui.tabs:GetFrameLevel())
+    banner:SetBackdropColor(unpack(style.background))
+    banner:SetBackdropBorderColor(unpack(style.border))
+    banner.text:SetTextColor(unpack(style.text))
+    banner.text:SetWidth(banner:GetWidth() - 170)
+    banner.text:SetText("Viewing what " .. v.name .. " installs. Profiles and variations can only be changed in All.")
+    button(ui.tabs, "Edit in All", banner:GetWidth() - 116, top - 134 + 2, 116, function() open(nil) end, nil, 24, 13)
+    top = top + 32 + 6
+  end
+  ui.tabs:SetHeight(top - 134 - 8)
+  ui.scroll:ClearAllPoints()
+  ui.scroll:SetPoint("TOPLEFT", addon.frames.mainFrame, "TOPLEFT", 24, -top)
+  ui.scroll:SetHeight(618 - top)
+end
+
+-- Rows without a variation are never installed; flag them until the creator assigns one.
+-- Explains why a row is incomplete; an untouched main row is simply unused.
+local function rowWarning(index, p, tags)
+  if p and not next(tags) then return "No variation assigned.\nClick a variation to include this profile in it." end
+  if not p and next(tags) then return "No profile selected.\nChoose a profile for the assigned variations." end
+  if not p and index > 1 then return "Empty alternate profile.\nChoose a profile and a variation, or remove this row." end
+end
+
+local function emptyRow(parent, y, height)
+  local shade = widget(parent, "emptyShade", function() return parent:CreateTexture(nil, "BACKGROUND", nil, 2) end)
+  shade:SetPoint("TOPLEFT", parent, "TOPLEFT", 4, -y)
+  shade:SetSize(parent:GetWidth() - 8, height)
+  shade:SetColorTexture(0, 0, 0, .3)
+end
+
+local function unassignedRow(parent, y, height, tooltip)
+  local tint = widget(parent, "unassignedTint", function() return parent:CreateTexture(nil, "BACKGROUND", nil, 2) end)
+  tint:SetPoint("TOPLEFT", parent, "TOPLEFT", 4, -y)
+  tint:SetSize(parent:GetWidth() - 8, height)
+  tint:SetColorTexture(.95, .6, .1, .12)
+  local stripe = widget(parent, "unassignedStripe", function() return parent:CreateTexture(nil, "BORDER") end)
+  stripe:SetPoint("TOPLEFT", parent, "TOPLEFT", 4, -y)
+  stripe:SetSize(3, height)
+  stripe:SetColorTexture(.95, .62, .15, 1)
+  local icon = widget(parent, "unassignedIcon", function()
+    local f = CreateFrame("Frame", nil, parent)
+    f:SetSize(22, 22)
+    f:EnableMouse(true)
+    f.texture = f:CreateTexture(nil, "OVERLAY")
+    f.texture:SetAllPoints(f)
+    f.texture:SetTexture([[Interface\DialogFrame\UI-Dialog-Icon-AlertNew]])
+    f:SetScript("OnEnter", function(self) addon.ShowWidgetTooltip(self, self.tooltip) end)
+    f:SetScript("OnLeave", function(self) addon.HideWidgetTooltip(self) end)
+    return f
+  end)
+  icon:SetPoint("TOPLEFT", parent, "TOPLEFT", PROFILE_X - 26, -(y + 11))
+  icon:SetFrameLevel(parent:GetFrameLevel() + 5)
+  icon.tooltip = tooltip
+end
+
 local function creator(pack)
   local body = ui.content
   if not pack then
@@ -761,7 +956,217 @@ local function creator(pack)
     body:SetHeight(300)
     return
   end
-  button(ui.footer, "Save All Profiles", (ui.footer:GetWidth() - 300) / 2, -14, 300,
+  ui.variationTabs = ui.variationTabs or {}
+  local filter = ui.variationTabs[pack.id]
+  if filter and not pack.variations[filter] then filter, ui.variationTabs[pack.id] = nil, nil end
+  -- Variation tabs are a read-only view of what installs; every edit happens in "All".
+  local locked = filter ~= nil
+  variationTabs(pack, filter)
+
+  local infos = addon:CreatorAddons()
+  local saved = addon.db.creator.saved[pack.id]
+  local y = 0
+  local query = (ui.searchText or ""):lower()
+  local function found(text) return text:lower():find(query, 1, true) end
+  local function variationFound(tags)
+    for id in pairs(tags) do
+      if pack.variations[id] and found(pack.variations[id].name) then return true end
+    end
+  end
+  local hasNotInstalled, listed, unassigned, profilesListed = false, false, {}, false
+  -- Pack-wide extras are not tied to a variation, so previews leave them out.
+  local extrasPending = not filter and found("Additional Addons")
+  local function additionalRow()
+    extrasPending = false
+    listed = true
+    local known, extras = wagoAddons(), {}
+    for id, name in pairs(pack.additionalAddons) do
+      table.insert(extras, { name = name, icon = known[id] and known[id].icon })
+    end
+    table.sort(extras, function(a, b) return a.name:lower() < b.name:lower() end)
+    local groupStart = y
+    local icon = addonRow(body, "Additional Addons", y, { .95, .95, .95 }, nil, nil, true)
+    icon:SetEnabled(not addon.state.busy)
+    icon:SetTooltip("Choose additional addons to include")
+    icon:SetClickFunction(function() additionalAddons(pack) end)
+    button(body, #extras > 0 and ("Manage (" .. #extras .. ")") or "Manage", PROFILE_X, y + 6, PROFILE_WIDTH,
+      function() additionalAddons(pack) end, "Choose additional addons to include", 32)
+    y = y + 44
+    if #extras > 0 then
+      -- Branch the included addons below Manage, like an alternate profile, wrapping as needed.
+      local left = PROFILE_X + 16
+      local x, lineY = left, y
+      for _, item in ipairs(extras) do
+        local name = label(body, item.name, 0, 0, 400, 14)
+        local width = math.min(VARIATIONS_RIGHT - left - 26, name:GetStringWidth() + 2)
+        if x + 26 + width > VARIATIONS_RIGHT and x > left then x, lineY = left, lineY + 26 end
+        local texture = widget(body, "extraAddonIcon", function() return body:CreateTexture(nil, "ARTWORK") end)
+        texture:SetPoint("TOPLEFT", body, "TOPLEFT", x, -(lineY + 12))
+        texture:SetSize(20, 20)
+        texture:SetTexture(tonumber(item.icon) or item.icon or 134400)
+        texture:SetTexCoord(1 / 12, 11 / 12, 1 / 12, 11 / 12)
+        name:SetPoint("TOPLEFT", body, "TOPLEFT", x + 26, -(lineY + 15))
+        name:SetWidth(width)
+        x = x + 26 + width + 18
+      end
+      profileConnector(body, PROFILE_X + 8, groupStart + 38, 1, y + 22 - groupStart - 38 + 1)
+      profileConnector(body, PROFILE_X + 8, y + 22, 6, 1)
+      y = lineY + 44
+    end
+    rowBackground(body, groupStart, y - groupStart - 1, .18)
+  end
+  for _, info in ipairs(infos) do
+    -- Sits below the last loaded addon, ahead of disabled and missing ones.
+    if extrasPending and info.group ~= 1 then additionalRow() end
+    if info.status == "Not installed" then hasNotInstalled = true end
+    local moduleName, ready = info.name, info.status == "Ready"
+    local rows = creatorRows(pack, moduleName)
+    local addonFound, shown = found(moduleName), {}
+    for index, row in ipairs(rows) do
+      local p = row.profileID and pack.profiles[row.profileID]
+      local tags = p and p.variations or row.variations or {}
+      if rowWarning(index, p, tags) then unassigned[moduleName] = true end
+      if (not filter or tags[filter]) and (addonFound or p and found(p.name) or variationFound(tags)) then
+        table.insert(shown, index)
+      end
+    end
+    if #shown > 0 and (info.status ~= "Not installed" or ui.showNotInstalled or query ~= "") then
+      listed, profilesListed = true, true
+      local lap = LAP:GetModule(moduleName)
+      local groupStart, lastBranch = y, nil
+      for position, index in ipairs(shown) do
+        local row = rows[index]
+        row.moduleName = moduleName
+        local p = row.profileID and pack.profiles[row.profileID]
+        local tags = p and p.variations or row.variations or {}
+        local function toggle(id)
+          safely(function()
+            local changed = CopyTable(tags)
+            changed[id] = not tags[id] or nil
+            if p then Packs.SetMembership(pack, p.id, changed) else row.variations = changed end
+          end)
+          render()
+        end
+        local chipX, chipY = VARIATIONS_X, y + 9
+        for _, id in ipairs(pack.variationOrder) do
+          -- A variation tab shows only what is assigned; "All" offers every toggle.
+          if tags[id] or not filter then
+            local chip, width = variationToggle(body, pack.variations[id].name, id, tags[id],
+              not locked and function() toggle(id) end or nil, locked)
+            if chipX + width > VARIATIONS_RIGHT and chipX > VARIATIONS_X then chipX, chipY = VARIATIONS_X, chipY + 30 end
+            chip:SetPoint("TOPLEFT", body, "TOPLEFT", chipX, -chipY)
+            chipX = chipX + width + 4
+          end
+        end
+        local height = math.max(44, chipY - y + 35)
+        local warning, rowHeight = rowWarning(index, p, tags), position == #shown and height - 1 or height
+        if warning then unassignedRow(body, y, rowHeight, warning)
+        elseif not p then emptyRow(body, y, rowHeight) end
+        if position == 1 then
+          local status = info.status ~= "Ready" and info.status or nil
+          if info.status == "Addon disabled" then status = "AddOn disabled - click to enable" end
+          addonRow(body, moduleName, y, lap:isLoaded() and { .95, .95, .95 } or { .5, .5, .5 }, status, nil, true)
+          if info.status == "Addon disabled" or info.status == "Enabled after reload" or info.status == "Needs setup" then
+            -- Keep the old row click action without rendering a styled status button.
+            local hit = widget(body, "statusAction", function() return CreateFrame("Button", nil, body) end)
+            hit:SetPoint("TOPLEFT", body, "TOPLEFT", 4, -y)
+            hit:SetSize(PROFILE_X - 12, height)
+            hit:SetEnabled(not addon.state.busy)
+            hit:SetScript("OnClick", function()
+              if info.status == "Addon disabled" then addon:EnableCreatorAddon(moduleName)
+              elseif info.status == "Enabled after reload" then ReloadUI()
+              else addon:EnsureIntegration(moduleName); render() end
+            end)
+          end
+        else
+          lastBranch = y + 22
+          profileConnector(body, PROFILE_X + 8, lastBranch, 8, 1)
+        end
+
+        local function clear()
+          if row.profileID then Packs.RemoveProfile(pack, row.profileID) end
+          -- The main row keeps its variations so the next profile picked inherits them.
+          if index == 1 then row.profileID, row.cleared = nil, true; row.variations = CopyTable(tags)
+          else table.remove(rows, index) end
+          render()
+        end
+        local current = ready and lap.getCurrentProfileKey and lap:getCurrentProfileKey()
+        local entries = {}
+        if p then entries[1] = { value = p.id, label = current == p.sourceKey and ("|cff009ECC" .. p.name .. "|r (active)") or p.name } end
+        -- DF needs an initial option to open; enumerate profiles only when opened.
+        entries[#entries + 1] = { value = "none", label = "Not selected", onclick = clear }
+        local indent = position == 1 and 0 or 16
+        local selector = dropdown(body, p and p.id or "none", entries, PROFILE_X + indent, y + 6, PROFILE_WIDTH - indent)
+        selector.moduleName, selector.profileRow = moduleName, row
+        local prior = p and p.data and saved and saved.profiles[p.id]
+        if prior and (prior.sourceKey ~= p.sourceKey or prior.sourceCharacter ~= p.sourceCharacter) then prior = nil end
+        local timestamp = prior and (prior.lastSavedAt or prior.lastUpdatedAt)
+        local savedText = timestamp and ("Last save: " .. date("%b %d, %H:%M", timestamp)) or "Not saved yet"
+        selector:SetTooltip(p and (position == 1 and savedText or (moduleName .. "\n" .. savedText)) or nil)
+        addon:UseWidgetTooltip(selector)
+        selector.OnMouseDownHook = function(_, _, options)
+          for i = #options, 1, -1 do options[i] = nil end
+          options[1] = { value = "none", label = "Not selected", font = addon.FONT, onclick = clear }
+          local sources = addon:ProfileSources(moduleName)
+          for sourceIndex, source in ipairs(sources) do
+            options[#options + 1] = { value = sourceIndex, label = source.active and ("|cff009ECC" .. source.key .. "|r (active)") or source.label,
+              font = addon.FONT, onclick = function()
+              safely(function()
+                if row.profileID then Packs.SetSource(pack, row.profileID, source)
+                else
+                  -- Chips picked beforehand win; otherwise an addon's first profile joins Default.
+                  local tags = row.variations and next(row.variations) and row.variations or (index == 1 and { default = true } or {})
+                  row.profileID = Packs.AddProfile(pack, moduleName, source.key, source.key,
+                    tags, source.kind, source.character, source.classAndSpecTag)
+                end
+                addon.state.notice = nil
+              end)
+              render()
+            end }
+          end
+        end
+        if locked or not ready or addon.state.busy then selector:Disable() end
+        if not locked then
+          local add = rowAction(body, nil, 838, y, "Add alternate profile", function()
+            -- New alternates start unassigned until a variation chip is chosen.
+            table.insert(rows, { variations = {}, moduleName = moduleName })
+            render()
+          end)
+          add:SetEnabled(ready and not addon.state.busy)
+          local remove = rowAction(body, [[Interface\Buttons\UI-GroupLoot-Pass-Up]], 870, y,
+            index == 1 and "Clear selected profile" or "Remove alternate profile", clear)
+          local hover = widget(body, "profileHover", function()
+            local frame = CreateFrame("Frame", nil, body)
+            frame:EnableMouse(false)
+            frame:SetScript("OnUpdate", function(self)
+              -- Test row bounds so hovering its dropdown, chips or icons also counts.
+              local shown = self.addonLoaded and not addon.state.busy and not ui.modal:IsShown()
+                and ui.scroll:IsMouseOver() and self:IsMouseOver()
+              for _, action in ipairs(self.actions) do action:SetShown(shown) end
+            end)
+            return frame
+          end)
+          hover:SetPoint("TOPLEFT", body, "TOPLEFT", 4, -y)
+          hover:SetSize(body:GetWidth() - 8, height)
+          hover.actions = { add, remove }
+          hover.addonLoaded = lap:isLoaded()
+          add:Hide(); remove:Hide()
+        end
+        y = y + height
+      end
+      -- One shared addon cell/background; branches connect its indented profiles.
+      rowBackground(body, groupStart, y - groupStart - 1, ready and .18 or .06)
+      if lastBranch then profileConnector(body, PROFILE_X + 8, groupStart + 38, 1, lastBranch - groupStart - 38 + 1) end
+      if lap.exportOptions or moduleName == "WeakAuras" then
+        local icon = body.pools.addonIcon[body.used.addonIcon]
+        icon:SetTooltip("Left-click: addon settings\nRight-click: export options")
+        icon:SetEnabled(ready and not addon.state.busy)
+        icon:SetClickFunction(function() exportOptions(pack, moduleName) end, nil, nil, "RightButton")
+      end
+    end
+  end
+  if extrasPending then additionalRow() end
+  local saveAll = button(ui.footer, "Save All Profiles", (ui.footer:GetWidth() - 300) / 2, -14, 300,
     function()
       if #pack.profileOrder == 0 and not next(pack.additionalAddons) and not addon.db.creator.saved[pack.id] then
         notice("No profiles to export!"); return
@@ -778,172 +1183,33 @@ local function creator(pack)
         ui.capturePopup:Show()
       end)
     end, nil, 50, 20)
-  label(ui.columns, "Options", 4, 3, 48, 13, { .65, .65, .65 })
-  label(ui.columns, "AddOn", 56, 3, 325, 13, { .65, .65, .65 })
-  label(ui.columns, "Profile", 389, 3, 210, 13, { .65, .65, .65 })
-  label(ui.columns, "Variations", 613, 3, 213, 13, { .65, .65, .65 })
-
-  local infos = addon:CreatorAddons()
-  local saved = addon.db.creator.saved[pack.id]
-  local y = 0
-  local query = (ui.searchText or ""):lower()
-  local hasNotInstalled = false
-  if ("additional addons"):find(query, 1, true) then
-    local count = 0
-    for _ in pairs(pack.additionalAddons) do count = count + 1 end
-    rowBackground(body, y, 43, .18)
-    local icon = addonRow(body, "Additional Addons", y, { .95, .95, .95 }, nil, nil, true)
-    icon:SetEnabled(not addon.state.busy)
-    icon:SetTooltip("Choose additional addons to include")
-    icon:SetClickFunction(function() additionalAddons(pack) end)
-    button(body, count > 0 and ("Manage (" .. count .. ")") or "Manage", 389, y + 6, 210,
-      function() additionalAddons(pack) end, "Choose additional addons to include", 32)
-    y = y + 44
+  local blocked = {}
+  for _, p in ipairs(Packs.Profiles(pack)) do
+    if not next(p.variations) then unassigned[p.moduleName] = true end
   end
-  for _, info in ipairs(infos) do
-    if info.status == "Not installed" then hasNotInstalled = true end
-    local moduleName, ready = info.name, info.status == "Ready"
-    local rows = creatorRows(pack, moduleName)
-    local matches = moduleName:lower():find(query, 1, true)
-    for _, row in ipairs(rows) do
-      local p = row.profileID and pack.profiles[row.profileID]
-      matches = matches or p and p.name:lower():find(query, 1, true)
-    end
-    if matches and (info.status ~= "Not installed" or ui.showNotInstalled or query ~= "") then
-      local lap = LAP:GetModule(moduleName)
-      local groupStart, lastBranch = y, nil
-      for index, row in ipairs(rows) do
-        row.moduleName = moduleName
-        local p = row.profileID and pack.profiles[row.profileID]
-        local tags = p and p.variations or row.variations or {}
-        local chipX, chipY = 613, y + 9
-        for _, id in ipairs(pack.variationOrder) do
-          if tags[id] then
-            local chip, width = variationChip(body, pack.variations[id].name, id, chipX, chipY, nil,
-              function() profileEditor(pack, row, nil, id) end, function()
-                safely(function()
-                  local remaining = CopyTable(tags)
-                  remaining[id] = nil
-                  if p then Packs.SetMembership(pack, p.id, remaining) else row.variations = remaining end
-                  render()
-                end)
-              end, 13)
-            local edge = chipY == y + 9 and 774 or 826
-            if chipX + width > edge then chipX, chipY = 613, chipY + 30 end
-            chip:ClearAllPoints(); chip:SetPoint("TOPLEFT", body, "TOPLEFT", chipX, -chipY)
-            chipX = chipX + width + 4
-          end
-        end
-        local height = math.max(44, chipY - y + 35)
-        local addVariation = button(body, "Add", 778, y + 9, 48,
-          function() profileEditor(pack, row) end, nil, 26, 13, "variationAdd")
-        addVariation:Hide()
-        local variationHover = widget(body, "variationHover", function()
-          local cell = CreateFrame("Frame", nil, body)
-          cell:EnableMouse(false)
-          cell:SetScript("OnUpdate", function(self)
-            local hovered = self:IsMouseOver() or self.action:IsShown() and self.action:IsMouseOver()
-            self.action:SetShown(hovered and ui.scroll:IsMouseOver() and not addon.state.busy and not ui.modal:IsShown())
-          end)
-          return cell
-        end)
-        variationHover:SetPoint("TOPLEFT", body, "TOPLEFT", 613, -y)
-        variationHover:SetSize(213, height)
-        variationHover.action = addVariation
-        if index == 1 then
-          local status = info.status ~= "Ready" and info.status or nil
-          if info.status == "Addon disabled" then status = "AddOn disabled - click to enable" end
-          addonRow(body, moduleName, y, lap:isLoaded() and { .95, .95, .95 } or { .5, .5, .5 }, status, nil, true)
-          if info.status == "Addon disabled" or info.status == "Enabled after reload" or info.status == "Needs setup" then
-            -- Keep the old row click action without rendering a styled status button.
-            local hit = widget(body, "statusAction", function() return CreateFrame("Button", nil, body) end)
-            hit:SetPoint("TOPLEFT", body, "TOPLEFT", 4, -y)
-            hit:SetSize(377, height)
-            hit:SetEnabled(not addon.state.busy)
-            hit:SetScript("OnClick", function()
-              if info.status == "Addon disabled" then addon:EnableCreatorAddon(moduleName)
-              elseif info.status == "Enabled after reload" then ReloadUI()
-              else addon:EnsureIntegration(moduleName); render() end
-            end)
-          end
-        else
-          lastBranch = y + 22
-          profileConnector(body, 397, lastBranch, 8, 1)
-        end
-
-        local function clear()
-          if row.profileID then Packs.RemoveProfile(pack, row.profileID) end
-          if index == 1 then row.profileID, row.cleared = nil, true; row.variations = { default = true }
-          else table.remove(rows, index) end
-          render()
-        end
-        local current = ready and lap.getCurrentProfileKey and lap:getCurrentProfileKey()
-        local entries = {}
-        if p then entries[1] = { value = p.id, label = current == p.sourceKey and ("|cff009ECC" .. p.name .. "|r (active)") or p.name } end
-        -- DF needs an initial option to open; enumerate profiles only when opened.
-        entries[#entries + 1] = { value = "none", label = "Not selected", onclick = clear }
-        local indent = index == 1 and 0 or 16
-        local selector = dropdown(body, p and p.id or "none", entries, 389 + indent, y + 6, 210 - indent)
-        selector.moduleName, selector.profileRow = moduleName, row
-        local prior = p and p.data and saved and saved.profiles[p.id]
-        if prior and (prior.sourceKey ~= p.sourceKey or prior.sourceCharacter ~= p.sourceCharacter) then prior = nil end
-        local timestamp = prior and (prior.lastSavedAt or prior.lastUpdatedAt)
-        local savedText = timestamp and ("Last save: " .. date("%b %d, %H:%M", timestamp)) or "Not saved yet"
-        selector:SetTooltip(p and (index == 1 and savedText or (moduleName .. "\n" .. savedText)) or nil)
-        addon:UseWidgetTooltip(selector)
-        selector.OnMouseDownHook = function(_, _, options)
-          for i = #options, 1, -1 do options[i] = nil end
-          options[1] = { value = "none", label = "Not selected", font = addon.FONT, onclick = clear }
-          local sources = addon:ProfileSources(moduleName)
-          for sourceIndex, source in ipairs(sources) do
-            options[#options + 1] = { value = sourceIndex, label = source.active and ("|cff009ECC" .. source.key .. "|r (active)") or source.label,
-              font = addon.FONT, onclick = function()
-              safely(function()
-                if row.profileID then Packs.SetSource(pack, row.profileID, source)
-                else row.profileID = Packs.AddProfile(pack, moduleName, source.key, source.key,
-                  row.variations or { default = true }, source.kind, source.character, source.classAndSpecTag) end
-                addon.state.notice = nil
-              end)
-              render()
-            end }
-          end
-        end
-        if not ready or addon.state.busy then selector:Disable() end
-        local add = rowAction(body, nil, 838, y, "Add alternate profile", function()
-          local draft = { variations = {}, moduleName = moduleName }
-          profileEditor(pack, draft, function() table.insert(rows, draft) end)
-        end)
-        add:SetEnabled(ready and not addon.state.busy)
-        local remove = rowAction(body, [[Interface\Buttons\UI-GroupLoot-Pass-Up]], 870, y,
-          index == 1 and "Clear selected profile" or "Remove alternate profile", clear)
-        local hover = widget(body, "profileHover", function()
-          local frame = CreateFrame("Frame", nil, body)
-          frame:EnableMouse(false)
-          frame:SetScript("OnUpdate", function(self)
-            -- Test row bounds so hovering its dropdown, chips or icons also counts.
-            local shown = self.addonLoaded and not addon.state.busy and not ui.modal:IsShown()
-              and ui.scroll:IsMouseOver() and self:IsMouseOver()
-            for _, action in ipairs(self.actions) do action:SetShown(shown) end
-          end)
-          return frame
-        end)
-        hover:SetPoint("TOPLEFT", body, "TOPLEFT", 4, -y)
-        hover:SetSize(body:GetWidth() - 8, height)
-        hover.actions = { add, remove }
-        hover.addonLoaded = lap:isLoaded()
-        add:Hide(); remove:Hide()
-        y = y + height
-      end
-      -- One shared addon cell/background; branches connect its indented profiles.
-      rowBackground(body, groupStart, y - groupStart - 1, ready and .18 or .06)
-      if lastBranch then profileConnector(body, 397, groupStart + 38, 1, lastBranch - groupStart - 38 + 1) end
-      if lap.exportOptions or moduleName == "WeakAuras" then
-        local icon = body.pools.addonIcon[body.used.addonIcon]
-        icon:SetTooltip("Left-click: addon settings\nRight-click: export options")
-        icon:SetEnabled(ready and not addon.state.busy)
-        icon:SetClickFunction(function() exportOptions(pack, moduleName) end, nil, nil, "RightButton")
-      end
-    end
+  for moduleName in pairs(unassigned) do table.insert(blocked, moduleName) end
+  table.sort(blocked)
+  saveAll:SetEnabled(not addon.state.busy and #blocked == 0)
+  -- Disabled buttons do not reliably report hover; explain the block from a frame above it.
+  local blocker = widget(ui.footer, "saveBlocker", function()
+    local f = CreateFrame("Frame", nil, ui.footer)
+    f:EnableMouse(true)
+    f:SetScript("OnEnter", function(self) addon.ShowWidgetTooltip(self, self.tooltip) end)
+    f:SetScript("OnLeave", function(self) addon.HideWidgetTooltip(self) end)
+    return f
+  end)
+  local saveFrame = saveAll.widget or saveAll.button or saveAll
+  blocker:SetAllPoints(saveFrame)
+  blocker:SetFrameLevel(saveFrame:GetFrameLevel() + 5)
+  blocker.tooltip = "Fix the rows marked with a warning before saving.\nIncomplete: " .. table.concat(blocked, ", ")
+  blocker:SetShown(#blocked > 0)
+  if filter and query == "" and not profilesListed then
+    label(body, "No profiles are assigned to " .. pack.variations[filter].name .. " yet.", 0, y + 40, body:GetWidth(), 16,
+      { .65, .65, .65 }):SetJustifyH("CENTER")
+    y = y + 90
+  elseif not listed then
+    label(body, "Nothing matches \"" .. ui.searchText .. "\"", 0, 40, body:GetWidth(), 16, { .65, .65, .65 }):SetJustifyH("CENTER")
+    y = 100
   end
   if hasNotInstalled and query == "" then
     local row = widget(body, "missingAddonsRow", function()
@@ -1112,7 +1378,7 @@ end
 
 render = function()
   if not ui.header then return end
-  reset(ui.header); reset(ui.content); reset(ui.footer); reset(ui.columns)
+  reset(ui.header); reset(ui.content); reset(ui.footer); reset(ui.tabs)
   ui.notice:SetText(addon.state.busy and "Working…" or addon.state.packError or addon.state.notice or "")
   local creating = addon.db.workspaceMode == "create"
   local switch = button(ui.footer, creating and "UI packs" or "Creator tools", 808, 0, 144, function()
@@ -1151,15 +1417,18 @@ render = function()
   end
   if #entries > 0 then
     if creating then table.insert(entries, { label = "+ Add UI Pack", action = true, onclick = startSetup }) end
-    dropdown(ui.header, selected, entries, 0, 0, 320, "UI pack")
+    label(ui.header, "UI Pack", 0, 9, 64, 14, { .65, .65, .65 })
+    dropdown(ui.header, selected, entries, 68, 0, 300, "UI pack")
   end
-  ui.search:SetShown(creating and selected ~= nil)
   local tableVisible = creating and selected ~= nil
-  ui.columns:SetShown(tableVisible)
+  local searching = ui.searchText ~= nil and ui.searchText ~= ""
+  ui.search:SetShown(tableVisible)
+  ui.tabs:SetShown(tableVisible)
   ui.scroll:ClearAllPoints()
-  ui.scroll:SetPoint("TOPLEFT", addon.frames.mainFrame, "TOPLEFT", 24, tableVisible and -158 or -130)
-  ui.scroll:SetHeight(tableVisible and 460 or 488)
-  ui.searchHint:SetShown(creating and selected ~= nil and (not ui.searchText or ui.searchText == ""))
+  ui.scroll:SetPoint("TOPLEFT", addon.frames.mainFrame, "TOPLEFT", 24, tableVisible and -172 or -130)
+  ui.scroll:SetHeight(tableVisible and 446 or 488)
+  ui.searchHint:SetShown(tableVisible and not searching)
+  ui.searchClear:SetShown(tableVisible and searching)
   if creating then
     local pack = selected and available[selected]
     creator(pack)
@@ -1186,9 +1455,9 @@ function addon:CreateWorkspace(frame)
   ui.header:SetPoint("TOPLEFT", frame, "TOPLEFT", 24, -48)
   ui.header:SetSize(952, 40)
   ui.scroll, ui.content = scroll(frame, 24, 130, 918, 488)
-  ui.columns = CreateFrame("Frame", nil, frame)
-  ui.columns:SetPoint("TOPLEFT", frame, "TOPLEFT", 24, -130)
-  ui.columns:SetSize(918, 24)
+  ui.tabs = CreateFrame("Frame", nil, frame)
+  ui.tabs:SetPoint("TOPLEFT", frame, "TOPLEFT", 24, -134)
+  ui.tabs:SetSize(918, 30)
   ui.footer = CreateFrame("Frame", nil, frame)
   ui.footer:SetPoint("TOPLEFT", frame, "TOPLEFT", 24, -648)
   ui.footer:SetSize(952, 36)
@@ -1197,18 +1466,39 @@ function addon:CreateWorkspace(frame)
   ui.notice:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 26, 60)
   ui.notice:SetWidth(910)
   ui.notice:SetJustifyH("LEFT")
-  ui.search = input(frame, "", 28, 92, 510, function(text)
+  local function search(text)
     ui.searchText = text
     ui.scroll:SetVerticalScroll(0)
     render()
-  end)
+  end
+  ui.search = input(frame, "", 28, 90, 826, search)
   ui.search:SetScript("OnEnterPressed", function(self) self:ClearFocus() end)
   ui.search:SetMaxLetters(120)
+  ui.search:SetTextInsets(32, 32, 0, 0)
+  ui.searchIcon = ui.search:CreateTexture(nil, "OVERLAY")
+  ui.searchIcon:SetTexture([[Interface\Common\UI-Searchbox-Icon]])
+  ui.searchIcon:SetSize(14, 14)
+  ui.searchIcon:SetPoint("LEFT", ui.search, "LEFT", 11, -1)
   ui.searchHint = ui.search:CreateFontString(nil, "OVERLAY", "GameFontDisable")
   ui.searchHint:SetFont(addon.FONT, 14, "")
   ui.searchHint:SetTextColor(0.65, 0.65, 0.65, 1)
-  ui.searchHint:SetPoint("LEFT", ui.search, "LEFT", 8, 0)
-  ui.searchHint:SetText("Search")
+  ui.searchHint:SetPoint("LEFT", ui.search, "LEFT", 32, 0)
+  ui.searchHint:SetText("Search AddOns, profiles or variations…")
+  ui.searchClear = CreateFrame("Button", nil, ui.search)
+  ui.searchClear:SetSize(26, 26)
+  ui.searchClear:SetPoint("RIGHT", ui.search, "RIGHT", -4, 0)
+  ui.searchClear.cross = ui.searchClear:CreateFontString(nil, "OVERLAY")
+  ui.searchClear.cross:SetFont(addon.FONT, 20, "")
+  ui.searchClear.cross:SetPoint("CENTER", ui.searchClear, "CENTER", 0, -1)
+  ui.searchClear.cross:SetTextColor(.65, .65, .65, 1)
+  ui.searchClear.cross:SetText("×")
+  ui.searchClear:SetScript("OnEnter", function(self) self.cross:SetTextColor(1, 1, 1, 1) end)
+  ui.searchClear:SetScript("OnLeave", function(self) self.cross:SetTextColor(.65, .65, .65, 1) end)
+  ui.searchClear:SetScript("OnClick", function()
+    ui.search:SetText("")
+    ui.search:ClearFocus()
+    search("")
+  end)
   ui.lock = CreateFrame("Frame", nil, frame, "BackdropTemplate")
   ui.lock:SetAllPoints(frame)
   ui.lock:SetFrameLevel(frame:GetFrameLevel() + 70)
@@ -1272,7 +1562,6 @@ function addon:CreateWorkspace(frame)
   ui.modal:SetBackdropColor(0.08, 0.08, 0.08, 1)
   ui.modal.scroll, ui.modal.content = scroll(ui.modal, 24, 78, 526, 350)
   ui.modal:Hide()
-  ui.modal:HookScript("OnHide", function() ui.modal.scroll:ClearAllPoints(); ui.modal.scroll:SetPoint("TOPLEFT", ui.modal, "TOPLEFT", 24, -78) end)
   frame:HookScript("OnShow", render)
   render()
 end

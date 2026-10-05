@@ -74,6 +74,10 @@ assert(not P.Validate(bad))
 bad = CopyTable(pack); bad.profileOrder[2] = first; assert(not P.Validate(bad))
 bad = CopyTable(pack); bad.profiles[first].kind = "group"; assert(not P.Validate(bad))
 assert(not P.Validate({ schemaVersion = 1 }))
+local loose = P.New("loose", "Loose")
+P.AddProfile(loose, "Test", "Raid", "Raid")
+local unassigned = P.AddProfile(loose, "Test", "Other", "Other", {})
+assert(not next(loose.profiles[unassigned].variations) and P.Validate(loose), "Explicitly unassigned alternate was rejected")
 local exports = 0
 modules.Test = {
   moduleName = "Test", addonNames = { "Test" },
