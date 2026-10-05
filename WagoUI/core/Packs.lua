@@ -104,7 +104,8 @@ function Packs.AddProfile(pack, moduleName, sourceKey, label, tags, kind, source
         "Profile already added. Edit its variations instead.")
     end
   end
-  tags = membership(pack, tags or (first and { default = true }), true)
+  -- Alternates may start without variations; the creator assigns them on the row.
+  tags = membership(pack, tags or (first and { default = true }), tags == nil)
   local id = nextID(pack, "p")
   pack.profiles[id] = {
     id = id, moduleName = moduleName, sourceKey = sourceKey, name = label, kind = kind,

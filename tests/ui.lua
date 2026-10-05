@@ -218,6 +218,10 @@ local function visible(kind)
   for _, f in ipairs(frames) do if f.kind == kind and f:IsShown() then table.insert(out, f) end end
   return out
 end
+local function hasText(text)
+  for _, f in ipairs(visible("font")) do if f.text == text then return true end end
+  return false
+end
 local function packSelector()
   for _, selector in ipairs(visible("dropdown")) do
     for _, entry in ipairs(selector.options()) do
@@ -362,7 +366,7 @@ assert(pack.name == "Renamed UI", "Dropdown rename failed")
 selector.OnUpdateOptionFrame(selector, row, selector.options()[2])
 for _, action in ipairs(row.pools.packAction) do assert(not action.visible, "Pack actions leaked onto the new-pack row") end
 local searchHint
-for _, f in ipairs(visible("font")) do if f.text == "Search" then searchHint = f end end
+for _, f in ipairs(visible("font")) do if f.text == "Search AddOns, profiles or variations…" then searchHint = f end end
 assert(searchHint and searchHint.parent.kind == "EditBox" and searchHint.textColor[1] >= 0.65,
   "Search hint must draw on the editbox above its backdrop")
 C_AddOns.GetNumAddOns = function() return 1 end
@@ -498,51 +502,126 @@ assert(pack.profiles[id].sourceKey == "Raid" and pack.profiles[id].variations.de
 for _, f in ipairs(visible("font")) do
   if f.text == "Test" then assert(f.textColor[1] == 0.95, "Addon with profiles stayed grey") end
 end
--- Edit memberships through the chip on the selected profile row.
-local firstSelector = profileSelectors()[1]
-for _, f in ipairs(visible("button")) do
-  if f.text == "Default" and f.point[5] == firstSelector.point[5] - 3 then
-    assert(f.borderColor[1] == 32 / 255 and f.borderColor[2] == 93 / 255, "Default chip is not the blue palette")
-    f.click(); break
+-- Variations are assigned inline: every row shows every variation as a toggle.
+local function variationTabs()
+  local out = {}
+  for _, f in ipairs(visible("Button")) do if f.swatch then table.insert(out, f) end end
+  table.sort(out, function(a, b) return a.point[4] < b.point[4] end)
+  return out
+end
+local function openTab(index)
+  local tab = variationTabs()[index]
+  tab.scripts.OnClick(tab)
+end
+local function tabNamed(name)
+  for _, tab in ipairs(variationTabs()) do if tab.label.text == name then return tab end end
+  error("Missing variation tab: " .. name)
+end
+local function chipFor(selector, name)
+  local best
+  for _, chip in ipairs(visible("button")) do
+    if chip.variationID and chip.text == name and chip.point[5] <= selector.point[5] - 3
+      and (not best or chip.point[5] > best.point[5]) then best = chip end
   end
+  return assert(best, "Missing variation toggle: " .. name)
 end
-local checks = membershipChecks()
-assert(#checks == 2)
-checks[1]:SetValue(false, "RUN_CALLBACK")
-checks[2]:SetValue(true, "RUN_CALLBACK")
-click("Save")
-assert(not pack.profiles[id].variations.default and pack.profiles[id].variations[pack.variationOrder[2]])
+local function findButton(text)
+  for i = #frames, 1, -1 do
+    if frames[i].kind == "button" and frames[i]:IsShown() and frames[i].text == text then return frames[i] end
+  end
+  error("Missing button: " .. text)
+end
+local function variationForm()
+  local form = {}
+  local top = hasText("New variation") and 56 or 0
+  for _, box in ipairs(frames) do
+    if box.kind == "EditBox" and box.parent:IsShown() and box.parent.kind == "Frame" and box.parent:GetWidth() == 460
+      and (box.visible or box.point[5] == -(top + 164)) then
+      if box.point[5] == -(top + 92) then form.name = box
+      elseif box.point[5] == -(top + 164) then if box.point[4] == 200 then form.width = box else form.height = box end
+      elseif box.point[5] == -(top + 238) then form.description = box end
+    end
+  end
+  assert(form.name and form.width and form.height and form.description, "Missing variation editor fields")
+  for _, box in ipairs(visible("checkbox")) do
+    if box.parent == form.name.parent then
+      if box.point[5] == -(top + 169) then form.any = box elseif box.point[5] == -(top + 289) then form.includeDefault = box end
+    end
+  end
+  return form
+end
+local function warningIcons()
+  local out = {}
+  for _, f in ipairs(visible("Frame")) do
+    if f.texture and f.texture.texture == [[Interface\DialogFrame\UI-Dialog-Icon-AlertNew]] then table.insert(out, f) end
+  end
+  return out
+end
+local compactID = pack.variationOrder[2]
+local firstSelector = profileSelectors()[1]
+local defaultChip, compactChip = chipFor(firstSelector, "Default"), chipFor(firstSelector, "Compact")
+assert(defaultChip.assigned and not compactChip.assigned, "Toggles do not reflect the profile's variations")
+assert(defaultChip.point[5] == firstSelector.point[5] - 3 and defaultChip.point[4] == 524,
+  "Variation toggles do not start right of the profile column")
+assert(defaultChip.borderColor[1] == 32 / 255 and defaultChip.borderColor[2] == 93 / 255, "Default chip is not the blue palette")
+assert(compactChip.borderColor[1] == .24 and compactChip.text_overlay.textColor[1] == .6, "Unassigned toggle is not muted")
+assert(not defaultChip.removeButton and not compactChip.tooltip, "Toggles still carry a remove control or tooltip")
+compactChip.parent.parent.mouseOver, compactChip.mouseOver = true, true
+compactChip.scripts.OnUpdate()
+assert(compactChip.borderColor[1] == variationTabs()[3].swatch.color[1], "Unassigned toggle has no hover preview")
+compactChip.parent.parent.mouseOver, compactChip.mouseOver = false, false
+compactChip.scripts.OnUpdate()
+local anchor = compactChip.text_overlay.point
+for _, event in ipairs({ "OnMouseDown", "OnMouseUp" }) do
+  compactChip.scripts[event](compactChip)
+  for index, value in ipairs(anchor) do assert(compactChip.text_overlay.point[index] == value, "Clicking moves chip text") end
+end
+compactChip.click()
+assert(#visible("EditBox") == 1, "Assigning a variation opened a dialog")
+assert(pack.profiles[id].variations.default and pack.profiles[id].variations[compactID], "Toggle did not assign")
+chipFor(profileSelectors()[1], "Default").click()
+assert(not pack.profiles[id].variations.default and pack.profiles[id].variations[compactID], "Toggle did not unassign")
+-- New alternates start unassigned, are flagged, and block saving until assigned.
 iconAt("Add alternate profile", profileSelectors()[1]).click()
-local blankForm = variationFields()
-assert(not blankForm.width:IsShown() and not blankForm.height:IsShown(), "Any resolution leaves its inputs visible")
-local titleFound = false
-for _, text in ipairs(visible("font")) do
-  if text.text == "Profile Variations" then titleFound = true end
-  assert(text.text ~= "Test · New profile", "Redundant profile subtitle remains")
-end
-assert(titleFound, "Variation manager title is incorrect")
-local addEntry = button("+ Add variation")
-assert(addEntry.parent.parent.kind == "ScrollFrame" and addEntry.point[5] == -(#pack.variationOrder * 52 + 9),
-  "New variation is not the final list entry")
-for _, oldButton in ipairs(visible("button")) do assert(oldButton.text ~= "+ Variation", "Standalone add variation button remains") end
-click("Save")
-assert(#profileSelectors() == 1, "Alternate row bypassed explicit variation selection")
-click("+ Add variation")
-local variationForm = variationFields()
-variationForm.name:SetText("Raid alternate")
-assert(#pack.variationOrder == 2, "Creating a draft variation changed the UI Pack before Save")
-click("Save")
+assert(#visible("EditBox") == 1, "Adding an alternate opened a dialog")
 assert(#profileSelectors() == 2 and #pack.profileOrder == 1, "Blank alternate became an installable profile")
 local blankRow = profileSelectors()[2].profileRow
-local blankTags = CopyTable(blankRow.variations)
-button("Raid alternate").removeButton.scripts.OnClick()
-assert(not next(blankRow.variations) and #pack.profileOrder == 1 and pack.variations[pack.variationOrder[3]],
-  "Removing a blank row's chip changed saved profiles or deleted its variation")
-blankRow.variations = blankTags
-addon:RefreshWorkspace()
+assert(not next(blankRow.variations), "New alternate started with variations")
+local icons = warningIcons()
+assert(#icons == 1 and icons[1].point[5] == profileSelectors()[2].point[5] - 5
+  and icons[1].point[4] + icons[1]:GetWidth() <= profileSelectors()[2].point[4], "Unassigned row lacks a warning beside its profile")
+local tinted = false
+for _, f in ipairs(visible("texture")) do
+  if f.color and f.color[1] == .95 and f.color[4] == .12 and f.point[5] == profileSelectors()[2].point[5] + 6 then tinted = true end
+end
+assert(tinted, "Unassigned row is not tinted")
+local saveAllButton = findButton("Save All Profiles")
+assert(saveAllButton.enabled == false, "Save All Profiles allows unassigned profiles")
+local blocker
+for _, f in ipairs(visible("Frame")) do
+  if f.parent == saveAllButton.parent and (f.tooltip or ""):find("Incomplete: Test", 1, true) then blocker = f end
+end
+assert(blocker and blocker:GetFrameLevel() > saveAllButton:GetFrameLevel(), "Blocked save does not explain why")
+-- The add tab opens the variation manager, which only edits the variation itself.
+local addTab = tabNamed("+ Add variation")
+assert(addTab == variationTabs()[#variationTabs()] and addTab.count.text == "" and not addTab.swatch:IsShown())
+addTab.scripts.OnClick(addTab)
+local form = variationForm()
+assert(hasText("New variation") and form.name:HasFocus() and not form.width:IsShown(), "New variation form is incomplete")
+assert(form.includeDefault and not hasText("Profile Variations"), "Variation manager shows assignments")
+form.name:SetText("Raid alternate")
+click("Create")
+local raidAlternate = pack.variationOrder[3]
+assert(pack.variations[raidAlternate].name == "Raid alternate" and #addon.Packs.Profiles(pack, raidAlternate) == 0)
+assert(tabNamed("Raid alternate").active, "Creating a variation did not open its tab")
+openTab(1)
+chipFor(profileSelectors()[2], "Raid alternate").click()
+assert(blankRow.variations[raidAlternate] and #pack.profileOrder == 1, "Blank row assignment changed saved profiles")
+assert(#warningIcons() == 1 and warningIcons()[1].tooltip:find("No profile selected", 1, true), "Variation without profile is not flagged")
 selectSource(profileSelectors()[2], "Other")
+assert(#warningIcons() == 0 and button("Save All Profiles"), "Completed row is still flagged")
 assert(#pack.profileOrder == 2)
-assert(pack.profiles[pack.profileOrder[2]].variations[pack.variationOrder[3]])
+assert(pack.profiles[pack.profileOrder[2]].variations[raidAlternate])
 local testIconCount = 0
 for _, f in ipairs(visible("addonIcon")) do if f.texture == modules.Test.icon then testIconCount = testIconCount + 1 end end
 assert(testIconCount == 1, "Alternate row repeats the addon icon")
@@ -555,12 +634,6 @@ tooltipOwner:ShowTooltip()
 local nativeTooltip
 for _, candidate in ipairs(visible("Frame")) do
   if candidate.owner == tooltipOwner then nativeTooltip = candidate end
-end
-local function variationCell(selector)
-  for _, cell in ipairs(visible("Frame")) do
-    if cell.action and cell.point[4] == 613 and cell.point[5] == selector.point[5] + 6 then return cell end
-  end
-  error("Missing variation hover area")
 end
 assert(nativeTooltip and nativeTooltip.strata == "TOOLTIP" and nativeTooltip.clamped)
 assert(nativeTooltip.text.fontFace == addon.FONT and nativeTooltip.text.fontSize == 12,
@@ -589,7 +662,8 @@ assert(grouped[2].point[4] + grouped[2]:GetWidth() == grouped[1].point[4] + grou
 assert(grouped[2].tooltip:find("Test\n", 1, true), "Alternate tooltip does not identify its addon")
 for _, f in ipairs(visible("font")) do assert(f.text ~= "Alternate profile", "Redundant alternate label remains") end
 local connectors = grouped[1].parent.pools.profileConnector
-assert(connectors and #connectors == 2, "Addon group is missing its connecting branch")
+-- The saved additional addon draws its own branch after the Test group.
+assert(connectors and #connectors == 4, "Addon group is missing its connecting branch")
 assert(connectors[1]:GetWidth() == 8 and connectors[2]:GetWidth() == 1)
 assert(connectors[2]:GetHeight() == 29, "Branch does not join the main and alternate dropdowns")
 local sharedBackground = false
@@ -603,165 +677,106 @@ local tagsBefore = CopyTable(pack.profiles[id].variations)
 addon.Packs.SetMembership(pack, id, { default = true, [pack.variationOrder[2]] = true, [pack.variationOrder[3]] = true })
 addon:RefreshWorkspace()
 local withChips = profileSelectors()
-assert(withChips[1].point[4] == 389 and withChips[1]:GetWidth() == 210, "Profile selector did not shift right by half its width")
-assert(withChips[1].point[5] - withChips[2].point[5] > 44, "Chips overlap the following row after wrapping")
+assert(withChips[1].point[4] == 300 and withChips[1]:GetWidth() == 210, "Profile selector did not move left")
 for _, control in ipairs(visible("button")) do
   if control.tooltip == "Choose additional addons to include" then
-    assert(control.point[4] == 389, "Manage button did not move with the profile selectors")
+    assert(control.point[4] == 300, "Manage button did not move with the profile selectors")
   end
 end
 local colors = {}
 for _, chip in ipairs(visible("button")) do
   if chip.variationID then
-    assert(chip.point[4] >= 613 and chip.point[4] + chip:GetWidth() <= 826,
+    assert(chip.point[4] >= 524 and chip.point[4] + chip:GetWidth() <= 826,
       "Variation chips overlap profile selectors or reserved action buttons")
-    for _, other in ipairs(colors[chip.text] or {}) do
-      assert(other[1] == chip.borderColor[1] and other[2] == chip.borderColor[2] and other[3] == chip.borderColor[3],
-        "Variation chip colors differ between rows")
+    if chip.assigned then
+      for _, other in ipairs(colors[chip.text] or {}) do
+        assert(other[1] == chip.borderColor[1] and other[2] == chip.borderColor[2] and other[3] == chip.borderColor[3],
+          "Variation chip colors differ between rows")
+      end
+      colors[chip.text] = { chip.borderColor }
     end
-    colors[chip.text] = { chip.borderColor }
   end
 end
 assert(colors.Default[1][1] ~= colors.Compact[1][1] or colors.Default[1][2] ~= colors.Compact[1][2])
 addon.Packs.SetMembership(pack, id, tagsBefore)
 addon:RefreshWorkspace()
-local function openVariations(name)
-  for _, chip in ipairs(visible("button")) do
-    if chip.variationID and chip.text == name then chip.click(); return end
-  end
-  error("Missing variation chip: " .. name)
-end
-local function deleteVariation()
-  for _, icon in ipairs(visible("iconAction")) do
-    if icon.tooltip == "Delete variation" then icon.click(); return end
-  end
-  error("Missing delete variation action")
-end
--- Hover removal changes only this profile's membership, even for the last chip.
-local compactID = pack.variationOrder[2]
-local compactChip
-for _, chip in ipairs(visible("button")) do
-  if chip.variationID and chip.text == "Compact" then compactChip = chip end
-end
-assert(compactChip and not compactChip.removeButton:IsShown())
-local anchor = compactChip.text_overlay.point
-for _, event in ipairs({ "OnMouseDown", "OnMouseUp" }) do
-  compactChip.scripts[event](compactChip)
-  local pressedAnchor = compactChip.text_overlay.point
-  for index, value in ipairs(anchor) do assert(pressedAnchor[index] == value, "Clicking moves chip text") end
-end
-local chipWidth = compactChip:GetWidth()
-compactChip.parent.parent.mouseOver, compactChip.mouseOver = true, true
-compactChip.scripts.OnUpdate()
-assert(compactChip.removeButton:IsShown() and compactChip.removeButton:GetWidth() == 24)
-assert(not compactChip.tooltip and not compactChip.removeButton.tooltip, "Chip tooltips remain")
-compactChip.mouseOver, compactChip.removeButton.mouseOver = false, true
-compactChip.scripts.OnUpdate()
-assert(compactChip.removeButton:IsShown(), "Moving onto the X hides the removal control")
-compactChip.removeButton.mouseOver = false
-compactChip.scripts.OnUpdate()
-assert(not compactChip.removeButton:IsShown() and compactChip:GetWidth() == chipWidth, "Chip shifts or X remains after hover")
-local otherMembership = CopyTable(pack.profiles[pack.profileOrder[2]].variations)
-compactChip.removeButton.scripts.OnClick()
-assert(pack.profiles[id] and not next(pack.profiles[id].variations) and pack.variations[compactID],
-  "Chip removal deleted its profile or the global variation")
-assert(pack.profiles[pack.profileOrder[2]].variations[pack.variationOrder[3]] == otherMembership[pack.variationOrder[3]])
-local emptyCell = variationCell(profileSelectors()[1])
-assert(not emptyCell.action:IsShown(), "Add is visible without hovering the variation area")
-emptyCell.mouseOver, emptyCell.parent.parent.mouseOver = true, true
-emptyCell.scripts.OnUpdate(emptyCell)
-assert(emptyCell.action:IsShown() and emptyCell.action.text == "Add", "Empty variation area has no hover Add action")
-emptyCell.mouseOver, emptyCell.action.mouseOver = false, true
-emptyCell.scripts.OnUpdate(emptyCell)
-assert(emptyCell.action:IsShown(), "Moving onto Add hides the button")
-emptyCell.action.click()
-assert(variationFields().name.parent:GetWidth() == 680, "Add opened a different variation editor")
-click("Cancel")
-emptyCell = variationCell(profileSelectors()[1])
-emptyCell.mouseOver, emptyCell.action.mouseOver = false, false
-emptyCell.scripts.OnUpdate(emptyCell)
-assert(not emptyCell.action:IsShown(), "Add remained after leaving the variation area")
-addon.Packs.SetMembership(pack, id, { [compactID] = true })
-addon:RefreshWorkspace()
-local chipCell = variationCell(profileSelectors()[1])
-local chipWidths = {}
-for _, chip in ipairs(visible("button")) do
-  if chip.variationID then chipWidths[chip] = chip:GetWidth() end
-end
-chipCell.mouseOver, chipCell.parent.parent.mouseOver = true, true
-chipCell.scripts.OnUpdate(chipCell)
-assert(chipCell.action:IsShown(), "Hovering a variation chip does not reveal Add")
-for chip, width in pairs(chipWidths) do assert(chip:GetWidth() == width, "Revealing Add shifts variation chips") end
-chipCell.parent.parent.mouseOver = false
-chipCell.scripts.OnUpdate(chipCell)
-assert(not chipCell.action:IsShown(), "Add appears outside the scroll viewport")
-chipCell.mouseOver = false
--- Removing a chip in the manager is staged, exactly like its checkbox.
-openVariations("Compact")
-button("Compact").removeButton.scripts.OnClick()
-assert(not membershipChecks()[2]:GetChecked() and pack.profiles[id].variations[compactID])
-click("Cancel")
-assert(pack.profiles[id].variations[compactID], "Cancel committed chip removal")
-openVariations("Compact")
-button("Compact").removeButton.scripts.OnClick()
-click("Save")
-assert(pack.profiles[id] and not next(pack.profiles[id].variations) and pack.variations[compactID],
-  "Saving chip removal deleted the profile or global variation")
-addon.Packs.SetMembership(pack, id, { [compactID] = true })
-addon:RefreshWorkspace()
--- The chip and plus enter the same manager; edits stay local until Save.
-openVariations("Compact")
-local form = variationFields()
-assert(form.name:GetText() == "Compact" and form.name.parent:GetWidth() == 680)
-click("+ Add variation")
-variationFields().name:SetText("Cancelled variation")
-click("Cancel")
-assert(#pack.variationOrder == 3 and pack.variations[pack.variationOrder[2]].name == "Compact",
-  "Cancelling committed a variation draft")
-openVariations("Compact")
-form = variationFields()
+-- Tab actions reserve their space and only appear on hover.
+local compactTab = tabNamed("Compact")
+local compactWidth = compactTab:GetWidth()
+assert(not compactTab.edit:IsShown() and not compactTab.delete:IsShown(), "Tab actions show without hovering")
+compactTab.mouseOver = true
+compactTab.scripts.OnEnter(compactTab)
+assert(compactTab.edit:IsShown() and compactTab.delete:IsShown() and compactTab:GetWidth() == compactWidth,
+  "Hovering a tab did not reveal its actions in place")
+assert(compactTab.delete.texture == [[Interface\Buttons\UI-GroupLoot-Pass-Up]]
+  and compactTab.edit.texture == [[Interface\Buttons\UI-OptionsButton]], "Tab actions use the wrong icons")
+assert(compactTab.edit.point[4] < compactTab.delete.point[4], "Edit is not left of delete")
+compactTab.mouseOver = false
+compactTab.scripts.OnLeave(compactTab)
+assert(not compactTab.edit:IsShown() and not compactTab.delete:IsShown(), "Tab actions remain after leaving")
+local defaultTab = tabNamed("Default")
+defaultTab.mouseOver = true
+defaultTab.scripts.OnEnter(defaultTab)
+assert(defaultTab.edit:IsShown() and not defaultTab.delete:IsShown(), "Default can be deleted")
+defaultTab.mouseOver = false
+defaultTab.scripts.OnLeave(defaultTab)
+-- Editing validates before changing the pack.
+tabNamed("Compact").edit.click()
+form = variationForm()
+assert(hasText("Edit variation") and form.name:GetText() == "Compact" and not form.includeDefault)
 form.name:SetText("Default")
 click("Save")
-assert(form.name:IsShown() and pack.variations[pack.variationOrder[2]].name == "Compact",
-  "Duplicate name escaped variation validation")
+assert(form.name:IsShown() and pack.variations[compactID].name == "Compact", "Duplicate name escaped validation")
 form.name:SetText("Compact")
-for _, box in ipairs(visible("checkbox")) do
-  if box.parent == form.name.parent and box.point[4] == 328 and box.point[5] == -167 then
-    assert(not form.width:IsShown() and not form.height:IsShown())
-    box:SetValue(false, "RUN_CALLBACK")
-    assert(form.width:IsShown() and form.height:IsShown(), "Unchecking Any resolution did not reveal inputs")
-    form.width:SetText("1920"); form.height:SetText("1080")
-    box:SetValue(true, "RUN_CALLBACK")
-    assert(not form.width:IsShown() and not form.height:IsShown())
-    box:SetValue(false, "RUN_CALLBACK")
-    assert(form.width:GetText() == "1920" and form.height:GetText() == "1080", "Resolution toggle lost its values")
-  end
-end
-form.width:SetText("0"); form.height:SetText("1080")
+form.any:SetValue(false, "RUN_CALLBACK")
+assert(form.width:IsShown() and form.width:GetText() == "1920" and form.height:GetText() == "1080",
+  "Specific resolution is not prefilled with the screen size")
+form.width:SetText("0")
 click("Save")
-assert(form.name:IsShown() and not pack.variations[pack.variationOrder[2]].resolution,
-  "Invalid resolution changed the pack")
+assert(form.name:IsShown() and not pack.variations[compactID].resolution, "Invalid resolution changed the pack")
 form.width:SetText("1920")
 form.description:SetText("Compact layout")
 click("Save")
-assert(pack.variations[pack.variationOrder[2]].resolution.width == 1920
-  and pack.variations[pack.variationOrder[2]].description == "Compact layout")
-openVariations("Compact")
-click("+ Add variation")
-variationFields().name:SetText("Disposable")
-click("Save")
+assert(not form.name:IsShown() and pack.variations[compactID].resolution.width == 1920
+  and pack.variations[compactID].description == "Compact layout")
+assert(tabNamed("Compact").tooltip:find("1920 × 1080", 1, true), "Tab tooltip lacks the resolution")
+-- New variations can start from Default's profiles.
+addon.Packs.SetMembership(pack, id, { default = true, [compactID] = true })
+addon:RefreshWorkspace()
+tabNamed("+ Add variation").scripts.OnClick(tabNamed("+ Add variation"))
+form = variationForm()
+form.name:SetText("Disposable")
+form.includeDefault:SetValue(true, "RUN_CALLBACK")
+click("Create")
 local disposable = pack.variationOrder[4]
-assert(disposable and pack.profiles[id].variations[disposable])
-openVariations("Disposable"); deleteVariation(); click("Delete"); click("Cancel")
-assert(pack.variations[disposable] and pack.profiles[id].variations[disposable], "Cancel committed a deletion")
-openVariations("Disposable"); deleteVariation(); click("Delete")
-assert(pack.variations[disposable], "Deletion committed before Save")
-click("Save")
-assert(not pack.variations[disposable] and pack.profiles[id] and not pack.profiles[id].variations[disposable],
-  "Deleting a variation removed its profiles or kept the tag")
-openVariations("Compact"); click("Default")
-for _, icon in ipairs(visible("iconAction")) do assert(icon.tooltip ~= "Delete variation", "Default can be deleted") end
+assert(pack.profiles[id].variations[disposable] and not pack.profiles[pack.profileOrder[2]].variations[disposable],
+  "Start with Default did not copy Default's profiles")
+-- Deletion always asks first, from the tab or from the editor.
+addon.Packs.SetMembership(pack, id, { [disposable] = true })
+addon:RefreshWorkspace()
+tabNamed("Disposable").delete.click()
+assert(hasText("Delete Disposable?"), "Tab delete did not ask for confirmation")
+local orphanNotice = false
+for _, f in ipairs(visible("font")) do
+  if (f.text or ""):find("1 profile is only in Disposable", 1, true) then orphanNotice = true end
+end
+assert(orphanNotice, "Deletion does not warn about profiles that lose every variation")
 click("Cancel")
+assert(pack.variations[disposable], "Cancel deleted the variation")
+tabNamed("Disposable").edit.click()
+click("Delete")
+assert(hasText("Delete Disposable?"))
+click("Back")
+assert(variationForm().name:GetText() == "Disposable", "Back did not return to the editor")
+click("Delete")
+click("Delete")
+assert(not pack.variations[disposable] and pack.profiles[id] and not next(pack.profiles[id].variations),
+  "Deleting a variation removed its profile or kept the tag")
+assert(tabNamed("All").active, "Deleted variation's tab stayed selected")
+assert(findButton("Save All Profiles").enabled == false and #warningIcons() == 1,
+  "Profile left without variations is not flagged")
+chipFor(profileSelectors()[1], "Compact").click()
+assert(pack.profiles[id].variations[compactID] and #warningIcons() == 0)
 local saveAll = button("Save All Profiles")
 assert(saveAll:GetWidth() == 300 and saveAll:GetHeight() == 50 and saveAll.text_overlay.fontSize == 20)
 assert(saveAll.point[4] == (saveAll.parent:GetWidth() - 300) / 2 and saveAll.point[5] == 14,
@@ -846,12 +861,8 @@ assert(exportWarning and addon.db.creator.packs[pack.id].profiles[id].data, "Exp
 closeDialog()
 modules.Test.exportProfile = exportBeforeWarning
 pack = addon.db.creator.packs[pack.id]
-local headings = { Options = false, AddOn = false, Profile = false, Variations = false }
-for _, f in ipairs(visible("font")) do
-  if headings[f.text] ~= nil then headings[f.text] = true end
-  assert(f.text ~= "Status", "Status header remains")
-end
-for heading, present in pairs(headings) do assert(present, "Missing text heading: " .. heading) end
+local headings = { Options = true, AddOn = true, Profile = true, Variations = true, Status = true }
+for _, f in ipairs(visible("font")) do assert(not headings[f.text], "Column header remains: " .. tostring(f.text)) end
 for _, f in ipairs(visible("button")) do
   assert(headings[f.text] == nil and not (f.tooltip or ""):find("Sort by", 1, true), "Clickable sorting header remains")
 end
@@ -883,17 +894,18 @@ for _, f in ipairs(visible("button")) do assert(f.text ~= "Capture" and f.text ~
 local search = visible("EditBox")[1]
 search:SetText("no matching addons")
 search.scripts.OnTextChanged(search, true)
-assert(#visible("addonIcon") == 0 and #visible("texture") == 0, "Filtered rows leave icons/backgrounds behind")
+local listTextures = 0
+for _, f in ipairs(visible("texture")) do
+  if f.parent.parent and f.parent.parent.kind == "ScrollFrame" then listTextures = listTextures + 1 end
+end
+assert(#visible("addonIcon") == 0 and listTextures == 0, "Filtered rows leave icons/backgrounds behind")
+assert(hasText('Nothing matches "no matching addons"'), "Empty search result has no explanation")
 search:SetText("")
 search.scripts.OnTextChanged(search, true)
 assert(#visible("addonIcon") > 0, "Rows did not return after clearing search")
 local count = #frames
 for _ = 1, 20 do addon:RefreshWorkspace() end
 assert(#frames == count, "Redraw leaks widgets")
-local function hasText(text)
-  for _, f in ipairs(visible("font")) do if f.text == text then return true end end
-  return false
-end
 local savedLoaded, savedUpdated = modules.Test.isLoaded, modules.Test.isUpdated
 local lap = LibStub("LibAddonProfiles")
 local savedCanEnable = lap.CanEnableAnyAddOn
@@ -918,7 +930,7 @@ end
 for _, f in ipairs(visible("button")) do assert(f.text ~= "Addon disabled", "Styled status button remains") end
 local clickedStatus = false
 for _, hit in ipairs(visible("Button")) do
-  if hit.point and hit.point[5] == profileSelectors()[1].point[5] + 6 and hit:GetWidth() == 377 then
+  if hit.point and hit.point[5] == profileSelectors()[1].point[5] + 6 and hit:GetWidth() == 288 then
     hit.scripts.OnClick(hit); clickedStatus = true; break
   end
 end
@@ -975,6 +987,7 @@ assert(#pack.profileOrder == 2, "Unavailable addon lost its saved profiles")
 modules.Test.isUpdated, lap.CanEnableAnyAddOn = savedUpdated, savedCanEnable
 addon:RefreshWorkspace()
 local alternateID = profileSelectors()[2].profileRow.profileID
+local clearedTags = CopyTable(pack.profiles[profileSelectors()[1].profileRow.profileID].variations)
 iconAt("Clear selected profile", profileSelectors()[1]).click()
 assert(#profileSelectors() == 2 and not profileSelectors()[1].profileRow.profileID,
   "Clearing the main profile removed its row or promoted its alternate")
@@ -987,7 +1000,11 @@ assert(not profileSelectors()[1].profileRow.profileID and #pack.profileOrder == 
   "Duplicate source selection was accepted")
 selectSource(profileSelectors()[1], "Raid")
 local replacementID = profileSelectors()[1].profileRow.profileID
-assert(replacementID and pack.profiles[replacementID].variations.default)
+for tag in pairs(clearedTags) do
+  assert(replacementID and pack.profiles[replacementID].variations[tag], "Clearing the main profile reset its variations")
+end
+addon.Packs.SetMembership(pack, replacementID, { default = true })
+addon:RefreshWorkspace()
 iconAt("Remove alternate profile", profileSelectors()[2]).click()
 assert(#profileSelectors() == 1 and not pack.profiles[alternateID], "Remove did not delete the alternate row")
 pack.profiles[replacementID].data, pack.profiles[replacementID].lastUpdatedAt = "old-payload", 10
@@ -998,6 +1015,45 @@ assert(profileSelectors()[1].tooltip == "Not saved yet")
 pack.profiles[replacementID].lastSavedAt = "invalid"
 assert(not addon.Packs.Validate(pack), "Invalid save timestamp was accepted")
 pack.profiles[replacementID].lastSavedAt = nil
+-- Variation tabs show either every variation or exactly one.
+local tabs = variationTabs()
+assert(#tabs == #pack.variationOrder + 2 and tabs[1].label.text == "All" and tabs[1].active, "All tab is missing or inactive")
+assert(tabs[#tabs].label.text == "+ Add variation", "Add variation is not the last tab")
+assert(tabs[1].count.text == tostring(#pack.profileOrder) and not tabs[1].swatch:IsShown())
+for index, variationID in ipairs(pack.variationOrder) do
+  local tab = tabs[index + 1]
+  assert(tab.label.text == pack.variations[variationID].name and tab.swatch:IsShown(), "Variation tab is missing")
+  assert(tab.count.text == tostring(#addon.Packs.Profiles(pack, variationID)), "Variation tab count is wrong")
+end
+for index = 2, #tabs do
+  assert(tabs[index].point[4] >= tabs[index - 1].point[4] + tabs[index - 1]:GetWidth(), "Variation tabs overlap")
+end
+openTab(4)
+assert(variationTabs()[4].active and not variationTabs()[1].active, "Clicked tab is not active")
+assert(#profileSelectors() == 0, "Variation tab shows addons without a profile in it")
+openTab(1)
+iconAt("Add alternate profile", profileSelectors()[1]).click()
+chipFor(profileSelectors()[2], "Raid alternate").click()
+selectSource(profileSelectors()[2], "Raid")
+local tabProfile = profileSelectors()[2].profileRow
+assert(tabProfile.profileID, "Picking a profile did not keep its row")
+local tabTags = pack.profiles[tabProfile.profileID].variations
+assert(tabTags[raidAlternate] and not tabTags.default, "Profile picked in a variation tab joined the wrong variations")
+openTab(1)
+assert(#profileSelectors() == 2, "All tab does not show every row")
+openTab(2)
+assert(#profileSelectors() == 1 and profileSelectors()[1].profileRow.profileID == replacementID,
+  "Default tab shows rows from another variation")
+openTab(1)
+search:SetText("raid alt"); search.scripts.OnTextChanged(search, true)
+assert(#profileSelectors() == 1 and profileSelectors()[1].profileRow == tabProfile, "Search does not match variation names")
+local clearSearch
+for _, f in ipairs(visible("Button")) do if f.cross and f.parent == search then clearSearch = f end end
+assert(clearSearch, "Search has no clear button")
+clearSearch.scripts.OnClick(clearSearch)
+assert(search.text == "" and #profileSelectors() == 2 and not clearSearch:IsShown(), "Clearing search did not restore rows")
+iconAt("Remove alternate profile", profileSelectors()[2]).click()
+assert(#pack.profileOrder == 1)
 -- Check every curated palette against its actual normal and hover backgrounds.
 local tags = { default = true }
 for index = 1, 5 do
@@ -1006,6 +1062,10 @@ for index = 1, 5 do
 end
 addon.Packs.SetMembership(pack, replacementID, tags)
 addon:RefreshWorkspace()
+local wrapped = profileSelectors()[1]
+local lastChip = chipFor(wrapped, "Palette 5")
+assert(lastChip.point[5] < wrapped.point[5] - 3 and lastChip.point[4] + lastChip:GetWidth() <= 826,
+  "Many variations do not wrap inside the variation column")
 local function luminance(color)
   local function linear(value) return value <= .04045 and value / 12.92 or ((value + .055) / 1.055) ^ 2.4 end
   return linear(color[1]) * .2126 + linear(color[2]) * .7152 + linear(color[3]) * .0722
@@ -1013,7 +1073,7 @@ end
 local minimumContrast, checked = math.huge, 0
 for _, chip in ipairs(visible("button")) do
   if chip.variationID then
-    assert(not chip.tooltip and not chip.scripts.OnEnter and not chip.removeButton.scripts.OnEnter,
+    assert(not chip.tooltip and not chip.scripts.OnEnter,
       "Variation chips still show tooltips")
     for _, plainButton in ipairs(chip.parent.pools.button or {}) do
       assert(plainButton ~= chip, "Variation styling can leak into a reused plain button")
