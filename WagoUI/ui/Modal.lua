@@ -87,7 +87,10 @@ local function confirm(options)
   end
   local buttons = math.max(top + 32, bottom) + 28
   f:SetHeight(buttons + 36 + 24)
-  ctaButton(f, options.cancelText or addon.L["Cancel"], 24, buttons, 150, 36, closeModal, "neutral", 15)
+  -- A notice has only its confirming button, still on the right.
+  if not options.okOnly then
+    ctaButton(f, options.cancelText or addon.L["Cancel"], 24, buttons, 150, 36, closeModal, "neutral", 15)
+  end
   ctaButton(f, options.confirmText or addon.L["Okay"], 196, buttons, 220, 36, function()
     f.onClose = nil
     closeModal()
@@ -95,6 +98,13 @@ local function confirm(options)
   end, "primary", 15)
   f.onClose = options.onCancel
   return f
+end
+
+-- A message the user only acknowledges: the first line of text is the message, the rest details.
+function addon:ShowAlert(title, text, onClose)
+  local message, details = tostring(text):match("^([^\n]*)\n?(.*)$")
+  confirm({ title = title, message = message, details = details ~= "" and details or nil, okOnly = true,
+    onConfirm = onClose, onCancel = onClose })
 end
 
 -- Every prompt in the addon uses the confirmation dialog: the first line is the message, the rest details.
