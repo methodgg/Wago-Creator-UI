@@ -10,7 +10,9 @@ Deleting a local pack removes its draft and saved snapshot; it is not an instruc
 
 ## Installer output
 
-Deliver the same schema as WagoUI_Storage[pack.id]. Preserve stable pack/profile/variation IDs, both order arrays, membership sets, payload strings and profile timestamps. The storage key must equal pack.id. Website/project identifiers may be stored separately; renaming a pack or variation must not change its identity.
+Deliver the same schema as WagoUI_Storage[pack.id]. Preserve stable profile/variation IDs, both order arrays, membership sets, payload strings and profile timestamps. The storage key must equal pack.id.
+
+The installed pack's identity is the Wago UI Pack ID, not the creator's local ID: the app sets pack.id to the Wago ID and stores the pack under it. The local ID (`local-<character GUID>-…`) only identifies the creator's draft and saved snapshot. This keeps install history and update notices when a creator recreates their in-game pack, stops two Wago pages uploaded from one local pack from overwriting each other, and keeps the creator's character GUID out of installed data. Renaming a pack or variation must not change its identity.
 
 Required fields:
 
