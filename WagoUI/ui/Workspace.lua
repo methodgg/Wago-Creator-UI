@@ -14,8 +14,10 @@ local install = UI.install
 local function render()
   if not ui.header then return end
   reset(ui.header); reset(ui.content); reset(ui.footer); reset(ui.tabs)
-  ui.notice:SetText(addon.state.busy and "Working…" or addon.state.packError or addon.state.notice or "")
   local creating = addon.db.workspaceMode == "create"
+  -- The status line belongs to the creator; the UI Packs view never shows one, and a leftover does not return.
+  if not creating then addon.state.notice = nil end
+  ui.notice:SetText(creating and (addon.state.busy and "Working…" or addon.state.notice) or "")
   local selected = creating and addon.db.creator.selected or addon.dbC.selection.packID
   local entries, available = {}, addon:GetPacks(creating)
   for id, pack in pairs(available) do
@@ -100,7 +102,6 @@ local function render()
     if selected and not pack then
       local _, problem = Packs.Validate(available[selected])
       addon.state.packError = problem or "Pack ID does not match its storage key."
-      ui.notice:SetText(addon.state.packError)
     end
     install(pack)
   end
