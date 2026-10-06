@@ -820,16 +820,49 @@ assert(not notes:IsShown() and addon.state.notice == "No Changes detected", "Unc
 pack = addon.db.creator.packs[pack.id]
 local exportBeforeWarning = modules.Test.exportProfile
 modules.Test.exportProfile = function() return nil, false end
+local draftBeforeFailure = addon.db.creator.packs[pack.id]
 click("Save All Profiles")
-assert(notes:IsShown(), "Failed captures silently skipped their warnings")
+assert(not notes:IsShown() and hasText("Couldn't save"), "A failed export opened the release notes instead of stopping")
 local exportWarning = false
 for _, f in ipairs(visible("font")) do
-  if (f.text or ""):find("Export failed; previous capture kept.", 1, true) then exportWarning = true end
+  if (f.text or ""):find("Test / ", 1, true) and (f.text or ""):find("Export failed.", 1, true) then exportWarning = true end
 end
-assert(exportWarning and addon.db.creator.packs[pack.id].profiles[id].data, "Export warning or prior capture lost")
-closeDialog()
+assert(exportWarning, "Couldn't save does not list the failed profile")
+assert(addon.db.creator.packs[pack.id] == draftBeforeFailure and draftBeforeFailure.profiles[id].data, "A failed save changed the draft")
+click("Okay")
 modules.Test.exportProfile = exportBeforeWarning
 pack = addon.db.creator.packs[pack.id]
+-- A profile whose source is gone is marked on its row and blocks Save All, until it keeps its last capture.
+local keysBeforeProblem = modules.Test.getProfileKeys
+modules.Test.getProfileKeys = function() return {} end
+addon:RefreshWorkspace()
+local problemSave = findButton("Save All Profiles")
+assert(problemSave.enabled == false, "Save All Profiles allows a profile that cannot be saved")
+local problemBlocker
+for _, f in ipairs(visible("Frame")) do
+  if f.parent == problemSave.parent and (f.tooltip or ""):find("Fix the marked profiles before saving.", 1, true) then problemBlocker = f end
+end
+assert(problemBlocker and problemBlocker.tooltip:find("Can't be saved: Test", 1, true), "Blocked save does not explain the problem")
+local problemRows = profileSelectors()
+assert(#warningIcons() == #problemRows, "Every profile without a source must be marked")
+for _, icon in ipairs(warningIcons()) do
+  assert(icon.tooltip:find("no longer exists in Test. Pick another or remove it.", 1, true), "Problem row lacks an actionable message")
+end
+local keepTooltip = "Keep last capture\nShip the version you saved before until this profile can be saved again."
+iconAt(keepTooltip, profileSelectors()[1]).click()
+assert(pack.profiles[id].keepCapture and #warningIcons() == #problemRows - 1, "Keeping the last capture did not clear the problem")
+assert(findButton("Save All Profiles").enabled == false, "Save All allowed the remaining problem")
+for index = 2, #problemRows do iconAt(keepTooltip, profileSelectors()[index]).click() end
+assert(#warningIcons() == 0 and button("Save All Profiles"), "Save All stayed blocked after keeping every last capture")
+local locks = 0
+for _, f in ipairs(visible("Frame")) do
+  if (f.tooltip or ""):find("^Ships its last capture") and f.tooltip:find("no longer exists in Test", 1, true) then locks = locks + 1 end
+end
+assert(locks == #problemRows, "Kept profiles do not say why they ship their last capture")
+modules.Test.getProfileKeys = keysBeforeProblem
+addon:RefreshWorkspace()
+for index = 1, #problemRows do iconAt("Stop keeping the last capture", profileSelectors()[index]).click() end
+for _, p in pairs(pack.profiles) do assert(not p.keepCapture, "Could not stop keeping the last capture") end
 local headings = { Options = true, AddOn = true, Profile = true, Variations = true, Status = true }
 for _, f in ipairs(visible("font")) do assert(not headings[f.text], "Column header remains: " .. tostring(f.text)) end
 for _, f in ipairs(visible("button")) do

@@ -50,7 +50,8 @@ local function creatorRows(pack, moduleName)
   return rows
 end
 
-local function rowAction(parent, texture, x, y, tooltip, callback)
+-- An icon from a texture path, or from an atlas; without either it is the native add icon.
+local function rowAction(parent, texture, x, y, tooltip, callback, atlas)
   local icon = widget(parent, "rowAction", function() return LWF:CreateIconButton(parent, 28, "") end)
   icon:SetPoint("TOPLEFT", parent, "TOPLEFT", x, -(y + 8))
   icon:SetBackdrop(nil)
@@ -58,7 +59,7 @@ local function rowAction(parent, texture, x, y, tooltip, callback)
   icon:SetTexture(texture or "", true, true, true)
   if not texture then
     for _, region in ipairs({ icon:GetNormalTexture(), icon:GetPushedTexture(), icon:GetHighlightTexture(), icon:GetDisabledTexture() }) do
-      region:SetAtlas("communities-icon-addgroupplus")
+      region:SetAtlas(atlas or "communities-icon-addgroupplus")
     end
   end
   icon:GetDisabledTexture():SetDesaturated(true)
@@ -108,6 +109,28 @@ local function unassignedRow(parent, y, height, tooltip)
   icon.tooltip = tooltip
 end
 
+-- Blizzard's undo arrow: the record goes back to the version saved before.
+local KEEP = "common-icon-undo"
+
+-- A record shipping its last capture by the creator's choice: a grey undo arrow where a warning would be.
+local function keptRow(parent, y, tooltip)
+  local icon = widget(parent, "keptIcon", function()
+    local f = CreateFrame("Frame", nil, parent)
+    f:SetSize(22, 22)
+    f:EnableMouse(true)
+    f.texture = f:CreateTexture(nil, "OVERLAY")
+    f.texture:SetAllPoints(f)
+    f.texture:SetAtlas(KEEP)
+    f.texture:SetDesaturated(true)
+    f:SetScript("OnEnter", function(self) addon.ShowWidgetTooltip(self, self.tooltip) end)
+    f:SetScript("OnLeave", function(self) addon.HideWidgetTooltip(self) end)
+    return f
+  end)
+  icon:SetPoint("TOPLEFT", parent, "TOPLEFT", PROFILE_X - 26, -(y + 11))
+  icon:SetFrameLevel(parent:GetFrameLevel() + 5)
+  icon.tooltip = tooltip
+end
+
 -- Disables Save All and explains why; disabled buttons do not reliably report hover, so a frame above them does.
 local function blockSave(saveAll, reason)
   saveAll:SetEnabled(not addon.state.busy and reason == nil)
@@ -146,6 +169,8 @@ local function creator(pack)
   variationTabs(pack, filter)
 
   local infos = addon:CreatorAddons()
+  -- Profiles Save All Profiles could not save right now; each is marked on its row and blocks saving.
+  local problems = addon:GetCaptureProblems(pack)
   local saved = addon.db.creator.saved[pack.id]
   local y = 0
   local query = (ui.searchText or ""):lower()
@@ -259,8 +284,20 @@ local function creator(pack)
           end
         end
         local height = math.max(44, chipY - y + 35)
-        local warning, rowHeight = rowWarning(index, p, tags), position == #shown and height - 1 or height
+        local problem = p and problems[p.id]
+        if row.manage and cdm then
+          -- Layouts have no rows of their own; their problems gather on Manage, where they are fixed.
+          local lines = {}
+          for _, layout in ipairs(layouts) do
+            if problems[layout.id] then table.insert(lines, layout.name .. ": " .. problems[layout.id]) end
+          end
+          problem = #lines > 0 and ("Fix these layouts in Manage before saving.\n" .. table.concat(lines, "\n")) or nil
+        end
+        -- Kept while the source is still unavailable; once it is back, the next save captures it again.
+        local kept = not problem and p and p.keepCapture and p.data and addon:CaptureProblem(p)
+        local warning, rowHeight = rowWarning(index, p, tags) or problem, position == #shown and height - 1 or height
         if warning then unassignedRow(body, y, rowHeight, warning)
+        elseif kept then keptRow(body, y, "Ships its last capture.\n" .. kept)
         elseif not p and not (row.manage and managed > 0) then emptyRow(body, y, rowHeight) end
         if position == 1 then
           local status = info.status ~= "Ready" and info.status or nil
@@ -336,7 +373,7 @@ local function creator(pack)
           if locked or not ready or addon.state.busy then selector:Disable() end
         end
         if not locked and not row.manage then
-          local actions = {}
+          local actions, loaded = {}, lap:isLoaded()
           if not row.aura then
             local add = rowAction(body, nil, 838, y, "Add alternate profile", function()
               -- New alternates start unassigned until a variation chip is chosen.
@@ -344,19 +381,31 @@ local function creator(pack)
               render()
             end)
             add:SetEnabled(ready and not addon.state.busy)
+            add.always = false
             table.insert(actions, add)
           end
-          local remove = rowAction(body, [[Interface\Buttons\UI-GroupLoot-Pass-Up]], 870, y, row.aura and
-            "Remove from this UI Pack" or index == 1 and "Clear selected profile" or "Remove alternate profile", clear)
+          -- A problem row always offers its ways out, even while its addon is unavailable.
+          local remove = rowAction(body, [[Interface\Buttons\UI-GroupLoot-Pass-Up]], 870, y,
+            (row.aura or problem and not loaded) and "Remove from this UI Pack"
+            or index == 1 and "Clear selected profile" or "Remove alternate profile", clear)
+          remove.always = (problem or kept) and true or false
           table.insert(actions, remove)
+          if p and p.data and (problem or p.keepCapture) then
+            local keep = rowAction(body, nil, 806, y, p.keepCapture and "Stop keeping the last capture"
+              or "Keep last capture\nShip the version you saved before until this profile can be saved again.", function()
+              safely(function() Packs.KeepCapture(pack, p.id, not p.keepCapture) end)
+              render()
+            end, KEEP)
+            keep.always = true
+            table.insert(actions, keep)
+          end
           local hover = widget(body, "profileHover", function()
             local frame = CreateFrame("Frame", nil, body)
             frame:EnableMouse(false)
             frame:SetScript("OnUpdate", function(self)
               -- Test row bounds so hovering its dropdown, chips or icons also counts.
-              local shown = self.addonLoaded and not addon.state.busy and not ui.modal:IsShown()
-                and ui.scroll:IsMouseOver() and self:IsMouseOver()
-              for _, action in ipairs(self.actions) do action:SetShown(shown) end
+              local shown = not addon.state.busy and not ui.modal:IsShown() and ui.scroll:IsMouseOver() and self:IsMouseOver()
+              for _, action in ipairs(self.actions) do action:SetShown(shown and (self.addonLoaded or action.always)) end
             end)
             return frame
           end)
@@ -400,9 +449,17 @@ local function creator(pack)
   end
   for moduleName in pairs(unassigned) do table.insert(blocked, moduleName) end
   table.sort(blocked)
+  local broken, seen = {}, {}
+  for id in pairs(problems) do
+    local moduleName = pack.profiles[id].moduleName
+    if not seen[moduleName] then seen[moduleName] = true; table.insert(broken, moduleName) end
+  end
+  table.sort(broken)
   local reason
   if #blocked > 0 then
     reason = "Fix the rows marked with a warning before saving.\nIncomplete: " .. table.concat(blocked, ", ")
+  elseif #broken > 0 then
+    reason = "Fix the marked profiles before saving.\nCan't be saved: " .. table.concat(broken, ", ")
   elseif #pack.profileOrder == 0 and not next(pack.additionalAddons) and not saved then
     -- A previously saved pack may still save an emptied draft; a fresh one needs something to export.
     reason = "Select a profile for at least one AddOn before saving."

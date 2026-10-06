@@ -100,14 +100,33 @@ pack = captured
 assert(#changes == 1 and changes[1] == "Pack settings", "Metadata-only edit lost")
 addon:SaveCapturedPack(pack, "Tags")
 local saved = addon.db.creator.saved[pack.id]
+local draft = addon.db.creator.packs[pack.id]
 local oldExport = modules.Test.exportProfile
 modules.Test.exportProfile = function() return nil, false end
 local issues
+captured = "untouched"
 addon:CapturePack(pack, nil, function(p, _, i) captured, issues = p, i end)
-pack = captured
-assert(#issues == 2 and pack.profiles[first].data == "payload-Raid")
-assert(saved.profiles[first].data == "payload-Raid")
+-- A failed export cancels the save: nothing is written, and every failed record is listed.
+assert(captured == nil and #issues == 2 and issues[1]:find("^Test / ") and issues[1]:find("Export failed.", 1, true),
+  "Failed export did not cancel the save")
+assert(addon.db.creator.saved[pack.id] == saved and saved.profiles[first].data == "payload-Raid",
+  "Failed export changed the saved snapshot")
+assert(addon.db.creator.packs[pack.id] == draft and draft.profiles[first].data == "payload-Raid",
+  "Failed export changed the draft")
+-- Keeping the last capture turns that failure into a fallback, until a capture succeeds again.
+rejects(function() P.KeepCapture(P.New("fresh", "Fresh"), "missing", true) end)
+P.KeepCapture(pack, first, true)
+P.KeepCapture(pack, second, true)
+local revision = pack.revision
+addon:CapturePack(pack, nil, function(p, _, i) captured, issues = p, i end)
+assert(captured and #issues == 0 and captured.profiles[first].data == "payload-Raid" and captured.profiles[first].keepCapture,
+  "Kept record did not fall back to its last capture")
+assert(captured.revision == revision, "Keeping a capture changed the pack revision")
 modules.Test.exportProfile = oldExport
+addon:CapturePack(captured, nil, function(p, _, i) captured, issues = p, i end)
+assert(#issues == 0 and not captured.profiles[first].keepCapture and not captured.profiles[second].keepCapture,
+  "A successful capture did not clear the keep choice")
+pack = captured
 addon.dbC.selection.packID, addon.dbC.selection.variationID = pack.id, "default"
 assert(addon:BuildInstallPlan(pack, "default") == nil, "Ambiguous ordinary profiles auto-selected")
 local choices = addon:InstallChoices(pack, "default")
@@ -158,6 +177,56 @@ addon:CapturePack(snapshots, nil, function(p) captured = p end)
 assert(captured.profiles[a].data == "payload-Global")
 addon:CapturePack(captured, b, function(p) captured = p end)
 assert(captured.profiles[a].data == "payload-Global" and captured.profiles[b].data == "changed")
+-- Save All problems are found without exporting, each with a message the creator can act on.
+local problemPack = addon:NewPack("Problems")
+local raid = P.AddProfile(problemPack, "Test", "Raid", "Raid")
+local exportsBefore = exports
+assert(not next(addon:GetCaptureProblems(problemPack)), "Healthy profile flagged")
+local loadedBefore, updatedBefore, canEnableBefore = modules.Test.isLoaded, modules.Test.isUpdated, LAP.CanEnableAnyAddOn
+modules.Test.isLoaded = function() return false end
+modules.Test.isUpdated = function() error("Disabled addon version was queried") end
+assert(addon:GetCaptureProblems(problemPack)[raid] == "Test is disabled. Enable it and reload.")
+function LAP:CanEnableAnyAddOn() return false end
+assert(addon:GetCaptureProblems(problemPack)[raid] == "Test is not installed. Install it or remove this profile.")
+LAP.CanEnableAnyAddOn, modules.Test.isLoaded = canEnableBefore, loadedBefore
+modules.Test.isUpdated = function() return false end
+assert(addon:GetCaptureProblems(problemPack)[raid] == "Test needs an update.")
+modules.Test.isUpdated = updatedBefore
+local gone = P.AddProfile(problemPack, "Test", "Gone", "Gone", {})
+assert(addon:GetCaptureProblems(problemPack)[gone] == "Gone no longer exists in Test. Pick another or remove it.")
+P.RemoveProfile(problemPack, gone)
+modules.WeakAuras = {
+  moduleName = "WeakAuras", needsInitialization = function() return false end,
+  isLoaded = function() return true end, isUpdated = function() return true end,
+}
+WeakAuras = { GetData = function(id) return id == "Present" and {} or nil end }
+local present = P.AddProfile(problemPack, "WeakAuras", "Present", "Present", nil, "group")
+local missingAura = P.AddProfile(problemPack, "WeakAuras", "Missing", "Missing", {}, "group")
+local problems = addon:GetCaptureProblems(problemPack)
+assert(not problems[present] and problems[missingAura] == "This WeakAura no longer exists. Pick another or remove it.")
+modules.WeakAuras, WeakAuras = nil, nil
+P.RemoveProfile(problemPack, present); P.RemoveProfile(problemPack, missingAura)
+local staleLayout = P.AddProfile(problemPack, "Blizzard Cooldown Manager", "Missing", "Missing", nil, "cdm", "Alt - Realm", 121)
+local cachedLayout = P.AddProfile(problemPack, "Blizzard Cooldown Manager", "Layout", "Layout", nil, "cdm", "Alt - Realm", 121)
+problems = addon:GetCaptureProblems(problemPack)
+assert(problems[staleLayout] == "This Cooldown Manager layout no longer exists on Alt - Realm. Pick another or remove it."
+  and not problems[cachedLayout])
+-- Records that keep their capture are not problems: frozen layouts, captured snapshots, and the creator's choice.
+problemPack.profiles[staleLayout].data = "old"
+problemPack.cdmExportsFrozen = true
+assert(not addon:GetCaptureProblems(problemPack)[staleLayout], "Frozen layout flagged")
+problemPack.cdmExportsFrozen = nil
+assert(addon:GetCaptureProblems(problemPack)[staleLayout], "Unfrozen layout lost its problem")
+P.KeepCapture(problemPack, staleLayout, true)
+assert(not addon:GetCaptureProblems(problemPack)[staleLayout], "Kept layout flagged")
+assert(addon:CaptureProblem(problemPack.profiles[staleLayout]), "Kept layout lost its underlying problem")
+local snapshot = P.AddProfile(problemPack, "Global", "Missing", "Missing", {}, "snapshot")
+assert(addon:GetCaptureProblems(problemPack)[snapshot], "Uncaptured snapshot with a missing source not flagged")
+problemPack.profiles[snapshot].data = "old"
+assert(not addon:GetCaptureProblems(problemPack)[snapshot], "Captured snapshot flagged")
+rejects(function() P.KeepCapture(problemPack, raid, true) end)
+assert(exports == exportsBefore, "Problem check exported profiles")
+addon.db.creator.packs[problemPack.id] = nil
 -- Creator order retains loaded/disabled/missing groups and the established order within each.
 local fixtures = {
   { "Blizzard Edit Mode", "loaded" }, { "ElvUI", "outdated" }, { "BigWigs", "loaded" },
@@ -225,6 +294,14 @@ assert(not addon.db.creator.saved[release.id], "Invalid release notes replaced t
 addon:SaveCapturedPack(release, notes)
 local _, unchanged = addon:BuildReleaseNotes(release)
 assert(not unchanged, "Unchanged release generates update notes")
+-- Saving again without changes neither adds a note nor replaces the last release's note.
+local function noteCount(list) local n = 0; for _ in pairs(list) do n = n + 1 end; return n end
+local notesBefore = noteCount(addon.db.creator.saved[release.id].releaseNotes)
+addon:CapturePack(release, nil, function(p) release = p end)
+addon:SaveCapturedPack(release, "Nothing changed")
+local notesAfter = addon.db.creator.saved[release.id].releaseNotes
+assert(noteCount(notesAfter) == notesBefore and notesAfter[tostring(release.updatedAt)] == notes,
+  "An unchanged save added or replaced a release note")
 P.SetMembership(release, releaseProfile, { default = true })
 notes, changed = addon:BuildReleaseNotes(release)
 assert(changed and notes:find("## Removed:\n### Wide\n- Test: Raid", 1, true))

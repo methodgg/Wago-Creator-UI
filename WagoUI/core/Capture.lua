@@ -184,9 +184,9 @@ local function exportRecord(pack, profile)
     local cache = addon.db.creator.cdmCache[profile.sourceCharacter]
     local cached = cache and cache[profile.sourceKey]
     if cached and cached.classAndSpecTag == profile.classAndSpecTag then return cached.data end
-    return nil, "Source layout unavailable; previous capture kept."
+    return nil, "Source layout unavailable."
   end
-  if not lap:isLoaded() or not lap:isUpdated() then return nil, "Addon unavailable; previous capture kept." end
+  if not lap:isLoaded() or not lap:isUpdated() then return nil, "Addon unavailable." end
   if lap.setExportOptions then lap:setExportOptions(pack.exportOptions and pack.exportOptions[profile.moduleName] or {}) end
   if profile.kind == "group" then
     if profile.moduleName == "WeakAuras" then
@@ -203,13 +203,71 @@ local function exportRecord(pack, profile)
     return groups and groups[profile.sourceKey], "Source group missing."
   end
   local keys = lap.getProfileKeys and lap:getProfileKeys()
-  if not keys or not keys[profile.sourceKey] then return nil, "Source profile missing; previous capture kept." end
+  if not keys or not keys[profile.sourceKey] then return nil, "Source profile missing." end
   local data, success = lap:exportProfile(profile.sourceKey)
-  if success == false then return nil, "Export failed; previous capture kept." end
+  if success == false then return nil, "Export failed." end
   return data
 end
 
--- Capture into a copy. A failed export never clears the previous successful payload.
+local function enabledAfterReload(lap)
+  for _, name in ipairs(lap.addonNames or {}) do
+    if addon.state.creatorEnabled and addon.state.creatorEnabled[name] then return true end
+  end
+end
+
+-- Why a record's source cannot be saved right now, using the capture's own checks without exporting anything.
+-- profileKeys caches each addon's profile list across records.
+function addon:CaptureProblem(p, profileKeys)
+  local lap = LAP:GetModule(p.moduleName)
+  if not lap then return p.moduleName .. " is not supported." end
+  if p.kind == "cdm" then
+    local cache = p.sourceCharacter and self.db.creator.cdmCache[p.sourceCharacter]
+    local cached = cache and cache[p.sourceKey]
+    if cached and cached.classAndSpecTag == p.classAndSpecTag then return end
+    -- Each character's cached layouts are replaced whenever it saves or logs out, so a gap means it was deleted,
+    -- renamed or moved to another spec there.
+    local where = p.sourceCharacter and p.sourceCharacter ~= self:CharacterKey() and (" on " .. p.sourceCharacter) or ""
+    return "This Cooldown Manager layout no longer exists" .. where .. ". Pick another or remove it."
+  end
+  if not lap:isLoaded() then
+    -- Saving opens addons that only need their settings opened once.
+    if lap:needsInitialization() then return end
+    if enabledAfterReload(lap) then return p.moduleName .. " is enabled after a reload. Reload, then save." end
+    if LAP:CanEnableAnyAddOn(lap.addonNames) then return p.moduleName .. " is disabled. Enable it and reload." end
+    return p.moduleName .. " is not installed. Install it or remove this profile."
+  end
+  if not lap:isUpdated() then return p.moduleName .. " needs an update." end
+  if p.moduleName == "WeakAuras" then
+    if not (WeakAuras and WeakAuras.GetData(p.sourceKey)) then return "This WeakAura no longer exists. Pick another or remove it." end
+  elseif p.kind ~= "group" and lap.getProfileKeys then
+    profileKeys = profileKeys or {}
+    profileKeys[p.moduleName] = profileKeys[p.moduleName] or lap:getProfileKeys() or {}
+    if not profileKeys[p.moduleName][p.sourceKey] then
+      return p.name .. " no longer exists in " .. p.moduleName .. ". Pick another or remove it."
+    end
+  end
+end
+
+-- Records that keep their last capture: snapshots and, while frozen, Cooldown Manager layouts, both only once saved.
+local function keepsCapture(pack, p)
+  return p.data and (p.kind == "snapshot" or p.kind == "cdm" and pack.cdmExportsFrozen) and true or false
+end
+
+-- Every record Save All Profiles could not save right now: { [profileID] = message }. Records that keep their last
+-- capture, by rule or by the creator's choice, are not problems.
+function addon:GetCaptureProblems(pack)
+  local problems, profileKeys = {}, {}
+  for _, id in ipairs(pack.profileOrder) do
+    local p = pack.profiles[id]
+    if not keepsCapture(pack, p) and not (p.keepCapture and p.data) then
+      problems[id] = self:CaptureProblem(p, profileKeys)
+    end
+  end
+  return problems
+end
+
+-- Capture into a copy. Any failed export cancels the whole capture, so a save never ships stale data unannounced;
+-- records the creator chose to keep fall back to their last capture instead.
 function addon:CapturePack(pack, onlyProfileID, callback, progress)
   if self.state.busy then return end
   if InCombatLockdown() then self:AddonPrintError("Cannot capture in combat."); return end
@@ -226,11 +284,11 @@ function addon:CapturePack(pack, onlyProfileID, callback, progress)
       if InCombatLockdown() then error("Capture stopped: combat. Previous captures kept.") end
       local p = captured.profiles[id]
       -- Snapshots, and Cooldown Manager layouts while their exports are frozen, keep their capture unless asked.
-      local keep = (p.kind == "snapshot" or p.kind == "cdm" and captured.cdmExportsFrozen) and p.data and onlyProfileID ~= id
+      local keep = keepsCapture(captured, p) and onlyProfileID ~= id
       if (not onlyProfileID or onlyProfileID == id) and not keep then
         local data, problem = exportRecord(captured, p)
         if type(data) == "string" and #data > 0 then
-          p.lastSavedAt = timestamp
+          p.lastSavedAt, p.keepCapture = timestamp, nil
           local lap = LAP:GetModule(p.moduleName)
           local equal = p.data == data
           if p.data and not equal and lap.areProfileStringsEqual then
@@ -244,13 +302,20 @@ function addon:CapturePack(pack, onlyProfileID, callback, progress)
             p.data, p.lastUpdatedAt = data, math.max(timestamp, (p.lastUpdatedAt or 0) + 1)
             table.insert(changes, p.moduleName .. ": " .. p.name)
           end
-        else
+        elseif not (p.keepCapture and p.data) then
           table.insert(issues, p.moduleName .. " / " .. p.name .. ": " .. (problem or "Export failed."))
         end
       end
       if progress then progress(index, #captured.profileOrder) end
       if progress then LibAsync:Await(function(done) C_Timer.After(0, done) end)
       else coroutine.yield() end
+    end
+    if #issues > 0 then
+      -- Nothing is written: the draft and the saved snapshot stay exactly as they were.
+      self.state.busy = false
+      self:RefreshWorkspace()
+      callback(nil, changes, issues)
+      return
     end
     local saved = self.db.creator.saved[pack.id]
     if not saved or saved.revision ~= captured.revision then table.insert(changes, "Pack settings") end
@@ -351,7 +416,13 @@ function addon:SaveCapturedPack(pack, notes)
   local ok, problem = self.Packs.Validate(pack)
   assert(ok, problem)
   assert(notes == nil or (type(notes) == "string" and #notes <= 100000), "Release notes exceed 100,000 characters.")
-  if notes and notes ~= "" then pack.releaseNotes[tostring(pack.updatedAt or GetServerTime())] = notes end
+  -- A note belongs to a release: something changed since the saved snapshot and the capture moved updatedAt past it.
+  -- Anything else would file the note under an earlier release's timestamp and replace that release's note.
+  local previous = self.db.creator.saved[pack.id]
+  local _, changed = self:BuildReleaseNotes(pack)
+  local key = pack.updatedAt and tostring(pack.updatedAt)
+  local released = key and (not previous or previous.updatedAt ~= pack.updatedAt and not (previous.releaseNotes or {})[key])
+  if notes and notes ~= "" and changed and released then pack.releaseNotes[key] = notes end
   self.db.creator.saved[pack.id] = CopyTable(pack)
 end
 
