@@ -15,6 +15,8 @@ local m = {
   needProfileKey = true,
   preventRename = false,
   willOverrideProfile = false,
+  -- The first profile HidingBar creates, in every client language.
+  commonProfileNames = { "Profile 1", "Profil 1", "Perfil 1", "Profilo 1", "Профиль 1", "프로필 1", "配置文件 1", "設定檔 1" },
   nonNativeProfileString = true,
   needSpecialInterface = false,
   isLoaded = function(self)

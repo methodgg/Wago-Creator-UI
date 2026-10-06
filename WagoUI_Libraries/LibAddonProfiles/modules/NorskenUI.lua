@@ -16,6 +16,8 @@ local m = {
   needProfileKey = true,
   preventRename = false,
   willOverrideProfile = true,
+  -- Fallback name NorskenUI gives imports without a name.
+  commonProfileNames = { "Imported" },
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)

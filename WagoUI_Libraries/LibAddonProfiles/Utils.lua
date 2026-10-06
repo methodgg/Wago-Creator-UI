@@ -62,6 +62,44 @@ function private:DisableConflictingAddons(addonNames, selectedModules)
   end
 end
 
+do
+  -- Most addons create a "Default" or "default" profile on first load, so nearly every player has one.
+  local commonProfileNames = { default = true }
+
+  ---@param lapModule LibAddonProfilesModule
+  ---@param profileKey string
+  ---@return boolean
+  local function isCommonProfileName(lapModule, profileKey)
+    local lower = profileKey:lower()
+    if commonProfileNames[lower] then return true end
+    for _, name in ipairs(lapModule.commonProfileNames or {}) do
+      if name:lower() == lower then return true end
+    end
+    -- AceDB offers every player a profile named after their class token.
+    for _, token in ipairs(CLASS_SORT_ORDER or {}) do
+      if profileKey == token then return true end
+    end
+    return lapModule.isCommonProfileName and lapModule:isCommonProfileName(profileKey) or false
+  end
+
+  ---@param moduleName string
+  ---@param profileKey string
+  ---@return string | nil warning
+  function private:GetProfileNameWarning(moduleName, profileKey)
+    local lapModule = private.modules[moduleName]
+    if not lapModule or lapModule.skipProfileNameCheck or type(profileKey) ~= "string" then return end
+    local rename = "\nRename it in " .. moduleName .. " before exporting, e.g. \"<your name> UI\"."
+    if isCommonProfileName(lapModule, profileKey) then
+      return "Most players already have a \"" .. profileKey .. "\" profile in " .. moduleName
+        .. ".\nInstalling yours replaces theirs." .. rename
+    end
+    local name, realm = UnitName("player"), GetRealmName()
+    if profileKey == realm or (name and realm and profileKey:find(name, 1, true) and profileKey:find(realm, 1, true)) then
+      return "This profile is named after your character or realm." .. rename
+    end
+  end
+end
+
 ---Checks if the version of the addon is the same or higher than the provided version.
 ---Version format is semver but it can be any string that has numbers separated by dots.
 ---@param a string

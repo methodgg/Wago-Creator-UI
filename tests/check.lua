@@ -7,6 +7,7 @@ function LAP:GetAllModules() return modules end
 function LAP:CanEnableAnyAddOn() return true end
 function LAP:EnableAddOns() end
 function LAP:DisableConflictingAddons() end
+function LAP:GetProfileNameWarning(_, key) return key == "Default" and "Shared name" or nil end
 local asyncLib = {}
 function asyncLib:Await(register) register(function() end); coroutine.yield() end
 function LibStub(name) return name == "LibAsync" and asyncLib or LAP end

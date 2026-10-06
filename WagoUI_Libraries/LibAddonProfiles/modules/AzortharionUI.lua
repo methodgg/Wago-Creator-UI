@@ -18,6 +18,8 @@ local m = {
   needProfileKey = false,
   preventRename = true,
   willOverrideProfile = true,
+  -- Imports always go to AzortharionUI's own "AzorUI" profile.
+  skipProfileNameCheck = true,
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)

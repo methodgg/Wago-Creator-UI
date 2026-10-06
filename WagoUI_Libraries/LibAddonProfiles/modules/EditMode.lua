@@ -57,6 +57,8 @@ local m = {
   needProfileKey = true,
   preventRename = false,
   willOverrideProfile = true,
+  -- Every player has the two preset layouts, named in their client's language.
+  commonProfileNames = { LAYOUT_STYLE_MODERN or "Modern", LAYOUT_STYLE_CLASSIC or "Classic", "Modern", "Classic" },
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)

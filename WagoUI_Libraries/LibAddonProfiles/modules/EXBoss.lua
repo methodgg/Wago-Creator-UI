@@ -16,6 +16,8 @@ local m = {
   needProfileKey = false,
   preventRename = true,
   willOverrideProfile = true,
+  -- Imports never replace an existing configuration.
+  skipProfileNameCheck = true,
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)

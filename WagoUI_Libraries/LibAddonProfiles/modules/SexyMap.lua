@@ -15,6 +15,8 @@ local m = {
   needProfileKey = false,
   preventRename = true,
   willOverrideProfile = true,
+  -- Settings are stored under the character name and cannot be renamed.
+  skipProfileNameCheck = true,
   nonNativeProfileString = true,
   needSpecialInterface = false,
   isLoaded = function(self)

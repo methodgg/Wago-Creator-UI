@@ -15,6 +15,8 @@ local m = {
   needProfileKey = false,
   preventRename = false,
   willOverrideProfile = false,
+  -- Private profiles are per character by design and cannot be renamed in ElvUI.
+  skipProfileNameCheck = true,
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)

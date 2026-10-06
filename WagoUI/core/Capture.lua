@@ -248,6 +248,13 @@ function addon:CaptureProblem(p, profileKeys)
   end
 end
 
+-- Why the name a record installs under could replace a player's own profile. Only warns; saving is not blocked.
+-- Groups install under their own names.
+function addon:ProfileNameWarning(p)
+  if p.kind == "group" then return end
+  return LAP:GetProfileNameWarning(p.moduleName, p.sourceKey)
+end
+
 -- Records that keep their last capture: snapshots and, while frozen, Cooldown Manager layouts, both only once saved.
 local function keepsCapture(pack, p)
   return p.data and (p.kind == "snapshot" or p.kind == "cdm" and pack.cdmExportsFrozen) and true or false

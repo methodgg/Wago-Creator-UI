@@ -16,6 +16,8 @@ local m = {
   needProfileKey = true,
   preventRename = false,
   willOverrideProfile = true,
+  -- Imports never replace an existing profile; MPlusTimer renames them.
+  skipProfileNameCheck = true,
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)

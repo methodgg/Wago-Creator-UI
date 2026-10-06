@@ -18,6 +18,10 @@ local m = {
   needProfileKey = false,
   preventRename = true,
   willOverrideProfile = true,
+  -- Settings are stored per Edit Mode layout, so the preset layouts are shared; global settings always exist.
+  commonProfileNames = {
+    LAYOUT_STYLE_MODERN or "Modern", LAYOUT_STYLE_CLASSIC or "Classic", "Modern", "Classic", "FalconGlobalSettings",
+  },
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)
