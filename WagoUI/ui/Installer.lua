@@ -642,13 +642,26 @@ local function expertList(body, pack, s)
   local query = (ui.searchText or ""):lower()
   variationChips(pack, s)
   local profiles = Packs.Profiles(pack, s.variationID)
-  local statuses = {}
-  for _, p in ipairs(profiles) do statuses[p] = addon:ProfileStatus(p) end
+  -- Ordered as before the rework: loaded addons alphabetically, then disabled ones, then WeakAuras by name, and
+  -- Cooldown Manager layouts for other classes last.
+  local statuses, ranks, otherClass = {}, {}, {}
+  local tag = CooldownViewerUtil and CooldownViewerUtil.GetCurrentClassAndSpecTag()
+  for _, p in ipairs(profiles) do
+    statuses[p] = addon:ProfileStatus(p)
+    local lap = LAP:GetModule(p.moduleName)
+    local rank = lap and (lap:isLoaded() or lap:needsInitialization()) and 1 or 0
+    if p.moduleName == "WeakAuras" then rank = rank - 100 end
+    otherClass[p] = p.kind == "cdm" and (not tag or math.floor(tag / 10) ~= math.floor(p.classAndSpecTag / 10))
+    if otherClass[p] then rank = rank - 110 end
+    ranks[p] = rank
+  end
   table.sort(profiles, function(a, b)
-    if a.moduleName ~= b.moduleName then return a.moduleName < b.moduleName end
-    local aReady, bReady = statuses[a] == "Ready", statuses[b] == "Ready"
-    if a.kind == "cdm" and aReady ~= bReady then return aReady end
-    return a.name < b.name
+    if a.moduleName == b.moduleName then
+      if otherClass[a] ~= otherClass[b] then return not otherClass[a] end
+      return a.name < b.name
+    end
+    if ranks[a] ~= ranks[b] then return ranks[a] > ranks[b] end
+    return a.moduleName < b.moduleName
   end)
   local y = 0
   for _, p in ipairs(profiles) do
