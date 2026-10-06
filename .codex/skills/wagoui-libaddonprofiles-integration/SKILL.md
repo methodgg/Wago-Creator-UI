@@ -203,4 +203,3 @@ Use these files as the primary examples for future runs:
 2. Repo module: `WagoUI_Libraries/LibAddonProfiles/modules/Ayije_CDM.lua`
 3. Installed addon API: `BuffReminders\Display\ImportExport.lua`
 4. Installed addon API: `Ayije_CDM\Config\WagoUI.lua`
-5. Installed addon API example with full guide coverage: `NaowhQOL\Data\SettingsIO.lua`
