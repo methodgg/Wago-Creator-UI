@@ -39,6 +39,11 @@ local function shouldAutoStart()
   if addon.dbC.selection and addon.dbC.selection.pendingInstall then
     return true
   end
+  -- a reload asked for from Individual Profiles reopens there
+  if addon.dbC.selection and addon.dbC.selection.reopenAfterReload then
+    addon.dbC.selection.reopenAfterReload = nil
+    return true
+  end
   -- intro enabled
   if addon.db.introEnabled then
     return true
