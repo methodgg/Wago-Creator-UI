@@ -256,5 +256,6 @@ function Packs.Validate(pack)
   end
   local ok, result = pcall(validate)
   if ok then return true end
-  return false, tostring(result)
+  -- Messages read without the file and line assert adds.
+  return false, (tostring(result):gsub("^[^\n]-:%d+: ", ""))
 end

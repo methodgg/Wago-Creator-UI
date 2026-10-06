@@ -35,6 +35,8 @@ Resolutions is absent for Any resolution, otherwise an ordered list of 1–10 di
 
 Capture also supplies gameVersion, gameFlavor, createdBy, updatedAt, includedAddons (addon name to Wago ID), and collectedWagoIds. Preserve the draft's revision, nextID, exportOptions, blockedAuras and cdmExportsFrozen when retaining creator snapshots. No server-side migration from creator v1 is provided.
 
+Packs published by the previous creator (no schemaVersion; profileKeys, profiles and profileMetadata per fixed resolution) may keep being delivered unchanged. WagoUI converts them in memory on load: each enabled resolution becomes a variation (the first takes the default ID), identical profiles are shared, Cooldown Manager layouts join every variation, and the previous installer's per-resolution history is carried over. Converted record IDs are derived from resolution, addon and profile, so they stay stable between sessions.
+
 Unassigned profiles and uncaptured records may exist in saved drafts; the installer excludes unassigned records and displays uncaptured records as unavailable. The publishing UI should report uncaptured records before upload.
 
 ## Release validation

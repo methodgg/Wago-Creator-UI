@@ -74,6 +74,20 @@ function addon:InitializePacks()
   for _, packs in ipairs({ self.db.creator.packs, self.db.creator.saved }) do
     for _, pack in pairs(packs) do self.Packs.Upgrade(pack) end
   end
+  -- Installed packs from the previous creator are converted in memory each session; the Wago App owns the file.
+  for id, pack in pairs(WagoUI_Storage or {}) do
+    if self.Legacy.IsLegacy(pack) then
+      local ok, converted = pcall(self.Legacy.Convert, id, pack)
+      if ok and self.Packs.Validate(converted) then
+        WagoUI_Storage[id] = converted
+        self.Legacy.MigrateHistory(self.db, converted)
+      end
+    end
+  end
+  -- The previous installer remembered the selected pack account-wide.
+  if not self.dbC.selection.packID and type(self.db.selectedWagoData) == "string" then
+    self.dbC.selection.packID = self.db.selectedWagoData
+  end
 end
 
 function addon:NewPack(label)
@@ -91,9 +105,10 @@ end
 
 function addon:GetPacks(ownedOnly)
   local result = {}
+  -- Installed packs that cannot be read are left out rather than shown with an error.
   if not ownedOnly then
     for id, pack in pairs(WagoUI_Storage or {}) do
-      result[id] = pack
+      if self.Packs.Validate(pack) and pack.id == id then result[id] = pack end
     end
   end
   for id, pack in pairs(self.db.creator.packs) do result[id] = pack end
