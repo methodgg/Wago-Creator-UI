@@ -7,7 +7,7 @@ local UI = addon.UI
 local ui = UI.view
 local button, check, dropdown, label = UI.button, UI.check, UI.dropdown, UI.label
 local rowBackground, widget = UI.rowBackground, UI.widget
-local confirm, notice = UI.confirm, UI.notice
+local confirm = UI.confirm
 local resolutionText = UI.resolutionText
 local layoutName = UI.layoutName
 local ctaButton = UI.ctaButton
@@ -725,8 +725,12 @@ local function expertList(body, pack, s)
       local action = state == "new" and "Import" or state == "update" and "Update" or "Re-import"
       local b = button(body, action, 776, y + 6, 124, function()
         if needsConfirmation(p) then importInWeakAuras(pack, p); return end
+        -- Success shows on the row itself; a failure is explained in a popup, as the UI Packs view has no status line.
         addon:ImportProfiles(pack, { p }, function(_, failed)
-          notice(#failed > 0 and ("Not imported: " .. table.concat(failed, ", ")) or (p.name .. " imported"))
+          if #failed > 0 then
+            addon:ShowAlert(p.moduleName, p.name .. " could not be imported.\nMake sure " .. p.moduleName
+              .. " is up to date, then try again.")
+          end
         end)
       end, nil, 30, 14, "expertAction")
       -- Updates stand out; re-importing an up-to-date profile stays quiet.

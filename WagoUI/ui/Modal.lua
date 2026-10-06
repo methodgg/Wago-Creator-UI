@@ -16,7 +16,11 @@ local function safely(callback)
   if not ok then
     local target = ui.modal:IsShown() and ui.modal.error or ui.notice
     local message = tostring(problem):gsub("^.-:%d+: ", "")
-    if target == ui.notice then addon.state.notice = message end
+    if target == ui.notice then
+      addon.state.notice = message
+      -- Only the creator has a status line.
+      if addon.db.workspaceMode ~= "create" then return ok end
+    end
     target:SetText(message)
   end
   return ok
