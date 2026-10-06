@@ -40,6 +40,7 @@ function addon:Async(callback)
 end
 local function load(path) assert(loadfile(path))("WagoUI", addon) end
 load("WagoUI/core/Packs.lua")
+load("WagoUI/core/Legacy.lua")
 load("WagoUI/core/Capture.lua")
 load("WagoUI/core/Install.lua")
 addon:InitializePacks()
