@@ -158,23 +158,11 @@ local function exportOptions(pack, moduleName)
       y = y + 36
     end
   end
-  local blocked = CopyTable(pack.blockedAuras or {})
-  if moduleName == "WeakAuras" then
-    label(content, "Excluded auras", 0, y + 8, 480)
-    y = y + 40
-    local keys = {}
-    for key in pairs(WeakAurasSaved and WeakAurasSaved.displays or {}) do table.insert(keys, key) end
-    table.sort(keys)
-    for _, key in ipairs(keys) do
-      check(content, key, blocked[key], 0, y, function(value) blocked[key] = value or nil end)
-      y = y + 34
-    end
-  end
+  -- Blocked WeakAuras are chosen in the WeakAuras manager.
   content:SetHeight(math.max(1, y))
   button(f, "Save", 424, 476, 150, function()
     pack.exportOptions = pack.exportOptions or {}
     pack.exportOptions[moduleName] = options
-    if moduleName == "WeakAuras" then pack.blockedAuras = blocked end
     pack.revision = pack.revision + 1
     closeModal(); render()
   end)

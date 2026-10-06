@@ -4,7 +4,9 @@
   <Script file="Modal.lua"/>
   <Script file="Variations.lua"/>
   <Script file="Dialogs.lua"/>
+  <Script file="Manager.lua"/>
   <Script file="CooldownManager.lua"/>
+  <Script file="WeakAuras.lua"/>
   <Script file="Welcome.lua"/>
   <Script file="Creator.lua"/>
   <Script file="Installer.lua"/>

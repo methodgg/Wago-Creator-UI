@@ -13,6 +13,7 @@ local variationTabs, variationToggle = UI.variationTabs, UI.variationToggle
 local additionalAddons, exportOptions, saveCapture = UI.additionalAddons, UI.exportOptions, UI.saveCapture
 local wagoAddons = UI.wagoAddons
 local CDM, cooldownManager, includedLayouts = UI.CDM, UI.cooldownManager, UI.includedLayouts
+local includedAuras, weakAurasManager = UI.includedAuras, UI.weakAurasManager
 local ctaButton, startSetup = UI.ctaButton, UI.startSetup
 local function render() UI.render() end
 
@@ -204,9 +205,14 @@ local function creator(pack)
     if info.status == "Not installed" then hasNotInstalled = true end
     local moduleName, ready = info.name, info.status == "Ready"
     -- Cooldown Manager layouts are picked in their own manager and ship with every variation: one manage row.
-    local cdm = moduleName == CDM
-    local rows = cdm and { { manage = true } } or creatorRows(pack, moduleName)
+    local cdm, auras = moduleName == CDM, moduleName == "WeakAuras"
+    local rows = (cdm or auras) and { { manage = true } } or creatorRows(pack, moduleName)
+    -- WeakAuras are picked in their manager too, but each one keeps a row for its variations.
+    if auras then
+      for _, p in ipairs(includedAuras(pack)) do table.insert(rows, { profileID = p.id, aura = true }) end
+    end
     local layouts = cdm and includedLayouts(pack) or {}
+    local managed = cdm and #layouts or #rows - 1
     local addonFound, shown = found(moduleName), {}
     for index, row in ipairs(rows) do
       local p = row.profileID and pack.profiles[row.profileID]
@@ -216,6 +222,7 @@ local function creator(pack)
         table.insert(shown, index)
       end
     end
+    if auras and #shown > 0 and shown[1] ~= 1 then table.insert(shown, 1, 1) end
     if cdm then
       -- Listed when it or a layout matches; previews show it whenever layouts are included.
       local match = addonFound
@@ -254,7 +261,7 @@ local function creator(pack)
         local height = math.max(44, chipY - y + 35)
         local warning, rowHeight = rowWarning(index, p, tags), position == #shown and height - 1 or height
         if warning then unassignedRow(body, y, rowHeight, warning)
-        elseif not p and not (row.manage and #layouts > 0) then emptyRow(body, y, rowHeight) end
+        elseif not p and not (row.manage and managed > 0) then emptyRow(body, y, rowHeight) end
         if position == 1 then
           local status = info.status ~= "Ready" and info.status or nil
           if info.status == "Addon disabled" then status = "AddOn disabled - click to enable" end
@@ -284,9 +291,12 @@ local function creator(pack)
           render()
         end
         if row.manage then
-          local manage = button(body, #layouts > 0 and ("Manage (" .. #layouts .. ")") or "Manage", PROFILE_X, y + 6,
-            PROFILE_WIDTH, function() cooldownManager(pack) end, "Choose Cooldown Manager profiles to include", 32)
+          local manage = button(body, managed > 0 and ("Manage (" .. managed .. ")") or "Manage", PROFILE_X, y + 6,
+            PROFILE_WIDTH, function() if cdm then cooldownManager(pack) else weakAurasManager(pack) end end,
+            cdm and "Choose Cooldown Manager profiles to include" or "Choose WeakAuras to include", 32)
           manage:SetEnabled(ready and not locked and not addon.state.busy)
+        elseif row.aura then
+          label(body, p.name, PROFILE_X + 16, y + 15, PROFILE_WIDTH - 16, 14)
         else
           local current = ready and lap.getCurrentProfileKey and lap:getCurrentProfileKey()
           local entries = {}
@@ -326,14 +336,19 @@ local function creator(pack)
           if locked or not ready or addon.state.busy then selector:Disable() end
         end
         if not locked and not row.manage then
-          local add = rowAction(body, nil, 838, y, "Add alternate profile", function()
-            -- New alternates start unassigned until a variation chip is chosen.
-            table.insert(rows, { variations = {}, moduleName = moduleName })
-            render()
-          end)
-          add:SetEnabled(ready and not addon.state.busy)
-          local remove = rowAction(body, [[Interface\Buttons\UI-GroupLoot-Pass-Up]], 870, y,
-            index == 1 and "Clear selected profile" or "Remove alternate profile", clear)
+          local actions = {}
+          if not row.aura then
+            local add = rowAction(body, nil, 838, y, "Add alternate profile", function()
+              -- New alternates start unassigned until a variation chip is chosen.
+              table.insert(rows, { variations = {}, moduleName = moduleName })
+              render()
+            end)
+            add:SetEnabled(ready and not addon.state.busy)
+            table.insert(actions, add)
+          end
+          local remove = rowAction(body, [[Interface\Buttons\UI-GroupLoot-Pass-Up]], 870, y, row.aura and
+            "Remove from this UI Pack" or index == 1 and "Clear selected profile" or "Remove alternate profile", clear)
+          table.insert(actions, remove)
           local hover = widget(body, "profileHover", function()
             local frame = CreateFrame("Frame", nil, body)
             frame:EnableMouse(false)
@@ -347,9 +362,9 @@ local function creator(pack)
           end)
           hover:SetPoint("TOPLEFT", body, "TOPLEFT", 4, -y)
           hover:SetSize(body:GetWidth() - 8, height)
-          hover.actions = { add, remove }
+          hover.actions = actions
           hover.addonLoaded = lap:isLoaded()
-          add:Hide(); remove:Hide()
+          for _, action in ipairs(actions) do action:Hide() end
         end
         y = y + height
       end
