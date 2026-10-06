@@ -195,7 +195,7 @@ function addon:ImportProfiles(pack, records, callback, hooks)
     self:RefreshWorkspace()
     self:Async(function()
       self:SuppressAddOnSpam()
-      local failed, imported = {}, 0
+      local failed, imported, reasons, seen = {}, 0, {}, {}
       for _, p in ipairs(records) do
         if InCombatLockdown() then table.insert(failed, "Installation stopped: combat."); break end
         local lap = LAP:GetModule(p.moduleName)
@@ -206,6 +206,9 @@ function addon:ImportProfiles(pack, records, callback, hooks)
         if hooks.onRecord then hooks.onRecord(p, accepted ~= false) end
         if accepted == false then
           table.insert(failed, p.moduleName .. ": " .. p.name)
+          -- Integrations that say why they refused are explained once, in a popup.
+          local reason = lap.importFailureReason
+          if reason and not seen[reason] then seen[reason] = true; table.insert(reasons, { p.moduleName, reason }) end
         else
           self:RecordImport(pack, p, p.sourceKey)
           imported = imported + 1
@@ -219,6 +222,12 @@ function addon:ImportProfiles(pack, records, callback, hooks)
       if self.state.needReopen then self.frames.mainFrame:Show(); self.state.needReopen = nil end
       self:RefreshWorkspace()
       callback(imported, failed)
+      -- One dialog at a time; closing one shows the next.
+      local function explain(index)
+        local entry = reasons[index]
+        if entry then self:ShowAlert(entry[1], entry[2], function() explain(index + 1) end) end
+      end
+      explain(1)
     end, "ImportProfiles")
   end
   if #warnings > 0 then

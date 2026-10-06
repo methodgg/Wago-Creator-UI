@@ -118,12 +118,15 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
+    -- Why the last import was refused, for the caller to show; nil when it was not refused for a known reason.
+    self.importFailureReason = nil
 
     local profileKeys = self:getProfileKeys()
     local layoutManager = CooldownViewerSettings:GetLayoutManager()
     local previousExport = profileKeys[profileKey] and self:exportProfile(profileKey)
     if not profileKeys[profileKey] and layoutManager:AreLayoutsFullyMaxed() then
-      print("WagoUI: Cooldown Manager is full. Remove a layout before importing.")
+      self.importFailureReason = "Your Cooldown Manager has no room for more layouts.\n"
+        .. "Remove a layout in the Cooldown Manager settings, then install again."
       return false
     end
     if profileKeys[profileKey] and not previousExport then return false end
@@ -154,7 +157,8 @@ local m = {
         local playerTag = tonumber(tag);
         if not layoutTag or not playerTag or math.floor(layoutTag / 10) ~= math.floor(playerTag / 10) then
           layoutManager:RemoveLayout(layoutIDs[1])
-          print("Imported layout's class does not match current class. Layout has been removed.")
+          self.importFailureReason = "This Cooldown Manager layout is for a different class.\n"
+            .. "Log in on a character of that class to install it."
           restorePrevious()
           return false
         end
