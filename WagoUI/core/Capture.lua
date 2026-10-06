@@ -6,7 +6,7 @@ local CDM = "Blizzard Cooldown Manager"
 -- Keep the creator's established order within loaded, disabled and missing addons.
 local creatorOrder = {
   "Blizzard Edit Mode", "Blizzard Cooldown Manager", "ElvUI", "ElvUI Private Profile",
-  "ElvUI Account Settings", "ElvUI Style Filters", "ElvUI Aura Filters", "EllesmereUI",
+  "ElvUI Account Settings", "ElvUI Aura Filters", "EllesmereUI",
   "Details", "Plater", "Kui Nameplates", "BigWigs", "BigWigs Boss Options", "Bartender4",
   "Cell", "Cell Unit Frames", "Unhalted Unit Frames", "BetterCooldownManager", "Grid2",
   "ShadowedUnitFrames", "WeakAuras", "Echo Raid Tools", "Method Raid Tools", "EXBoss",
@@ -17,7 +17,7 @@ local creatorOrder = {
   "sArenaReloaded", "SenseiClassResourceBar", "CooldownManager", "Cooldown Manager Centered",
   "Enhance QoL", "Enhance QoL Unit Frames", "Enhance QoL Resource Bars", "DandersFrames",
   "Prat3", "Midnight Simple Unit Frames", "Skyriding Falcon", "BuffReminders",
-  "CooldownCursorManager", "Ayije_CDM", "NaowhQOL", "atrocityEssentials", "NorskenUI",
+  "CooldownCursorManager", "Ayije_CDM", "atrocityEssentials", "NorskenUI",
 }
 local creatorRank = {}
 for index, name in ipairs(creatorOrder) do creatorRank[name] = index end

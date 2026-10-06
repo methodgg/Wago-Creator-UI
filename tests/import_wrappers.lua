@@ -29,14 +29,14 @@ for path in read(root .. "load.xml"):gmatch('file%s*=%s*["\']([^"\']+%.lua)') do
     count = count + 1
   end
 end
-assert(count >= 33 and reported == count, "Import wrapper coverage missing")
+assert(count >= 32 and reported == count, "Import wrapper coverage missing")
 print(count .. " synchronous import wrappers passed success/rejection/error checks.")
 
 local function importer(filename)
   local body = assert(read(root .. "modules/" .. filename):match("  importProfile = (function.-)\n  end,"))
   return assert(loadstring("return " .. body .. "\nend", filename))()
 end
-for _, filename in ipairs({ "ElvUI.lua", "ElvUIAuraFilters.lua", "ElvUIGlobal.lua", "ElvUIStyleFilters.lua" }) do
+for _, filename in ipairs({ "ElvUI.lua", "ElvUIAuraFilters.lua", "ElvUIGlobal.lua" }) do
   local distributor = { Decode = function() return "profile", nil, {} end, SetImportedProfile = function() end }
   ElvUI = { { GetModule = function() return distributor end } }
   local import = importer(filename)

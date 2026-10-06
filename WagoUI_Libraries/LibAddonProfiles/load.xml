@@ -13,7 +13,6 @@
 	<Script file ="modules\ElvUI.lua"/>
 	<Script file ="modules\ElvUIPrivate.lua"/>
 	<Script file ="modules\ElvUIGlobal.lua"/>
-	<!-- <Script file ="modules\ElvUIStyleFilters.lua"/> -->
 	<Script file ="modules\ElvUIAuraFilters.lua"/>
 	<Script file ="modules\EllesmereUI.lua"/>
 	<Script file ="modules\Grid2.lua"/>
@@ -58,7 +57,6 @@
 	<Script file ="modules\BuffReminders.lua"/>
 	<Script file ="modules\CooldownCursorManager.lua"/>
 	<Script file ="modules\Ayije_CDM.lua"/>
-	<Script file ="modules\NaowhQOL.lua"/>
 	<Script file ="modules\AtrocityEssentials.lua"/>
 	<Script file ="modules\MRT.lua"/>
 	<Script file ="modules\EXBoss.lua"/>
