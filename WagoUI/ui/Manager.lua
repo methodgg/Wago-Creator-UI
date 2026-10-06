@@ -116,7 +116,7 @@ local function managerRow(list, y, row)
   f.text:SetTextColor(unpack(row.color or { 1, 1, 1 }))
   f.action:SetTexture(row.actionTexture)
   f.tooltip = row.tooltip
-  f.second.texture:SetTexture(row.secondTexture)
+  if row.secondAtlas then f.second.texture:SetAtlas(row.secondAtlas) else f.second.texture:SetTexture(row.secondTexture) end
   f.secondAction, f.secondTooltip = row.secondAction, row.secondTooltip
   f.onActivate, f.dropTarget = row.onActivate, row.dropTarget
   f:SetEnabled(not addon.state.busy)

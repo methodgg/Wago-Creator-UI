@@ -8,6 +8,10 @@ local closeModal, modal, safely = UI.closeModal, UI.modal, UI.safely
 local function render() UI.render() end
 
 local CDM = "Blizzard Cooldown Manager"
+-- Blizzard's undo arrow: the layout goes back to the version saved before.
+local KEEP = "common-icon-undo"
+local ALERT = "|TInterface\\DialogFrame\\UI-Dialog-Icon-AlertNew:14:14|t "
+local KEPT = "|A:common-icon-undo:14:14|a "
 
 -- A classAndSpecTag such as 121 is class 12 (Demon Hunter), spec 1 (Havoc).
 local function specIcon(tag)
@@ -86,11 +90,24 @@ local function cooldownManager(pack)
     if y == 0 then emptyList(available, query == "" and "No more profiles to include." or "No profiles match your search.") end
     available.content:SetHeight(math.max(1, y))
     y = 0
+    -- Layouts Save All could not save are marked here, where they can be removed or keep their last capture.
+    local problems = addon:GetCaptureProblems(pack)
     for _, p in ipairs(chosen) do
+      local problem = problems[p.id]
+      local kept = not problem and p.keepCapture and p.data and addon:CaptureProblem(p)
+      local text = layoutName(p.sourceKey, p.classAndSpecTag, p.sourceCharacter)
       managerRow(included, y, {
-        icon = specIcon(p.classAndSpecTag), text = layoutName(p.sourceKey, p.classAndSpecTag, p.sourceCharacter),
-        actionTexture = [[Interface\Buttons\UI-GroupLoot-Pass-Up]], tooltip = "Remove from this UI Pack",
-        onActivate = function() exclude(p) end, dropTarget = available,
+        icon = specIcon(p.classAndSpecTag), text = (problem and ALERT or kept and KEPT or "") .. text,
+        actionTexture = [[Interface\Buttons\UI-GroupLoot-Pass-Up]], dropTarget = available,
+        tooltip = problem and (problem .. "\nClick to remove it from this UI Pack.")
+          or kept and ("Ships its last capture.\n" .. kept) or "Remove from this UI Pack",
+        onActivate = function() exclude(p) end,
+        secondAtlas = KEEP, secondTooltip = p.keepCapture and "Stop keeping the last capture"
+          or "Keep last capture\nShip the version you saved before until this layout can be saved again.",
+        secondAction = p.data and (problem or p.keepCapture) and function()
+          safely(function() Packs.KeepCapture(pack, p.id, not p.keepCapture) end)
+          render(); draw()
+        end or nil,
       })
       y = y + 32
     end

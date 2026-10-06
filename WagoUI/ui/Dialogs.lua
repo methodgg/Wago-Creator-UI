@@ -8,11 +8,28 @@ local closeModal, modal, modalList, notice, safely = UI.closeModal, UI.modal, UI
 local textDialog = UI.textDialog
 local function render() UI.render() end
 
+-- A capture with failed exports saved nothing; list what failed so the creator can fix it and save again.
+local function captureFailed(issues)
+  local f = modal("Couldn't save", 600, 420)
+  label(f, "Nothing was saved. Fix these profiles, then save again.", 24, 58, 552, 14, { .8, .8, .8 })
+  f.scroll:ClearAllPoints()
+  f.scroll:SetPoint("TOPLEFT", f, "TOPLEFT", 24, -90)
+  local content = modalList(f, 250)
+  local y = 0
+  for _, issue in ipairs(issues) do
+    local line = label(content, issue, 0, y, 526, 13, { 1, .65, .3 })
+    line:SetWordWrap(true)
+    y = y + line:GetStringHeight() + 8
+  end
+  content:SetHeight(math.max(1, y))
+  button(f, addon.L["Okay"], 446, 360, 130, closeModal)
+end
+
 local function saveCapture(pack, changes, issues)
+  if #issues > 0 then captureFailed(issues); return end
   local generated, changed = addon:BuildReleaseNotes(pack)
-  if not changed and #issues == 0 then notice("No Changes detected"); return end
-  local extra = #issues > 0 and 96 or 0
-  local f = modal("Release Notes", 600, 560 + extra)
+  if not changed then notice("No Changes detected"); return end
+  local f = modal("Release Notes", 600, 560)
   local editor = widget(f, "notesEditor", function()
     local panel = CreateFrame("Frame", nil, f, "BackdropTemplate")
     panel.scroll = scroll(panel, 10, 10, 504, 205)
@@ -44,28 +61,16 @@ local function saveCapture(pack, changes, issues)
   label(f, "Edit your release notes below (Markdown).\nUsers see these notes when they install or update your UI Pack.",
     24, 60, 552, 13, { .8, .8, .8 }):SetWordWrap(true)
   notes:SetFocus()
-  if #issues > 0 then
-    f.scroll:ClearAllPoints()
-    f.scroll:SetPoint("TOPLEFT", f, "TOPLEFT", 24, -346)
-    local content = modalList(f, 80)
-    local y = 0
-    for _, issue in ipairs(issues) do
-      local warning = label(content, issue, 0, y, 526, 13, { 1, .65, .3 })
-      warning:SetWordWrap(true)
-      y = y + warning:GetStringHeight() + 8
-    end
-    content:SetHeight(math.max(1, y))
-  end
   local logo = widget(f, "saveLogo", function() return f:CreateTexture(nil, "ARTWORK") end)
   logo:SetTexture([[Interface\AddOns\WagoUI\media\wagoLogo512]])
   logo:SetSize(128, 128)
-  logo:SetPoint("TOP", f, "TOP", 0, -(336 + extra))
-  label(f, "Continue the upload through the Wago App after the reload!", 58, 476 + extra, 484, 16):SetJustifyH("CENTER")
+  logo:SetPoint("TOP", f, "TOP", 0, -336)
+  label(f, "Continue the upload through the Wago App after the reload!", 58, 476, 484, 16):SetJustifyH("CENTER")
   for _, x in ipairs({ 24, 546 }) do
     local warning = widget(f, "saveWarning", function() return f:CreateTexture(nil, "OVERLAY") end)
     warning:SetTexture([[Interface\DialogFrame\UI-Dialog-Icon-AlertNew]])
     warning:SetSize(30, 30)
-    warning:SetPoint("TOPLEFT", f, "TOPLEFT", x, -(468 + extra))
+    warning:SetPoint("TOPLEFT", f, "TOPLEFT", x, -468)
   end
   f.error:ClearAllPoints()
   f.error:SetPoint("TOPLEFT", f, "TOPLEFT", 24, -46)
@@ -77,7 +82,7 @@ local function saveCapture(pack, changes, issues)
       ReloadUI()
     end
   end
-  button(f, "Save and Reload", 200, 504 + extra, 200, save, "Write SavedVariables for the Wago App", 40, 16, "saveReload")
+  button(f, "Save and Reload", 200, 504, 200, save, "Write SavedVariables for the Wago App", 40, 16, "saveReload")
     :SetBackdropColor(0, .8, 0, 1)
 end
 

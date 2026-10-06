@@ -158,7 +158,16 @@ function Packs.SetSource(pack, id, source)
   profile.sourceKey, profile.name, profile.kind = key, key, source.kind
   profile.sourceCharacter, profile.classAndSpecTag = source.character, source.classAndSpecTag
   profile.data, profile.lastUpdatedAt, profile.lastSavedAt, profile.collectedWagoIds = nil, nil, nil, nil
+  profile.keepCapture = nil
   touch(pack)
+end
+
+-- The creator's choice to ship a record's last capture while its source cannot be saved. Creator state only, so the
+-- revision (and with it the release notes) stays the same; the next successful capture clears it.
+function Packs.KeepCapture(pack, id, keep)
+  local profile = assert(pack.profiles[id], "Unknown profile.")
+  assert(not keep or profile.data, "This profile has never been saved.")
+  profile.keepCapture = keep and true or nil
 end
 
 function Packs.RemoveProfile(pack, id)
