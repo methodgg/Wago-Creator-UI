@@ -59,6 +59,17 @@ for i, command in pairs(addon.slashPrefixes) do
 end
 SlashCmdList[strupper(addonName) .. "SHOW"] = slashCommandShow
 
+-- /wagoc opens straight into the creator.
+_G["SLASH_" .. strupper(addonName) .. "CREATOR1"] = "/wagoc"
+SlashCmdList[strupper(addonName) .. "CREATOR"] = function()
+  addon.db.workspaceMode = "create"
+  if addon.frames.mainFrame and addon.frames.mainFrame:IsShown() then
+    addon:RefreshWorkspace()
+  else
+    addon:ShowFrame()
+  end
+end
+
 function addon:PrintAvailableSlashCommands()
   addon:AddonPrint(L["Available slash commands"] .. ":")
   local res = ""
