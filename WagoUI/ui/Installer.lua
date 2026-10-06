@@ -55,6 +55,7 @@ local function addonIcon(parent, moduleName, x, y, size)
   texture:SetSize(size, size)
   texture:SetTexture(lap and lap.icon and lap.icon ~= "" and lap.icon or 134400)
   texture:SetTexCoord(1 / 12, 11 / 12, 1 / 12, 11 / 12)
+  texture:SetDesaturated(false)
   return texture
 end
 
@@ -71,7 +72,8 @@ local function badge(pack, p, status)
   if status == "Not captured" then return "Not available yet", GREY end
   if status ~= "Ready" then return status, GREY end
   local state = addon:ProfileState(pack, p)
-  if state == "new" then return "New", { .95, .95, .95 } end
+  -- Never-installed profiles need no label; on a first install every row would say the same.
+  if state == "new" then return "", { .95, .95, .95 } end
   if state == "update" then return "Update available", HIGHLIGHT end
   return "Already installed", GREY
 end
@@ -355,7 +357,13 @@ end
 local function unavailableReason(p, status)
   if status == "Addon missing" then return "Install " .. p.moduleName .. " with the Wago App first." end
   if status == "Update addon" then return "Update " .. p.moduleName .. " first." end
-  if status == "Class incompatible" then return "Made for a different class." end
+  if status == "Class incompatible" then
+    -- A classAndSpecTag such as 61 is class 6 (Death Knight), spec 1.
+    local class = C_CreatureInfo and C_CreatureInfo.GetClassInfo(math.floor(p.classAndSpecTag / 10))
+    if not class or not class.className then return "Can be imported on another class." end
+    local article = class.className:find("^[AEIOUaeiou]") and "an " or "a "
+    return "Can be imported on " .. article .. class.className .. "."
+  end
   if status == "Not captured" then return "Not available in this UI Pack yet." end
   if status == "Profile incompatible" then return "Does not work with your version of " .. p.moduleName .. "." end
   return status
@@ -421,9 +429,10 @@ local function review(body, pack, s)
   end
   local y = 48
   local function row(p, status, included, onToggle, moduleName, module)
-    rowBackground(body, y, 38, .06)
+    -- Unchecked rows recede: a darker row and a grey icon.
+    rowBackground(body, y, 38, included and .06 or .02)
     check(body, "", included, 12, y + 4, onToggle)
-    addonIcon(body, p.moduleName, 44, y + 7, 24)
+    addonIcon(body, p.moduleName, 44, y + 7, 24):SetDesaturated(not included)
     if moduleName then
       label(body, moduleName, 76, y + 11, 200, 15)
       if module and #module.profiles > 1 then
@@ -440,7 +449,8 @@ local function review(body, pack, s)
     end
     local text, color = badge(pack, p, status)
     label(body, text, 570, y + 12, 150, 13, color)
-    local note = overwriteNote(p, status)
+    -- Nothing gets replaced when the row is not installed.
+    local note = included and overwriteNote(p, status)
     if note then label(body, note, 724, y + 12, 194, 12, AMBER) end
     y = y + 40
   end
