@@ -2,14 +2,12 @@
 local addon = select(2, ...)
 local Packs = addon.Packs
 local UI = addon.UI
-local ui = UI.view
 local button, check, input, label, reset = UI.button, UI.check, UI.input, UI.label, UI.reset
-local scroll, widget = UI.scroll, UI.widget
+local dragGhost, emptyList, managerList, managerRow = UI.dragGhost, UI.emptyList, UI.managerList, UI.managerRow
 local closeModal, modal, safely = UI.closeModal, UI.modal, UI.safely
 local function render() UI.render() end
 
 local CDM = "Blizzard Cooldown Manager"
-local WHITE = [[Interface\Buttons\WHITE8X8]]
 
 -- A classAndSpecTag such as 121 is class 12 (Demon Hunter), spec 1 (Havoc).
 local function specIcon(tag)
@@ -39,80 +37,6 @@ local function includedLayouts(pack)
   return result
 end
 
--- Shared by both lists: the same row can be clicked or dragged onto the other list.
-local function layoutRow(list, y, entry, actionTexture, actionTooltip, onActivate, dropTarget)
-  local row = widget(list.content, "layoutRow", function()
-    local f = CreateFrame("Button", nil, list.content, "BackdropTemplate")
-    f:SetBackdrop({ bgFile = WHITE })
-    f.icon = f:CreateTexture(nil, "ARTWORK")
-    f.icon:SetSize(22, 22)
-    f.icon:SetPoint("LEFT", f, "LEFT", 8, 0)
-    f.icon:SetTexCoord(1 / 12, 11 / 12, 1 / 12, 11 / 12)
-    f.text = f:CreateFontString(nil, "OVERLAY")
-    f.text:SetFont(addon.FONT, 13, "")
-    f.text:SetPoint("LEFT", f, "LEFT", 38, -1)
-    f.text:SetJustifyH("LEFT")
-    f.text:SetWordWrap(false)
-    f.action = f:CreateTexture(nil, "OVERLAY")
-    f.action:SetSize(16, 16)
-    f.action:SetPoint("RIGHT", f, "RIGHT", -10, 0)
-    f.paint = function(self)
-      local hovered = self:IsMouseOver() and not addon.state.busy
-      self:SetBackdropColor(.8, .8, .8, hovered and .12 or self.shade)
-      self.action:SetShown(hovered)
-    end
-    f:SetScript("OnEnter", function(self) self:paint(); addon.ShowWidgetTooltip(self, self.tooltip) end)
-    f:SetScript("OnLeave", function(self) self:paint(); addon.HideWidgetTooltip(self) end)
-    f:SetScript("OnClick", function(self) if not addon.state.busy then self.onActivate() end end)
-    f:RegisterForDrag("LeftButton")
-    f:SetScript("OnDragStart", function(self)
-      if addon.state.busy then return end
-      local ghost = ui.layoutGhost
-      ghost.text:SetText(self.text:GetText())
-      ghost:SetSize(self:GetWidth(), self:GetHeight())
-      ghost:Show()
-      self.dragging = true
-    end)
-    f:SetScript("OnDragStop", function(self)
-      if not self.dragging then return end
-      self.dragging = nil
-      ui.layoutGhost:Hide()
-      self.dropTarget:SetBackdropBorderColor(.22, .22, .22, 1)
-      if self.dropTarget:IsMouseOver() then self.onActivate() end
-    end)
-    return f
-  end)
-  row:SetPoint("TOPLEFT", list.content, "TOPLEFT", 0, -y)
-  row:SetSize(list.content:GetWidth(), 32)
-  row.shade = (y / 32) % 2 == 1 and .04 or 0
-  row.icon:SetTexture(specIcon(entry.classAndSpecTag))
-  row.text:SetWidth(row:GetWidth() - 70)
-  row.text:SetText(layoutName(entry.key, entry.classAndSpecTag, entry.character))
-  row.action:SetTexture(actionTexture)
-  row.tooltip = actionTooltip
-  row.onActivate, row.dropTarget = onActivate, dropTarget
-  row:SetEnabled(not addon.state.busy)
-  row:paint()
-  return row
-end
-
-local function layoutList(f, kind, x, y, width, height)
-  local list = widget(f, kind, function()
-    local panel = CreateFrame("Frame", nil, f, "BackdropTemplate")
-    panel:SetBackdrop({ bgFile = WHITE, edgeFile = WHITE, edgeSize = 1 })
-    panel:SetBackdropColor(.05, .05, .05, 1)
-    panel.scroll, panel.content = scroll(panel, 4, 4, width - 26, height - 8)
-    return panel
-  end)
-  list:SetPoint("TOPLEFT", f, "TOPLEFT", x, -y)
-  list:SetSize(width, height)
-  list:SetFrameLevel(f:GetFrameLevel() + 1)
-  list:SetBackdropBorderColor(.22, .22, .22, 1)
-  list.scroll:SetFrameLevel(list:GetFrameLevel() + 1)
-  reset(list.content)
-  return list
-end
-
 -- Picks which Cooldown Manager layouts the pack exports; each one ships with every variation.
 local function cooldownManager(pack)
   local query = ""
@@ -123,36 +47,13 @@ local function cooldownManager(pack)
   label(f, "Exported CDM profiles will be available in all of your UI Pack variations.", 24, 92, 712, 13, { .7, .7, .7 })
   label(f, "Profiles from other characters are only available after logging into those characters at least once.",
     24, 110, 712, 13, { 1, .65, .3 }):SetWordWrap(true)
-  if not ui.layoutGhost then
-    -- Follows the cursor while a row is dragged between the lists.
-    local ghost = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
-    ghost:SetFrameStrata("TOOLTIP")
-    ghost:SetBackdrop({ bgFile = WHITE, edgeFile = WHITE, edgeSize = 1 })
-    ghost:SetBackdropColor(.12, .12, .12, .9)
-    ghost:SetBackdropBorderColor(.55, .55, .55, 1)
-    ghost:EnableMouse(false)
-    ghost.text = ghost:CreateFontString(nil, "OVERLAY")
-    ghost.text:SetFont(addon.FONT, 13, "")
-    ghost.text:SetPoint("LEFT", ghost, "LEFT", 12, -1)
-    ghost:SetScript("OnUpdate", function(self)
-      local x, y = GetCursorPosition()
-      local scale = UIParent:GetEffectiveScale()
-      self:ClearAllPoints()
-      self:SetPoint("LEFT", UIParent, "BOTTOMLEFT", x / scale + 8, y / scale)
-      for _, list in ipairs(self.lists or {}) do
-        list:SetBackdropBorderColor(unpack(list:IsMouseOver() and { .76, .15, .18, 1 } or { .22, .22, .22, 1 }))
-      end
-    end)
-    ghost:Hide()
-    ui.layoutGhost = ghost
-  end
   label(f, "Your profiles", 24, 140, 344, 16)
   local includedHeading = label(f, "", 392, 140, 344, 16)
   local search = input(f, "", 24, 164, 344)
   label(f, "Click or drag a profile to move it between the lists.", 392, 174, 344, 12, { .55, .55, .55 })
-  local available = layoutList(f, "availableLayouts", 24, 206, 344, 290)
-  local included = layoutList(f, "includedLayouts", 392, 206, 344, 290)
-  ui.layoutGhost.lists = { available, included }
+  local available = managerList(f, "availableLayouts", 24, 206, 344, 290)
+  local included = managerList(f, "includedLayouts", 392, 206, 344, 290)
+  dragGhost({ available, included })
 
   local draw
   local function include(source)
@@ -174,26 +75,26 @@ local function cooldownManager(pack)
     for _, source in ipairs(addon:ProfileSources(CDM)) do
       local text = (source.key .. " " .. (source.character or "")):lower()
       if not taken[(source.character or "") .. "|" .. source.key] and text:find(query, 1, true) then
-        layoutRow(available, y, source, [[Interface\ChatFrame\ChatFrameExpandArrow]], "Include in this UI Pack",
-          function() include(source) end, included)
+        managerRow(available, y, {
+          icon = specIcon(source.classAndSpecTag), text = layoutName(source.key, source.classAndSpecTag, source.character),
+          actionTexture = [[Interface\ChatFrame\ChatFrameExpandArrow]], tooltip = "Include in this UI Pack",
+          onActivate = function() include(source) end, dropTarget = included,
+        })
         y = y + 32
       end
     end
-    if y == 0 then
-      label(available.content, query == "" and "No more profiles to include." or "No profiles match your search.",
-        0, 20, available.content:GetWidth(), 13, { .5, .5, .5 }):SetJustifyH("CENTER")
-    end
+    if y == 0 then emptyList(available, query == "" and "No more profiles to include." or "No profiles match your search.") end
     available.content:SetHeight(math.max(1, y))
     y = 0
     for _, p in ipairs(chosen) do
-      layoutRow(included, y, { key = p.sourceKey, classAndSpecTag = p.classAndSpecTag, character = p.sourceCharacter },
-        [[Interface\Buttons\UI-GroupLoot-Pass-Up]], "Remove from this UI Pack", function() exclude(p) end, available)
+      managerRow(included, y, {
+        icon = specIcon(p.classAndSpecTag), text = layoutName(p.sourceKey, p.classAndSpecTag, p.sourceCharacter),
+        actionTexture = [[Interface\Buttons\UI-GroupLoot-Pass-Up]], tooltip = "Remove from this UI Pack",
+        onActivate = function() exclude(p) end, dropTarget = available,
+      })
       y = y + 32
     end
-    if y == 0 then
-      label(included.content, "Click a profile on the left to include it.", 0, 20, included.content:GetWidth(), 13,
-        { .5, .5, .5 }):SetJustifyH("CENTER")
-    end
+    if y == 0 then emptyList(included, "Click a profile on the left to include it.") end
     included.content:SetHeight(math.max(1, y))
     includedHeading:SetText("Included profiles (" .. #chosen .. ")")
   end
