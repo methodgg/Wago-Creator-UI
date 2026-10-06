@@ -673,40 +673,87 @@ local function expertList(body, pack, s)
     if ranks[a] ~= ranks[b] then return ranks[a] > ranks[b] end
     return a.moduleName < b.moduleName
   end)
-  local y = 0
+  -- Grouped like Select what to Install: AddOn settings, one section per group addon, Cooldown Manager, then what
+  -- cannot be installed right now. The order above holds within each section.
+  local sections, byTitle, blocked = {}, {}, {}
+  local function section(title)
+    if not byTitle[title] then
+      byTitle[title] = { title = title, rows = {} }
+      table.insert(sections, byTitle[title])
+    end
+    return byTitle[title]
+  end
+  section("AddOn settings")
+  local groupTitles, seen = {}, {}
   for _, p in ipairs(profiles) do
-    local status = statuses[p]
+    if p.kind == "group" and not seen[p.moduleName] then seen[p.moduleName] = true; table.insert(groupTitles, p.moduleName) end
+  end
+  table.sort(groupTitles)
+  for _, title in ipairs(groupTitles) do section(title) end
+  section("Cooldown Manager")
+  for _, p in ipairs(profiles) do
     if query == "" or p.moduleName:lower():find(query, 1, true) or p.name:lower():find(query, 1, true) then
-      rowBackground(body, y, 42, .06)
-      addonIcon(body, p.moduleName, 14, y + 9, 24)
-      label(body, p.moduleName, 50, y + 13, 230, 15)
-      label(body, profileName(p), 290, y + 14, 260, 14, { .8, .8, .8 })
-      label(body, p.lastUpdatedAt and date("%b %d", p.lastUpdatedAt) or "", 560, y + 14, 80, 13, GREY)
-      local text, color = badge(pack, p, status)
-      local state = installable(status) and addon:ProfileState(pack, p)
-      if state == "current" then text, color = icon(CHECK, 13) .. " Imported", LIGHT end
-      -- Here enabling is its own step: it only turns the addon on, and importing comes after the reload.
-      local enabled = enabledAfterReload(p.moduleName)
-      if enabled then text, color = "Turns on after reload", AMBER
-      elseif status == "Enable addon" then text, color = "AddOn disabled", AMBER end
-      label(body, text, 640, y + 14, 126, 13, color)
-      if enabled then
-        button(body, "Reload", 776, y + 6, 124, reloadIntoProfiles, nil, 30, 14, "expertAction"):SetBackdropColor(1, 1, 1, .7)
-      elseif status == "Enable addon" then
-        button(body, "Enable AddOn", 776, y + 6, 124, function() enableAddon(p.moduleName) end, nil, 30, 14, "expertAction")
-          :SetBackdropColor(1, 1, 1, .7)
-      elseif installable(status) then
-        local action = state == "new" and "Import" or state == "update" and "Update" or "Re-import"
-        local b = button(body, action, 776, y + 6, 124, function()
-          if needsConfirmation(p) then importInWeakAuras(pack, p); return end
-          addon:ImportProfiles(pack, { p }, function(_, failed)
-            notice(#failed > 0 and ("Not imported: " .. table.concat(failed, ", ")) or (p.name .. " imported"))
-          end)
-        end, nil, 30, 14, "expertAction")
-        -- Updates stand out; re-importing an up-to-date profile stays quiet.
-        b:SetBackdropColor(unpack(state == "update" and { RED[1], RED[2], RED[3], 1 } or state == "current" and { .13, .13, .13, 1 }
-          or { 1, 1, 1, .7 }))
+      -- An addon turned on here keeps its row until the reload.
+      if not installable(statuses[p]) and not enabledAfterReload(p.moduleName) then table.insert(blocked, p)
+      elseif p.kind == "cdm" then table.insert(byTitle["Cooldown Manager"].rows, p)
+      elseif p.kind == "group" then table.insert(byTitle[p.moduleName].rows, p)
+      else table.insert(byTitle["AddOn settings"].rows, p) end
+    end
+  end
+  local y = 0
+  local function row(p)
+    local status = statuses[p]
+    rowBackground(body, y, 42, .06)
+    addonIcon(body, p.moduleName, 14, y + 9, 24)
+    label(body, p.moduleName, 50, y + 13, 230, 15)
+    label(body, profileName(p), 290, y + 14, 260, 14, { .8, .8, .8 })
+    label(body, p.lastUpdatedAt and date("%b %d", p.lastUpdatedAt) or "", 560, y + 14, 80, 13, GREY)
+    local text, color = badge(pack, p, status)
+    local state = installable(status) and addon:ProfileState(pack, p)
+    if state == "current" then text, color = icon(CHECK, 13) .. " Imported", LIGHT end
+    -- Here enabling is its own step: it only turns the addon on, and importing comes after the reload.
+    local enabled = enabledAfterReload(p.moduleName)
+    if enabled then text, color = "Turns on after reload", AMBER
+    elseif status == "Enable addon" then text, color = "AddOn disabled", AMBER end
+    label(body, text, 640, y + 14, 126, 13, color)
+    if enabled then
+      button(body, "Reload", 776, y + 6, 124, reloadIntoProfiles, nil, 30, 14, "expertAction"):SetBackdropColor(1, 1, 1, .7)
+    elseif status == "Enable addon" then
+      button(body, "Enable AddOn", 776, y + 6, 124, function() enableAddon(p.moduleName) end, nil, 30, 14, "expertAction")
+        :SetBackdropColor(1, 1, 1, .7)
+    else
+      local action = state == "new" and "Import" or state == "update" and "Update" or "Re-import"
+      local b = button(body, action, 776, y + 6, 124, function()
+        if needsConfirmation(p) then importInWeakAuras(pack, p); return end
+        addon:ImportProfiles(pack, { p }, function(_, failed)
+          notice(#failed > 0 and ("Not imported: " .. table.concat(failed, ", ")) or (p.name .. " imported"))
+        end)
+      end, nil, 30, 14, "expertAction")
+      -- Updates stand out; re-importing an up-to-date profile stays quiet.
+      b:SetBackdropColor(unpack(state == "update" and { RED[1], RED[2], RED[3], 1 } or state == "current" and { .13, .13, .13, 1 }
+        or { 1, 1, 1, .7 }))
+    end
+    y = y + 44
+  end
+  for _, group in ipairs(sections) do
+    if #group.rows > 0 then
+      y = sectionTitle(body, group.title, y)
+      if group.title == "Cooldown Manager" then
+        label(body, "Only layouts for your class can be installed on this character.", 0, y - 4, body:GetWidth(), 12, GREY)
+        y = y + 18
       end
+      for _, p in ipairs(group.rows) do row(p) end
+      y = y + 14
+    end
+  end
+  if #blocked > 0 then
+    y = sectionTitle(body, "Can't be installed right now", y)
+    for _, p in ipairs(blocked) do
+      rowBackground(body, y, 42, .03)
+      addonIcon(body, p.moduleName, 14, y + 9, 24):SetDesaturated(true)
+      label(body, p.moduleName, 50, y + 13, 230, 15, GREY)
+      label(body, profileName(p), 290, y + 14, 260, 14, GREY)
+      label(body, unavailableReason(p, statuses[p]), 560, y + 14, body:GetWidth() - 570, 13, GREY)
       y = y + 44
     end
   end
