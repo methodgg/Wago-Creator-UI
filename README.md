@@ -4,7 +4,7 @@ WagoUI includes Install and Create workspaces. Packs contain independent profile
 
 Local drafts live in WagoUIDB.creator.packs. Explicitly saved captures live in WagoUIDB.creator.saved; reload writes them to disk for the companion app. WagoUI does not read or migrate the old creator database.
 
-The companion app must adopt the [schema-v2 transport contract](docs/wagoui-redesign/transport.md) before this version can be distributed. Old resolution-shaped packs are rejected with an update message.
+The Wago App reads saved packs and delivers installed packs following the [schema-v2 transport contract](docs/wagoui-redesign/transport.md). UI Packs published by the previous creator are converted to schema 2 when WagoUI loads them; a pack that can't be converted is left out.
 
 Development checks, from the repository root with Lua 5.1:
 
