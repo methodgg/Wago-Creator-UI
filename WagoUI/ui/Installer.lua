@@ -614,6 +614,29 @@ local function variationChips(pack, s)
   ui.scroll:SetHeight(618 - top)
 end
 
+local function enabledAfterReload(moduleName)
+  local lap = LAP:GetModule(moduleName)
+  for _, name in ipairs(lap and lap.addonNames or {}) do
+    if addon.state.creatorEnabled and addon.state.creatorEnabled[name] then return true end
+  end
+end
+
+-- After the reload WagoUI opens again on Individual Profiles.
+local function reloadIntoProfiles()
+  local s = addon.dbC.selection
+  s.openProfilesNext, s.reopenAfterReload = true, true
+  ReloadUI()
+end
+
+local function enableAddon(moduleName)
+  addon:EnableCreatorAddon(moduleName)
+  confirm({
+    title = "Enable AddOn", message = "Reload now to turn on " .. moduleName .. "?",
+    details = "WagoUI opens again afterwards, so you can import its profile.",
+    cancelText = "Later", confirmText = "Reload now", onConfirm = reloadIntoProfiles,
+  })
+end
+
 -- Individual profiles: the variation's profiles as one searchable list with an action per row.
 local function expertList(body, pack, s)
   local query = (ui.searchText or ""):lower()
@@ -639,10 +662,18 @@ local function expertList(body, pack, s)
       local text, color = badge(pack, p, status)
       local state = installable(status) and addon:ProfileState(pack, p)
       if state == "current" then text, color = icon(CHECK, 13) .. " Imported", LIGHT end
+      -- Here enabling is its own step: it only turns the addon on, and importing comes after the reload.
+      local enabled = enabledAfterReload(p.moduleName)
+      if enabled then text, color = "Turns on after reload", AMBER
+      elseif status == "Enable addon" then text, color = "AddOn disabled", AMBER end
       label(body, text, 640, y + 14, 126, 13, color)
-      if installable(status) then
-        local action = status == "Enable addon" and "Enable" or state == "new" and "Import" or state == "update" and "Update"
-          or "Re-import"
+      if enabled then
+        button(body, "Reload", 776, y + 6, 124, reloadIntoProfiles, nil, 30, 14, "expertAction"):SetBackdropColor(1, 1, 1, .7)
+      elseif status == "Enable addon" then
+        button(body, "Enable AddOn", 776, y + 6, 124, function() enableAddon(p.moduleName) end, nil, 30, 14, "expertAction")
+          :SetBackdropColor(1, 1, 1, .7)
+      elseif installable(status) then
+        local action = state == "new" and "Import" or state == "update" and "Update" or "Re-import"
         local b = button(body, action, 776, y + 6, 124, function()
           if needsConfirmation(p) then importInWeakAuras(pack, p); return end
           addon:ImportProfiles(pack, { p }, function(_, failed)
