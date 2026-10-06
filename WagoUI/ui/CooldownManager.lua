@@ -95,12 +95,15 @@ local function cooldownManager(pack)
     for _, p in ipairs(chosen) do
       local problem = problems[p.id]
       local kept = not problem and p.keepCapture and p.data and addon:CaptureProblem(p)
+      -- Shared layout names only warn; the layout still saves.
+      local nameWarning = addon:ProfileNameWarning(p)
       local text = layoutName(p.sourceKey, p.classAndSpecTag, p.sourceCharacter)
+      local tooltip = problem and (problem .. "\nClick to remove it from this UI Pack.")
+        or kept and ("Ships its last capture.\n" .. kept) or "Remove from this UI Pack"
       managerRow(included, y, {
-        icon = specIcon(p.classAndSpecTag), text = (problem and ALERT or kept and KEPT or "") .. text,
+        icon = specIcon(p.classAndSpecTag), text = ((problem or nameWarning) and ALERT or kept and KEPT or "") .. text,
         actionTexture = [[Interface\Buttons\UI-GroupLoot-Pass-Up]], dropTarget = available,
-        tooltip = problem and (problem .. "\nClick to remove it from this UI Pack.")
-          or kept and ("Ships its last capture.\n" .. kept) or "Remove from this UI Pack",
+        tooltip = nameWarning and (nameWarning .. "\n\n" .. tooltip) or tooltip,
         onActivate = function() exclude(p) end,
         secondAtlas = KEEP, secondTooltip = p.keepCapture and "Stop keeping the last capture"
           or "Keep last capture\nShip the version you saved before until this layout can be saved again.",

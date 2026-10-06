@@ -22,6 +22,8 @@ local m = {
   needProfileKey = bigWigsModule.needProfileKey,
   preventRename = bigWigsModule.preventRename,
   willOverrideProfile = bigWigsModule.willOverrideProfile,
+  -- Boss options apply to the active BigWigs profile; the name is unused.
+  skipProfileNameCheck = true,
   nonNativeProfileString = bigWigsModule.nonNativeProfileString,
   needSpecialInterface = bigWigsModule.needSpecialInterface,
   isProfileStringCompatible = function(self, profileString)

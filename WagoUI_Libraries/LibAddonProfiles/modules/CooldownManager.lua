@@ -47,6 +47,18 @@ local m = {
   willOverrideProfile = true,
   nonNativeProfileString = false,
   needSpecialInterface = true,
+  -- The game names unsaved layouts "<Class> - <Spec>" in the client's language, so everyone playing that spec has one.
+  isCommonProfileName = function(self, profileKey)
+    local format = _G.COOLDOWN_VIEWER_CLASS_AND_SPEC_FORMAT or "%s - %s"
+    for classID = 1, GetNumClasses() do
+      local className = GetClassInfo(classID)
+      for specIndex = 1, className and GetNumSpecializationsForClassID(classID) or 0 do
+        local _, specName = GetSpecializationInfoForClassID(classID, specIndex)
+        if specName and profileKey == format:format(className, specName) then return true end
+      end
+    end
+    return false
+  end,
   isLoaded = function(self)
     return true
   end,

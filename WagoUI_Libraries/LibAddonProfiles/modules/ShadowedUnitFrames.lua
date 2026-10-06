@@ -16,6 +16,8 @@ local m = {
   needProfileKey = false,
   preventRename = false,
   willOverrideProfile = false,
+  -- Created whenever a layout is imported in SUF itself.
+  commonProfileNames = { "Import Backup" },
   nonNativeProfileString = true,
   needSpecialInterface = false,
   isLoaded = function(self)

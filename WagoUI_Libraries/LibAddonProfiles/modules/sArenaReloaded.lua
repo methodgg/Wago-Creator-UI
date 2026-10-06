@@ -16,6 +16,8 @@ local m = {
   needProfileKey = true,
   preventRename = false,
   willOverrideProfile = false,
+  -- Created by sArena's migration from older sArena versions and by its own imports.
+  commonProfileNames = { "Default(Imported)", "Imported" },
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)

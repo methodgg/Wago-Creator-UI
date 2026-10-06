@@ -34,6 +34,8 @@ local m = {
   needProfileKey = false,
   preventRename = false,
   willOverrideProfile = false,
+  -- Imports never replace an existing group.
+  skipProfileNameCheck = true,
   nonNativeProfileString = false,
   needSpecialInterface = true,
   isLoaded = function(self)

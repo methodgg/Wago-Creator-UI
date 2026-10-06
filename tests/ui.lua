@@ -863,6 +863,17 @@ modules.Test.getProfileKeys = keysBeforeProblem
 addon:RefreshWorkspace()
 for index = 1, #problemRows do iconAt("Stop keeping the last capture", profileSelectors()[index]).click() end
 for _, p in pairs(pack.profiles) do assert(not p.keepCapture, "Could not stop keeping the last capture") end
+-- A profile name most players already have is marked on its row, but does not block saving.
+local sourceBeforeName = pack.profiles[id].sourceKey
+modules.Test.getProfileKeys = function() return { Raid = true, Other = true, Default = true } end
+pack.profiles[id].sourceKey = "Default"
+addon:RefreshWorkspace()
+assert(#warningIcons() == 1 and warningIcons()[1].tooltip == "Shared name", "Shared profile name is not marked")
+assert(findButton("Save All Profiles").enabled ~= false, "A shared profile name blocks Save All")
+pack.profiles[id].sourceKey = sourceBeforeName
+modules.Test.getProfileKeys = keysBeforeProblem
+addon:RefreshWorkspace()
+assert(#warningIcons() == 0, "Renamed profile is still marked")
 local headings = { Options = true, AddOn = true, Profile = true, Variations = true, Status = true }
 for _, f in ipairs(visible("font")) do assert(not headings[f.text], "Column header remains: " .. tostring(f.text)) end
 for _, f in ipairs(visible("button")) do

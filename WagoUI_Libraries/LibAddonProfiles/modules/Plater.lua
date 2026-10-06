@@ -16,6 +16,8 @@ local m = {
   needProfileKey = true,
   preventRename = false,
   willOverrideProfile = true,
+  -- Pre-filled name in Plater's import dialog.
+  commonProfileNames = { "MyNewProfile" },
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)

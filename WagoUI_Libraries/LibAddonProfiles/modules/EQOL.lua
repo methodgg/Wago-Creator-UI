@@ -16,6 +16,8 @@ local m = {
   needProfileKey = true,
   preventRename = false,
   willOverrideProfile = false,
+  -- Imports overwrite the active profile and ignore the name.
+  skipProfileNameCheck = true,
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)

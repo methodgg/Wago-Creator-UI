@@ -1,7 +1,7 @@
 ---@class LAPLoadingNamespace
 local loadingAddonNamespace = select(2, ...)
 local MAJOR = "LibAddonProfiles"
-local MINOR = 21
+local MINOR = 22
 
 ---@class LibAddonProfiles
 local LibAddonProfiles = LibStub:NewLibrary(MAJOR, MINOR)
@@ -66,6 +66,15 @@ if LibAddonProfiles then
   ---@param selectedModules table<string, {checked: boolean}>
   function LibAddonProfiles:DisableConflictingAddons(addonNames, selectedModules)
     return LibAddonProfilesInternal:DisableConflictingAddons(addonNames, selectedModules)
+  end
+
+  ---Why exporting a profile under this name is a bad idea, or nil when the name is fine.
+  ---Flags names most players already have, which installing would replace, and names taken from the creator's character.
+  ---@param moduleName string
+  ---@param profileKey string
+  ---@return string | nil warning
+  function LibAddonProfiles:GetProfileNameWarning(moduleName, profileKey)
+    return LibAddonProfilesInternal:GetProfileNameWarning(moduleName, profileKey)
   end
 
   ---@param ... any

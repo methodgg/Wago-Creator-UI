@@ -84,15 +84,8 @@ local function emptyRow(parent, y, height)
   shade:SetColorTexture(0, 0, 0, .3)
 end
 
-local function unassignedRow(parent, y, height, tooltip)
-  local tint = widget(parent, "unassignedTint", function() return parent:CreateTexture(nil, "BACKGROUND", nil, 2) end)
-  tint:SetPoint("TOPLEFT", parent, "TOPLEFT", 4, -y)
-  tint:SetSize(parent:GetWidth() - 8, height)
-  tint:SetColorTexture(.95, .6, .1, .12)
-  local stripe = widget(parent, "unassignedStripe", function() return parent:CreateTexture(nil, "BORDER") end)
-  stripe:SetPoint("TOPLEFT", parent, "TOPLEFT", 4, -y)
-  stripe:SetSize(3, height)
-  stripe:SetColorTexture(.95, .62, .15, 1)
+-- The warning icon left of the profile, explaining itself on hover.
+local function warningIcon(parent, y, tooltip)
   local icon = widget(parent, "unassignedIcon", function()
     local f = CreateFrame("Frame", nil, parent)
     f:SetSize(22, 22)
@@ -107,6 +100,18 @@ local function unassignedRow(parent, y, height, tooltip)
   icon:SetPoint("TOPLEFT", parent, "TOPLEFT", PROFILE_X - 26, -(y + 11))
   icon:SetFrameLevel(parent:GetFrameLevel() + 5)
   icon.tooltip = tooltip
+end
+
+local function unassignedRow(parent, y, height, tooltip)
+  local tint = widget(parent, "unassignedTint", function() return parent:CreateTexture(nil, "BACKGROUND", nil, 2) end)
+  tint:SetPoint("TOPLEFT", parent, "TOPLEFT", 4, -y)
+  tint:SetSize(parent:GetWidth() - 8, height)
+  tint:SetColorTexture(.95, .6, .1, .12)
+  local stripe = widget(parent, "unassignedStripe", function() return parent:CreateTexture(nil, "BORDER") end)
+  stripe:SetPoint("TOPLEFT", parent, "TOPLEFT", 4, -y)
+  stripe:SetSize(3, height)
+  stripe:SetColorTexture(.95, .62, .15, 1)
+  warningIcon(parent, y, tooltip)
 end
 
 -- Blizzard's undo arrow: the record goes back to the version saved before.
@@ -293,10 +298,22 @@ local function creator(pack)
           end
           problem = #lines > 0 and ("Fix these layouts in Manage before saving.\n" .. table.concat(lines, "\n")) or nil
         end
+        -- Names players likely have already only warn; saving stays possible.
+        local nameWarning = p and addon:ProfileNameWarning(p)
+        if row.manage and cdm then
+          local lines = {}
+          for _, layout in ipairs(layouts) do
+            local layoutWarning = addon:ProfileNameWarning(layout)
+            if layoutWarning then table.insert(lines, layout.name .. ": " .. layoutWarning) end
+          end
+          nameWarning = #lines > 0 and table.concat(lines, "\n\n") or nil
+        end
         -- Kept while the source is still unavailable; once it is back, the next save captures it again.
         local kept = not problem and p and p.keepCapture and p.data and addon:CaptureProblem(p)
         local warning, rowHeight = rowWarning(index, p, tags) or problem, position == #shown and height - 1 or height
-        if warning then unassignedRow(body, y, rowHeight, warning)
+        if warning then unassignedRow(body, y, rowHeight, nameWarning and (warning .. "\n\n" .. nameWarning) or warning)
+        elseif nameWarning then
+          warningIcon(body, y, kept and (nameWarning .. "\n\nShips its last capture.\n" .. kept) or nameWarning)
         elseif kept then keptRow(body, y, "Ships its last capture.\n" .. kept)
         elseif not p and not (row.manage and managed > 0) then emptyRow(body, y, rowHeight) end
         if position == 1 then
