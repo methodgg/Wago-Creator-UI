@@ -271,7 +271,9 @@ for _, f in ipairs(visible("button")) do
   assert(f.text ~= "Create" and f.text ~= "+ Create" and f.text ~= "+ UI pack" and f.text ~= "Import string",
     "Creator/import controls surfaced on the installer landing page")
 end
+addon.db.introEnabled = true
 click("Create a UI Pack")
+assert(addon.db.introEnabled == false, "Opening the creator leaves WagoUI reopening on every load")
 for _, f in ipairs(visible("dropdown")) do assert(not f.enabled, "Empty creator leaves the pack selector unlocked") end
 for _, f in ipairs(visible("EditBox")) do assert(not f.enabled, "Empty creator leaves search unlocked") end
 local createCount = 0
@@ -1137,4 +1139,20 @@ button("Create a UI Pack") -- With no UI Pack anywhere, the welcome screen offer
 addon.db.workspaceMode = "unknown"
 reopenWorkspace()
 assert(addon.db.workspaceMode == "install", "Invalid stored mode must fall back to user mode")
+UIParent, UISpecialFrames = new("UIParent"), {}
+function LWF:ScaleFrameByUIParentScale() end
+addon.db.appHandoff = "pending"
+addon:ShowAppHandoff()
+assert(hasText("Continue in the Wago App"), "Wago App handoff is not shown")
+assert(UISpecialFrames[1] == "WagoUIAppHandoff", "Escape does not close the Wago App handoff")
+local okay = button("Okay")
+okay.click()
+assert(not okay:IsShown() and not hasText("Continue in the Wago App"), "Okay did not close the Wago App handoff")
+assert(not okay.parent.parent.visible, "The screen stays dimmed after the Wago App handoff")
+assert(addon.db.appHandoff == "done", "Wago App handoff would show again")
+addon.db.introEnabled = false
+function methods:RegisterEvent() end
+assert(loadfile("WagoUI/utils/SavedVariables.lua"))("WagoUI", addon)
+addon.ResetOptions()
+assert(addon.db.appHandoff == nil and addon.db.introEnabled, "/wago reset keeps one-time steps finished")
 print("Creator, variation editing, capture, wizard and expert UI smoke checks passed.")
