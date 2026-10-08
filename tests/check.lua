@@ -99,7 +99,12 @@ P.SetMembership(pack, first, { default = true, [shared] = true })
 addon:CapturePack(pack, nil, function(p, c) captured, changes = p, c end)
 pack = captured
 assert(#changes == 1 and changes[1] == "Pack settings", "Metadata-only edit lost")
+assert(addon.db.appHandoff == "pending", "The first save does not point to the Wago App")
 addon:SaveCapturedPack(pack, "Tags")
+assert(addon.db.appHandoff == "pending")
+addon.db.appHandoff = "done"
+addon:SaveCapturedPack(pack)
+assert(addon.db.appHandoff == "done", "A later save points to the Wago App again")
 local saved = addon.db.creator.saved[pack.id]
 local draft = addon.db.creator.packs[pack.id]
 local oldExport = modules.Test.exportProfile

@@ -24,6 +24,8 @@ end
 function addon.ResetOptions()
   _G[addon.dbCKey] = nil
   handleDBLoad(addon.db, true, addon.dbDefaults)
+  -- One-time steps have no default to restore, so they are cleared here.
+  addon.db.appHandoff = nil
   ReloadUI()
 end
 
@@ -82,6 +84,9 @@ do
       elseif (event == "PLAYER_ENTERING_WORLD") then
         eventListener:UnregisterEvent("PLAYER_ENTERING_WORLD")
         addon:CheckAvailableUpdates()
+        if addon.db.appHandoff == "pending" then
+          C_Timer.After(2, function() addon:ShowAppHandoff() end)
+        end
         if shouldAutoStart() then
           -- need to wait initialization of other addons to finish
           -- could not really find a more elegant way to do this

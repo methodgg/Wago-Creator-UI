@@ -430,6 +430,8 @@ function addon:SaveCapturedPack(pack, notes)
   local key = pack.updatedAt and tostring(pack.updatedAt)
   local released = key and (not previous or previous.updatedAt ~= pack.updatedAt and not (previous.releaseNotes or {})[key])
   if notes and notes ~= "" and changed and released then pack.releaseNotes[key] = notes end
+  -- The first save since install or /wago reset points the creator to the Wago App, after the next load.
+  if self.db.appHandoff == nil then self.db.appHandoff = "pending" end
   self.db.creator.saved[pack.id] = CopyTable(pack)
 end
 

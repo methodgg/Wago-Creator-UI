@@ -177,6 +177,66 @@ local function startSetup()
   textDialog("New UI pack", "", "Create", function(value) addon:NewPack(value) end)
 end
 
+-- A centred card on its own, outside the main window, so it shows whether or not WagoUI opens after the reload.
+function addon:ShowAppHandoff()
+  local WHITE, RED, width = [[Interface\Buttons\WHITE8X8]], addon.colorRGB, 540
+  local shade = CreateFrame("Frame", nil, UIParent)
+  shade:SetAllPoints(UIParent)
+  shade:SetFrameStrata("FULLSCREEN_DIALOG")
+  shade:EnableMouse(true)
+  shade.texture = shade:CreateTexture(nil, "BACKGROUND")
+  shade.texture:SetAllPoints()
+  shade.texture:SetColorTexture(0, 0, 0, .55)
+  local f = CreateFrame("Frame", "WagoUIAppHandoff", shade, "BackdropTemplate")
+  LibStub("LibWagoFramework"):ScaleFrameByUIParentScale(f, 0.5333333333333)
+  f:SetPoint("CENTER", UIParent, "CENTER")
+  f:SetFrameLevel(shade:GetFrameLevel() + 10)
+  f:EnableMouse(true)
+  f:SetBackdrop({ bgFile = WHITE, edgeFile = WHITE, edgeSize = 1 })
+  f:SetBackdropColor(.08, .08, .08, .98)
+  f:SetBackdropBorderColor(.22, .22, .22, 1)
+  local accent = f:CreateTexture(nil, "ARTWORK")
+  accent:SetPoint("TOPLEFT", f, "TOPLEFT", 1, -1)
+  accent:SetPoint("TOPRIGHT", f, "TOPRIGHT", -1, -1)
+  accent:SetHeight(3)
+  accent:SetColorTexture(RED[1], RED[2], RED[3], 1)
+  local logo = f:CreateTexture(nil, "ARTWORK")
+  logo:SetTexture([[Interface\AddOns\WagoUI\media\wagoLogo512]])
+  logo:SetSize(56, 56)
+  logo:SetPoint("TOP", f, "TOP", 0, -26)
+  label(f, "Continue in the Wago App", 0, 94, width, 24):SetJustifyH("CENTER")
+  local text = label(f, "Your profiles are saved. Switch to the Wago App and open Create & Upload to finish "
+    .. "setting up your UI Pack.", 40, 132, width - 80, 15, { .75, .75, .75 })
+  text:SetJustifyH("CENTER")
+  text:SetWordWrap(true)
+  local top = 132 + text:GetStringHeight() + 22
+  -- The screenshot sits in the top 1024x360 of a power-of-two texture.
+  local shotWidth = width - 64
+  local shotHeight = math.floor(shotWidth * 360 / 1024)
+  local frame = CreateFrame("Frame", nil, f, "BackdropTemplate")
+  frame:SetPoint("TOPLEFT", f, "TOPLEFT", 31, -top)
+  frame:SetSize(shotWidth + 2, shotHeight + 2)
+  frame:SetBackdrop({ edgeFile = WHITE, edgeSize = 1 })
+  frame:SetBackdropBorderColor(.3, .3, .3, 1)
+  local shot = frame:CreateTexture(nil, "ARTWORK")
+  shot:SetTexture([[Interface\AddOns\WagoUI\media\wagoAppCreate]])
+  shot:SetTexCoord(0, 1, 0, 360 / 512)
+  shot:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, -1)
+  shot:SetSize(shotWidth, shotHeight)
+  local buttonTop = top + shotHeight + 2 + 26
+  UI.ctaButton(f, addon.L["Okay"], (width - 200) / 2, buttonTop, 200, 40, function() f:Hide() end, "primary", 17)
+  f:SetSize(width, buttonTop + 40 + 26)
+  -- Escape closes it like Okay; either way it never shows again.
+  table.insert(UISpecialFrames, "WagoUIAppHandoff")
+  f:SetScript("OnHide", function()
+    -- Still shown means an ancestor hid it (Alt+Z, a cinematic); it comes back with the UI.
+    if f:IsShown() then return end
+    addon.db.appHandoff = "done"
+    shade:Hide()
+  end)
+  shade:Show()
+end
+
 UI.additionalAddons = additionalAddons
 UI.exportOptions = exportOptions
 UI.saveCapture = saveCapture
