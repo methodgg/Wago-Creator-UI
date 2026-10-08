@@ -16,6 +16,8 @@ local m = {
   needProfileKey = true,
   preventRename = false,
   willOverrideProfile = true,
+  -- Pre-filled name in Plater's import dialog.
+  commonProfileNames = { "MyNewProfile" },
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)
@@ -80,9 +82,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      PlaterAPI:ImportProfile(profileString, profileKey)
+    local ok, accepted = xpcall(function()
+      return PlaterAPI:ImportProfile(profileString, profileKey)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end

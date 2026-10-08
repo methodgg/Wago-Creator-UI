@@ -81,9 +81,10 @@ local m = {
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
     if type(profileKey) ~= "string" then return end
-    xpcall(function()
-      Grid2ProfileAPI:ImportProfile(profileString, profileKey)
+    local ok, accepted = xpcall(function()
+      return Grid2ProfileAPI:ImportProfile(profileString, profileKey)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end

@@ -16,6 +16,8 @@ local m = {
   needProfileKey = true,
   preventRename = false,
   willOverrideProfile = true,
+  -- Fallback name NorskenUI gives imports without a name.
+  commonProfileNames = { "Imported" },
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)
@@ -68,9 +70,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      NorskenUIAPI:ImportProfile(profileString, profileKey)
+    local ok, accepted = xpcall(function()
+      return NorskenUIAPI:ImportProfile(profileString, profileKey)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end

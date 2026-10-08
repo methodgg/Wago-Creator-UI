@@ -54,9 +54,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      CooldownManagerCentered:ImportProfileFromString(profileString, profileKey)
+    local ok, accepted = xpcall(function()
+      return CooldownManagerCentered:ImportProfileFromString(profileString, profileKey)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end

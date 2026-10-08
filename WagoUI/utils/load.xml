@@ -1,0 +1,10 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+  <Script file="Constants.lua"/>
+  <Script file="SavedVariables.lua"/>
+  <Script file="GenericUtils.lua"/>
+  <Script file="SlashCommands.lua"/>
+  <Script file="Async.lua"/>
+  <Script file="CopyHelper.lua"/>
+  <Script file="ErrorHandling.lua"/>
+  <Script file="MinimapButton.lua"/>
+</Ui>

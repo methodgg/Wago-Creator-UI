@@ -76,15 +76,16 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
+    local ok, accepted = xpcall(function()
       local E = ElvUI[1]
       local D = E:GetModule("Distributor")
       local decodedType, _, decodedData = D:Decode(profileString)
-      if not decodedType or not decodedData then return end
+      if not decodedType or not decodedData then return false end
       -- important to use the supplied profileKey, as the decoded key might be different
       local force = true
-      D:SetImportedProfile(decodedType, profileKey, decodedData, force)
+      return D:SetImportedProfile(decodedType, profileKey, decodedData, force)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end

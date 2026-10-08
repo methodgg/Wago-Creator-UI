@@ -16,6 +16,8 @@ local m = {
   needProfileKey = true,
   preventRename = false,
   willOverrideProfile = false,
+  -- Created by sArena's migration from older sArena versions and by its own imports.
+  commonProfileNames = { "Default(Imported)", "Imported" },
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)
@@ -54,9 +56,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      sArena:ImportProfile(profileString, profileKey, true)
+    local ok, accepted = xpcall(function()
+      return sArena:ImportProfile(profileString, profileKey, true)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end

@@ -16,6 +16,8 @@ local m = {
   needProfileKey = true,
   preventRename = false,
   willOverrideProfile = false,
+  -- Imports overwrite the active profile and ignore the name.
+  skipProfileNameCheck = true,
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)
@@ -57,9 +59,10 @@ local m = {
     if not profileString then return end
     -- NOTE: importProfile does not create a new profile, instead it just overwrites the current one with the data of the imported profile
     -- This is a choice by the EnhanceQoL author and not something we can change here
-    xpcall(function()
-      EnhanceQoL.importProfile(profileString)
+    local ok, accepted = xpcall(function()
+      return EnhanceQoL.importProfile(profileString)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end

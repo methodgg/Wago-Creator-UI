@@ -18,6 +18,10 @@ local m = {
   needProfileKey = false,
   preventRename = true,
   willOverrideProfile = true,
+  -- Settings are stored per Edit Mode layout, so the preset layouts are shared; global settings always exist.
+  commonProfileNames = {
+    LAYOUT_STYLE_MODERN or "Modern", LAYOUT_STYLE_CLASSIC or "Classic", "Modern", "Classic", "FalconGlobalSettings",
+  },
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)
@@ -57,9 +61,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      FalconPublicAPI:Import(profileString, profileKey)
+    local ok, accepted = xpcall(function()
+      return FalconPublicAPI:Import(profileString, profileKey)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     local export

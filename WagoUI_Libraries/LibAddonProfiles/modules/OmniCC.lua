@@ -15,6 +15,8 @@ local m = {
   needProfileKey = false,
   preventRename = false,
   willOverrideProfile = false,
+  -- OmniCC names its first profile with Blizzard's DEFAULT string, so it is "Default" in the client's language.
+  commonProfileNames = { "Standard", "Défaut", "Predeterminado", "Predefinito", "Padrão", "По умолчанию", "기본", "默认", "預設值" },
   nonNativeProfileString = true,
   needSpecialInterface = false,
   isLoaded = function(self)

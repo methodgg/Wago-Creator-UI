@@ -56,12 +56,13 @@ local m = {
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
     local success
-    xpcall(function()
+    local ok = xpcall(function()
       success = MSUF_ImportExternal(profileString, profileKey)
     end, geterrorhandler())
     if success then
       self:setProfile(profileKey)
     end
+    return ok and not not success
   end,
   exportProfile = function(self, profileKey)
     local export, _

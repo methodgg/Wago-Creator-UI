@@ -47,6 +47,18 @@ local m = {
   willOverrideProfile = true,
   nonNativeProfileString = false,
   needSpecialInterface = true,
+  -- The game names unsaved layouts "<Class> - <Spec>" in the client's language, so everyone playing that spec has one.
+  isCommonProfileName = function(self, profileKey)
+    local format = _G.COOLDOWN_VIEWER_CLASS_AND_SPEC_FORMAT or "%s - %s"
+    for classID = 1, GetNumClasses() do
+      local className = GetClassInfo(classID)
+      for specIndex = 1, className and GetNumSpecializationsForClassID(classID) or 0 do
+        local _, specName = GetSpecializationInfoForClassID(classID, specIndex)
+        if specName and profileKey == format:format(className, specName) then return true end
+      end
+    end
+    return false
+  end,
   isLoaded = function(self)
     return true
   end,
@@ -118,20 +130,35 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
+    -- Why the last import was refused, for the caller to show; nil when it was not refused for a known reason.
+    self.importFailureReason = nil
 
     local profileKeys = self:getProfileKeys()
+    local layoutManager = CooldownViewerSettings:GetLayoutManager()
+    local previousExport = profileKeys[profileKey] and self:exportProfile(profileKey)
+    if not profileKeys[profileKey] and layoutManager:AreLayoutsFullyMaxed() then
+      self.importFailureReason = "Your Cooldown Manager has no room for more layouts.\n"
+        .. "Remove a layout in the Cooldown Manager settings, then install again."
+      return false
+    end
+    if profileKeys[profileKey] and not previousExport then return false end
     if profileKeys[profileKey] then
       removeProfile(profileKey) --need to remove old profile with same name first for updating to work and not be confusing
     end
-    local layoutManager = CooldownViewerSettings:GetLayoutManager()
-    if layoutManager:AreLayoutsFullyMaxed() then
-      -- if people complain find a better solution
-      -- users are warned in the UI
-      removeProfile(self:getCurrentProfileKey())
+    local function restorePrevious()
+      if previousExport then
+        local restored = layoutManager:CreateLayoutsFromSerializedData(previousExport)
+        if restored and restored[1] then layoutManager:SetActiveLayoutByID(restored[1]) end
+      end
+      layoutManager:SaveLayouts()
     end
-
-    local layoutIDs = layoutManager:CreateLayoutsFromSerializedData(profileString)
-    layoutManager:SetActiveLayoutByID(layoutIDs[1])
+    local success, layoutIDs = pcall(layoutManager.CreateLayoutsFromSerializedData, layoutManager, profileString)
+    if not success then
+      restorePrevious()
+      geterrorhandler()(layoutIDs)
+      return false
+    end
+    if not layoutIDs or not layoutIDs[1] then restorePrevious(); return false end
 
     --check if class matches, remove otherwise
     local tag = CooldownViewerUtil.GetCurrentClassAndSpecTag()
@@ -140,13 +167,17 @@ local m = {
       if layout.layoutID == layoutIDs[1] then
         local layoutTag = tonumber(layout.classAndSpecTag);
         local playerTag = tonumber(tag);
-        if math.abs(layoutTag - playerTag) > 5 then
-          removeProfile(profileKey)
-          print("Imported layout's class does not match current class. Layout has been removed.")
+        if not layoutTag or not playerTag or math.floor(layoutTag / 10) ~= math.floor(playerTag / 10) then
+          layoutManager:RemoveLayout(layoutIDs[1])
+          self.importFailureReason = "This Cooldown Manager layout is for a different class.\n"
+            .. "Log in on a character of that class to install it."
+          restorePrevious()
+          return false
         end
         break
       end
     end
+    layoutManager:SetActiveLayoutByID(layoutIDs[1])
     -- ignore taint warning
     if StaticPopup1Button2Text:GetText() == "Ignore" then
       StaticPopup1Button2:Click()

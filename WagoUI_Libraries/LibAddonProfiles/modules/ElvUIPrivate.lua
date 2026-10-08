@@ -15,6 +15,8 @@ local m = {
   needProfileKey = false,
   preventRename = false,
   willOverrideProfile = false,
+  -- Private profiles are per character by design and cannot be renamed in ElvUI.
+  skipProfileNameCheck = true,
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)
@@ -95,7 +97,7 @@ local m = {
       if not data then return end
       data = E:FilterTableFromBlacklist(data, D.blacklistedKeys.private) --Remove unwanted options from import
     end, geterrorhandler())
-    if not success or not data then return end
+    if not success or not data then return false end
     ElvPrivateDB.profileKeys[E.mynameRealm] = profileKey
     ElvPrivateDB.profiles[profileKey] = data
   end,

@@ -1,0 +1,103 @@
+---@type string
+local addonName = ...
+---@class WagoUI
+local addon = select(2, ...)
+
+local function handleDBLoad(database, force, defaults)
+  for k, v in pairs(defaults) do
+    if force or database[k] == nil or (type(v) == "table" and type(database[k]) ~= "table") then
+      database[k] = type(v) == "table" and CopyTable(v) or v
+    end
+    if type(v) == "table" then
+      handleDBLoad(database[k], force, v)
+    end
+  end
+end
+
+local function setUpDB(dbKey, dbCKey)
+  _G[dbKey] = _G[dbKey] or {}
+  addon.db = _G[dbKey]
+  _G[dbCKey] = _G[dbCKey] or {}
+  addon.dbC = _G[dbCKey] or {}
+end
+
+function addon.ResetOptions()
+  _G[addon.dbCKey] = nil
+  handleDBLoad(addon.db, true, addon.dbDefaults)
+  -- One-time steps have no default to restore, so they are cleared here.
+  addon.db.appHandoff = nil
+  ReloadUI()
+end
+
+local function shouldAutoStart()
+  -- developer autostart
+  if addon.db.autoStart then
+    return true
+  end
+  if addon.dbC.pendingAlt then
+    return true
+  end
+  -- an install paused to enable addons resumes after the reload
+  if addon.dbC.selection and addon.dbC.selection.pendingInstall then
+    return true
+  end
+  -- a reload asked for from Individual Profiles reopens there
+  if addon.dbC.selection and addon.dbC.selection.reopenAfterReload then
+    addon.dbC.selection.reopenAfterReload = nil
+    return true
+  end
+  -- intro enabled
+  if addon.db.introEnabled then
+    return true
+  end
+  -- first login on this character and user has installed on another character
+  if not addon.dbC.hasLoggedIn and addon.db.anyInstalled then
+    return true
+  end
+  return false
+end
+
+do
+  local eventListener = CreateFrame("Frame")
+  eventListener:RegisterEvent("PLAYER_ENTERING_WORLD")
+  eventListener:RegisterEvent("ADDON_LOADED")
+
+  eventListener:SetScript(
+    "OnEvent",
+    function(self, event, ...)
+      if (event == "ADDON_LOADED") then
+        local loadedAddonName = ...
+        if (loadedAddonName == addonName) then
+          eventListener:UnregisterEvent("ADDON_LOADED")
+          setUpDB(addon.dbKey, addon.dbCKey)
+          handleDBLoad(addon.db, nil, addon.dbDefaults)
+          addon:InitializePacks()
+          addon:RegisterMinimapButton()
+          if not addon.db.minimap.hide then
+            addon:ShowMinimapButton()
+          end
+          if not addon.db.minimap.compartmentHide then
+            addon:ShowCompartmentButton()
+          end
+
+        end
+      elseif (event == "PLAYER_ENTERING_WORLD") then
+        eventListener:UnregisterEvent("PLAYER_ENTERING_WORLD")
+        addon:CheckAvailableUpdates()
+        if addon.db.appHandoff == "pending" then
+          C_Timer.After(2, function() addon:ShowAppHandoff() end)
+        end
+        if shouldAutoStart() then
+          -- need to wait initialization of other addons to finish
+          -- could not really find a more elegant way to do this
+          C_Timer.After(
+            2,
+            function()
+              addon:ShowFrame()
+            end
+          )
+        end
+      end
+    end
+  )
+end

@@ -67,9 +67,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      atrocityEssentialsAPI:ImportProfile(profileString, profileKey)
+    local ok, accepted = xpcall(function()
+      return atrocityEssentialsAPI:ImportProfile(profileString, profileKey)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end
