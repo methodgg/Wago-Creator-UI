@@ -111,9 +111,11 @@ function addon:StorageState()
   return "missing"
 end
 
--- It is not load on demand, so it only loads with the next reload.
+-- It is not load on demand, so it only loads with the next reload. Only the Enable and Reload buttons call this.
 function addon:EnableStorage()
   C_AddOns.EnableAddOn(STORAGE)
+  -- WagoUI opens again after the reload, now with the installed UI Packs.
+  self.dbC.selection.reopenAfterReload = true
   ReloadUI()
 end
 

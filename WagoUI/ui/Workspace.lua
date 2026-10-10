@@ -16,6 +16,8 @@ local tour, tourGuide, tourTarget = UI.tour, UI.tourGuide, UI.tourTarget
 -- (the UI Pack beside the search). Views without a list start on the second row instead.
 local RIGHT, SELECTOR_X, SELECTOR_WIDTH = 918, 68, 180
 local SEARCH_X = 24 + SELECTOR_X + SELECTOR_WIDTH + 12
+-- The storage banner and the gap below it.
+local BANNER_HEIGHT = 52
 
 -- Pills like the Wago App's own tabs, the active mode in red.
 local function modeTab(text, x, active, onClick)
@@ -98,14 +100,6 @@ local function render()
       render()
     end)
     modeTab("Create", 100, creating, enterCreator)
-    -- Installing without the Wago App's storage shows only the creator's own packs; say why, and fix it.
-    local storage = not creating and addon:StorageState()
-    if storage == "off" or storage == "pending" then
-      label(ui.header, "Installed UI Packs are turned off.", 212, 9, 220, 14, { 1, .65, .3 })
-      local turnOn = ctaButton(ui.header, storage == "off" and "Turn on and reload" or "Reload", 436, 0, 150, 32,
-        function() addon:EnableStorage() end, "primary", 14)
-      turnOn:SetTooltip("The Wago App keeps installed UI Packs in the Wago UI Pack Storage AddOn, which is turned off.")
-    end
     if creating then
       local guide = ctaButton(ui.header, "Guide", RIGHT - 90, 0, 90, 32, tourGuide, "neutral", 14)
       guide:SetTooltip("Step-by-step help for creating a UI Pack")
@@ -170,6 +164,18 @@ local function render()
       addon.state.packError = problem or "Pack ID does not match its storage key."
     end
     install(pack, entries)
+  end
+  -- Installing without the Wago App's storage shows only the creator's own packs. A banner directly above the list,
+  -- wherever the view put it, says why and pushes the list down.
+  local storage = not creating and not welcoming and addon:StorageState()
+  ui.storageBanner:SetShown(storage == "off" or storage == "pending")
+  if ui.storageBanner:IsShown() then
+    local _, _, _, x, y = ui.scroll:GetPoint(1)
+    ui.storageBanner:ClearAllPoints()
+    ui.storageBanner:SetPoint("TOPLEFT", addon.frames.mainFrame, "TOPLEFT", x, y)
+    ui.scroll:ClearAllPoints()
+    ui.scroll:SetPoint("TOPLEFT", addon.frames.mainFrame, "TOPLEFT", x, y - BANNER_HEIGHT)
+    ui.scroll:SetHeight(ui.scroll:GetHeight() - BANNER_HEIGHT)
   end
   tour(creating and selected and available[selected] or nil, creating)
   ui.lock:SetShown(addon.state.busy or false)
@@ -293,6 +299,30 @@ function addon:CreateWorkspace(frame)
   ui.modal:SetBackdropColor(0.08, 0.08, 0.08, 1)
   ui.modal.scroll, ui.modal.content = scroll(ui.modal, 24, 78, 526, 350)
   ui.modal:Hide()
+  -- Above the install views while installed UI Packs cannot load; enabling happens only on its button.
+  local banner = CreateFrame("Frame", nil, frame, "BackdropTemplate")
+  banner:SetSize(918, BANNER_HEIGHT - 8)
+  banner:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Buttons\\WHITE8X8", edgeSize = 1 })
+  banner:SetBackdropColor(.16, .11, .05, 1)
+  banner:SetBackdropBorderColor(1, .65, .3, .6)
+  banner.icon = banner:CreateTexture(nil, "ARTWORK")
+  banner.icon:SetTexture("Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
+  banner.icon:SetSize(20, 20)
+  banner.icon:SetPoint("LEFT", banner, "LEFT", 12, 0)
+  banner.text = banner:CreateFontString(nil, "OVERLAY")
+  banner.text:SetFont(addon.FONT, 13, "")
+  banner.text:SetPoint("LEFT", banner, "LEFT", 42, 0)
+  banner.text:SetWidth(918 - 42 - 200)
+  banner.text:SetJustifyH("LEFT")
+  banner.text:SetTextColor(1, .8, .6, 1)
+  banner.text:SetText("Your installed UI Packs are turned off. The Wago App keeps them in the Wago UI Pack Storage AddOn, "
+    .. "which is disabled.")
+  banner.text:SetWordWrap(true)
+  local enable = ctaButton(banner, "Enable and Reload", 918 - 12 - 170, 6, 170, 32, function() addon:EnableStorage() end,
+    "primary", 14)
+  enable:SetTooltip("Turns on the Wago UI Pack Storage AddOn and reloads your UI.")
+  banner:Hide()
+  ui.storageBanner = banner
   -- After a full install, the window opens on individual profiles from then on.
   local function open()
     -- Only marks the screen; welcomeSeen never opens the window by itself.

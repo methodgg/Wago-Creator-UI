@@ -89,6 +89,7 @@ function methods:SetTextColor(...) self.textColor = { ... } end
 function methods:SetBackdropColor(...) self.backgroundColor = { ... } end
 function methods:SetJustifyH(value) self.justifyH = value end
 function methods:SetPoint(...) self.point = { ... } end
+function methods:GetPoint() return unpack(self.point) end
 function methods:HasFocus() return self.focused end
 function methods:SetFocus()
   self.focused = true
@@ -324,9 +325,12 @@ local restoreStorage = storageOff()
 addon:RefreshWorkspace()
 local reloadsBefore = reloads
 assert(hasText("Your installed UI Packs are turned off."), "The welcome screen hides that installed UI Packs are off")
-click("Turn on and reload")
+assert(#enabledAddOns == 0 and reloads == reloadsBefore, "Showing the warning enabled or reloaded something")
+click("Enable and Reload")
 assert(enabledAddOns[#enabledAddOns] == "WagoUI_Storage" and reloads == reloadsBefore + 1,
-  "Turn on and reload does not enable WagoUI_Storage and reload")
+  "Enable and Reload does not enable WagoUI_Storage and reload")
+assert(addon.dbC.selection.reopenAfterReload, "WagoUI does not open again after Enable and Reload")
+addon.dbC.selection.reopenAfterReload = nil
 restoreStorage()
 addon:RefreshWorkspace()
 local installTab, createTab
@@ -1034,11 +1038,27 @@ end
 for _, f in ipairs(visible("button")) do assert(f.text ~= "Preview", "Creator preview button remains") end
 click("Install")
 modeTabs() -- Full Install keeps the mode tabs; its own Next button owns the footer.
--- Installing with the storage turned off shows only the creator's own packs; the header says why.
+-- Installing with the storage turned off shows only the creator's own packs; a banner above the list says why.
+local listTop = 0
+for _, f in ipairs(frames) do
+  if f.kind == "ScrollFrame" and f.child == addon.UI.view.content then listTop = f.point[5] end
+end
 restoreStorage = storageOff()
 addon:RefreshWorkspace()
-assert(hasText("Installed UI Packs are turned off.") and button("Turn on and reload"),
-  "Install mode hides that installed UI Packs are off")
+local bannerShown = false
+for _, f in ipairs(visible("font")) do
+  if (f.text or ""):find("^Your installed UI Packs are turned off") and f.parent.parent == addon.frames.mainFrame then
+    bannerShown = f.parent.point[5] == listTop
+  end
+end
+local storageButton = button("Enable and Reload")
+assert(bannerShown and storageButton.parent ~= button("Install").parent,
+  "Install mode does not show the storage banner above the list")
+for _, f in ipairs(frames) do
+  if f.kind == "ScrollFrame" and f.child == addon.UI.view.content then
+    assert(f.point[5] == listTop - 52, "The storage banner covers the list instead of pushing it down")
+  end
+end
 restoreStorage()
 addon:RefreshWorkspace()
 -- Without a list, Full Install starts its steps on the second header row.
