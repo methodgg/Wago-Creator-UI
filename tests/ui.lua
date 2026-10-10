@@ -7,6 +7,8 @@ local methods = {}
 local function new(kind, parent)
   local f = setmetatable({ kind = kind, parent = parent, visible = true, width = 1000, height = 700, scripts = {} }, { __index = methods })
   table.insert(frames, f)
+  -- The main window is a DF panel with a title in its title bar.
+  if kind == "root" then f.Title = new("font", f) end
   return f
 end
 for _, method in ipairs({
@@ -277,7 +279,11 @@ for _, f in ipairs(visible("button")) do
     "Creator/import controls surfaced on the installer landing page")
 end
 addon.db.introEnabled = true
+assert(addon.frames.mainFrame.Title.text == "Install |cFFC1272DWago|r UI Packs - slash command: /wago",
+  "The UI Packs title does not name its view and /wago")
 click("Create your own UI Pack")
+assert(addon.frames.mainFrame.Title.text == "Create |cFFC1272DWago|r UI Packs - slash command: /wagoc",
+  "The creator title does not name its view and /wagoc")
 assert(addon.db.introEnabled == false, "Opening the creator leaves WagoUI reopening on every load")
 for _, f in ipairs(visible("dropdown")) do assert(not f.enabled, "Empty creator leaves the pack selector unlocked") end
 for _, f in ipairs(visible("EditBox")) do assert(not f.enabled, "Empty creator leaves search unlocked") end

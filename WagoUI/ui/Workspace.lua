@@ -15,6 +15,7 @@ local function render()
   if not ui.header then return end
   reset(ui.header); reset(ui.content); reset(ui.footer); reset(ui.tabs)
   local creating = addon.db.workspaceMode == "create"
+  addon:SetTitle(creating)
   -- The first-install intro reopens WagoUI on every load; a creator is past it.
   if creating then addon.db.introEnabled = false; addon.state.welcome = nil end
   -- The status line belongs to the creator; the UI Packs view never shows one, and a leftover does not return.

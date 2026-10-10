@@ -6,6 +6,14 @@ local DF = _G["DetailsFramework"]
 local LWF = LibStub("LibWagoFramework")
 local L = addon.L
 
+local TITLE = "|cFFC1272DWago|r UI Packs"
+
+-- The title names the current view and the slash command that opens it.
+function addon:SetTitle(creating)
+  self.frames.mainFrame.Title:SetText((creating and "Create " or "Install ") .. TITLE .. " - slash command: "
+    .. (creating and "/wagoc" or self.slashPrefixes[1]))
+end
+
 function addon:CreateMainFrame()
   local metaVersion = C_AddOns.GetAddOnMetadata(addonName, "Version")
 
@@ -15,13 +23,12 @@ function addon:CreateMainFrame()
     -- UseScaleBar = true, --disable for now might use it later on
     NoCloseButton = false
   }
-  local addonTitle = "|cFFC1272DWago|r UI Packs"
   local frame =
       DF:CreateSimplePanel(
         UIParent,
         addon.ADDON_WIDTH,
         addon.ADDON_HEIGHT,
-        addonTitle,
+        TITLE,
         addonName.."Frame",
         panelOptions,
         addon.db
