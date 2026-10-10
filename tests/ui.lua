@@ -288,13 +288,39 @@ for _, f in ipairs(frames) do
   end
 end
 for _, f in ipairs(visible("button")) do
-  assert(f.text ~= "Create" and f.text ~= "+ Create" and f.text ~= "+ UI pack" and f.text ~= "Import string",
+  -- The Create mode tab is navigation, not a creator control.
+  assert(f.modeTab or f.text ~= "Create" and f.text ~= "+ Create" and f.text ~= "+ UI pack" and f.text ~= "Import string",
     "Creator/import controls surfaced on the installer landing page")
 end
+-- The mode pills sit at the header's left in every view, the active one in red; the footer has no mode button.
+local function modeTabs()
+  local install, create = button("Install"), button("Create")
+  assert(install.parent == create.parent and install.point[4] == 0 and create.point[4] == 100, "Mode tabs moved")
+  for _, f in ipairs(visible("button")) do
+    local inFooter = f.parent.point and f.parent.point[5] == -648
+    assert(f.text ~= "Back to UI Packs" and not (inFooter and f.text == "Create your own UI Pack"),
+      "A mode button is back in the footer")
+  end
+  return install, create
+end
+-- The welcome screen carries both ways in, so the header stays empty.
+for _, f in ipairs(visible("button")) do assert(not f.modeTab, "The welcome screen shows the mode tabs") end
+local installTab, createTab
 addon.db.introEnabled = true
 assert(addon.frames.mainFrame.Title.text == "Install |cFFC1272DWago|r UI Packs - slash command: /wago",
   "The UI Packs title does not name its view and /wago")
 click("Create your own UI Pack")
+installTab, createTab = modeTabs()
+assert(createTab.active and not installTab.active, "The creator marks the wrong mode")
+-- Row 1 is where you are, Guide at the right edge of the list; row 2 is the UI Pack beside the search.
+local guideButton = button("Guide")
+assert(guideButton.parent == createTab.parent and guideButton.point[4] + guideButton:GetWidth() == 918,
+  "Guide is not right-aligned with the list")
+local packDropdown
+for _, f in ipairs(visible("dropdown")) do if f.parent == createTab.parent then packDropdown = f end end
+local searchBox = visible("EditBox")[1]
+assert(packDropdown and packDropdown.point[5] == -43 and searchBox.point[4] == 24 + 68 + 180 + 12,
+  "The UI Pack selector and the search do not share the second row")
 assert(addon.frames.mainFrame.Title.text == "Create |cFFC1272DWago|r UI Packs - slash command: /wagoc",
   "The creator title does not name its view and /wagoc")
 assert(addon.db.introEnabled == false, "Opening the creator leaves WagoUI reopening on every load")
@@ -524,6 +550,10 @@ click("Next")
 _, pointedAt = tourCallout()
 assert(hasText("Your first save: step 3 of 3") and pointedAt and pointedAt.text == "Save All Profiles",
   "Next did not move the tour on to saving")
+-- Only the UI Pack selectors are flat; the profile rows keep the framework's look.
+local flatArrow = "Interface" .. string.char(92) .. "AddOns" .. string.char(92) .. "WagoUI" .. string.char(92) .. "media" .. string.char(92) .. "calloutArrow"
+assert(packSelector().dropdown.arrowTexture.texture == flatArrow, "The UI Pack selector is not flat")
+assert(profileSelectors()[1].dropdown.arrowTexture.texture ~= flatArrow, "Profile dropdowns lost their classic look")
 local id = pack.profileOrder[1]
 assert(pack.profiles[id].sourceKey == "Raid" and pack.profiles[id].variations.default)
 for _, f in ipairs(visible("font")) do
@@ -956,7 +986,18 @@ for index, info in ipairs(addon:CreatorAddons()) do
   assert(displayed[index] == info.name, "Creator no longer follows automatic status/default order")
 end
 for _, f in ipairs(visible("button")) do assert(f.text ~= "Preview", "Creator preview button remains") end
-click("Back to UI Packs")
+click("Install")
+modeTabs() -- Full Install keeps the mode tabs; its own Next button owns the footer.
+-- Without a list, Full Install starts its steps on the second header row.
+for _, f in ipairs(frames) do
+  if f.kind == "ScrollFrame" and f.child == addon.UI.view.content then
+    assert(f.point[5] == -92, "Full Install leaves the second header row empty")
+  end
+end
+-- Full Install picks its UI Pack in the middle of its first step, so the header has no selector.
+for _, f in ipairs(visible("dropdown")) do
+  assert(f.parent ~= button("Install").parent, "Full Install repeats the UI Pack selector in the header")
+end
 local function buttonStarting(prefix)
   for _, f in ipairs(visible("button")) do if (f.text or ""):find(prefix, 1, true) == 1 then return f end end
 end
@@ -1033,7 +1074,7 @@ click("Next >>")
 buttonStarting("Install (").click()
 click("Individual Profiles")
 click("Re-import")
-click("Create your own UI Pack")
+click("Create")
 assert(#profileSelectors() == 2)
 for _, f in ipairs(visible("button")) do assert(f.text ~= "Capture" and f.text ~= "Copy", "Removed profile actions remain") end
 local search = visible("EditBox")[1]
@@ -1257,8 +1298,8 @@ local function reopenWorkspace()
 end
 assert(addon.db.workspaceMode == "create")
 reopenWorkspace()
-button("Back to UI Packs") -- Still in creator mode, including with no created packs.
-click("Back to UI Packs")
+modeTabs() -- Still in creator mode, including with no created packs.
+click("Install")
 assert(addon.db.workspaceMode == "install")
 reopenWorkspace()
 button("Create your own UI Pack") -- With no UI Pack anywhere, the welcome screen offers creating one.

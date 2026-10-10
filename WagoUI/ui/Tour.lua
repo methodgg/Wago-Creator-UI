@@ -91,7 +91,7 @@ local TIPS = {
     text = "Every variation needs at least one profile. Click a variation name on a row to add that profile to it." },
 }
 
-local OFFER = { title = "Make it fit more players", target = "guide", align = "left",
+local OFFER = { title = "Make it fit more players", target = "guide", align = "right",
   text = "Learn how variations and alternate profiles let one UI Pack fit different roles and screens." }
 
 local function tourState()

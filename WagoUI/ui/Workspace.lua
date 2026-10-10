@@ -12,6 +12,39 @@ local creator = UI.creator
 local install = UI.install
 local tour, tourGuide, tourTarget = UI.tour, UI.tourGuide, UI.tourTarget
 
+-- Two header rows: where you are (mode, and the view or Guide at the right), then what you are working on
+-- (the UI Pack beside the search). Views without a list start on the second row instead.
+local RIGHT, SELECTOR_X, SELECTOR_WIDTH = 918, 68, 180
+local SEARCH_X = 24 + SELECTOR_X + SELECTOR_WIDTH + 12
+
+-- Pills like the Wago App's own tabs, the active mode in red.
+local function modeTab(text, x, active, onClick)
+  local tab = button(ui.header, text, x, 0, 96, onClick, nil, 32, 15, "modeTab")
+  local frame = tab.widget or tab.button or tab
+  if not tab.paintTab then
+    tab.modeTab = true
+    tab.paintTab = function()
+      local hovered = frame:IsMouseOver() and not addon.state.busy
+      local red = addon.colorRGB
+      if tab.active then
+        tab:SetBackdropColor(red[1], red[2], red[3], .18)
+        tab:SetBackdropBorderColor(red[1], red[2], red[3], 1)
+      else
+        tab:SetBackdropColor(.14, .14, .14, hovered and 1 or 0)
+        tab:SetBackdropBorderColor(0, 0, 0, 0)
+      end
+      local shade = (tab.active or hovered) and 1 or .65
+      tab.text_overlay:SetTextColor(shade, shade, shade, 1)
+    end
+    -- Hooks run after the framework's own hover handlers, so the tab colors win.
+    frame:HookScript("OnEnter", tab.paintTab)
+    frame:HookScript("OnLeave", tab.paintTab)
+  end
+  tab.active = active
+  tab.paintTab()
+  return tab
+end
+
 local function render()
   if not ui.header then return end
   reset(ui.header); reset(ui.content); reset(ui.footer); reset(ui.tabs)
@@ -52,53 +85,69 @@ local function render()
     if creating then addon.db.creator.selected = selected else addon.dbC.selection.packID = selected end
   end
   -- The welcome screen shows when there is no UI Pack anywhere, or once on the first open even with packs.
+  -- It carries both ways in, so the header stays empty there.
   local welcoming = not creating and (#entries == 0 or addon.state.welcome)
+  -- Installing offers a full install flow and an individual profile list, which shares the creator's search bar.
+  local expert = not creating and not welcoming and selected ~= nil and addon.dbC.selection.expert
+  local tableVisible = creating or expert
   if not welcoming then
-    if creating then table.insert(entries, { label = "+ Add UI Pack", action = true, onclick = startSetup }) end
-    label(ui.header, "UI Pack", 0, 9, 64, 14, { .65, .65, .65 })
-    local selector = dropdown(ui.header, selected, entries, 68, 0, 300, selected and "UI pack" or "No UI Pack yet")
-    -- Until the first pack exists, the creator stays locked behind its centered create button.
-    if not selected then selector:Disable() end
-    if creating then
-      tourTarget("guide", button(ui.header, "Guide", 380, 0, 90, tourGuide, "Step-by-step help for creating a UI Pack", 32))
-    end
-  end
-  -- The welcome screen carries both actions, so the switch would repeat it.
-  -- Full Install keeps first-time users on their install; creating lives behind Individual Profiles.
-  local fullInstall = not creating and not welcoming and selected ~= nil and not addon.dbC.selection.expert
-  if not welcoming and not fullInstall then
-    ctaButton(ui.footer, creating and "Back to UI Packs" or "Create your own UI Pack", 732, 0, 220, 36, function()
-      if not creating then enterCreator(); return end
+    -- The modes stay in one place in every other view; the footer holds only the current view's own actions.
+    modeTab("Install", 0, not creating, function()
       addon.db.workspaceMode = "install"
       ui.scroll:SetVerticalScroll(0)
       render()
-    end, creating and "neutral" or "outline", 15)
-  end
-  -- Installing offers a full install flow and an individual profile list, which shares the creator's search bar.
-  local expert = not creating and not welcoming and selected ~= nil and addon.dbC.selection.expert
-  if not creating and not welcoming and selected then
-    for index, mode in ipairs({ "Full Install", "Individual Profiles" }) do
-      local active = (mode == "Individual Profiles") == (expert == true)
-      local segment = button(ui.header, mode, 380 + (index - 1) * 152, 0, 150, function()
-        addon.dbC.selection.expert = mode == "Individual Profiles"
-        ui.scroll:SetVerticalScroll(0)
-        render()
-      end, nil, 32, 14, "modeSegment")
-      local red = addon.colorRGB
-      segment:SetBackdropColor(unpack(active and { red[1], red[2], red[3], 1 } or { .1, .1, .1, 1 }))
-      segment.text_overlay:SetTextColor(unpack(active and { 1, 1, 1, 1 } or { .65, .65, .65, 1 }))
+    end)
+    modeTab("Create", 100, creating, enterCreator)
+    if creating then
+      local guide = ctaButton(ui.header, "Guide", RIGHT - 90, 0, 90, 32, tourGuide, "neutral", 14)
+      guide:SetTooltip("Step-by-step help for creating a UI Pack")
+      tourTarget("guide", guide)
+    elseif selected then
+      -- The selected view is lighter grey, so it does not compete with the red mode pill.
+      for index, mode in ipairs({ "Full Install", "Individual Profiles" }) do
+        local active = (mode == "Individual Profiles") == (expert == true)
+        local segment = button(ui.header, mode, RIGHT - 302 + (index - 1) * 152, 0, 150, function()
+          addon.dbC.selection.expert = mode == "Individual Profiles"
+          ui.scroll:SetVerticalScroll(0)
+          render()
+        end, nil, 32, 14, "modeSegment")
+        if not segment.paintSegment then
+          segment.paintSegment = function()
+            segment:SetBackdropColor(unpack(segment.active and { .24, .24, .24, 1 } or { .09, .09, .09, 1 }))
+            segment:SetBackdropBorderColor(.23, .23, .23, 1)
+            segment.text_overlay:SetTextColor(unpack(segment.active and { 1, 1, 1, 1 } or { .65, .65, .65, 1 }))
+          end
+          -- Hooks run after the framework's own hover handlers, which would leave a black border.
+          local frame = segment.widget or segment.button or segment
+          frame:HookScript("OnEnter", segment.paintSegment)
+          frame:HookScript("OnLeave", segment.paintSegment)
+        end
+        segment.active = active
+        segment.paintSegment()
+      end
+    end
+    -- Full Install picks its UI Pack on its first step's pack card; the lists pick it beside their search.
+    if tableVisible then
+      if creating then table.insert(entries, { label = "+ Add UI Pack", action = true, onclick = startSetup }) end
+      label(ui.header, "UI Pack", 0, 51, SELECTOR_X - 4, 14, { .65, .65, .65 })
+      local selector = dropdown(ui.header, selected, entries, SELECTOR_X, 43, SELECTOR_WIDTH,
+        selected and "UI pack" or "No UI Pack yet", nil, true)
+      -- Until the first pack exists, the creator stays locked behind its centered create button.
+      if not selected then selector:Disable() end
     end
   end
-  local tableVisible = creating or expert
   ui.searchHint:SetText(creating and "Search AddOns, profiles or variations…" or "Search AddOns or profiles…")
   local searching = ui.searchText ~= nil and ui.searchText ~= ""
   ui.search:SetShown(tableVisible)
+  ui.search:ClearAllPoints()
+  ui.search:SetPoint("TOPLEFT", addon.frames.mainFrame, "TOPLEFT", SEARCH_X, -90)
+  ui.search:SetWidth(24 + RIGHT - SEARCH_X)
   ui.search:SetEnabled(selected ~= nil)
   ui.search:SetAlpha(selected and 1 or .5)
   ui.tabs:SetShown(tableVisible)
   ui.scroll:ClearAllPoints()
-  ui.scroll:SetPoint("TOPLEFT", addon.frames.mainFrame, "TOPLEFT", 24, tableVisible and -172 or -130)
-  ui.scroll:SetHeight(tableVisible and 446 or 488)
+  ui.scroll:SetPoint("TOPLEFT", addon.frames.mainFrame, "TOPLEFT", 24, tableVisible and -172 or -92)
+  ui.scroll:SetHeight(tableVisible and 446 or 526)
   ui.searchHint:SetShown(tableVisible and not searching)
   ui.searchClear:SetShown(tableVisible and searching)
   if creating then

@@ -63,11 +63,6 @@ function addon:CreateMainFrame()
   versionString:SetText("v"..metaVersion)
   versionString:SetPoint("LEFT", frame.TitleBar, "LEFT", 2, 0)
 
-  local logo = frame:CreateTexture(nil, "ARTWORK")
-  logo:SetTexture([[Interface\AddOns\]] .. addonName .. [[\media\wagoLogo512]])
-  logo:SetSize(100, 100)
-  logo:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -24, -34)
-
   local reloadIndicator = DF:CreateButton(frame, nil, 40, 40, "", nil, nil, "UI-RefreshButton", nil, nil, nil, nil)
   reloadIndicator:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -12, -38)
   reloadIndicator:SetTooltip(L["IMPORT_RELOAD_WARNING1"])
@@ -81,7 +76,6 @@ function addon:CreateMainFrame()
   )
 
   function addon:ToggleReloadIndicator(show, text)
-    logo:SetShown(not show)
     if show then
       reloadIndicator:Show()
     else

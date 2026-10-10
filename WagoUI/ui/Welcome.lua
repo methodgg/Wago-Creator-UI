@@ -57,12 +57,12 @@ end
 local function welcome(body, hasPacks)
   local logo = widget(body, "welcomeLogo", function() return body:CreateTexture(nil, "ARTWORK") end)
   logo:SetTexture([[Interface\AddOns\WagoUI\media\wagoLogo512]])
-  logo:SetSize(64, 64)
+  logo:SetSize(88, 88)
   logo:SetPoint("TOP", body, "TOP", 0, 0)
-  label(body, "Welcome to WagoUI", 0, 74, body:GetWidth(), 26):SetJustifyH("CENTER")
+  label(body, "Welcome to WagoUI", 0, 98, body:GetWidth(), 26):SetJustifyH("CENTER")
   local width, gap = 422, 26
   local x = (body:GetWidth() - (2 * width + gap)) / 2
-  local install = card(body, x, 124, width, 310, { .45, .45, .45, 1 })
+  local install = card(body, x, 148, width, 310, { .45, .45, .45, 1 })
   label(install, "Install a UI Pack", 24, 26, width - 48, 20)
   step(install, 1, 24, 70, width - 48, "Find a UI Pack you like on the Wago website")
   step(install, 2, 24, 112, width - 48, "Install it with the Wago App")
@@ -77,13 +77,13 @@ local function welcome(body, hasPacks)
     local note = label(install, "Installed UI Packs show up here automatically.", 24, 254, width - 48, 13, { .55, .55, .55 })
     note:SetJustifyH("CENTER")
   end
-  local create = card(body, x + width + gap, 124, width, 310, { RED[1], RED[2], RED[3], 1 })
+  local create = card(body, x + width + gap, 148, width, 310, { RED[1], RED[2], RED[3], 1 })
   label(create, "Create your own UI Pack", 24, 26, width - 48, 20)
   step(create, 1, 24, 70, width - 48, "Pick the AddOn profiles that make up your UI")
   step(create, 2, 24, 112, width - 48, "Save them all with one click")
   step(create, 3, 24, 154, width - 48, "Upload with the Wago App to share it")
   ctaButton(create, "Create your own UI Pack", 24, 238, width - 48, 48, enterCreator, "outline", 20)
-  body:SetHeight(444)
+  body:SetHeight(468)
 end
 
 UI.enterCreator = enterCreator
