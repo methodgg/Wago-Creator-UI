@@ -156,7 +156,8 @@ function LWF:CreateDropdown(parent)
   f.menus = {}
   function f:GetValue() return self.value end
   f.label = new("font", f)
-  f.dropdown = { dropdownframe = new("menu", f), dropdownborder = new("border", f) }
+  f.dropdown = { dropdownframe = new("menu", f), dropdownborder = new("border", f), statusbar = new("texture", f),
+    icon = new("texture", f), arrowTexture = new("texture", f), arrowTexture2 = new("texture", f) }
   local menu = f.dropdown.dropdownframe
   menu.slider = new("menuSlider", menu)
   menu.slider.ThumbTexture = new("scrollThumb", menu.slider)
@@ -963,6 +964,71 @@ if buttonStarting("Review everything instead") then click("Review everything ins
 for _, f in ipairs(frames) do
   if f.visible and f.onClick and f.name and f.name.text == "Compact" then f.onClick() end
 end
+-- Full Install starts by introducing the UI Pack above its versions.
+local installPacks, centredSelector = {}, nil
+for id, installPack in pairs(addon:GetPacks(false)) do installPacks[#installPacks + 1] = installPack.name or id end
+local function inList(f)
+  while f do
+    if f.kind == "ScrollFrame" then return true end
+    f = f.parent
+  end
+end
+for _, f in ipairs(visible("dropdown")) do if inList(f) then centredSelector = f end end
+assert(hasText("Choose a version"),
+  "Full Install does not separate the UI Pack from its versions")
+-- The pack card says what the pack sets up: a count, one named icon per AddOn, and the count on each version.
+local homePack, homeAddons, seenModules = addon:CurrentInstallPack(), {}, {}
+for _, p in ipairs(addon.Packs.Profiles(homePack)) do
+  if not seenModules[p.moduleName] then seenModules[p.moduleName] = true; table.insert(homeAddons, p.moduleName) end
+end
+local metaShown, namedIcons, countedCards = false, 0, 0
+for _, f in ipairs(visible("font")) do
+  if (f.text or ""):find("^" .. #homeAddons .. " AddOn") then metaShown = true end
+  local text = f.text or ""
+  if text:find("AddOns?  ·  ") and not text:find("Updated", 1, true) then countedCards = countedCards + 1 end
+end
+for _, f in ipairs(visible("Frame")) do
+  if f.icon and f.tooltip and seenModules[f.tooltip] then namedIcons = namedIcons + 1 end
+end
+assert(metaShown and namedIcons == #homeAddons and countedCards == #homePack.variationOrder,
+  "The pack card does not show what the pack sets up")
+-- The page reads top down: the pack card right under the steps, versions on the same left edge as it.
+local firstCard
+for _, f in ipairs(visible("Button")) do if f.variationID and f.variationID == homePack.variationOrder[1] then firstCard = f end end
+local packPanel
+for _, f in ipairs(visible("Frame")) do if f.pools and f.pools.packAddon then packPanel = f end end
+assert(firstCard.point[4] == 0 and packPanel.point[4] == 0 and packPanel.point[5] == -48,
+  "Full Install's first step is not top-aligned on one left edge")
+for _, f in ipairs(visible("font")) do assert(not (f.text or ""):find("Your screen", 1, true), "The screen size is back") end
+-- Release notes open in a dialog, newest first, without Markdown heading marks.
+homePack.releaseNotes = homePack.releaseNotes or {}
+homePack.releaseNotes["1700000000"] = "## Added\nNew raid frames"
+addon:RefreshWorkspace()
+click("Release notes")
+assert(hasText("Release notes for " .. homePack.name) and hasText("Added\nNew raid frames"), "Release notes do not open")
+closeDialog()
+homePack.releaseNotes["1700000000"] = nil
+addon:RefreshWorkspace()
+if #installPacks > 1 then
+  assert(centredSelector and #centredSelector.options() == #installPacks, "Full Install has no centred UI Pack selector")
+else
+  assert(not centredSelector and hasText(installPacks[1]), "Full Install does not name its only UI Pack")
+end
+-- With a second UI Pack the name becomes a centred selector, and picking from it switches the install.
+local creatorSelected, installSelected = addon.db.creator.selected, addon.dbC.selection.packID
+local secondPack = addon:NewPack("Second Pack")
+addon.db.creator.selected = creatorSelected
+addon:RefreshWorkspace()
+centredSelector = nil
+for _, f in ipairs(visible("dropdown")) do if inList(f) then centredSelector = f end end
+assert(centredSelector and #centredSelector.options() == #installPacks + 1, "Several UI Packs get no centred selector")
+for _, option in ipairs(centredSelector.options()) do
+  if option.value == secondPack.id then option.onclick() end
+end
+assert(addon.dbC.selection.packID == secondPack.id, "The centred selector does not switch the UI Pack")
+addon.db.creator.packs[secondPack.id] = nil
+addon.dbC.selection.packID = installSelected
+addon:RefreshWorkspace()
 click("Next >>")
 buttonStarting("Install (").click()
 click("Individual Profiles")

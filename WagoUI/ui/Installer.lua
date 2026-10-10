@@ -7,7 +7,7 @@ local UI = addon.UI
 local ui = UI.view
 local button, check, dropdown, label = UI.button, UI.check, UI.dropdown, UI.label
 local rowBackground, widget = UI.rowBackground, UI.widget
-local confirm = UI.confirm
+local confirm, modal, modalList = UI.confirm, UI.modal, UI.modalList
 local resolutionText = UI.resolutionText
 local layoutName = UI.layoutName
 local ctaButton = UI.ctaButton
@@ -195,11 +195,19 @@ end
 
 local CARD_WIDTH, CARD_HEIGHT, CARD_GAP = 296, 140, 15
 
+-- The AddOns a UI Pack, or one of its versions, sets up: one per AddOn with a profile, in the pack's order.
+local function packAddons(pack, variationID)
+  local names, seen = {}, {}
+  for _, p in ipairs(Packs.Profiles(pack, variationID)) do
+    if not seen[p.moduleName] then seen[p.moduleName] = true; table.insert(names, p.moduleName) end
+  end
+  return names
+end
+
+local function addonCount(count) return count .. (count == 1 and " AddOn" or " AddOns") end
+
 local function variationCards(body, pack, s, y)
   local count = #pack.variationOrder
-  local perRow = math.min(3, count)
-  -- Rows with fewer cards stay centered instead of hugging the left edge.
-  local left = (body:GetWidth() - (perRow * CARD_WIDTH + (perRow - 1) * CARD_GAP)) / 2
   for index, id in ipairs(pack.variationOrder) do
     local v = pack.variations[id]
     local column, row = (index - 1) % 3, math.floor((index - 1) / 3)
@@ -247,7 +255,8 @@ local function variationCards(body, pack, s, y)
       f:SetScript("OnClick", function(self) self.onClick() end)
       return f
     end)
-    card:SetPoint("TOPLEFT", body, "TOPLEFT", left + column * (CARD_WIDTH + CARD_GAP), -(y + row * (CARD_HEIGHT + CARD_GAP)))
+    -- Cards start on the left edge, under the pack card and the heading above them.
+    card:SetPoint("TOPLEFT", body, "TOPLEFT", column * (CARD_WIDTH + CARD_GAP), -(y + row * (CARD_HEIGHT + CARD_GAP)))
     card:SetSize(CARD_WIDTH, CARD_HEIGHT)
     card.variationID = id
     local matches = screenMatches(v)
@@ -259,9 +268,10 @@ local function variationCards(body, pack, s, y)
     card.description:SetSize(CARD_WIDTH - 36, 30)
     card.description:SetWordWrap(true)
     card.description:SetText(v.description or "")
-    if not v.resolutions then card.match:SetText("Works on any screen")
-    elseif matches then card.match:SetText(icon(CHECK, 13) .. " Made for your screen")
-    else card.match:SetText(icon(ALERT, 14) .. " Made for a different screen size") end
+    local addons = addonCount(#packAddons(pack, id)) .. "  ·  "
+    if not v.resolutions then card.match:SetText(addons .. "Works on any screen")
+    elseif matches then card.match:SetText(addons .. icon(CHECK, 13) .. " Made for your screen")
+    else card.match:SetText(addons .. icon(ALERT, 14) .. " Made for a different screen") end
     card.match:SetTextColor(unpack(matches and LIGHT or AMBER))
     card.selected = id == s.variationID
     card.onClick = function() s.variationID, s.variationPicked = id, true; render() end
@@ -330,13 +340,78 @@ local function updatesHome(body, pack, s, updates)
     #chosen > 0)
 end
 
-local function home(body, pack, s)
+-- Release notes as the creator wrote them, newest first; Markdown headings lose their marks.
+local function notesDialog(pack)
+  local f = modal("Release notes for " .. pack.name, 600, 524)
+  f.error:Hide()
+  local content, y = modalList(f, 420), 0
+  for _, note in ipairs(releaseNotes(pack)) do
+    label(content, date("%b %d, %Y", note.at), 0, y, 500, 15)
+    local text = label(content, ("\n" .. note.text):gsub("\n#+%s*", "\n"):sub(2), 0, y + 24, 500, 13, { .8, .8, .8 })
+    text:SetWordWrap(true)
+    y = y + 24 + text:GetStringHeight() + 22
+  end
+  content:SetHeight(math.max(1, y))
+end
+
+local PACK_HEIGHT, VERSIONS_GAP, ICON = 136, 50, 26
+
+-- An AddOn icon that names its AddOn on hover.
+local function namedIcon(parent, moduleName, x, y)
+  local f = widget(parent, "packAddon", function()
+    local frame = CreateFrame("Frame", nil, parent)
+    frame:SetSize(ICON, ICON)
+    frame:EnableMouse(true)
+    frame.icon = frame:CreateTexture(nil, "ARTWORK")
+    frame.icon:SetAllPoints(frame)
+    frame.icon:SetTexCoord(1 / 12, 11 / 12, 1 / 12, 11 / 12)
+    frame:SetScript("OnEnter", function(self) addon.ShowWidgetTooltip(self, self.tooltip) end)
+    frame:SetScript("OnLeave", function(self) addon.HideWidgetTooltip(self) end)
+    return frame
+  end)
+  local lap = LAP:GetModule(moduleName)
+  f:SetPoint("TOPLEFT", parent, "TOPLEFT", x, -y)
+  f.icon:SetTexture(lap and lap.icon and lap.icon ~= "" and lap.icon or 134400)
+  f.tooltip = moduleName
+end
+
+-- The pack introduces itself before its versions: what it sets up, when it last changed, and that nothing happens
+-- yet. With several installed UI Packs its name is the selector that switches between them.
+local function packCard(body, pack, packs, y)
+  local width = body:GetWidth()
+  local box = panel(body, 0, y, width, PACK_HEIGHT)
+  if #packs > 1 then dropdown(box, pack.id, packs, 16, 12, 300, nil, nil, true)
+  else label(box, pack.name, 16, 16, width - 200, 24) end
+  local notes = releaseNotes(pack)
+  if #notes > 0 then
+    ctaButton(box, "Release notes", width - 16 - 140, 12, 140, 30, function() notesDialog(pack) end, "neutral", 14)
+  end
+  local names, updated = packAddons(pack), notes[1] and notes[1].at
+  for _, p in ipairs(Packs.Profiles(pack)) do updated = math.max(updated or 0, p.lastUpdatedAt or 0) end
+  local meta = addonCount(#names)
+  if updated and updated > 0 then meta = meta .. "  ·  Updated " .. date("%b %d", updated) end
+  label(box, meta, 16, 52, width - 32, 13, GREY)
+  -- As many icons as fit on one line; the rest are counted.
+  local step = ICON + 4
+  local fit = math.floor((width - 32 - 40) / step)
+  for index, moduleName in ipairs(names) do
+    if index > fit then
+      label(box, "+" .. (#names - fit), 16 + fit * step + 4, 78, 40, 13, GREY)
+      break
+    end
+    namedIcon(box, moduleName, 16 + (index - 1) * step, 72)
+  end
+  label(box, icon(CHECK, 12) .. " You pick which AddOns to install in the next step. Nothing changes until you press "
+    .. "Install.", 16, 110, width - 32, 12, { .7, .7, .7 })
+  label(body, "Choose a version", 0, y + PACK_HEIGHT + 20, 300, 16)
+end
+
+local function home(body, pack, s, packs)
   stepper(body, "home")
-  -- Center the cards in the space below the steps, nudged slightly above the middle.
-  local rows = math.ceil(#pack.variationOrder / 3)
-  local block = rows * CARD_HEIGHT + (rows - 1) * CARD_GAP
-  local space = ui.scroll:GetHeight() - 48
-  local y = variationCards(body, pack, s, 48 + math.max(0, math.floor((space - block) / 2) - 20))
+  -- Right under the steps, so the page reads top down like the steps after it.
+  local top = 48
+  packCard(body, pack, packs, top)
+  local y = variationCards(body, pack, s, top + PACK_HEIGHT + VERSIONS_GAP)
   body:SetHeight(y + 10)
   primary("Next >>", function()
     local function nextStep() s.step = "review"; render() end
@@ -769,11 +844,16 @@ local function expertList(body, pack, s)
   body:SetHeight(y)
 end
 
-local function install(pack)
+-- packs lists every installable UI Pack as selector entries, the same ones the header offers.
+local function install(pack, packs)
   local body = ui.content
   if not pack then
     label(body, "No installed UI Packs found.", 0, 120, body:GetWidth(), 24):SetJustifyH("CENTER")
     label(body, "Install a UI Pack through the Wago App.", 0, 162, body:GetWidth(), 14, GREY):SetJustifyH("CENTER")
+    -- The selected pack could not be read; any other one can still be picked here.
+    if packs and #packs > 0 then
+      dropdown(body, nil, packs, (body:GetWidth() - 300) / 2, 200, 300, "Choose a UI Pack", nil, true)
+    end
     body:SetHeight(300)
     return
   end
@@ -808,7 +888,7 @@ local function install(pack)
   if step == "home" then
     local updates = addon:PackUpdates(pack)
     if #updates > 0 and not (ui.reviewAll and ui.reviewAll[pack.id]) then updatesHome(body, pack, s, updates)
-    else home(body, pack, s) end
+    else home(body, pack, s, packs) end
   elseif step == "review" then review(body, pack, s)
   elseif step == "install" then installing(body, pack, s)
   else finished(body, pack, s) end

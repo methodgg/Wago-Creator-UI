@@ -192,18 +192,38 @@ local function skinScrollbar(bar, arrows)
   bar:HookScript("OnLeave", function() thumb:SetColorTexture(.76, .15, .18, 1) end)
 end
 
+-- The UI Pack selectors are flat like the header around them: no framework gradient, gold arrow or placeholder icon.
+-- The arrow texture points up, so its coordinates flip it into a down chevron.
+local function flatten(box)
+  local field = box.dropdown
+  box:SetBackdrop({ bgFile = [[Interface\Buttons\WHITE8X8]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1 })
+  box:SetBackdropColor(.086, .086, .086, 1)
+  box:SetBackdropBorderColor(.23, .23, .23, 1)
+  field.statusbar:SetAlpha(0)
+  field.icon:SetAlpha(0)
+  field.arrowTexture2:SetAlpha(0)
+  field.arrowTexture:SetTexture([[Interface\AddOns\WagoUI\media\calloutArrow]])
+  field.arrowTexture:SetTexCoord(0, 1, 1, 0)
+  field.arrowTexture:SetVertexColor(.7, .7, .7, 1)
+  field.arrowTexture:SetSize(12, 6)
+  field.arrowTexture:ClearAllPoints()
+  field.arrowTexture:SetPoint("RIGHT", field, "RIGHT", -10, 0)
+end
+
 -- menuFontSize shrinks the option text for a narrow selector whose labels would otherwise be cut off.
-local function dropdown(parent, selected, entries, x, y, width, placeholder, menuFontSize)
+-- Flat selectors pool apart from the classic ones, so a reused frame never carries the other look.
+local function dropdown(parent, selected, entries, x, y, width, placeholder, menuFontSize, flat)
   for _, entry in ipairs(entries) do entry.font = addon.FONT end
-  local f = widget(parent, "dropdown", function()
+  local f = widget(parent, flat and "flatDropdown" or "dropdown", function()
     local box = LWF:CreateDropdown(parent, width, 32, 16, 1.5, function() return {} end)
     addon:UseWidgetTooltip(box)
+    if flat then flatten(box) end
     box:SetScript("OnEnter", function()
-      box:SetBackdropBorderColor(1, 1, 1, 1)
+      box:SetBackdropBorderColor(unpack(flat and { .45, .45, .45, 1 } or { 1, 1, 1, 1 }))
       box:ShowTooltip()
     end)
     box:SetScript("OnLeave", function()
-      box:SetBackdropBorderColor(0, 0, 0, 1)
+      box:SetBackdropBorderColor(unpack(flat and { .23, .23, .23, 1 } or { 0, 0, 0, 1 }))
       box:HideTooltip()
     end)
     local menu, border = box.dropdown.dropdownframe, box.dropdown.dropdownborder

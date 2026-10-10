@@ -112,7 +112,7 @@ local function render()
       local _, problem = Packs.Validate(available[selected])
       addon.state.packError = problem or "Pack ID does not match its storage key."
     end
-    install(pack)
+    install(pack, entries)
   end
   tour(creating and selected and available[selected] or nil, creating)
   ui.lock:SetShown(addon.state.busy or false)
