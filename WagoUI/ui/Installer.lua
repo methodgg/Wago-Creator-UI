@@ -63,6 +63,11 @@ local function profileName(p)
   return p.kind == "cdm" and layoutName(p.name, p.classAndSpecTag) or p.name
 end
 
+-- A row without an AddOn column names its AddOn itself; layouts read "CDM:" before their class-colored name.
+local function rowName(p)
+  return p.kind == "cdm" and ("|cffffffffCDM:|r " .. profileName(p)) or profileName(p)
+end
+
 -- One short state per profile, shared by every list: what installing it would do, or why it cannot.
 local function badge(pack, p, status)
   if status == "Enable addon" then return "Turns the AddOn on", AMBER end
@@ -198,7 +203,7 @@ local CARD_WIDTH, CARD_HEIGHT, CARD_GAP = 296, 140, 15
 -- The AddOns a UI Pack, or one of its versions, sets up: one per AddOn with a profile, in the pack's order.
 local function packAddons(pack, variationID)
   local names, seen = {}, {}
-  for _, p in ipairs(Packs.Profiles(pack, variationID)) do
+  for _, p in ipairs(addon:InstallProfiles(pack, variationID)) do
     if not seen[p.moduleName] then seen[p.moduleName] = true; table.insert(names, p.moduleName) end
   end
   return names
@@ -387,7 +392,7 @@ local function packCard(body, pack, packs, y)
     ctaButton(box, "Release notes", width - 16 - 140, 12, 140, 30, function() notesDialog(pack) end, "neutral", 14)
   end
   local names, updated = packAddons(pack), notes[1] and notes[1].at
-  for _, p in ipairs(Packs.Profiles(pack)) do updated = math.max(updated or 0, p.lastUpdatedAt or 0) end
+  for _, p in ipairs(addon:InstallProfiles(pack)) do updated = math.max(updated or 0, p.lastUpdatedAt or 0) end
   local meta = addonCount(#names)
   if updated and updated > 0 then meta = meta .. "  ·  Updated " .. date("%b %d", updated) end
   label(box, meta, 16, 52, width - 32, 13, GREY)
@@ -425,7 +430,7 @@ local function home(body, pack, s, packs)
       details = "Your screen is " .. width .. " × " .. height .. ".\nSome things may need adjusting afterwards.",
       cancelText = "Go back", confirmText = "Continue anyway", onConfirm = nextStep,
     })
-  end, #Packs.Profiles(pack, s.variationID) > 0)
+  end, #addon:InstallProfiles(pack, s.variationID) > 0)
 end
 
 -- Plain-language reason for a profile that cannot be installed right now.
@@ -453,7 +458,7 @@ local function review(body, pack, s)
   stepper(body, "review")
   local choices = addon:InstallChoices(pack, s.variationID)
   local selection = addon:InstallSelection(pack, s.variationID)
-  local profiles = Packs.Profiles(pack, s.variationID)
+  local profiles = addon:InstallProfiles(pack, s.variationID)
   local statuses, ordinary, groups, layouts, blocked = {}, {}, {}, {}, {}
   for _, p in ipairs(profiles) do
     statuses[p] = addon:ProfileStatus(p)
@@ -520,7 +525,7 @@ local function review(body, pack, s)
         label(body, p.name, 290, y + 12, 260, 14, { .8, .8, .8 })
       end
     else
-      label(body, profileName(p), 76, y + 11, 480, 15)
+      label(body, rowName(p), 76, y + 11, 480, 15)
     end
     local text, color = badge(pack, p, status)
     label(body, text, 570, y + 12, 150, 13, color)
@@ -562,7 +567,7 @@ local function review(body, pack, s)
     for _, p in ipairs(blocked) do
       rowBackground(body, y, 38, .03)
       addonIcon(body, p.moduleName, 44, y + 7, 24):SetDesaturated(true)
-      local name = (p.kind == "profile" or p.kind == "snapshot") and p.moduleName or profileName(p)
+      local name = (p.kind == "profile" or p.kind == "snapshot") and p.moduleName or rowName(p)
       label(body, name, 76, y + 11, 300, 15, GREY)
       label(body, unavailableReason(p, statuses[p]), 390, y + 12, body:GetWidth() - 400, 13, GREY)
       y = y + 40
@@ -726,7 +731,7 @@ end
 local function expertList(body, pack, s)
   local query = (ui.searchText or ""):lower()
   variationChips(pack, s)
-  local profiles = Packs.Profiles(pack, s.variationID)
+  local profiles = addon:InstallProfiles(pack, s.variationID)
   -- Ordered as before the rework: loaded addons alphabetically, then disabled ones, then WeakAuras by name, and
   -- Cooldown Manager layouts for other classes last.
   local statuses, ranks, otherClass = {}, {}, {}

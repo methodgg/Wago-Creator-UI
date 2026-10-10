@@ -107,6 +107,16 @@ function addon:BuildInstallPlan(pack, variationID)
   return selection.plan
 end
 
+-- The profiles this game version could install. One without an integration here, like WeakAuras on Retail since
+-- Midnight, never shows in the install views; it could only ever say it is unsupported.
+function addon:InstallProfiles(pack, variationID)
+  local result = {}
+  for _, p in ipairs(self.Packs.Profiles(pack, variationID)) do
+    if LAP:GetModule(p.moduleName) then table.insert(result, p) end
+  end
+  return result
+end
+
 -- Imported profiles whose creator has published a newer version since, across every variation.
 function addon:PackUpdates(pack)
   local updates = {}

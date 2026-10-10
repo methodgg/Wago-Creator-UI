@@ -1103,6 +1103,15 @@ assert(hasText("Release notes for " .. homePack.name) and hasText("Added\nNew ra
 closeDialog()
 homePack.releaseNotes["1700000000"] = nil
 addon:RefreshWorkspace()
+-- An AddOn with no integration in this game version, like WeakAuras on Retail, is left out of the install views.
+local retired = addon.Packs.AddProfile(homePack, "Retired AddOn", "Old", "Old", { default = true })
+addon:RefreshWorkspace()
+for _, f in ipairs(visible("Frame")) do assert(f.tooltip ~= "Retired AddOn", "An unsupported AddOn shows on the pack card") end
+for _, f in ipairs(visible("font")) do
+  assert(not (f.text or ""):find("^" .. (#homeAddons + 1) .. " AddOn"), "An unsupported AddOn is counted")
+end
+addon.Packs.RemoveProfile(homePack, retired)
+addon:RefreshWorkspace()
 if #installPacks > 1 then
   assert(centredSelector and #centredSelector.options() == #installPacks, "Full Install has no centred UI Pack selector")
 else
@@ -1123,7 +1132,17 @@ assert(addon.dbC.selection.packID == secondPack.id, "The centred selector does n
 addon.db.creator.packs[secondPack.id] = nil
 addon.dbC.selection.packID = installSelected
 addon:RefreshWorkspace()
+-- A Cooldown Manager layout row names itself: "CDM:" in white before its class-colored name.
+local layoutRecord = addon.Packs.AddProfile(homePack, "Blizzard Cooldown Manager", "Tank", "Tank", nil, "cdm", nil, 731)
+addon:RefreshWorkspace()
 click("Next >>")
+local layoutRow = false
+for _, f in ipairs(visible("font")) do
+  if (f.text or ""):find("^|cffffffffCDM:|r ") and (f.text or ""):find("Tank", 1, true) then layoutRow = true end
+end
+assert(layoutRow, "A Cooldown Manager layout row does not say CDM")
+addon.Packs.RemoveProfile(homePack, layoutRecord)
+addon:RefreshWorkspace()
 buttonStarting("Install (").click()
 click("Individual Profiles")
 click("Re-import")
