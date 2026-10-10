@@ -594,6 +594,8 @@ assert(variationTabs()[1].active, "Creating a variation left the current tab")
 chipFor(profileSelectors()[2], "Raid alternate").click()
 assert(blankRow.variations[raidAlternate] and #pack.profileOrder == 1, "Blank row assignment changed saved profiles")
 assert(#warningIcons() == 1 and warningIcons()[1].tooltip:find("No profile selected", 1, true), "Variation without profile is not flagged")
+assert((profileSelectors()[2].tooltip or ""):find("No profile selected", 1, true),
+  "A row with variations but no profile has no tooltip on its selector")
 selectSource(profileSelectors()[2], "Other")
 -- Saving also needs every variation to have a profile; Default would otherwise be empty here.
 chipFor(profileSelectors()[1], "Default").click()
@@ -1018,7 +1020,10 @@ local clearedTags = CopyTable(pack.profiles[profileSelectors()[1].profileRow.pro
 iconAt("Clear selected profile", profileSelectors()[1]).click()
 assert(#profileSelectors() == 2 and not profileSelectors()[1].profileRow.profileID,
   "Clearing the main profile removed its row or promoted its alternate")
-assert(not profileSelectors()[1].tooltip, "Unselected profile still shows a tooltip")
+-- The cleared row keeps its variations, so its selector explains the warning instead of its old save.
+local clearedTooltip = profileSelectors()[1].tooltip or ""
+assert(not clearedTooltip:find("Last save", 1, true) and clearedTooltip:find("No profile selected", 1, true),
+  "Unselected profile still shows its old save, or not why it is flagged")
 assert(pack.profiles[alternateID], "Clearing the main profile removed the alternate")
 addon:InitializePacks(); addon:RefreshWorkspace()
 assert(not profileSelectors()[1].profileRow.profileID, "Blank main row did not persist")

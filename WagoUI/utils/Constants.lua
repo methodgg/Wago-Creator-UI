@@ -70,7 +70,10 @@ function addon.ShowWidgetTooltip(widget, text)
     tooltip.text:SetWordWrap(true)
     tooltip.text:SetPoint("TOPLEFT", tooltip, "TOPLEFT", 10, -8)
     tooltip:SetScript("OnUpdate", function(self)
-      if not self.owner or not self.owner:IsShown() or not self.owner:IsMouseOver() then
+      -- A backstop for owners that hide or move away without OnLeave. The scaled window puts edges between
+      -- pixels, where the game's hover and IsMouseOver can disagree; the margin keeps this from closing a
+      -- tooltip the game still considers hovered, which nothing would reopen.
+      if not self.owner or not self.owner:IsShown() or not self.owner:IsMouseOver(2, -2, -2, 2) then
         self.owner = nil
         self:Hide()
       end

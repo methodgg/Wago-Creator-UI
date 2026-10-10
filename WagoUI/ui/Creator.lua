@@ -364,7 +364,10 @@ local function creator(pack)
           if prior and (prior.sourceKey ~= p.sourceKey or prior.sourceCharacter ~= p.sourceCharacter) then prior = nil end
           local timestamp = prior and (prior.lastSavedAt or prior.lastUpdatedAt)
           local savedText = timestamp and ("Last save: " .. date("%b %d, %H:%M", timestamp)) or "Not saved yet"
-          selector:SetTooltip(p and (position == 1 and savedText or (moduleName .. "\n" .. savedText)) or nil)
+          local selectorTooltip = p and (position == 1 and savedText or (moduleName .. "\n" .. savedText)) or nil
+          -- A flagged row explains itself on its selector too, the control it is usually fixed with.
+          if warning then selectorTooltip = selectorTooltip and (warning .. "\n\n" .. selectorTooltip) or warning end
+          selector:SetTooltip(selectorTooltip)
           addon:UseWidgetTooltip(selector)
           selector.OnMouseDownHook = function(_, _, options)
             for i = #options, 1, -1 do options[i] = nil end
