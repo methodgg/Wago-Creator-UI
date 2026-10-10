@@ -163,7 +163,7 @@ local function variationEditor(pack, id)
         end
         draw()
       end },
-    }, 24, top + 165, 180)
+    }, 24, top + 165, 180, nil, 13)
     local newest
     if not state.any then
       for index, size in ipairs(state.sizes) do

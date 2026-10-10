@@ -192,7 +192,8 @@ local function skinScrollbar(bar, arrows)
   bar:HookScript("OnLeave", function() thumb:SetColorTexture(.76, .15, .18, 1) end)
 end
 
-local function dropdown(parent, selected, entries, x, y, width, placeholder)
+-- menuFontSize shrinks the option text for a narrow selector whose labels would otherwise be cut off.
+local function dropdown(parent, selected, entries, x, y, width, placeholder, menuFontSize)
   for _, entry in ipairs(entries) do entry.font = addon.FONT end
   local f = widget(parent, "dropdown", function()
     local box = LWF:CreateDropdown(parent, width, 32, 16, 1.5, function() return {} end)
@@ -245,7 +246,7 @@ local function dropdown(parent, selected, entries, x, y, width, placeholder)
         row:HookScript("OnEnter", row.updateActionHover)
         row:HookScript("OnLeave", row.updateActionHover)
       end
-      row.label:SetFont(addon.FONT, 16 / 1.5, "")
+      row.label:SetFont(addon.FONT, box.menuFontSize / 1.5, "")
       row.label:SetWidth(box:GetWidth() / 1.5 - (entry.rename and 62 or 28))
       row.label:SetWordWrap(false)
       if entry.rename then
@@ -283,6 +284,7 @@ local function dropdown(parent, selected, entries, x, y, width, placeholder)
   f.OnMouseDownHook = nil
   f:SetTooltip(nil)
   f.moduleName, f.profileRow = nil, nil
+  f.menuFontSize = menuFontSize or 16
   f:SetMenuSize(width / 1.5, 240)
   f:SetFunction(function() return entries end)
   f:Refresh()

@@ -708,6 +708,11 @@ form.name:SetText("Default")
 click("Save")
 assert(form.name:IsShown() and pack.variations[compactID].name == "Compact", "Duplicate name escaped validation")
 form.name:SetText("Compact")
+-- The resolution selector is narrow, so its options use a smaller font that fits "Specific resolution(s)".
+local resolutionRow = new("option", form.resolution.dropdown.dropdownframe)
+resolutionRow.label = new("font", resolutionRow)
+form.resolution.OnUpdateOptionFrame(form.resolution, resolutionRow, form.resolution.options()[2])
+assert(resolutionRow.label.fontSize * 1.5 == 13, "Resolution options keep the font that cuts them off")
 for _, option in ipairs(form.resolution.options()) do
   if option.label == "Specific resolution(s)" then option.onclick() end
 end
