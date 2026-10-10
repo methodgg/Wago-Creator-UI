@@ -10,5 +10,6 @@
   <Script file="Welcome.lua"/>
   <Script file="Creator.lua"/>
   <Script file="Installer.lua"/>
+  <Script file="Tour.lua"/>
   <Script file="Workspace.lua"/>
 </Ui>

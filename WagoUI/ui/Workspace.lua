@@ -10,10 +10,12 @@ local startSetup = UI.startSetup
 local ctaButton, enterCreator, welcome = UI.ctaButton, UI.enterCreator, UI.welcome
 local creator = UI.creator
 local install = UI.install
+local tour, tourGuide, tourTarget = UI.tour, UI.tourGuide, UI.tourTarget
 
 local function render()
   if not ui.header then return end
   reset(ui.header); reset(ui.content); reset(ui.footer); reset(ui.tabs)
+  ui.tourTargets = {}
   local creating = addon.db.workspaceMode == "create"
   addon:SetTitle(creating)
   -- The first-install intro reopens WagoUI on every load; a creator is past it.
@@ -57,6 +59,9 @@ local function render()
     local selector = dropdown(ui.header, selected, entries, 68, 0, 300, selected and "UI pack" or "No UI Pack yet")
     -- Until the first pack exists, the creator stays locked behind its centered create button.
     if not selected then selector:Disable() end
+    if creating then
+      tourTarget("guide", button(ui.header, "Guide", 380, 0, 90, tourGuide, "Step-by-step help for creating a UI Pack", 32))
+    end
   end
   -- The welcome screen carries both actions, so the switch would repeat it.
   -- Full Install keeps first-time users on their install; creating lives behind Individual Profiles.
@@ -109,6 +114,7 @@ local function render()
     end
     install(pack)
   end
+  tour(creating and selected and available[selected] or nil, creating)
   ui.lock:SetShown(addon.state.busy or false)
   if not addon.state.busy then ui.capturePopup:Hide() end
 end

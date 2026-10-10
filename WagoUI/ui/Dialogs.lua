@@ -233,6 +233,8 @@ function addon:ShowAppHandoff()
     if f:IsShown() then return end
     addon.db.appHandoff = "done"
     shade:Hide()
+    -- An open creator can now offer what comes after the first save.
+    if addon.frames.mainFrame and addon.frames.mainFrame:IsShown() then addon:RefreshWorkspace() end
   end)
   shade:Show()
 end

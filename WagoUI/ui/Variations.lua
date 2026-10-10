@@ -346,6 +346,7 @@ local function variationTabs(pack, filter, locked)
   for _, entry in ipairs(tabs) do
     entry.locked = locked
     local tab = variationTab(ui.tabs, entry, entry.active)
+    if entry.ghost and not locked then UI.tourTarget("addVariation", tab) end
     local lead, trail = entry.id and 26 or 12, entry.onDelete and 46 or entry.onEdit and 26 or 12
     local counter = entry.count and 6 + tab.count:GetStringWidth() or 0
     local width = entry.width or math.min(right - 4, lead + tab.label:GetStringWidth() + counter + trail)

@@ -210,6 +210,8 @@ local function dropdown(parent, selected, entries, x, y, width, placeholder, men
     skinScrollbar(menu.slider, { menu.cima, menu.baixo })
     border:SetScale(1.5)
     menu:HookScript("OnShow", function()
+      -- The creator tour steps aside while a menu is open.
+      UI.view.openMenu = menu
       -- DF measures menu text independently; keep long names and scrolling within the selector.
       local menuWidth = box:GetWidth() / 1.5
       local child = menu:GetScrollChild()
@@ -295,6 +297,14 @@ local function dropdown(parent, selected, entries, x, y, width, placeholder, men
   return f
 end
 
+-- Names a control the creator tour can point at. Pooled widgets move between rows, so every render registers
+-- them again, and the first registration of a name wins. Clipped controls live in the scrolling list.
+local function tourTarget(name, control, clipped)
+  local targets = UI.view.tourTargets
+  if targets[name] then return end
+  targets[name] = { control = control, region = control.widget or control.button or control, clipped = clipped }
+end
+
 local function scroll(parent, x, y, width, height)
   local f = CreateFrame("ScrollFrame", nil, parent, "UIPanelScrollFrameTemplate")
   local bar = f.ScrollBar
@@ -327,4 +337,5 @@ UI.profileConnector = profileConnector
 UI.reset = reset
 UI.rowBackground = rowBackground
 UI.scroll = scroll
+UI.tourTarget = tourTarget
 UI.widget = widget

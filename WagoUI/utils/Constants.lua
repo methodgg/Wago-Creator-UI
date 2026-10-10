@@ -134,6 +134,7 @@ addon.dbDefaults = {
   config = {},
   introEnabled = true,
   welcomeSeen = false,
+  creatorTour = { finished = {}, tips = {}, confirmed = {} },
   minimap = {
     hide = false,
     compartmentHide = false

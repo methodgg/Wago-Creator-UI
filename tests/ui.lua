@@ -49,6 +49,12 @@ end
 function methods:Show() self.visible = true; if self.scripts.OnShow then self.scripts.OnShow(self) end end
 function methods:Hide() self.visible = false; if self.scripts.OnHide then self.scripts.OnHide(self) end end
 function methods:IsShown() return self.visible and (not self.parent or self.parent:IsShown()) end
+methods.IsVisible = methods.IsShown
+-- Every control sits inside the visible list, well above the bottom of the main window.
+function methods:GetTop() return 1000 end
+function methods:GetBottom() return self.kind == "root" and 0 or 500 end
+function methods:GetLeft() return 0 end
+function methods:GetRight() return self.kind == "root" and 1000 or 100 end
 function methods:IsMouseOver() return self.mouseOver or false end
 function methods:SetShown(value) if value then self:Show() else self:Hide() end end
 function methods:SetEnabled(value) self.enabled = value end
@@ -230,6 +236,12 @@ local function hasText(text)
   for _, f in ipairs(visible("font")) do if f.text == text then return true end end
   return false
 end
+-- The creator tour's callout and the control it points at, when one is shown.
+local function tourCallout()
+  for _, f in ipairs(frames) do
+    if f.edge and f.fill and f:IsShown() and f.target then return f, f.target.control end
+  end
+end
 local function packSelector()
   for _, selector in ipairs(visible("dropdown")) do
     for _, entry in ipairs(selector.options()) do
@@ -290,6 +302,9 @@ for _, f in ipairs(visible("EditBox")) do assert(not f.enabled, "Empty creator l
 local createCount = 0
 for _, f in ipairs(visible("button")) do if f.text == "Create your UI Pack" then createCount = createCount + 1 end end
 assert(createCount == 1, "Creator empty state needs one action")
+local _, pointedAt = tourCallout()
+assert(hasText("Your first save: step 1 of 3") and pointedAt and pointedAt.text == "Create your UI Pack",
+  "A first-time creator's tour does not point at creating a UI Pack")
 click("Create your UI Pack")
 local nameEntry = visible("EditBox")[#visible("EditBox")]
 assert(nameEntry.parent:GetWidth() == 440 and nameEntry.parent:GetHeight() == 224, "Naming dialog is not compact")
@@ -304,6 +319,22 @@ fields[#fields]:SetText("Smoke UI")
 fields[#fields].scripts.OnEnterPressed(fields[#fields])
 local pack = addon.db.creator.packs[addon.db.creator.selected]
 assert(pack and pack.name == "Smoke UI")
+_, pointedAt = tourCallout()
+assert(hasText("Your first save: step 2 of 3") and pointedAt and pointedAt.kind == "dropdown"
+  and pointedAt.moduleName ~= nil, "Creating the UI Pack did not move the tour on to picking a profile")
+local profileCallout = tourCallout()
+-- A row's callout opens beside its control, pointing left at it, so the rows below stay reachable.
+local function besideRow(callout)
+  return callout.point[1] == "TOPLEFT" and callout.point[4] == 100 + 12 and not callout.ring
+end
+assert(besideRow(profileCallout), "The profile step's callout covers the rows below it")
+local profileMenu = pointedAt.dropdown.dropdownframe
+profileMenu:Show()
+profileCallout.watcher.scripts.OnUpdate()
+assert(not profileCallout:IsShown(), "The tour covers the profile menu it asks the creator to open")
+profileMenu:Hide()
+profileCallout.watcher.scripts.OnUpdate()
+assert(profileCallout:IsShown(), "The tour does not come back after the menu closes")
 newPack()
 assert(#visible("EditBox") == 2, "Adding another pack did not open naming")
 closeDialog()
@@ -484,6 +515,14 @@ addon:RefreshWorkspace()
 assert(sourceCalls == 0, "Rendering eagerly enumerates all addon profiles")
 selectSource(profileSelectors()[1], "Raid")
 assert(sourceCalls == 1)
+-- Picking profiles is open-ended: the first pick offers Next instead of rushing on to saving.
+_, pointedAt = tourCallout()
+assert(hasText("Your first save: step 2 of 3") and pointedAt.kind == "dropdown" and button("Next"),
+  "One profile pick moved the tour on before the creator was done picking")
+click("Next")
+_, pointedAt = tourCallout()
+assert(hasText("Your first save: step 3 of 3") and pointedAt and pointedAt.text == "Save All Profiles",
+  "Next did not move the tour on to saving")
 local id = pack.profileOrder[1]
 assert(pack.profiles[id].sourceKey == "Raid" and pack.profiles[id].variations.default)
 for _, f in ipairs(visible("font")) do
@@ -1171,9 +1210,124 @@ okay.click()
 assert(not okay:IsShown() and not hasText("Continue in the Wago App"), "Okay did not close the Wago App handoff")
 assert(not okay.parent.parent.visible, "The screen stays dimmed after the Wago App handoff")
 assert(addon.db.appHandoff == "done", "Wago App handoff would show again")
+-- The creator tour, from a first-time creator through the optional second part.
+addon.db.creator.saved = {}
+addon.db.creatorTour = { finished = {}, tips = {} }
+addon.db.workspaceMode = "create"
+reopenWorkspace()
+assert(hasText("Your first save: step 1 of 3"), "The tour does not start for a first-time creator")
+click("Skip tour")
+assert(addon.db.creatorTour.finished[1] and not tourCallout(), "Skip tour left the tour running")
+local tourPack = addon:NewPack("Tour UI")
+addon:RefreshWorkspace()
+selectSource(profileSelectors()[1], "Raid")
+assert(not hasText("Make it fit more players"), "The second part is offered before anything was saved")
+addon.db.creator.saved[tourPack.id] = CopyTable(tourPack)
+reopenWorkspace()
+local _, offeredAt = tourCallout()
+assert(hasText("Make it fit more players") and offeredAt.text == "Guide", "The second part is not offered after saving")
+click("Not now")
+reopenWorkspace()
+assert(not tourCallout(), "The second part is offered again after Not now")
+addon.db.creatorTour.offered = nil
+reopenWorkspace()
+click("Show me")
+_, pointedAt = tourCallout()
+assert(hasText("Make it fit more players: step 1 of 4") and pointedAt.ghost, "Part 2 does not start at + Add variation")
+reopenWorkspace()
+assert(hasText("Make it fit more players: step 1 of 4") and not hasText("Show me"), "The offer shows a second time")
+tourPack = addon.db.creator.packs[tourPack.id]
+-- Cooldown Manager layouts join every new variation by themselves, which must not count as assigning one.
+addon.Packs.AddProfile(tourPack, "Blizzard Cooldown Manager", "Layout", "Layout", nil, "cdm")
+addon.Packs.SaveVariation(tourPack, nil, "Healer", nil, "")
+addon:RefreshWorkspace()
+local _, alternateAction = tourCallout()
+assert(hasText("Make it fit more players: step 2 of 4") and alternateAction.tooltip == "Add alternate profile",
+  "Adding a variation did not move the tour on to alternate profiles")
+hoverRow(nil)
+assert(alternateAction.pinned and alternateAction:IsShown(), "The pointed-at + only appears on hover")
+-- The + sits at the row's right end; with no room on its right the callout opens on its left.
+local alternateCallout = tourCallout()
+function alternateAction:GetRight() return 900 end
+alternateCallout.watcher.scripts.OnUpdate()
+assert(alternateCallout.point[1] == "TOPRIGHT" and alternateCallout.point[4] == -12,
+  "The callout runs off the window instead of opening left of the +")
+alternateAction.GetRight = nil
+alternateAction.click()
+_, pointedAt = tourCallout()
+assert(besideRow(tourCallout()), "The assign step's callout covers the variations it asks for")
+assert(hasText("Make it fit more players: step 3 of 4") and pointedAt.kind == "dropdown" and pointedAt.profileRow
+  and pointedAt.profileRow ~= addon.db.creator.profileRows[tourPack.id].Test[1], "The tour skips the new alternate row")
+-- A tip waits while a tour step is running; the empty alternate row would otherwise raise one.
+assert(not hasText("Orange rows are missing something, and Save waits until they're fixed. Hover the warning icon to see what."))
+click("Guide")
+assert(hasText("Creator guide") and hasText("Add a variation"), "The guide does not list the tour's steps")
+for _, f in ipairs(visible("button")) do
+  if f.text == "Show" and f.point[5] == -(70 + 42 + 34) then f.click(); break end
+end
+assert(hasText("Pick your profiles") and button("Got it"), "Show in the guide does not bring back a step")
+click("Got it")
+assert(hasText("Make it fit more players: step 3 of 4"), "Closing a step from the guide stopped the running tour")
+click("Guide")
+for _, f in ipairs(visible("button")) do
+  -- Part 2's second step: below part 1's three steps and its own heading.
+  if f.text == "Show" and f.point[5] == -(70 + 42 + 3 * 34 + 18 + 42 + 34) then f.click(); break end
+end
+local _, shownAction = tourCallout()
+hoverRow(nil)
+assert(hasText("Add an alternate profile") and shownAction.tooltip == "Add alternate profile" and shownAction:IsShown(),
+  "Show in the guide points at a + that only appears on hover")
+click("Got it")
+click("Skip tour")
+local incompleteTip = "Orange rows are missing something, and Save waits until they're fixed. Hover the warning icon to see what."
+assert(hasText(incompleteTip), "The empty alternate row raises no tip once the tour is skipped")
+click("Got it")
+reopenWorkspace()
+assert(not hasText(incompleteTip) and addon.db.creatorTour.tips.incomplete, "A tip comes back after Got it")
+click("Guide")
+for _, f in ipairs(visible("button")) do
+  if f.text == "Show" and f.point[5] == -(70 + 42) then f.click(); break end
+end
+_, pointedAt = tourCallout()
+assert(pointedAt.text == "Guide" and hasText("Start by giving your UI Pack a name. You can rename it later.\n\n"
+  .. "To create another one, choose + Add UI Pack in the UI Pack menu."),
+  "A step whose control is gone does not say where to find it")
+click("Got it")
+addon.db.creatorTour.finished[1] = true
 addon.db.introEnabled = false
 function methods:RegisterEvent() end
 assert(loadfile("WagoUI/utils/SavedVariables.lua"))("WagoUI", addon)
 addon.ResetOptions()
 assert(addon.db.appHandoff == nil and addon.db.introEnabled, "/wago reset keeps one-time steps finished")
+local resetTour = addon.db.creatorTour
+assert(not resetTour.finished[1] and not resetTour.finished[2] and not next(resetTour.tips) and not resetTour.offered,
+  "/wago reset keeps the creator tour finished")
+-- Saved UI Packs normally skip the first part; after a reset it plays again.
+assert(next(addon.db.creator.saved), "The reset check needs a creator who saved before")
+addon.db.workspaceMode = "create"
+addon:NewPack("After reset")
+reopenWorkspace()
+assert(hasText("Your first save: step 2 of 3"), "/wago reset does not replay the creator tour")
+-- Picking where the step points moves it on to the next AddOn that still has no profile.
+local _, firstPointed = tourCallout()
+selectSource(firstPointed, firstPointed.moduleName == "Global" and "Global" or "Raid")
+local _, nextPointed = tourCallout()
+assert(firstPointed.profileRow.profileID and nextPointed ~= firstPointed and not nextPointed.profileRow.profileID,
+  "The profile step keeps pointing at an AddOn already picked")
+-- Saving means the creator is done picking, just like Next.
+assert(button("Next") and not addon.db.creatorTour.confirmed["Pick your profiles"])
+click("Save All Profiles")
+assert(addon.db.creatorTour.confirmed["Pick your profiles"], "Save All Profiles does not count as Next")
+closeDialog()
+-- Saving confirms only the step on screen: here an assignment exists, but the tour is still on alternates.
+local savedPack = addon.db.creator.packs[addon.db.creator.selected]
+local healer = addon.Packs.SaveVariation(savedPack, nil, "Healer", nil, "")
+local picked = addon.Packs.Profiles(savedPack)[1]
+addon.Packs.SetMembership(savedPack, picked.id, { default = true, [healer] = true })
+addon.db.creatorTour.active, addon.db.creatorTour.finished[1] = 2, true
+addon:RefreshWorkspace()
+assert(hasText("Make it fit more players: step 2 of 4"), "The check needs the tour on the alternate step")
+click("Save All Profiles")
+assert(not addon.db.creatorTour.confirmed["Assign it to your variation"],
+  "Saving confirmed a step the tour had not reached")
 print("Creator, variation editing, capture, wizard and expert UI smoke checks passed.")

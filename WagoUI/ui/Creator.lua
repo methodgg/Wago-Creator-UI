@@ -14,7 +14,7 @@ local additionalAddons, exportOptions, saveCapture = UI.additionalAddons, UI.exp
 local wagoAddons = UI.wagoAddons
 local CDM, cooldownManager, includedLayouts = UI.CDM, UI.cooldownManager, UI.includedLayouts
 local includedAuras, weakAurasManager = UI.includedAuras, UI.weakAurasManager
-local ctaButton, startSetup = UI.ctaButton, UI.startSetup
+local ctaButton, startSetup, tourTarget = UI.ctaButton, UI.startSetup, UI.tourTarget
 local function render() UI.render() end
 
 -- Empty row slots are creator state, never installable profiles in published packs.
@@ -67,6 +67,7 @@ local function rowAction(parent, texture, x, y, tooltip, callback, atlas)
   addon:UseWidgetTooltip(icon)
   icon:SetEnabled(not addon.state.busy)
   icon:SetClickFunction(callback)
+  icon.pinned = nil
   return icon
 end
 
@@ -100,6 +101,7 @@ local function warningIcon(parent, y, tooltip)
   icon:SetPoint("TOPLEFT", parent, "TOPLEFT", PROFILE_X - 26, -(y + 11))
   icon:SetFrameLevel(parent:GetFrameLevel() + 5)
   icon.tooltip = tooltip
+  return icon
 end
 
 local function unassignedRow(parent, y, height, tooltip)
@@ -111,7 +113,7 @@ local function unassignedRow(parent, y, height, tooltip)
   stripe:SetPoint("TOPLEFT", parent, "TOPLEFT", 4, -y)
   stripe:SetSize(3, height)
   stripe:SetColorTexture(.95, .62, .15, 1)
-  warningIcon(parent, y, tooltip)
+  return warningIcon(parent, y, tooltip)
 end
 
 -- Blizzard's undo arrow: the record goes back to the version saved before.
@@ -159,7 +161,8 @@ local function lockedCreator(body)
   blockSave(button(ui.footer, "Save All Profiles", (ui.footer:GetWidth() - 300) / 2, -14, 300, nil, nil, 50, 20),
     "Create your UI Pack first.")
   local height = ui.scroll:GetHeight()
-  ctaButton(body, "Create your UI Pack", (body:GetWidth() - 320) / 2, (height - 56) / 2, 320, 56, startSetup, "primary", 20)
+  tourTarget("create", ctaButton(body, "Create your UI Pack", (body:GetWidth() - 320) / 2, (height - 56) / 2, 320, 56,
+    startSetup, "primary", 20), true)
   body:SetHeight(height)
 end
 
@@ -277,12 +280,13 @@ local function creator(pack)
           end)
           render()
         end
-        local chipX, chipY = VARIATIONS_X, y + 9
+        local chipX, chipY, firstChip = VARIATIONS_X, y + 9, nil
         for _, id in ipairs(row.manage and {} or pack.variationOrder) do
           -- A variation tab shows only what is assigned; "All" offers every toggle.
           if tags[id] or not filter then
             local chip, width = variationToggle(body, pack.variations[id].name, id, tags[id],
               not locked and function() toggle(id) end or nil, locked)
+            if id ~= "default" then firstChip = firstChip or chip end
             if chipX + width > VARIATIONS_RIGHT and chipX > VARIATIONS_X then chipX, chipY = VARIATIONS_X, chipY + 30 end
             chip:SetPoint("TOPLEFT", body, "TOPLEFT", chipX, -chipY)
             chipX = chipX + width + 4
@@ -311,7 +315,9 @@ local function creator(pack)
         -- Kept while the source is still unavailable; once it is back, the next save captures it again.
         local kept = not problem and p and p.keepCapture and p.data and addon:CaptureProblem(p)
         local warning, rowHeight = rowWarning(index, p, tags) or problem, position == #shown and height - 1 or height
-        if warning then unassignedRow(body, y, rowHeight, nameWarning and (warning .. "\n\n" .. nameWarning) or warning)
+        if warning then
+          local icon = unassignedRow(body, y, rowHeight, nameWarning and (warning .. "\n\n" .. nameWarning) or warning)
+          tourTarget(rowWarning(index, p, tags) and "incomplete" or "cantSave", icon, true)
         elseif nameWarning then
           warningIcon(body, y, kept and (nameWarning .. "\n\nShips its last capture.\n" .. kept) or nameWarning)
         elseif kept then keptRow(body, y, "Ships its last capture.\n" .. kept)
@@ -391,6 +397,19 @@ local function creator(pack)
             end
           end
           if locked or not ready or addon.state.busy then selector:Disable() end
+          if ready and not locked then
+            -- Picking profiles points at the next AddOn still without one, then the first once all have one.
+            if index == 1 then
+              if not p then tourTarget("profile", selector, true) end
+              tourTarget("profileFirst", selector, true)
+            end
+            -- The tour follows the first alternate row: its profile first, then its variations.
+            local targets = ui.tourTargets
+            if index > 1 and not targets.assignChip and not targets.assignProfile then
+              if not p then tourTarget("assignProfile", selector, true)
+              elseif firstChip then tourTarget("assignChip", firstChip, true) end
+            end
+          end
         end
         if not locked and not row.manage then
           local actions, loaded = {}, lap:isLoaded()
@@ -403,6 +422,7 @@ local function creator(pack)
             add:SetEnabled(ready and not addon.state.busy)
             add.always = false
             table.insert(actions, add)
+            if p and index == 1 and ready then tourTarget("alternate", add, true) end
           end
           -- A problem row always offers its ways out, even while its addon is unavailable.
           local remove = rowAction(body, [[Interface\Buttons\UI-GroupLoot-Pass-Up]], 870, y,
@@ -425,7 +445,10 @@ local function creator(pack)
             frame:SetScript("OnUpdate", function(self)
               -- Test row bounds so hovering its dropdown, chips or icons also counts.
               local shown = not addon.state.busy and not ui.modal:IsShown() and ui.scroll:IsMouseOver() and self:IsMouseOver()
-              for _, action in ipairs(self.actions) do action:SetShown(shown and (self.addonLoaded or action.always)) end
+              -- The tour pins the action it points at, so the creator can see it without hovering.
+              for _, action in ipairs(self.actions) do
+                action:SetShown(action.pinned or shown and (self.addonLoaded or action.always))
+              end
             end)
             return frame
           end)
@@ -451,6 +474,7 @@ local function creator(pack)
   if extrasPending then additionalRow() end
   local saveAll = button(ui.footer, "Save All Profiles", (ui.footer:GetWidth() - 300) / 2, -14, 300,
     function()
+      UI.tourSaving(pack)
       addon:CapturePack(pack, nil, saveCapture, function(current, total)
         if current == 0 then
           ui.captureProgress.fade = 0; ui.captureProgress:SetAlpha(1)
@@ -463,6 +487,7 @@ local function creator(pack)
         ui.capturePopup:Show()
       end)
     end, nil, 50, 20)
+  tourTarget("save", saveAll)
   local blocked = {}
   for _, p in ipairs(Packs.Profiles(pack)) do
     if not next(p.variations) then unassigned[p.moduleName] = true end
@@ -489,7 +514,10 @@ local function creator(pack)
     for _, id in ipairs(pack.variationOrder) do
       if #Packs.Profiles(pack, id) == 0 then table.insert(empty, pack.variations[id].name) end
     end
-    if #empty > 0 then reason = "Every variation needs at least one profile before saving.\nEmpty: " .. table.concat(empty, ", ") end
+    if #empty > 0 then
+      reason = "Every variation needs at least one profile before saving.\nEmpty: " .. table.concat(empty, ", ")
+      tourTarget("emptyVariation", saveAll)
+    end
   end
   blockSave(saveAll, reason)
   if filter and query == "" and not profilesListed then

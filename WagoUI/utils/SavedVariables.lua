@@ -26,6 +26,8 @@ function addon.ResetOptions()
   handleDBLoad(addon.db, true, addon.dbDefaults)
   -- One-time steps have no default to restore, so they are cleared here.
   addon.db.appHandoff = nil
+  -- The creator tour starts over, even for someone who saved a UI Pack before and would otherwise skip it.
+  addon.db.creatorTour.active = 1
   ReloadUI()
 end
 
