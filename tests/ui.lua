@@ -16,9 +16,14 @@ for _, method in ipairs({
   "SetTextInsets", "SetHighlightColor",
   "SetJustifyV", "SetStatusBarTexture", "SetStatusBarColor", "SetMinMaxValues", "SetValue",
 }) do methods[method] = function() end end
-function methods:SetSize(w, h) self.width, self.height = w, h end
-function methods:SetWidth(w) self.width = w end
-function methods:SetHeight(h) self.height = h end
+-- The client rejects a missing size, as with an undefined constant; so does the harness.
+local function size(value, name)
+  assert(type(value) == "number", "bad argument to '" .. name .. "': number expected, got " .. type(value))
+  return value
+end
+function methods:SetSize(w, h) self.width, self.height = size(w, "SetSize"), size(h, "SetSize") end
+function methods:SetWidth(w) self.width = size(w, "SetWidth") end
+function methods:SetHeight(h) self.height = size(h, "SetHeight") end
 function methods:GetWidth() return self.width end
 function methods:GetHeight() return self.height end
 function methods:GetFont() return "font", 14 end
