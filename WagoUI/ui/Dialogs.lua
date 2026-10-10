@@ -206,7 +206,8 @@ function addon:ShowAppHandoff()
   logo:SetPoint("TOP", f, "TOP", 0, -26)
   label(f, "Continue in the Wago App", 0, 94, width, 24):SetJustifyH("CENTER")
   local text = label(f, "Your profiles are saved. Switch to the Wago App and open Create & Upload to finish "
-    .. "setting up your UI Pack.", 40, 132, width - 80, 15, { .75, .75, .75 })
+    .. "setting up your UI Pack.\n\nChanged something in game later? Type |cffffffff/wagoc|r to open the creator "
+    .. "and save again, then upload the update in the Wago App.", 40, 132, width - 80, 15, { .75, .75, .75 })
   text:SetJustifyH("CENTER")
   text:SetWordWrap(true)
   local top = 132 + text:GetStringHeight() + 22

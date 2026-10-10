@@ -1383,6 +1383,9 @@ function LWF:ScaleFrameByUIParentScale() end
 addon.db.appHandoff = "pending"
 addon:ShowAppHandoff()
 assert(hasText("Continue in the Wago App"), "Wago App handoff is not shown")
+local mentionsCreator = false
+for _, f in ipairs(visible("font")) do mentionsCreator = mentionsCreator or (f.text or ""):find("/wagoc", 1, true) ~= nil end
+assert(mentionsCreator, "The Wago App handoff does not say how to save new profile data later")
 assert(UISpecialFrames[1] == "WagoUIAppHandoff", "Escape does not close the Wago App handoff")
 local okay = button("Okay")
 okay.click()
