@@ -105,10 +105,12 @@ local function confirm(options)
 end
 
 -- A message the user only acknowledges: the first line of text is the message, the rest details.
-function addon:ShowAlert(title, text, onClose)
+-- An optional action ({ text, onClick }) offers the way out beside Close.
+function addon:ShowAlert(title, text, onClose, action)
   local message, details = tostring(text):match("^([^\n]*)\n?(.*)$")
-  confirm({ title = title, message = message, details = details ~= "" and details or nil, okOnly = true,
-    onConfirm = onClose, onCancel = onClose })
+  confirm({ title = title, message = message, details = details ~= "" and details or nil, okOnly = not action,
+    confirmText = action and action.text, cancelText = action and "Close",
+    onConfirm = action and action.onClick or onClose, onCancel = onClose })
 end
 
 -- Every prompt in the addon uses the confirmation dialog: the first line is the message, the rest details.

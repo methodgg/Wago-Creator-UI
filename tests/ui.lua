@@ -1001,6 +1001,28 @@ for _, f in ipairs(visible("button")) do
     table.insert(orderedSelectors, { moduleName = "Blizzard Cooldown Manager", point = f.point })
   end
 end
+-- Open Cooldown Manager steps aside for Blizzard's panel and brings WagoUI and the dialog back when it closes.
+CooldownViewerSettings = new("Frame")
+CooldownViewerSettings:Hide()
+function addon:HideFrame() addon.frames.mainFrame:Hide() end
+function addon:ShowFrame() addon.frames.mainFrame:Show() end
+click("Manage")
+click("Open Cooldown Manager")
+assert(CooldownViewerSettings:IsShown() and not addon.frames.mainFrame:IsShown(),
+  "Open Cooldown Manager does not hand over to Blizzard's panel")
+CooldownViewerSettings:Hide()
+assert(addon.frames.mainFrame:IsShown() and button("Open Cooldown Manager"),
+  "Closing Blizzard's panel does not bring back WagoUI and the dialog")
+click("Done")
+-- A refused Cooldown Manager import offers the same way into Blizzard's panel, and WagoUI returns after it.
+local nextExplained = false
+addon:ShowAlert("Blizzard Cooldown Manager", "Your Cooldown Manager has no room for more layouts.", nil,
+  { text = "Open Cooldown Manager", onClick = function() addon:OpenCooldownManager(function() nextExplained = true end) end })
+assert(button("Close") and button("Open Cooldown Manager"), "The refusal offers no way into the Cooldown Manager")
+click("Open Cooldown Manager")
+assert(CooldownViewerSettings:IsShown() and not addon.frames.mainFrame:IsShown(), "The refusal does not open Blizzard's panel")
+CooldownViewerSettings:Hide()
+assert(addon.frames.mainFrame:IsShown() and nextExplained, "Closing Blizzard's panel does not bring WagoUI back")
 table.sort(orderedSelectors, function(a, b) return a.point[5] > b.point[5] end)
 local displayed, last = {}, nil
 for _, f in ipairs(orderedSelectors) do

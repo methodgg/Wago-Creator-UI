@@ -222,10 +222,15 @@ function addon:ImportProfiles(pack, records, callback, hooks)
       if self.state.needReopen then self.frames.mainFrame:Show(); self.state.needReopen = nil end
       self:RefreshWorkspace()
       callback(imported, failed)
-      -- One dialog at a time; closing one shows the next.
+      -- One dialog at a time; closing one shows the next. A full Cooldown Manager is fixed in its own settings,
+      -- so its dialog opens them, and the next dialog waits until WagoUI is back.
       local function explain(index)
         local entry = reasons[index]
-        if entry then self:ShowAlert(entry[1], entry[2], function() explain(index + 1) end) end
+        if not entry then return end
+        local function nextOne() explain(index + 1) end
+        local action = entry[1] == "Blizzard Cooldown Manager"
+          and { text = "Open Cooldown Manager", onClick = function() self:OpenCooldownManager(nextOne) end } or nil
+        self:ShowAlert(entry[1], entry[2], nextOne, action)
       end
       explain(1)
     end, "ImportProfiles")

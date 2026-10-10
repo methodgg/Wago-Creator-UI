@@ -5,6 +5,7 @@ local UI = addon.UI
 local button, check, input, label, reset = UI.button, UI.check, UI.input, UI.label, UI.reset
 local dragGhost, emptyList, managerList, managerRow = UI.dragGhost, UI.emptyList, UI.managerList, UI.managerRow
 local closeModal, modal, safely = UI.closeModal, UI.modal, UI.safely
+local ui = UI.view
 local function render() UI.render() end
 
 local CDM = "Blizzard Cooldown Manager"
@@ -41,23 +42,56 @@ local function includedLayouts(pack)
   return result
 end
 
+local cooldownManager
+
+-- Like EllesmereUI's options: WagoUI steps aside so Blizzard's own panel is visible, and comes back once it closes,
+-- then runs onReturn. Nothing touches the panel's categories or display mode, which would taint it.
+-- Without the panel, the caller carries on as if it had closed.
+function addon:OpenCooldownManager(onReturn)
+  if not self:EnsureIntegration(CDM) then
+    if onReturn then onReturn() end
+    return
+  end
+  ui.cdmReturn = onReturn or true
+  if not ui.cdmReturnHooked then
+    ui.cdmReturnHooked = true
+    CooldownViewerSettings:HookScript("OnHide", function()
+      local returning = ui.cdmReturn
+      ui.cdmReturn = nil
+      if not returning then return end
+      addon.state.besideCooldownManager = nil
+      addon:ShowFrame()
+      if returning ~= true then returning() end
+    end)
+  end
+  closeModal()
+  -- Stepping aside is not closing: a pending reload prompt waits until WagoUI is closed for real.
+  self.state.besideCooldownManager = true
+  self:HideFrame()
+  CooldownViewerSettings:Show()
+end
+
+-- The creator's dialog comes back too, listing the layouts just made or renamed.
+local function openBlizzardSettings(pack)
+  addon:OpenCooldownManager(function()
+    local current = addon.db.creator.packs[pack.id]
+    if current then cooldownManager(current) end
+  end)
+end
+
 -- Picks which Cooldown Manager layouts the pack exports; each one ships with every variation.
-local function cooldownManager(pack)
+function cooldownManager(pack)
   local query = ""
   local f = modal(CDM, 760, 600)
-  local notes = label(f, "Give every Cooldown Manager profile a unique name. If two profiles share a name, only one of them "
-    .. "can be imported. A good name is \"<YourName> <Spec>\".", 24, 58, 712, 13, { .7, .7, .7 })
-  notes:SetWordWrap(true)
-  label(f, "Exported CDM profiles will be available in all of your UI Pack variations.", 24, 92, 712, 13, { .7, .7, .7 })
-  label(f, "Profiles from other characters are only available after logging into those characters at least once.",
-    24, 110, 712, 13, { 1, .65, .3 }):SetWordWrap(true)
-  label(f, "Your profiles", 24, 140, 344, 16)
-  local includedHeading = label(f, "", 392, 140, 344, 16)
-  local search = input(f, "", 24, 164, 344)
-  label(f, "Click or drag a profile to move it between the lists.", 392, 174, 344, 12, { .55, .55, .55 })
-  local available = managerList(f, "availableLayouts", 24, 206, 344, 290)
-  local included = managerList(f, "includedLayouts", 392, 206, 344, 290)
+  label(f, "Included profiles ship with every variation of your UI Pack. Give each a unique name, like "
+    .. "\"YourName Frost\": only one profile per name can be imported.", 24, 58, 712, 13, { .7, .7, .7 }):SetWordWrap(true)
+  label(f, "Your profiles", 24, 104, 344, 16)
+  local includedHeading = label(f, "", 392, 104, 344, 16)
+  local search = input(f, "", 24, 128, 344)
+  local available = managerList(f, "availableLayouts", 24, 170, 344, 300)
+  local included = managerList(f, "includedLayouts", 392, 128, 344, 342)
   dragGhost({ available, included })
+  label(f, "Log into a character once to see its profiles here.", 24, 478, 344, 12, { .55, .55, .55 })
 
   local draw
   local function include(source)
@@ -114,7 +148,7 @@ local function cooldownManager(pack)
       })
       y = y + 32
     end
-    if y == 0 then emptyList(included, "Click a profile on the left to include it.") end
+    if y == 0 then emptyList(included, "Click or drag a profile from the left to include it.") end
     included.content:SetHeight(math.max(1, y))
     includedHeading:SetText("Included profiles (" .. #chosen .. ")")
   end
@@ -123,6 +157,8 @@ local function cooldownManager(pack)
   -- Frozen layouts keep their last export, so tweaking a spec later does not change a published pack.
   check(f, "Update Cooldown Manager profiles when saving", not pack.cdmExportsFrozen, 24, 512,
     function(value) pack.cdmExportsFrozen = not value or nil end)
+  button(f, "Open Cooldown Manager", 412, 552, 184, function() openBlizzardSettings(pack) end,
+    "Edit your profiles in Blizzard's Cooldown Manager. WagoUI comes back when you close it.")
   button(f, "Done", 606, 552, 130, function() closeModal(); render() end)
   draw()
 end

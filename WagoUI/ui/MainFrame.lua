@@ -135,7 +135,7 @@ function addon:CreateMainFrame()
         addon.state.needReopen = true
         return
       end
-      if addon.state.needReload then
+      if addon.state.needReload and not addon.state.besideCooldownManager then
         promptFunc(L["IMPORT_RELOAD_WARNING2"], ReloadUI, cancelFunc, L["Reload UI"], L["Cancel"])
       end
     end
