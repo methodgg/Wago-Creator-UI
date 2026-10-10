@@ -16,7 +16,7 @@ local function render()
   reset(ui.header); reset(ui.content); reset(ui.footer); reset(ui.tabs)
   local creating = addon.db.workspaceMode == "create"
   -- The first-install intro reopens WagoUI on every load; a creator is past it.
-  if creating then addon.db.introEnabled = false end
+  if creating then addon.db.introEnabled = false; addon.state.welcome = nil end
   -- The status line belongs to the creator; the UI Packs view never shows one, and a leftover does not return.
   if not creating then addon.state.notice = nil end
   ui.notice:SetText(creating and (addon.state.busy and "Working…" or addon.state.notice) or "")
@@ -48,18 +48,19 @@ local function render()
     selected = entries[1] and entries[1].value
     if creating then addon.db.creator.selected = selected else addon.dbC.selection.packID = selected end
   end
-  if #entries > 0 or creating then
+  -- The welcome screen shows when there is no UI Pack anywhere, or once on the first open even with packs.
+  local welcoming = not creating and (#entries == 0 or addon.state.welcome)
+  if not welcoming then
     if creating then table.insert(entries, { label = "+ Add UI Pack", action = true, onclick = startSetup }) end
     label(ui.header, "UI Pack", 0, 9, 64, 14, { .65, .65, .65 })
     local selector = dropdown(ui.header, selected, entries, 68, 0, 300, selected and "UI pack" or "No UI Pack yet")
     -- Until the first pack exists, the creator stays locked behind its centered create button.
     if not selected then selector:Disable() end
   end
-  -- With no UI Pack anywhere the welcome screen carries both actions, so the switch would repeat it.
-  local empty = not creating and #entries == 0
+  -- The welcome screen carries both actions, so the switch would repeat it.
   -- Full Install keeps first-time users on their install; creating lives behind Individual Profiles.
-  local fullInstall = not creating and not empty and selected ~= nil and not addon.dbC.selection.expert
-  if not empty and not fullInstall then
+  local fullInstall = not creating and not welcoming and selected ~= nil and not addon.dbC.selection.expert
+  if not welcoming and not fullInstall then
     ctaButton(ui.footer, creating and "Back to UI Packs" or "Create your own UI Pack", 732, 0, 220, 36, function()
       if not creating then enterCreator(); return end
       addon.db.workspaceMode = "install"
@@ -68,8 +69,8 @@ local function render()
     end, creating and "neutral" or "outline", 15)
   end
   -- Installing offers a full install flow and an individual profile list, which shares the creator's search bar.
-  local expert = not creating and not empty and selected ~= nil and addon.dbC.selection.expert
-  if not creating and not empty and selected then
+  local expert = not creating and not welcoming and selected ~= nil and addon.dbC.selection.expert
+  if not creating and not welcoming and selected then
     for index, mode in ipairs({ "Full Install", "Individual Profiles" }) do
       local active = (mode == "Individual Profiles") == (expert == true)
       local segment = button(ui.header, mode, 380 + (index - 1) * 152, 0, 150, function()
@@ -97,8 +98,8 @@ local function render()
   if creating then
     local pack = selected and available[selected]
     creator(pack)
-  elseif empty then
-    welcome(ui.content)
+  elseif welcoming then
+    welcome(ui.content, #entries > 0)
   else
     local pack = addon:CurrentInstallPack()
     if selected and not pack then
@@ -230,6 +231,10 @@ function addon:CreateWorkspace(frame)
   ui.modal:Hide()
   -- After a full install, the window opens on individual profiles from then on.
   local function open()
+    -- Only marks the screen; welcomeSeen never opens the window by itself.
+    if not addon.db.welcomeSeen and addon.db.workspaceMode ~= "create" then
+      addon.db.welcomeSeen, addon.state.welcome = true, true
+    end
     local selection = addon.dbC.selection
     if selection.openProfilesNext then
       selection.openProfilesNext, selection.expert, selection.step = nil, true, "home"

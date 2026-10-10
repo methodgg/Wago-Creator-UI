@@ -130,6 +130,7 @@ addon.dbDefaults = {
   yoffset = 0,
   config = {},
   introEnabled = true,
+  welcomeSeen = false,
   minimap = {
     hide = false,
     compartmentHide = false
