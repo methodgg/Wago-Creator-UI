@@ -272,7 +272,7 @@ for _, f in ipairs(visible("button")) do
     "Creator/import controls surfaced on the installer landing page")
 end
 addon.db.introEnabled = true
-click("Create a UI Pack")
+click("Create your own UI Pack")
 assert(addon.db.introEnabled == false, "Opening the creator leaves WagoUI reopening on every load")
 for _, f in ipairs(visible("dropdown")) do assert(not f.enabled, "Empty creator leaves the pack selector unlocked") end
 for _, f in ipairs(visible("EditBox")) do assert(not f.enabled, "Empty creator leaves search unlocked") end
@@ -1135,7 +1135,7 @@ button("Back to UI Packs") -- Still in creator mode, including with no created p
 click("Back to UI Packs")
 assert(addon.db.workspaceMode == "install")
 reopenWorkspace()
-button("Create a UI Pack") -- With no UI Pack anywhere, the welcome screen offers creating one.
+button("Create your own UI Pack") -- With no UI Pack anywhere, the welcome screen offers creating one.
 addon.db.workspaceMode = "unknown"
 reopenWorkspace()
 assert(addon.db.workspaceMode == "install", "Invalid stored mode must fall back to user mode")
