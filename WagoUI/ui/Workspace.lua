@@ -98,6 +98,14 @@ local function render()
       render()
     end)
     modeTab("Create", 100, creating, enterCreator)
+    -- Installing without the Wago App's storage shows only the creator's own packs; say why, and fix it.
+    local storage = not creating and addon:StorageState()
+    if storage == "off" or storage == "pending" then
+      label(ui.header, "Installed UI Packs are turned off.", 212, 9, 220, 14, { 1, .65, .3 })
+      local turnOn = ctaButton(ui.header, storage == "off" and "Turn on and reload" or "Reload", 436, 0, 150, 32,
+        function() addon:EnableStorage() end, "primary", 14)
+      turnOn:SetTooltip("The Wago App keeps installed UI Packs in the Wago UI Pack Storage AddOn, which is turned off.")
+    end
     if creating then
       local guide = ctaButton(ui.header, "Guide", RIGHT - 90, 0, 90, 32, tourGuide, "neutral", 14)
       guide:SetTooltip("Step-by-step help for creating a UI Pack")

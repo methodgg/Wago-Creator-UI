@@ -197,6 +197,19 @@ local reloads = 0
 function ReloadUI() reloads = reloads + 1 end
 date = os.date
 C_AddOns.GetNumAddOns = function() return 0 end
+-- No AddOn is installed unless a check says so; enabling one is only recorded.
+C_AddOns.GetAddOnInfo = function(name) return name, name, "", false, "MISSING" end
+local enabledAddOns = {}
+C_AddOns.EnableAddOn = function(name) table.insert(enabledAddOns, name) end
+-- WagoUI_Storage is on disk but turned off: installed UI Packs cannot load until it is on.
+local function storageOff()
+  local previous = C_AddOns.GetAddOnInfo
+  C_AddOns.GetAddOnInfo = function(name)
+    if name == "WagoUI_Storage" then return name, "Wago UI Pack Storage", "", false, "DISABLED" end
+    return previous(name)
+  end
+  return function() C_AddOns.GetAddOnInfo = previous end
+end
 addon.db, addon.dbC, addon.state = {}, {}, {}
 addon:InitializePacks()
 local function button(text)
@@ -305,6 +318,17 @@ local function modeTabs()
 end
 -- The welcome screen carries both ways in, so the header stays empty.
 for _, f in ipairs(visible("button")) do assert(not f.modeTab, "The welcome screen shows the mode tabs") end
+-- With the Wago App's storage turned off, the welcome screen says so and turns it on.
+assert(not hasText("Your installed UI Packs are turned off."), "The storage warning shows while nothing is turned off")
+local restoreStorage = storageOff()
+addon:RefreshWorkspace()
+local reloadsBefore = reloads
+assert(hasText("Your installed UI Packs are turned off."), "The welcome screen hides that installed UI Packs are off")
+click("Turn on and reload")
+assert(enabledAddOns[#enabledAddOns] == "WagoUI_Storage" and reloads == reloadsBefore + 1,
+  "Turn on and reload does not enable WagoUI_Storage and reload")
+restoreStorage()
+addon:RefreshWorkspace()
 local installTab, createTab
 addon.db.introEnabled = true
 assert(addon.frames.mainFrame.Title.text == "Install |cFFC1272DWago|r UI Packs - slash command: /wago",
@@ -988,6 +1012,13 @@ end
 for _, f in ipairs(visible("button")) do assert(f.text ~= "Preview", "Creator preview button remains") end
 click("Install")
 modeTabs() -- Full Install keeps the mode tabs; its own Next button owns the footer.
+-- Installing with the storage turned off shows only the creator's own packs; the header says why.
+restoreStorage = storageOff()
+addon:RefreshWorkspace()
+assert(hasText("Installed UI Packs are turned off.") and button("Turn on and reload"),
+  "Install mode hides that installed UI Packs are off")
+restoreStorage()
+addon:RefreshWorkspace()
 -- Without a list, Full Install starts its steps on the second header row.
 for _, f in ipairs(frames) do
   if f.kind == "ScrollFrame" and f.child == addon.UI.view.content then

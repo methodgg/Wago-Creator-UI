@@ -67,7 +67,15 @@ local function welcome(body, hasPacks)
   step(install, 1, 24, 70, width - 48, "Find a UI Pack you like on the Wago website")
   step(install, 2, 24, 112, width - 48, "Install it with the Wago App")
   step(install, 3, 24, 154, width - 48, "Come back here to set it up")
-  if hasPacks then
+  local storage = addon:StorageState()
+  if storage == "off" or storage == "pending" then
+    -- Installed packs exist but cannot load yet; this is the way to them.
+    local warning = label(install, "Your installed UI Packs are turned off.", 24, 206, width - 48, 14, { 1, .65, .3 })
+    warning:SetJustifyH("CENTER")
+    local turnOn = ctaButton(install, storage == "off" and "Turn on and reload" or "Reload to load them", 24, 238,
+      width - 48, 48, function() addon:EnableStorage() end, "primary", 20)
+    turnOn:SetTooltip("The Wago App keeps installed UI Packs in the Wago UI Pack Storage AddOn, which is turned off.")
+  elseif hasPacks then
     ctaButton(install, "Install UI Pack", 24, 238, width - 48, 48, function()
       addon.state.welcome = nil
       ui.scroll:SetVerticalScroll(0)

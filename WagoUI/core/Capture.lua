@@ -99,6 +99,24 @@ function addon:NewPack(label)
   return pack
 end
 
+-- The Wago App delivers installed UI Packs in the WagoUI_Storage AddOn, which can be on disk but turned off.
+-- "off" needs it turned on, "pending" was turned on since login; either way only a reload brings the packs in.
+local STORAGE = "WagoUI_Storage"
+
+function addon:StorageState()
+  if WagoUI_Storage then return "loaded" end
+  local _, _, _, loadable, reason = C_AddOns.GetAddOnInfo(STORAGE)
+  if reason == "DISABLED" or reason == "DEP_DISABLED" then return "off" end
+  if loadable then return "pending" end
+  return "missing"
+end
+
+-- It is not load on demand, so it only loads with the next reload.
+function addon:EnableStorage()
+  C_AddOns.EnableAddOn(STORAGE)
+  ReloadUI()
+end
+
 function addon:GetPack(id)
   return self.db.creator.packs[id] or (WagoUI_Storage and WagoUI_Storage[id])
 end
