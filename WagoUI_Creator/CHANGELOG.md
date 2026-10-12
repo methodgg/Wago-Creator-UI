@@ -1,3 +1,4 @@
-# 1.9.1 (2026-08-15)
+# 1.9.2 (2026-10-12)
 
-- Prevent ElvUI profile API errors from aborting Save All Profiles
+- Update interface versions for the latest WoW clients
+- Require Cooldown Manager Centered 5.2.17 or newer
