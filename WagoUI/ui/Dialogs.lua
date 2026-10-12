@@ -60,7 +60,6 @@ local function saveCapture(pack, changes, issues)
   editor.scroll:SetVerticalScroll(0)
   label(f, "Edit your release notes below (Markdown).\nUsers see these notes when they install or update your UI Pack.",
     24, 60, 552, 13, { .8, .8, .8 }):SetWordWrap(true)
-  notes:SetFocus()
   local logo = widget(f, "saveLogo", function() return f:CreateTexture(nil, "ARTWORK") end)
   logo:SetTexture([[Interface\AddOns\WagoUI\media\wagoLogo512]])
   logo:SetSize(128, 128)

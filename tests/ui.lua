@@ -894,12 +894,14 @@ assert(not captureBar:IsShown(), "Completed capture bar does not finish fading")
 local notesSurface = notes.parent.parent
 assert(notesSurface.point[5] == -98 and notesSurface:GetHeight() == 225,
   "Release notes are not laid out below their editing instructions")
-assert(notes:HasFocus() and notesSurface.borderColor[1] == .76, "Notes editor does not show a focused editing state")
+assert(not notes:HasFocus() and notesSurface.borderColor[1] == .45, "Release notes editor takes focus when opened")
 assert(notesSurface.backgroundColor[1] == .055 and nameEntry.backgroundColor[1] == .055,
   "Single-line and release-notes fields have different backgrounds")
 assert(notes.fontFace == nameEntry.fontFace and notes.fontSize == nameEntry.fontSize
   and notes.highlightColor[1] == nameEntry.highlightColor[1], "Edit-box typography or selection styling differs")
 local originalNotes = notes:GetText()
+notes:SetFocus()
+assert(notesSurface.borderColor[1] == .76, "Notes editor does not show a focused editing state")
 notes:ClearFocus()
 assert(notesSurface.borderColor[1] == .45)
 notes.mouseOver = true; notes.scripts.OnEnter(notes)
