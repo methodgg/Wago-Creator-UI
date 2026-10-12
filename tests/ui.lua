@@ -1479,8 +1479,11 @@ addon.db.creatorTour.finished[1] = true
 addon.db.introEnabled = false
 function methods:RegisterEvent() end
 assert(loadfile("WagoUI/utils/SavedVariables.lua"))("WagoUI", addon)
+addon.db.debug, addon.db.autoStart = true, true
 addon.ResetOptions()
 assert(addon.db.appHandoff == nil and addon.db.introEnabled, "/wago reset keeps one-time steps finished")
+assert(addon.db.debug and addon.db.autoStart, "/wago reset turns off debug mode")
+addon.db.debug, addon.db.autoStart = false, false
 local resetTour = addon.db.creatorTour
 assert(not resetTour.finished[1] and not resetTour.finished[2] and not next(resetTour.tips) and not resetTour.offered,
   "/wago reset keeps the creator tour finished")

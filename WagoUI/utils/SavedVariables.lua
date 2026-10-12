@@ -22,8 +22,11 @@ local function setUpDB(dbKey, dbCKey)
 end
 
 function addon.ResetOptions()
+  -- Debug mode is a developer switch that /wago debug owns; a reset of the user's options leaves it alone.
+  local debug, autoStart = addon.db.debug, addon.db.autoStart
   _G[addon.dbCKey] = nil
   handleDBLoad(addon.db, true, addon.dbDefaults)
+  addon.db.debug, addon.db.autoStart = debug, autoStart
   -- One-time steps have no default to restore, so they are cleared here.
   addon.db.appHandoff = nil
   -- The creator tour starts over, even for someone who saved a UI Pack before and would otherwise skip it.
