@@ -85,13 +85,23 @@ local function saveCapture(pack, changes, issues)
     :SetBackdropColor(0, .8, 0, 1)
 end
 
+-- Wago IDs that profile integrations already ship.
+local function integrationWagoIds()
+  local covered = {}
+  for _, lap in pairs(LAP:GetAllModules()) do
+    if lap.wagoId then covered[lap.wagoId] = true end
+    for _, id in pairs(lap.additionalWagoIds or {}) do covered[id] = true end
+  end
+  return covered
+end
+
 -- Installed AddOns that can be shipped as extras, keyed by their Wago ID.
 local function wagoAddons()
-  local found = {}
+  local found, covered = {}, integrationWagoIds()
   for index = 1, C_AddOns.GetNumAddOns() do
     local id = C_AddOns.GetAddOnMetadata(index, "X-Wago-ID")
     local name = C_AddOns.GetAddOnInfo(index)
-    if id and name ~= "WagoUI" and name ~= "WagoUI_Creator" then
+    if id and not covered[id] and name ~= "WagoUI" and name ~= "WagoUI_Creator" then
       found[id] = { name = name, icon = C_AddOns.GetAddOnMetadata(index, "IconTexture") }
     end
   end
@@ -122,8 +132,10 @@ local function additionalAddons(pack)
   f.scroll:SetPoint("TOPLEFT", panel, "TOPLEFT", 4, -4)
   f.scroll:SetFrameLevel(panel:GetFrameLevel() + 1)
   local content = modalList(f, height - 8)
-  local selected, entries = CopyTable(pack.additionalAddons), wagoAddons()
-  for id, name in pairs(selected) do entries[id] = entries[id] or { name = name } end
+  local selected, entries, covered = CopyTable(pack.additionalAddons), wagoAddons(), integrationWagoIds()
+  for id, name in pairs(selected) do
+    if covered[id] then selected[id] = nil else entries[id] = entries[id] or { name = name } end
+  end
   local ordered = {}
   for id, entry in pairs(entries) do table.insert(ordered, { id = id, name = entry.name, icon = entry.icon }) end
   table.sort(ordered, function(a, b) return a.name:lower() < b.name:lower() end)
