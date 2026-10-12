@@ -65,12 +65,6 @@
 ---@field DecodeForWoWAddonChannel fun(self: LibDeflateAsync, input: string): string
 ---@field DecompressDeflate fun(self: LibDeflateAsync, input: string): string
 
----@class LibCompress
----@field Decompress fun(self: LibCompress, input: string): string
----@field GetAddonEncodeTable fun(self: LibCompress): table
----@field CompressHuffman fun(self: LibCompress, input: string): string
----@field DecompressHuffman fun(self: LibCompress, input: string): string
-
 ---@class AceSerializer-3.0Async
 ---@field Serialize fun(self: AceSerializer-3.0Async, input: any): string
 ---@field Deserialize fun(self: AceSerializer-3.0Async, input: string): boolean, table | nil

@@ -12,7 +12,6 @@ package-as: WagoUI
 
 externals:
   WagoUI/libs/LibStub: https://repos.curseforge.com/wow/libstub/trunk
-  WagoUI/libs/LibCompress: https://repos.curseforge.com/wow/libcompress/trunk
   WagoUI/libs/CallbackHandler-1.0: https://repos.curseforge.com/wow/callbackhandler/trunk/CallbackHandler-1.0
   WagoUI/libs/AceAddon-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceAddon-3.0
   WagoUI/libs/AceEvent-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceEvent-3.0
