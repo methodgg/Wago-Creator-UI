@@ -153,7 +153,6 @@ function cooldownManager(pack)
     includedHeading:SetText("Included profiles (" .. #chosen .. ")")
   end
   search:SetScript("OnTextChanged", function(self) query = self:GetText():lower(); draw() end)
-  search:SetFocus()
   -- Frozen layouts keep their last export, so tweaking a spec later does not change a published pack.
   check(f, "Update Cooldown Manager profiles when saving", not pack.cdmExportsFrozen, 24, 512,
     function(value) pack.cdmExportsFrozen = not value or nil end)

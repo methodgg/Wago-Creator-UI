@@ -194,7 +194,6 @@ local function weakAurasManager(pack)
     includedHeading:SetText("Included WeakAuras (" .. #chosen .. ")")
   end
   search:SetScript("OnTextChanged", function(self) query = self:GetText():lower(); draw() end)
-  search:SetFocus()
   button(f, "Toggle WeakAuras", 24, 552, 180, toggleOptions)
   button(f, "Done", 606, 552, 130, function() closeModal(); render() end)
   -- Closing the manager also closes WeakAuras' window if it was docked beside it.
