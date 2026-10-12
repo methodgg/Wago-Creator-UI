@@ -1,7 +1,7 @@
 -- Entry point: builds the workspace frames once and redraws the active view.
 local addon = select(2, ...)
-local DF = DetailsFramework
 local Packs = addon.Packs
+local Controls = addon.Controls
 local UI = addon.UI
 local ui = UI.view
 local button, dropdown, input, label, reset, scroll = UI.button, UI.dropdown, UI.input, UI.label, UI.reset, UI.scroll
@@ -22,11 +22,10 @@ local BANNER_HEIGHT = 52
 -- Pills like the Wago App's own tabs, the active mode in red.
 local function modeTab(text, x, active, onClick)
   local tab = button(ui.header, text, x, 0, 96, onClick, nil, 32, 15, "modeTab")
-  local frame = tab.widget or tab.button or tab
   if not tab.paintTab then
     tab.modeTab = true
     tab.paintTab = function()
-      local hovered = frame:IsMouseOver() and not addon.state.busy
+      local hovered = tab:IsMouseOver() and not addon.state.busy
       local red = addon.colorRGB
       if tab.active then
         tab:SetBackdropColor(red[1], red[2], red[3], .18)
@@ -36,11 +35,11 @@ local function modeTab(text, x, active, onClick)
         tab:SetBackdropBorderColor(0, 0, 0, 0)
       end
       local shade = (tab.active or hovered) and 1 or .65
-      tab.text_overlay:SetTextColor(shade, shade, shade, 1)
+      tab.Text:SetTextColor(shade, shade, shade, 1)
     end
-    -- Hooks run after the framework's own hover handlers, so the tab colors win.
-    frame:HookScript("OnEnter", tab.paintTab)
-    frame:HookScript("OnLeave", tab.paintTab)
+    -- Hooks run after the button's own hover handlers, so the tab colors win.
+    tab:HookScript("OnEnter", tab.paintTab)
+    tab:HookScript("OnLeave", tab.paintTab)
   end
   tab.active = active
   tab.paintTab()
@@ -117,12 +116,11 @@ local function render()
           segment.paintSegment = function()
             segment:SetBackdropColor(unpack(segment.active and { .24, .24, .24, 1 } or { .09, .09, .09, 1 }))
             segment:SetBackdropBorderColor(.23, .23, .23, 1)
-            segment.text_overlay:SetTextColor(unpack(segment.active and { 1, 1, 1, 1 } or { .65, .65, .65, 1 }))
+            segment.Text:SetTextColor(unpack(segment.active and { 1, 1, 1, 1 } or { .65, .65, .65, 1 }))
           end
-          -- Hooks run after the framework's own hover handlers, which would leave a black border.
-          local frame = segment.widget or segment.button or segment
-          frame:HookScript("OnEnter", segment.paintSegment)
-          frame:HookScript("OnLeave", segment.paintSegment)
+          -- Hooks run after the button's own hover handlers, which would leave a black border.
+          segment:HookScript("OnEnter", segment.paintSegment)
+          segment:HookScript("OnLeave", segment.paintSegment)
         end
         segment.active = active
         segment.paintSegment()
@@ -263,7 +261,7 @@ function addon:CreateWorkspace(frame)
   ui.captureProgress:SetPoint("BOTTOM", ui.capturePopup, "BOTTOM", 0, 6)
   ui.captureProgress:SetBackdrop({ bgFile = [[Interface\Buttons\WHITE8x8]] })
   ui.captureProgress:SetBackdropColor(.4, .4, .4, 1)
-  DF:CreateBorder(ui.captureProgress, 1, 0, 0)
+  Controls.Border(ui.captureProgress)
   ui.captureBar = CreateFrame("StatusBar", nil, ui.captureProgress)
   ui.captureBar:SetAllPoints(ui.captureProgress)
   ui.captureBar:SetStatusBarTexture([[Interface\Buttons\WHITE8x8]])
@@ -295,7 +293,7 @@ function addon:CreateWorkspace(frame)
   ui.modal:SetPoint("CENTER")
   ui.modal:SetFrameLevel(frame:GetFrameLevel() + 80)
   ui.modal:EnableMouse(true)
-  DF:ApplyStandardBackdrop(ui.modal)
+  Controls.Backdrop(ui.modal)
   ui.modal:SetBackdropColor(0.08, 0.08, 0.08, 1)
   ui.modal.scroll, ui.modal.content = scroll(ui.modal, 24, 78, 526, 350)
   ui.modal:Hide()

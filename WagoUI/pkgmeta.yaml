@@ -32,7 +32,6 @@ externals:
   WagoUI/libs/LibDeflate: https://github.com/SafeteeWoW/LibDeflate
   WagoUI/libs/LibDBIcon-1.0: https://repos.curseforge.com/wow/libdbicon-1-0/trunk/LibDBIcon-1.0
   WagoUI/libs/LibSharedMedia-3.0: https://repos.curseforge.com/wow/libsharedmedia-3-0/trunk/LibSharedMedia-3.0
-  WagoUI/libs/LibDFramework-1.0: https://github.com/Tercioo/Details-Framework
   WagoUI/libs/LibSerialize: https://github.com/rossnichols/LibSerialize
   WagoUI/libs/LibAsync: https://github.com/Nnoggie/LibAsync
 
@@ -41,4 +40,3 @@ move-folders:
   ../WagoUI_Libraries/AceSerializer-3.0Async: WagoUI/libs/AceSerializer-3.0Async
   ../WagoUI_Libraries/LibAddonProfiles: WagoUI/libs/LibAddonProfiles
   ../WagoUI_Libraries/LibDeflateAsync: WagoUI/libs/LibDeflateAsync
-  ../WagoUI_Libraries/LibWagoFramework: WagoUI/libs/LibWagoFramework

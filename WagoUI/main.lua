@@ -3,7 +3,6 @@ local addonName = ...
 ---@class WagoUI
 local addon = select(2, ...)
 _G[addonName] = addon
-local DF = _G["DetailsFramework"]
 local init
 
 addon.frames = {}
@@ -27,19 +26,8 @@ function addon:ResetFramePosition()
 end
 
 function addon.ShowAddonResetPrompt()
-  DF:ShowPromptPanel(
-    "Reset?",
-    function()
-      DetailsFrameworkPromptSimple:SetHeight(80)
-      addon.ResetOptions()
-    end,
-    function()
-      DetailsFrameworkPromptSimple:SetHeight(80)
-    end,
-    nil,
-    nil
-  )
-  DetailsFrameworkPromptSimple:SetHeight(100)
+  addon:ShowFrame()
+  addon:ShowPrompt("Reset?", addon.ResetOptions)
 end
 
 function addon:ToggleFrame()

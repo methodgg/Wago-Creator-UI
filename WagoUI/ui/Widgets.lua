@@ -1,6 +1,6 @@
 -- Pooled widgets shared by every workspace view.
 local addon = select(2, ...)
-local LWF = LibStub("LibWagoFramework")
+local Controls = addon.Controls
 local LAP = LibStub("LibAddonProfiles")
 
 -- Private namespace shared by the workspace files; ui/load.xml sets their load order.
@@ -47,15 +47,14 @@ local function label(parent, text, x, y, width, size, color)
 end
 
 local function button(parent, text, x, y, width, onClick, tooltip, height, fontSize, pool)
-  local f = widget(parent, pool or "button", function() return LWF:CreateButton(parent, 80, 30, "", 14) end)
+  local f = widget(parent, pool or "button", function() return Controls.Button(parent, 80, 30, "", 14) end)
   f:SetPoint("TOPLEFT", parent, "TOPLEFT", x, -y)
   f:SetSize(width, height or 30)
-  f.text_overlay:SetFont(addon.FONT, fontSize or 14, "")
+  f.Text:SetFont(addon.FONT, fontSize or 14, "")
   f:SetTextTruncated(text, width - 12)
   f:SetTooltip(tooltip)
-  addon:UseWidgetTooltip(f)
   f:SetEnabled(not addon.state.busy)
-  f:SetClickFunction(onClick)
+  f.onClick = onClick
   return f
 end
 
@@ -63,10 +62,9 @@ end
 local function ctaButton(parent, text, x, y, width, height, onClick, style, fontSize)
   local red = addon.colorRGB
   local f = button(parent, text, x, y, width, onClick, nil, height, fontSize or 18, "ctaButton")
-  local frame = f.widget or f.button or f
   if not f.paintCta then
     f.paintCta = function()
-      local hovered = frame:IsMouseOver() and not addon.state.busy
+      local hovered = f:IsMouseOver() and not addon.state.busy
       if f.ctaStyle == "neutral" then
         local shade = hovered and .2 or .13
         f:SetBackdropColor(shade, shade, shade, 1)
@@ -80,12 +78,12 @@ local function ctaButton(parent, text, x, y, width, height, onClick, style, font
         f:SetBackdropBorderColor(math.min(1, red[1] + .3), red[2] + .2, red[3] + .2, 1)
       end
     end
-    -- Hooks run after the framework's own hover handlers, so the CTA colors win.
-    frame:HookScript("OnEnter", f.paintCta)
-    frame:HookScript("OnLeave", f.paintCta)
+    -- Hooks run after the button's own hover handlers, so the CTA colors win.
+    f:HookScript("OnEnter", f.paintCta)
+    f:HookScript("OnLeave", f.paintCta)
   end
   f.ctaStyle = style or "primary"
-  f.text_overlay:SetTextColor(1, 1, 1, 1)
+  f.Text:SetTextColor(1, 1, 1, 1)
   f.paintCta()
   return f
 end
@@ -107,21 +105,20 @@ end
 local function addonRow(parent, moduleName, y, color, status, shade, compact)
   local lap = LAP:GetModule(moduleName)
   if not compact then rowBackground(parent, y, 52, shade or 0.14) end
-  local icon = widget(parent, "addonIcon", function() return LWF:CreateIconButton(parent, 36, 134400) end)
+  local icon = widget(parent, "addonIcon", function() return Controls.IconButton(parent, 36) end)
   icon:SetPoint("TOPLEFT", parent, "TOPLEFT", compact and 8 or 14, -(y + (compact and 4 or 8)))
   local texture = moduleName == "Additional Addons" and [[Interface\AddOns\WagoUI\media\wagoLogo512]] or lap and lap.icon
   if not texture or texture == "" then texture = 134400 end
-  icon:SetTexture(texture, true, true, true)
+  icon:SetIcon(texture)
   -- A 1.2x zoom keeps the central 1/1.2 of each texture, in every button state.
-  for _, region in ipairs({ icon:GetNormalTexture(), icon:GetPushedTexture(), icon:GetHighlightTexture(), icon:GetDisabledTexture() }) do
+  for _, region in ipairs({ icon:IconRegions() }) do
     region:SetTexCoord(1 / 12, 11 / 12, 1 / 12, 11 / 12)
   end
   local canOpen = lap and lap.openConfig and lap:isLoaded()
   icon:SetEnabled(not addon.state.busy and not not canOpen)
   icon:SetTooltip(canOpen and ("Open " .. moduleName .. " settings") or moduleName)
-  addon:UseWidgetTooltip(icon)
-  icon:SetClickFunction(function() if canOpen then lap:openConfig() end end)
-  icon:SetClickFunction(nil, nil, nil, "RightButton")
+  icon.onClick = function() if canOpen then lap:openConfig() end end
+  icon.onRightClick = nil
   label(parent, moduleName, compact and 56 or 62, y + (status and (compact and 7 or 8) or (compact and 13 or 17)),
     compact and PROFILE_X - 86 or 476, compact and 16 or 18, color)
   if status then
@@ -133,7 +130,7 @@ end
 
 local function input(parent, text, x, y, width, changed)
   local f = widget(parent, "input", function()
-    local box = LWF:CreateTextEntry(parent, width, 34, nil, 14).editbox
+    local box = CreateFrame("EditBox", nil, parent, "BackdropTemplate")
     addon:StyleEditBox(box)
     return box
   end)
@@ -153,167 +150,28 @@ local function input(parent, text, x, y, width, changed)
 end
 
 local function check(parent, text, value, x, y, callback)
-  local f = widget(parent, "check", function()
-    local box = LWF:CreateCheckbox(parent, 22, nil, false)
-    box.backdrop_enabledcolor = { 0.76, 0.15, 0.18, 1 }
-    box.backdrop_disabledcolor = { 0.09, 0.09, 0.09, 1 }
-    box:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
-    box.checked_texture:SetDesaturated(true)
-    return box
-  end)
+  local f = widget(parent, "check", function() return Controls.Checkbox(parent, 22) end)
   f:SetPoint("TOPLEFT", parent, "TOPLEFT", x, -(y + 3))
-  f:SetValue(not not value)
-  f:SetSwitchFunction(function(_, _, checked) callback(checked) end)
-  if addon.state.busy then f:Disable() else f:Enable() end
+  f:SetChecked(value)
+  f.onToggle = callback
+  f:SetEnabled(not addon.state.busy)
   label(parent, text, x + 32, y + 6, parent:GetWidth() - x - 40, 14)
   return f
-end
-
-local function skinScrollbar(bar, arrows)
-  local thumb = bar:GetThumbTexture()
-  for _, region in ipairs({ bar:GetRegions() }) do
-    if region ~= thumb then region:Hide() end
-  end
-  -- Keep native dragging, wheel scrolling and overflow detection; replace only the skin.
-  for _, arrow in ipairs(arrows) do
-    arrow:Hide()
-    arrow:HookScript("OnShow", function(self) self:Hide() end)
-  end
-  bar:SetWidth(12)
-  local track = bar:CreateTexture(nil, "BACKGROUND")
-  track:SetPoint("TOP", bar, "TOP", 0, 0)
-  track:SetPoint("BOTTOM", bar, "BOTTOM", 0, 0)
-  track:SetWidth(8)
-  track:SetColorTexture(.09, .09, .09, 1)
-  thumb:SetColorTexture(.76, .15, .18, 1)
-  thumb:SetTexCoord(0, 1, 0, 1)
-  thumb:SetSize(8, 40)
-  bar:HookScript("OnEnter", function() thumb:SetColorTexture(.95, .24, .28, 1) end)
-  bar:HookScript("OnLeave", function() thumb:SetColorTexture(.76, .15, .18, 1) end)
-end
-
--- The UI Pack selectors are flat like the header around them: no framework gradient, gold arrow or placeholder icon.
--- The arrow texture points up, so its coordinates flip it into a down chevron.
-local function flatten(box)
-  local field = box.dropdown
-  box:SetBackdrop({ bgFile = [[Interface\Buttons\WHITE8X8]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1 })
-  box:SetBackdropColor(.086, .086, .086, 1)
-  box:SetBackdropBorderColor(.23, .23, .23, 1)
-  field.statusbar:SetAlpha(0)
-  field.icon:SetAlpha(0)
-  field.arrowTexture2:SetAlpha(0)
-  field.arrowTexture:SetTexture([[Interface\AddOns\WagoUI\media\calloutArrow]])
-  field.arrowTexture:SetTexCoord(0, 1, 1, 0)
-  field.arrowTexture:SetVertexColor(.7, .7, .7, 1)
-  field.arrowTexture:SetSize(12, 6)
-  field.arrowTexture:ClearAllPoints()
-  field.arrowTexture:SetPoint("RIGHT", field, "RIGHT", -10, 0)
 end
 
 -- menuFontSize shrinks the option text for a narrow selector whose labels would otherwise be cut off.
 -- Flat selectors pool apart from the classic ones, so a reused frame never carries the other look.
 local function dropdown(parent, selected, entries, x, y, width, placeholder, menuFontSize, flat)
-  for _, entry in ipairs(entries) do entry.font = addon.FONT end
-  local f = widget(parent, flat and "flatDropdown" or "dropdown", function()
-    local box = LWF:CreateDropdown(parent, width, 32, 16, 1.5, function() return {} end)
-    addon:UseWidgetTooltip(box)
-    if flat then flatten(box) end
-    box:SetScript("OnEnter", function()
-      box:SetBackdropBorderColor(unpack(flat and { .45, .45, .45, 1 } or { 1, 1, 1, 1 }))
-      box:ShowTooltip()
-    end)
-    box:SetScript("OnLeave", function()
-      box:SetBackdropBorderColor(unpack(flat and { .23, .23, .23, 1 } or { 0, 0, 0, 1 }))
-      box:HideTooltip()
-    end)
-    local menu, border = box.dropdown.dropdownframe, box.dropdown.dropdownborder
-    skinScrollbar(menu.slider, { menu.cima, menu.baixo })
-    border:SetScale(1.5)
-    menu:HookScript("OnShow", function()
-      -- The creator tour steps aside while a menu is open.
-      UI.view.openMenu = menu
-      -- DF measures menu text independently; keep long names and scrolling within the selector.
-      local menuWidth = box:GetWidth() / 1.5
-      local child = menu:GetScrollChild()
-      menu:SetWidth(menuWidth)
-      border:SetWidth(menuWidth)
-      child:SetWidth(menuWidth)
-      child.selected:SetWidth(menuWidth - 24)
-      child.mouseover:SetWidth(menuWidth - 24)
-      for _, row in ipairs(box.menus) do
-        if row:IsShown() and row.packActionsEnabled and row.table.value == box:GetValue() then
-          -- The cog starts 35px from the row's right edge; leave a 4px gap.
-          child.selected:SetWidth(row:GetWidth() - 39)
-          break
-        end
-      end
-    end)
-    box.OnUpdateOptionFrame = function(_, row, entry)
-      reset(row)
-      row.packActionsEnabled = entry.rename ~= nil
-      if not row.updateActionHover then
-        row.updateActionHover = function()
-          local hovered = row:IsMouseOver()
-          local actions = row.pools and row.pools.packAction or {}
-          for _, action in ipairs(actions) do
-            hovered = hovered or (action:IsShown() and action:IsMouseOver())
-          end
-          for _, action in ipairs(actions) do
-            action:SetShown(row.packActionsEnabled and hovered)
-          end
-          if hovered then
-            menu:GetScrollChild().mouseover:SetWidth(row:GetWidth() - (row.packActionsEnabled and 39 or 0))
-          end
-        end
-        row:HookScript("OnEnter", row.updateActionHover)
-        row:HookScript("OnLeave", row.updateActionHover)
-      end
-      row.label:SetFont(addon.FONT, box.menuFontSize / 1.5, "")
-      row.label:SetWidth(box:GetWidth() / 1.5 - (entry.rename and 62 or 28))
-      row.label:SetWordWrap(false)
-      if entry.rename then
-        local function action(texture, tooltip, offset, callback, desaturate)
-          local icon = widget(row, "packAction", function()
-            local control = LWF:CreateIconButton(row, 15, texture)
-            addon:UseWidgetTooltip(control)
-            control:HookScript("OnEnter", row.updateActionHover)
-            control:HookScript("OnLeave", row.updateActionHover)
-            return control
-          end)
-          icon:SetPoint("RIGHT", row, "RIGHT", offset, 0)
-          icon:SetTexture(texture, true, true, true)
-          for _, region in ipairs({ icon:GetNormalTexture(), icon:GetPushedTexture(), icon:GetHighlightTexture(), icon:GetDisabledTexture() }) do
-            region:SetDesaturated(desaturate)
-          end
-          icon:SetTooltip(tooltip)
-          icon:SetEnabled(not addon.state.busy)
-          icon:SetClickFunction(function() icon:HideTooltip(); box:Close(); callback() end)
-        end
-        action([[Interface\Buttons\UI-OptionsButton]], "Rename UI pack", -20, entry.rename, true)
-        action([[Interface\Buttons\UI-GroupLoot-Pass-Up]], "Delete UI pack", -2, entry.delete, false)
-      end
-      row.updateActionHover()
-      if entry.action then
-        row:SetScript("OnMouseDown", function() box:Close(); entry.onclick() end)
-      else
-        row:SetScript("OnMouseDown", DetailsFrameworkDropDownOptionClick)
-      end
-    end
-    return box
-  end)
+  local f = widget(parent, flat and "flatDropdown" or "dropdown", function() return Controls.Dropdown(parent, width, 32, flat) end)
   f:SetPoint("TOPLEFT", parent, "TOPLEFT", x, -y)
   f:SetWidth(width)
-  f.OnMouseDownHook = nil
+  f.entriesOnOpen = nil
   f:SetTooltip(nil)
   f.moduleName, f.profileRow = nil, nil
   f.menuFontSize = menuFontSize or 16
-  f:SetMenuSize(width / 1.5, 240)
-  f:SetFunction(function() return entries end)
-  f:Refresh()
-  f:Select(selected)
-  if selected == nil then f:NoOptionSelected(); f.label:SetText(placeholder or "Choose…") end
-  f.label:SetFont(addon.FONT, 16, "")
-  if addon.state.busy then f:Disable() else f:Enable() end
+  f:SetEntries(entries)
+  f:SetValue(selected, placeholder or "Choose…")
+  f:SetEnabled(not addon.state.busy)
   return f
 end
 
@@ -322,13 +180,13 @@ end
 local function tourTarget(name, control, clipped)
   local targets = UI.view.tourTargets
   if targets[name] then return end
-  targets[name] = { control = control, region = control.widget or control.button or control, clipped = clipped }
+  targets[name] = { control = control, clipped = clipped }
 end
 
 local function scroll(parent, x, y, width, height)
   local f = CreateFrame("ScrollFrame", nil, parent, "UIPanelScrollFrameTemplate")
   local bar = f.ScrollBar
-  skinScrollbar(bar, { bar.ScrollUpButton, bar.ScrollDownButton })
+  Controls.SkinScrollbar(bar, { bar.ScrollUpButton, bar.ScrollDownButton })
   bar:ClearAllPoints()
   bar:SetPoint("TOPLEFT", f, "TOPRIGHT", 6, 0)
   bar:SetPoint("BOTTOMLEFT", f, "BOTTOMRIGHT", 6, 0)

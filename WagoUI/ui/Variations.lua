@@ -1,7 +1,7 @@
 -- Variation colors, chips, tabs and the variation editor.
 local addon = select(2, ...)
-local LWF = LibStub("LibWagoFramework")
 local Packs = addon.Packs
+local Controls = addon.Controls
 local UI = addon.UI
 local ui = UI.view
 local button, dropdown, input, label, widget = UI.button, UI.dropdown, UI.input, UI.label, UI.widget
@@ -44,22 +44,15 @@ local previewChip = { .12, .12, .12, 1 }
 local function variationToggle(parent, name, id, assigned, onClick, locked)
   local chip = button(parent, name, 0, 0, 132, onClick, nil, 26, 13, "variationChip")
   chip.variationID, chip.assigned = id, assigned
-  local frame = chip.widget or chip.button or chip
-  chip.text_overlay:SetText(name)
-  local width = math.min(132, math.max(56, chip.text_overlay:GetStringWidth() + 24))
+  chip.Text:SetText(name)
+  local width = math.min(132, math.max(56, chip.Text:GetStringWidth() + 24))
   chip:SetWidth(width)
   chip:SetTextTruncated(name, width - 16)
-  chip.text_overlay:SetWidth(width - 16)
-  if not chip.alignText then
-    -- Native hooks run after the framework's pressed/released text offsets.
-    chip.alignText = function()
-      chip.text_overlay:ClearAllPoints()
-      chip.text_overlay:SetPoint("CENTER", frame, "CENTER", 0, -2)
-    end
-    frame:HookScript("OnMouseDown", chip.alignText)
-    frame:HookScript("OnMouseUp", chip.alignText)
-  end
-  chip.alignText()
+  chip.Text:SetWidth(width - 16)
+  -- Chip text sits 2px low and stays put when pressed.
+  chip.Text:ClearAllPoints()
+  chip.Text:SetPoint("CENTER", chip, "CENTER", 0, -2)
+  chip:SetPushedTextOffset(0, 0)
   local style = variationStyle(id)
   chip:SetScript("OnEnter", nil)
   chip:SetScript("OnLeave", nil)
@@ -69,17 +62,17 @@ local function variationToggle(parent, name, id, assigned, onClick, locked)
     if assigned then
       chip:SetBackdropColor(unpack(style.background))
       chip:SetBackdropBorderColor(unpack(hovered and style.text or style.border))
-      chip.text_overlay:SetTextColor(unpack(style.text))
+      chip.Text:SetTextColor(unpack(style.text))
     else
       chip:SetBackdropColor(unpack(hovered and previewChip or unassignedChip.background))
       chip:SetBackdropBorderColor(unpack(hovered and style.border or unassignedChip.border))
-      chip.text_overlay:SetTextColor(unpack(hovered and style.text or unassignedChip.text))
+      chip.Text:SetTextColor(unpack(hovered and style.text or unassignedChip.text))
     end
     -- Unassigned toggles recede until hovered.
-    frame:SetAlpha((assigned or hovered) and 1 or .5)
+    chip:SetAlpha((assigned or hovered) and 1 or .5)
   end
   -- Locked chips only show membership; they ignore the mouse entirely.
-  frame:EnableMouse(not locked)
+  chip:EnableMouse(not locked)
   chip:SetScript("OnUpdate", paint)
   paint()
   return chip, width
@@ -173,13 +166,12 @@ local function variationEditor(pack, id)
         fields.sizes[index] = { width = newest, height = input(f, size.height, 324, y, 84) }
         if #state.sizes > 1 then
           local remove = widget(f, "resolutionRemove", function()
-            local icon = LWF:CreateIconButton(f, 20, [[Interface\Buttons\UI-GroupLoot-Pass-Up]])
-            addon:UseWidgetTooltip(icon)
+            local icon = Controls.IconButton(f, 20, [[Interface\Buttons\UI-GroupLoot-Pass-Up]])
             icon:SetTooltip("Remove resolution")
             return icon
           end)
           remove:SetPoint("TOPLEFT", f, "TOPLEFT", 416, -(y + 7))
-          remove:SetClickFunction(function() remove:HideTooltip(); collect(); table.remove(state.sizes, index); fields = nil; draw() end)
+          remove.onClick = function() remove:HideTooltip(); collect(); table.remove(state.sizes, index); fields = nil; draw() end
         end
       end
       if #state.sizes < Packs.MAX_RESOLUTIONS then
@@ -283,17 +275,15 @@ local function variationTab(parent, entry, active)
       f.delete:SetShown(hovered and f.onDelete ~= nil)
     end
     local function action(texture, tooltip, offset, desaturate, callback)
-      local icon = LWF:CreateIconButton(f, 16, texture)
-      addon:UseWidgetTooltip(icon)
+      local icon = Controls.IconButton(f, 16, texture)
       icon:SetTooltip(tooltip)
       icon:SetPoint("RIGHT", f, "RIGHT", offset, 0)
-      icon:SetTexture(texture, true, true, true)
-      for _, region in ipairs({ icon:GetNormalTexture(), icon:GetPushedTexture(), icon:GetHighlightTexture(), icon:GetDisabledTexture() }) do
+      for _, region in ipairs({ icon:IconRegions() }) do
         region:SetDesaturated(desaturate)
       end
       icon:HookScript("OnEnter", f.updateActions)
       icon:HookScript("OnLeave", f.updateActions)
-      icon:SetClickFunction(function() icon:HideTooltip(); callback() end)
+      icon.onClick = function() icon:HideTooltip(); callback() end
       return icon
     end
     f.edit = action([[Interface\Buttons\UI-OptionsButton]], "Edit variation", -26, true, function() f.onEdit() end)

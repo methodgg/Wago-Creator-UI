@@ -1,7 +1,6 @@
 -- WeakAuras: groups are picked in their own manager, then assigned to variations on their creator rows.
 local addon = select(2, ...)
 local LAP = LibStub("LibAddonProfiles")
-local LWF = LibStub("LibWagoFramework")
 local Packs = addon.Packs
 local UI = addon.UI
 local button, input, label, reset = UI.button, UI.input, UI.label, UI.reset
@@ -72,15 +71,33 @@ local function exportString(pack, id, back)
   end, "weakAuraExportString")
 end
 
+-- Places WeakAuras' open window beside WagoUI's, with WagoUI on the left when mineLeft is set.
+local function dockWeakAuras(mineLeft, gap)
+  if not WeakAurasOptions or not WeakAurasOptions:IsShown() then return end
+  local offset = (mineLeft and -1 or 1) * gap
+  local mainFrame = addon.frames.mainFrame
+  WeakAurasOptions:ClearAllPoints()
+  WeakAurasOptions:SetPoint(mineLeft and "LEFT" or "RIGHT", UIParent, "CENTER", -offset, 0)
+  mainFrame:ClearAllPoints()
+  mainFrame:SetPoint(mineLeft and "RIGHT" or "LEFT", UIParent, "CENTER", offset, 0)
+end
+
+-- Closes a docked WeakAuras window and puts WagoUI back where it was.
+local function undockWeakAuras()
+  if not WeakAurasOptions or not WeakAurasOptions:IsShown() then return end
+  WeakAurasOptions:Hide()
+  addon:ResetFramePosition()
+end
+
 local function toggleOptions()
   if WeakAurasOptions and WeakAurasOptions:IsShown() then
-    LWF:EndSplitView(WeakAurasOptions, addon.ResetFramePosition)
+    undockWeakAuras()
     return
   end
   if not WeakAurasOptions then LAP:GetModule(WA):openConfig() end
   if not WeakAurasOptions then return end
   WeakAurasOptions:Show()
-  LWF:StartSplitView(addon.frames.mainFrame, WeakAurasOptions, true, 20)
+  dockWeakAuras(true, 20)
 end
 
 -- Picks which WeakAuras the pack exports and which are never exported, not even inside an included group.
@@ -181,11 +198,10 @@ local function weakAurasManager(pack)
   button(f, "Toggle WeakAuras", 24, 552, 180, toggleOptions)
   button(f, "Done", 606, 552, 130, function() closeModal(); render() end)
   -- Closing the manager also closes WeakAuras' window if it was docked beside it.
-  f.onClose = function()
-    if WeakAurasOptions then LWF:EndSplitView(WeakAurasOptions, addon.ResetFramePosition) end
-  end
+  f.onClose = undockWeakAuras
   draw()
 end
 
+UI.dockWeakAuras = dockWeakAuras
 UI.includedAuras = includedAuras
 UI.weakAurasManager = weakAurasManager

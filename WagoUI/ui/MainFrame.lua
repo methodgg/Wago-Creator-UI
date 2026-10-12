@@ -2,9 +2,8 @@
 local addonName = ...
 ---@class WagoUI
 local addon = select(2, ...)
-local DF = _G["DetailsFramework"]
-local LWF = LibStub("LibWagoFramework")
 local L = addon.L
+local Controls = addon.Controls
 
 local TITLE = "|cFFC1272DWago|r UI Packs"
 
@@ -17,63 +16,74 @@ end
 function addon:CreateMainFrame()
   local metaVersion = C_AddOns.GetAddOnMetadata(addonName, "Version")
 
-  local panelOptions = {
-    DontRightClickClose = true,
-    NoTUISpecialFrame = false,
-    -- UseScaleBar = true, --disable for now might use it later on
-    NoCloseButton = false
-  }
-  local frame =
-      DF:CreateSimplePanel(
-        UIParent,
-        addon.ADDON_WIDTH,
-        addon.ADDON_HEIGHT,
-        TITLE,
-        addonName.."Frame",
-        panelOptions,
-        addon.db
-      )
+  local frame = CreateFrame("Frame", addonName .. "Frame", UIParent, "BackdropTemplate")
   frame:Hide()
-  DF:ApplyStandardBackdrop(frame)
-  DF:CreateBorder(frame, 1, 0, 0)
-  frame:ClearAllPoints()
+  frame:SetSize(addon.ADDON_WIDTH, addon.ADDON_HEIGHT)
   frame:SetFrameStrata("HIGH")
   frame:SetFrameLevel(100)
   frame:SetToplevel(true)
   frame:SetClampedToScreen(true)
-  LWF:ScaleFrameByUIParentScale(frame, 0.5333333333333)
+  frame:EnableMouse(true)
+  frame:SetMovable(true)
+  -- Escape closes the window.
+  table.insert(UISpecialFrames, frame:GetName())
+  Controls.Backdrop(frame)
+  frame.surface:SetAlpha(1)
+  Controls.Border(frame)
+  Controls.ScaleToScreen(frame)
   frame:SetPoint(addon.db.anchorTo, UIParent, addon.db.anchorFrom, addon.db.xoffset, addon.db.yoffset)
-  hooksecurefunc(
-    frame,
-    "StopMovingOrSizing",
-    function()
-      local from, _, to, x, y = frame:GetPoint(nil)
-      addon.db.anchorFrom, addon.db.anchorTo = from, to
-      addon.db.xoffset, addon.db.yoffset = x, y
-    end
-  )
-  frame.__background:SetAlpha(1)
+  -- Dragging anywhere on the window moves it, and it reopens where it was left.
+  frame:SetScript("OnMouseDown", function(self, mouseButton)
+    if mouseButton ~= "LeftButton" or self.isMoving then return end
+    self.isMoving = true
+    self:StartMoving()
+  end)
+  frame:SetScript("OnMouseUp", function(self)
+    if not self.isMoving then return end
+    self.isMoving = false
+    self:StopMovingOrSizing()
+    local from, _, to, x, y = self:GetPoint(1)
+    addon.db.anchorFrom, addon.db.anchorTo = from, to
+    addon.db.xoffset, addon.db.yoffset = x, y
+  end)
 
-  DF:SetFontSize(frame.Title, 20)
-  frame.TitleBar:SetHeight(30)
-  frame.Title:SetPoint("CENTER", frame.TitleBar, "CENTER", 0, 1)
+  local titleBar = CreateFrame("Frame", nil, frame, "BackdropTemplate")
+  titleBar:SetPoint("TOPLEFT", frame, "TOPLEFT", 2, -3)
+  titleBar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -2, -3)
+  titleBar:SetHeight(30)
+  titleBar:SetBackdrop({ bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = [[Interface\Buttons\WHITE8X8]],
+    edgeSize = 1, tileSize = 64, tile = true })
+  titleBar:SetBackdropColor(.2, .2, .2, 1)
+  titleBar:SetBackdropBorderColor(0, 0, 0, 1)
 
-  local versionString = frame.TitleBar:CreateFontString(addonName.."VersionString", "overlay", "GameFontNormalSmall")
+  frame.Title = titleBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+  frame.Title:SetFont(addon.FONT, 20, "")
+  frame.Title:SetTextColor(.8, .8, .8, 1)
+  frame.Title:SetPoint("CENTER", titleBar, "CENTER", 0, 1)
+  frame.Title:SetText(TITLE)
+
+  local close = CreateFrame("Button", nil, titleBar)
+  close:SetFrameLevel(750)
+  close:SetSize(16, 16)
+  for _, state in ipairs({ "Normal", "Highlight", "Pushed" }) do
+    close["Set" .. state .. "Texture"](close, [[Interface\GLUES\LOGIN\Glues-CheckBox-Check]])
+    close["Get" .. state .. "Texture"](close):SetDesaturated(true)
+  end
+  close:SetAlpha(.7)
+  close:SetPoint("RIGHT", titleBar, "RIGHT", -2, 0)
+  close:SetScript("OnClick", function() frame:Hide() end)
+
+  local versionString = titleBar:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
   versionString:SetTextColor(.8, .8, .8, 1)
-  versionString:SetText("v"..metaVersion)
-  versionString:SetPoint("LEFT", frame.TitleBar, "LEFT", 2, 0)
+  versionString:SetText("v" .. metaVersion)
+  versionString:SetPoint("LEFT", titleBar, "LEFT", 2, 0)
 
-  local reloadIndicator = DF:CreateButton(frame, nil, 40, 40, "", nil, nil, "UI-RefreshButton", nil, nil, nil, nil)
+  local reloadIndicator = Controls.IconButton(frame, 40, "UI-RefreshButton")
   reloadIndicator:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -12, -38)
   reloadIndicator:SetTooltip(L["IMPORT_RELOAD_WARNING1"])
-  addon:UseWidgetTooltip(reloadIndicator)
   reloadIndicator:SetFrameStrata("DIALOG")
   reloadIndicator:Hide()
-  reloadIndicator:SetClickFunction(
-    function()
-      ReloadUI()
-    end
-  )
+  reloadIndicator.onClick = function() ReloadUI() end
 
   function addon:ToggleReloadIndicator(show, text)
     if show then
@@ -84,26 +94,20 @@ function addon:CreateMainFrame()
     reloadIndicator:SetTooltip(text or L["IMPORT_RELOAD_WARNING1"])
   end
 
-  local autoStartCheckbox =
-      LWF:CreateCheckbox(
-        frame,
-        25,
-        function(_, _, value)
-          addon.db.autoStart = value
-        end,
-        addon.db.autoStart
-      )
+  local autoStartCheckbox = Controls.Checkbox(frame, 25)
+  autoStartCheckbox:SetChecked(addon.db.autoStart)
+  autoStartCheckbox.onToggle = function(checked) addon.db.autoStart = checked end
   autoStartCheckbox:SetPoint("TOPLEFT", frame, "TOPRIGHT", 10, 0)
   autoStartCheckbox:Hide()
 
-  local resetButton = LWF:CreateButton(frame, 60, 40, "RESET", 16)
+  local resetButton = Controls.Button(frame, 60, 40, "RESET", 16)
   resetButton:SetPoint("TOPLEFT", frame, "TOPRIGHT", 0, -30)
-  resetButton:SetClickFunction(addon.ShowAddonResetPrompt)
+  resetButton.onClick = addon.ShowAddonResetPrompt
   resetButton:Hide()
 
-  local forceErrorButton = LWF:CreateButton(frame, 120, 40, "Force Error", 16)
+  local forceErrorButton = Controls.Button(frame, 120, 40, "Force Error", 16)
   forceErrorButton:SetPoint("TOPLEFT", frame, "TOPRIGHT", 0, -80)
-  forceErrorButton:SetClickFunction(addon.TestErrorHandling)
+  forceErrorButton.onClick = addon.TestErrorHandling
   forceErrorButton:Hide()
 
   if addon.db.debug then

@@ -2,7 +2,6 @@
     "runtime.version": "Lua 5.1",
     "workspace.ignoreDir": [".github", ".vscode", "**/libs"],
     "diagnostics.globals": [
-        "DetailsFrameworkPromptSimple",
         "ReloadUI",
         "SplashFrame",
         "UISpecialFrames",
@@ -91,7 +90,6 @@
         "WeakAurasSaved",
         "WeakAuras",
         "vdt",
-        "DetailsFramework",
         "Grid2Options",
         "Grid2Layout",
         "OmniCCDB",

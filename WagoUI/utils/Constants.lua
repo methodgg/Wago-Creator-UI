@@ -5,11 +5,12 @@ local L = addon.L
 addon.color = "FFC1272D"
 addon.FONT = [[Interface\AddOns\WagoUI\media\fonts\ArchivoNarrow-Bold.ttf]]
 
--- One field treatment for WagoUI's native, framework and scrollable editors.
+-- One field treatment for WagoUI's own, AceGUI and scrollable editors.
 function addon:StyleEditBox(box, surface)
   surface = surface or box
-  DetailsFramework:ApplyStandardBackdrop(surface, true)
-  if surface.__background then surface.__background:Hide() end
+  if not surface.SetBackdrop then Mixin(surface, BackdropTemplateMixin) end
+  surface:SetBackdrop({ bgFile = [[Interface\Buttons\WHITE8X8]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1,
+    tileSize = 32, tile = true })
   for _, suffix in ipairs({ "Left", "Middle", "Mid", "Right" }) do
     local texture = box[suffix] or (box.GetName and box:GetName() and _G[box:GetName() .. suffix])
     if texture then texture:Hide() end
@@ -46,7 +47,7 @@ end
 
 local tooltip
 function addon.HideWidgetTooltip(widget)
-  if tooltip and tooltip.owner == (widget.widget or widget.button or widget) then
+  if tooltip and tooltip.owner == widget then
     tooltip.owner = nil
     tooltip:Hide()
   end
@@ -84,15 +85,10 @@ function addon.ShowWidgetTooltip(widget, text)
   local width = math.min(320, math.max(40, tooltip.text:GetStringWidth()))
   tooltip.text:SetWidth(width)
   tooltip:SetSize(width + 20, tooltip.text:GetStringHeight() + 16)
-  tooltip.owner = widget.widget or widget.button or widget
+  tooltip.owner = widget
   tooltip:ClearAllPoints()
   tooltip:SetPoint("TOPLEFT", tooltip.owner, "BOTTOMLEFT", 0, -4)
   tooltip:Show()
-end
-
-function addon:UseWidgetTooltip(widget)
-  widget.ShowTooltip = self.ShowWidgetTooltip
-  widget.HideTooltip = self.HideWidgetTooltip
 end
 
 -- Only visit WagoUI-owned frames; never change shared/global font objects.

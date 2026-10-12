@@ -174,7 +174,7 @@ end
 
 -- Scrolled out of view, filtered away or hidden on hover: the callout waits instead of pointing at nothing.
 local function onScreen(target)
-  local region = target.region
+  local region = target.control
   if not region:IsVisible() then return false end
   if not target.clipped then return true end
   local top, bottom = region:GetTop(), region:GetBottom()
@@ -183,8 +183,8 @@ end
 
 -- An open dropdown menu is the creator acting on a step; the callout would cover it.
 local function showable(target)
-  local menuOpen = ui.openMenu and ui.openMenu:IsVisible()
-  return target ~= nil and not addon.state.busy and not ui.modal:IsShown() and not menuOpen and onScreen(target)
+  return target ~= nil and not addon.state.busy and not ui.modal:IsShown() and not addon.Controls.MenuShown()
+    and onScreen(target)
 end
 
 local callout, follow
@@ -245,7 +245,7 @@ local function placeRow(region)
 end
 
 local function place(target, view)
-  local region = target.region
+  local region = target.control
   if view.row then placeRow(region); return end
   local above = view.above
   -- A target near the bottom of the window gets its callout above it rather than running off the edge.

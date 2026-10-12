@@ -1,8 +1,8 @@
 -- The creator view: one row group per addon with profile selectors and variation chips.
 local addon = select(2, ...)
-local LWF = LibStub("LibWagoFramework")
 local LAP = LibStub("LibAddonProfiles")
 local Packs = addon.Packs
+local Controls = addon.Controls
 local UI = addon.UI
 local ui = UI.view
 local PROFILE_WIDTH, PROFILE_X, VARIATIONS_RIGHT = UI.PROFILE_WIDTH, UI.PROFILE_X, UI.VARIATIONS_RIGHT
@@ -52,21 +52,17 @@ end
 
 -- An icon from a texture path, or from an atlas; without either it is the native add icon.
 local function rowAction(parent, texture, x, y, tooltip, callback, atlas)
-  local icon = widget(parent, "rowAction", function() return LWF:CreateIconButton(parent, 28, "") end)
+  local icon = widget(parent, "rowAction", function()
+    local control = Controls.IconButton(parent, 28)
+    control.disabledOverlay:SetTexture(nil)
+    return control
+  end)
   icon:SetPoint("TOPLEFT", parent, "TOPLEFT", x, -(y + 8))
-  icon:SetBackdrop(nil)
-  icon.disabled_overlay:SetTexture(nil)
-  icon:SetTexture(texture or "", true, true, true)
-  if not texture then
-    for _, region in ipairs({ icon:GetNormalTexture(), icon:GetPushedTexture(), icon:GetHighlightTexture(), icon:GetDisabledTexture() }) do
-      region:SetAtlas(atlas or "communities-icon-addgroupplus")
-    end
-  end
+  icon:SetIcon(texture or atlas or "communities-icon-addgroupplus")
   icon:GetDisabledTexture():SetDesaturated(true)
   icon:SetTooltip(tooltip)
-  addon:UseWidgetTooltip(icon)
   icon:SetEnabled(not addon.state.busy)
-  icon:SetClickFunction(callback)
+  icon.onClick = callback
   icon.pinned = nil
   return icon
 end
@@ -148,9 +144,8 @@ local function blockSave(saveAll, reason)
     f:SetScript("OnLeave", function(self) addon.HideWidgetTooltip(self) end)
     return f
   end)
-  local saveFrame = saveAll.widget or saveAll.button or saveAll
-  blocker:SetAllPoints(saveFrame)
-  blocker:SetFrameLevel(saveFrame:GetFrameLevel() + 5)
+  blocker:SetAllPoints(saveAll)
+  blocker:SetFrameLevel(saveAll:GetFrameLevel() + 5)
   blocker.tooltip = reason
   blocker:SetShown(reason ~= nil)
 end
@@ -203,7 +198,7 @@ local function creator(pack)
     local icon = addonRow(body, "Additional Addons", y, { .95, .95, .95 }, nil, nil, true)
     icon:SetEnabled(not addon.state.busy)
     icon:SetTooltip("Choose additional addons to include")
-    icon:SetClickFunction(function() additionalAddons(pack) end)
+    icon.onClick = function() additionalAddons(pack) end
     button(body, #extras > 0 and ("Manage (" .. #extras .. ")") or "Manage", PROFILE_X, y + 6, PROFILE_WIDTH,
       function() additionalAddons(pack) end, "Choose additional addons to include", 32)
     y = y + 44
@@ -361,7 +356,7 @@ local function creator(pack)
           local current = ready and lap.getCurrentProfileKey and lap:getCurrentProfileKey()
           local entries = {}
           if p then entries[1] = { value = p.id, label = current == p.sourceKey and ("|cff009ECC" .. p.name .. "|r (active)") or p.name } end
-          -- DF needs an initial option to open; enumerate profiles only when opened.
+          -- Until opened, the selector knows only the chosen profile; opening lists every one.
           entries[#entries + 1] = { value = "none", label = "Not selected", onclick = clear }
           local indent = position == 1 and 0 or 16
           local selector = dropdown(body, p and p.id or "none", entries, PROFILE_X + indent, y + 6, PROFILE_WIDTH - indent)
@@ -374,14 +369,11 @@ local function creator(pack)
           -- A flagged row explains itself on its selector too, the control it is usually fixed with.
           if warning then selectorTooltip = selectorTooltip and (warning .. "\n\n" .. selectorTooltip) or warning end
           selector:SetTooltip(selectorTooltip)
-          addon:UseWidgetTooltip(selector)
-          selector.OnMouseDownHook = function(_, _, options)
-            for i = #options, 1, -1 do options[i] = nil end
-            options[1] = { value = "none", label = "Not selected", font = addon.FONT, onclick = clear }
-            local sources = addon:ProfileSources(moduleName)
-            for sourceIndex, source in ipairs(sources) do
+          selector.entriesOnOpen = function()
+            local options = { { value = "none", label = "Not selected", onclick = clear } }
+            for sourceIndex, source in ipairs(addon:ProfileSources(moduleName)) do
               options[#options + 1] = { value = sourceIndex, label = source.active and ("|cff009ECC" .. source.key .. "|r (active)") or source.label,
-                font = addon.FONT, onclick = function()
+                onclick = function()
                 safely(function()
                   if row.profileID then Packs.SetSource(pack, row.profileID, source)
                   else
@@ -395,6 +387,7 @@ local function creator(pack)
                 render()
               end }
             end
+            return options
           end
           if locked or not ready or addon.state.busy then selector:Disable() end
           if ready and not locked then
@@ -467,7 +460,7 @@ local function creator(pack)
         local icon = body.pools.addonIcon[body.used.addonIcon]
         icon:SetTooltip("Left-click: addon settings\nRight-click: export options")
         icon:SetEnabled(ready and not addon.state.busy)
-        icon:SetClickFunction(function() exportOptions(pack, moduleName) end, nil, nil, "RightButton")
+        icon.onRightClick = function() exportOptions(pack, moduleName) end
       end
     end
   end

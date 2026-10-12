@@ -7,7 +7,7 @@ local methods = {}
 local function new(kind, parent)
   local f = setmetatable({ kind = kind, parent = parent, visible = true, width = 1000, height = 700, scripts = {} }, { __index = methods })
   table.insert(frames, f)
-  -- The main window is a DF panel with a title in its title bar.
+  -- The main window has a title in its title bar.
   if kind == "root" then f.Title = new("font", f) end
   return f
 end
@@ -17,6 +17,7 @@ for _, method in ipairs({
   "SetAllPoints", "EnableMouse", "SetBackdrop", "SetBackdropColor",
   "SetTextInsets", "SetHighlightColor",
   "SetJustifyV", "SetStatusBarTexture", "SetStatusBarColor", "SetMinMaxValues", "SetValue",
+  "SetFontObject", "RegisterForClicks", "UpdateScrollChildRect", "SetBlendMode", "SetParent", "SetMovable", "SetToplevel",
 }) do methods[method] = function() end end
 -- The client rejects a missing size, as with an undefined constant; so does the harness.
 local function size(value, name)
@@ -39,7 +40,14 @@ function methods:SetClampedToScreen(value) self.clamped = value end
 function methods:SetTexCoord(...) self.texCoords = { ... } end
 function methods:SetDesaturated(value) self.desaturated = value end
 function methods:SetVertexColor(...) self.vertexColor = { ... } end
-function methods:SetText(value) self.text = value end
+-- A button shows its text in its font string, as in the client.
+function methods:SetText(value)
+  self.text = value
+  if self.fontString then self.fontString.text = value end
+end
+function methods:SetFontString(fontString) self.fontString = fontString end
+function methods:SetPushedTextOffset(x, y) self.pushedTextOffset = { x, y } end
+function methods:GetEffectiveScale() return 1 end
 function methods:GetText() return self.text end
 function methods:SetScript(event, callback) self.scripts[event] = callback end
 function methods:HookScript(event, callback)
@@ -57,9 +65,17 @@ function methods:GetLeft() return 0 end
 function methods:GetRight() return self.kind == "root" and 1000 or 100 end
 function methods:IsMouseOver() return self.mouseOver or false end
 function methods:SetShown(value) if value then self:Show() else self:Hide() end end
-function methods:SetEnabled(value) self.enabled = value end
-function methods:Enable() self.enabled = true end
-function methods:Disable() self.enabled = false end
+-- Changing state runs OnEnable or OnDisable, as in the client.
+function methods:SetEnabled(value)
+  value = not not value
+  local changed = (self.enabled ~= false) ~= value
+  self.enabled = value
+  local script = changed and self.scripts[value and "OnEnable" or "OnDisable"]
+  if script then script(self) end
+end
+function methods:Enable() self:SetEnabled(true) end
+function methods:Disable() self:SetEnabled(false) end
+function methods:IsEnabled() return self.enabled ~= false end
 function methods:SetChecked(value) self.checked = value end
 function methods:GetChecked() return self.checked end
 function methods:SetFrameLevel(value) self.level = value end
@@ -73,7 +89,7 @@ function methods:SetTexture(value) self.texture = value end
 function methods:SetAlpha(value) self.alpha = value end
 function methods:SetValue(value) self.value = value end
 function methods:SetStatusBarColor(...) self.barColor = { ... } end
-for _, state in ipairs({ "Normal", "Highlight", "Pushed" }) do
+for _, state in ipairs({ "Normal", "Highlight", "Pushed", "Disabled" }) do
   methods["Set" .. state .. "Texture"] = function(self, value)
     self[state] = self[state] or new("buttonTexture", self)
     self[state]:SetTexture(value)
@@ -83,7 +99,6 @@ end
 function methods:SetAtlas(value) self.atlas = value end
 function methods:SetTooltip(value) self.tooltip = value end
 function methods:GetTooltip() return self.tooltip end
-function methods:HideTooltip() end
 function methods:SetBackdropBorderColor(...) self.borderColor = { ... } end
 function methods:SetTextColor(...) self.textColor = { ... } end
 function methods:SetBackdropColor(...) self.backgroundColor = { ... } end
@@ -115,83 +130,27 @@ function CreateFrame(kind, _, parent, template)
   end
   return f
 end
-local LWF = {}
-function LWF:CreateTextEntry(parent) return { editbox = new("EditBox", parent) } end
-function LWF:CreateButton(parent)
-  local f = new("button", parent)
-  f.text_overlay = new("font", f)
-  -- Match the framework's native press/release offsets, before native hooks.
-  f:SetScript("OnMouseDown", function() f.text_overlay:SetPoint("CENTER", f, "CENTER", 1, -1) end)
-  f:SetScript("OnMouseUp", function() f.text_overlay:SetPoint("CENTER", f, "CENTER", 0, 0) end)
-  function f:SetTextTruncated(value) self.text = value; self.text_overlay:SetText(value) end
-  function f:SetClickFunction(callback, _, _, clickType)
-    if clickType == "RightButton" then self.rightClick = callback else self.click = callback end
-  end
-  return f
-end
-function LWF:CreateIconButton(parent, size)
-  local f = self:CreateButton(parent)
-  f.disabled_overlay = new("disabledOverlay", f)
-  f.disabled_overlay:SetTexture([[Interface\Tooltips\UI-Tooltip-Background]])
-  f.kind = size == 36 and "addonIcon" or "iconAction"
-  f:SetSize(size, size)
-  for _, state in ipairs({ "Normal", "Pushed", "Highlight", "Disabled" }) do
-    local texture = new("iconTexture", f)
-    f["Get" .. state .. "Texture"] = function() return texture end
-  end
-  return f
-end
-function LWF:CreateCheckbox(parent, size)
-  local f = new("checkbox", parent)
-  f:SetSize(size, size)
-  f.checked_texture = new("checkTexture", f)
-  function f:SetValue(value, runCallback)
-    self.checked = value
-    if runCallback == "RUN_CALLBACK" then self.callback(self, nil, value) end
-  end
-  function f:SetSwitchFunction(callback) self.callback = callback end
-  return f
-end
-function LWF:CreateDropdown(parent)
-  local f = new("dropdown", parent)
-  f.menus = {}
-  function f:GetValue() return self.value end
-  f.label = new("font", f)
-  f.dropdown = { dropdownframe = new("menu", f), dropdownborder = new("border", f), statusbar = new("texture", f),
-    icon = new("texture", f), arrowTexture = new("texture", f), arrowTexture2 = new("texture", f) }
-  local menu = f.dropdown.dropdownframe
-  menu.slider = new("menuSlider", menu)
-  menu.slider.ThumbTexture = new("scrollThumb", menu.slider)
-  menu.cima, menu.baixo = new("scrollArrow", menu), new("scrollArrow", menu)
-  menu.child = new("menuContent", menu)
-  menu.child.selected, menu.child.mouseover = new("highlight", menu.child), new("highlight", menu.child)
-  menu:Hide(); f.dropdown.dropdownborder:Hide()
-  function f:SetMenuSize(width, height) self.menuWidth, self.menuHeight = width, height end
-  function f:Close() menu:Hide(); self.dropdown.dropdownborder:Hide() end
-  function f:SetFunction(callback) self.options = callback end
-  function f:Refresh() assert(type(self.options()) == "table") end
-  function f:Select(value) self.value = value end
-  function f:NoOptionSelected() self.value = nil end
-  return f
-end
-local oldLibStub = LibStub
-function LibStub(name) return name == "LibWagoFramework" and LWF or oldLibStub(name) end
-DetailsFramework = { ApplyStandardBackdrop = function() end, CreateBorder = function(_, parent) parent.blackBorder = true end }
+-- The client's pixel snapping and atlas lookup; only these atlases exist.
+PixelUtil = { SetPoint = function(region, ...) region:SetPoint(...) end }
+local atlases = { ["communities-icon-addgroupplus"] = true, ["UI-RefreshButton"] = true }
+C_Texture = { GetAtlasInfo = function(name) return atlases[name] end }
 SmoothStatusBarMixin = {
   SetMinMaxSmoothedValue = function(self, low, high) self.minimum, self.maximum = low, high end,
   SetSmoothedValue = function(self, value) self.value, self.smoothed = value, true end,
 }
-function Mixin(target, mixin) for key, value in pairs(mixin) do target[key] = value end end
--- Stock field chrome and framework overlays must not cover the shared fill.
+function Mixin(target, ...)
+  for _, mixin in ipairs({ ... }) do for key, value in pairs(mixin) do target[key] = value end end
+  return target
+end
+-- Stock field chrome must not cover the shared fill.
 local stockParent = new("Frame")
 stockParent:Hide()
 local stockField = new("EditBox", stockParent)
 stockField:Hide()
 stockField.Left, stockField.Middle, stockField.Right = new("texture", stockField), new("texture", stockField), new("texture", stockField)
-stockField.__background = new("texture", stockField)
 addon:StyleEditBox(stockField)
-assert(not stockField.Left.visible and not stockField.Middle.visible and not stockField.Right.visible
-  and not stockField.__background.visible, "Stock field textures obscure the shared edit-box style")
+assert(not stockField.Left.visible and not stockField.Middle.visible and not stockField.Right.visible,
+  "Stock field textures obscure the shared edit-box style")
 assert(stockField.textInsets[1] == 10 and stockField.backgroundColor[1] == .055)
 function GetPhysicalScreenSize() return 1920, 1080 end
 local reloads = 0
@@ -259,29 +218,53 @@ local function tourCallout()
 end
 local function packSelector()
   for _, selector in ipairs(visible("dropdown")) do
-    for _, entry in ipairs(selector.options()) do
+    for _, entry in ipairs(selector.entries) do
       if entry.action then return selector end
     end
   end
   error("Missing creator pack selector")
 end
+-- Opens a selector's list and returns its rows, top first.
+local function openMenu(selector)
+  selector.scripts.OnMouseDown(selector, "LeftButton")
+  local rows = {}
+  for _, f in ipairs(visible("Button")) do if f.entry then table.insert(rows, f) end end
+  table.sort(rows, function(a, b) return a.point[5] > b.point[5] end)
+  return rows
+end
+local function iconOf(control) return control:GetNormalTexture().texture end
 local function newPack()
-  local selector = packSelector()
-  for _, entry in ipairs(selector.options()) do
-    if entry.action then
-      assert(entry.label == "+ Add UI Pack")
-      local row = new("option", selector.dropdown.dropdownframe)
-      row.label = new("font", row)
-      selector.OnUpdateOptionFrame(selector, row, entry)
-      row.scripts.OnMouseDown()
+  for _, row in ipairs(openMenu(packSelector())) do
+    if row.entry.action then
+      assert(row.entry.label == "+ Add UI Pack")
+      row.scripts.OnMouseDown(row)
       return
     end
   end
+  error("Missing + Add UI Pack")
 end
 -- Load the workspace files in ui/load.xml order, as the client does.
 local function loadWorkspace()
   local xml = assert(io.open("WagoUI/ui/load.xml")):read("*a")
   for file in xml:gmatch('<Script file="([^"]+)"') do assert(loadfile("WagoUI/ui/" .. file))("WagoUI", addon) end
+  -- Name each control the way the checks look it up; click() presses it through its OnClick script.
+  local Controls = addon.Controls
+  local function tag(name, kindOf)
+    local make = Controls[name]
+    Controls[name] = function(parent, size, ...)
+      local f = make(parent, size, ...)
+      f.kind = kindOf(size)
+      if f.kind ~= "dropdown" then
+        f.click = function() f.scripts.OnClick(f, "LeftButton") end
+        f.rightClick = function() f.scripts.OnClick(f, "RightButton") end
+      end
+      return f
+    end
+  end
+  tag("Button", function() return "button" end)
+  tag("Checkbox", function() return "checkbox" end)
+  tag("Dropdown", function() return "dropdown" end)
+  tag("IconButton", function(size) return size == 36 and "addonIcon" or "iconAction" end)
 end
 local openedSettings = 0
 modules.Test.icon = 123456
@@ -352,7 +335,7 @@ assert(packDropdown and packDropdown.point[5] == -43 and searchBox.point[4] == 2
 assert(addon.frames.mainFrame.Title.text == "Create |cFFC1272DWago|r UI Packs - slash command: /wagoc",
   "The creator title does not name its view and /wagoc")
 assert(addon.db.introEnabled == false, "Opening the creator leaves WagoUI reopening on every load")
-for _, f in ipairs(visible("dropdown")) do assert(not f.enabled, "Empty creator leaves the pack selector unlocked") end
+for _, f in ipairs(visible("dropdown")) do assert(not f:IsEnabled(), "Empty creator leaves the pack selector unlocked") end
 for _, f in ipairs(visible("EditBox")) do assert(not f.enabled, "Empty creator leaves search unlocked") end
 local createCount = 0
 for _, f in ipairs(visible("button")) do if f.text == "Create your UI Pack" then createCount = createCount + 1 end end
@@ -383,11 +366,10 @@ local function besideRow(callout)
   return callout.point[1] == "TOPLEFT" and callout.point[4] == 100 + 12 and not callout.ring
 end
 assert(besideRow(profileCallout), "The profile step's callout covers the rows below it")
-local profileMenu = pointedAt.dropdown.dropdownframe
-profileMenu:Show()
+openMenu(pointedAt)
 profileCallout.watcher.scripts.OnUpdate()
 assert(not profileCallout:IsShown(), "The tour covers the profile menu it asks the creator to open")
-profileMenu:Hide()
+pointedAt:Close()
 profileCallout.watcher.scripts.OnUpdate()
 assert(profileCallout:IsShown(), "The tour does not come back after the menu closes")
 newPack()
@@ -398,29 +380,21 @@ for _, f in ipairs(visible("button")) do
   assert(f.text ~= "+ UI pack" and f.tooltip ~= "Pack actions", "Separate pack management buttons remain")
 end
 local selector = packSelector()
-assert(selector.label.fontSize == 16 and selector.menuWidth == selector:GetWidth() / 1.5)
-selector.dropdown.dropdownframe:Show()
-assert(selector.dropdown.dropdownframe:GetWidth() * 1.5 == selector:GetWidth(), "Menu does not match selector width")
-local option = selector.options()[1]
-local row = new("option", selector.dropdown.dropdownframe)
-row.label = new("font", row)
-row.table = option
-row:SetWidth(200)
-selector.menus = { row }
-selector.OnUpdateOptionFrame(selector, row, option)
-selector.dropdown.dropdownframe:Show()
-assert(selector.dropdown.dropdownframe.child.selected:GetWidth() == 161,
+assert(selector.label.fontSize == 16)
+local row = openMenu(selector)[1]
+local menu = row.parent.parent.parent
+assert(menu:IsShown() and menu:GetWidth() == selector:GetWidth(), "Menu does not match selector width")
+assert(row.entry.rename and row.selected:IsShown() and row.selected:GetWidth() == row:GetWidth() - 58,
   "Selection highlight overlaps the cogwheel")
-assert(row.label.fontFace == addon.FONT and row.label.fontSize * 1.5 == 16)
-local rename, delete = unpack(row.pools.packAction)
+assert(row.label.fontFace == addon.FONT and row.label.fontSize == 16)
+local rename, delete = unpack(row.actions)
 assert(not rename:IsShown() and not delete:IsShown(), "Pack icons appear without hovering")
 row.mouseOver = true
 row.scripts.OnEnter(row)
-assert(selector.dropdown.dropdownframe.child.mouseover:GetWidth() == 161,
-  "Hover highlight overlaps the cogwheel")
+assert(row.highlight:IsShown() and row.highlight:GetWidth() == row:GetWidth() - 58, "Hover highlight overlaps the cogwheel")
 assert(rename:IsShown() and delete:IsShown(), "Hover did not reveal pack icons")
-assert(rename.texture == [[Interface\Buttons\UI-OptionsButton]] and rename.tooltip == "Rename UI pack")
-assert(delete.texture == [[Interface\Buttons\UI-GroupLoot-Pass-Up]] and delete.tooltip == "Delete UI pack")
+assert(iconOf(rename) == [[Interface\Buttons\UI-OptionsButton]] and rename.tooltip == "Rename UI pack")
+assert(iconOf(delete) == [[Interface\Buttons\UI-GroupLoot-Pass-Up]] and delete.tooltip == "Delete UI pack")
 assert(rename:GetNormalTexture().desaturated and not delete:GetNormalTexture().desaturated)
 row.mouseOver, rename.mouseOver = false, true
 row.scripts.OnLeave(row)
@@ -431,13 +405,17 @@ assert(not rename:IsShown() and not delete:IsShown(), "Leaving the entry did not
 row.mouseOver = true
 row.scripts.OnEnter(row)
 rename.click()
-assert(not selector.dropdown.dropdownframe:IsShown(), "Rename left the dropdown open")
+assert(not menu:IsShown(), "Rename left the dropdown open")
 fields = visible("EditBox")
 fields[#fields]:SetText("Renamed UI")
 fields[#fields].scripts.OnEnterPressed(fields[#fields])
 assert(pack.name == "Renamed UI", "Dropdown rename failed")
-selector.OnUpdateOptionFrame(selector, row, selector.options()[2])
-for _, action in ipairs(row.pools.packAction) do assert(not action.visible, "Pack actions leaked onto the new-pack row") end
+local addRow = openMenu(packSelector())[2]
+assert(addRow.entry.action and not addRow.selected:IsShown(), "The new-pack row is marked as the selection")
+addRow.mouseOver = true
+addRow.scripts.OnEnter(addRow)
+for _, action in ipairs(addRow.actions) do assert(not action.visible, "Pack actions leaked onto the new-pack row") end
+packSelector():Close()
 local searchHint
 for _, f in ipairs(visible("font")) do if f.text == "Search AddOns, profiles or variations…" then searchHint = f end end
 assert(searchHint and searchHint.parent.kind == "EditBox" and searchHint.textColor[1] >= 0.65,
@@ -447,13 +425,15 @@ C_AddOns.GetAddOnMetadata = function() return "extra-id" end
 C_AddOns.GetAddOnInfo = function() return "Extra Addon" end
 click("Manage")
 local extraCheck = visible("checkbox")[1]
-assert(extraCheck.checked_texture.desaturated and extraCheck.backdrop_enabledcolor[1] == 0.76)
-extraCheck:SetValue(true, "RUN_CALLBACK")
+assert(extraCheck.Check.desaturated and not extraCheck:GetChecked() and not extraCheck.Check.visible)
+extraCheck.click()
+assert(extraCheck:GetChecked() and extraCheck.Check.visible and extraCheck.backgroundColor[1] == 0.76,
+  "Checking does not fill the box red")
 click("Save")
 assert(pack.additionalAddons["extra-id"] == "Extra Addon")
 button("Manage (1)")
 local testIcon
-for _, icon in ipairs(visible("addonIcon")) do if icon.texture == modules.Test.icon then testIcon = icon end end
+for _, icon in ipairs(visible("addonIcon")) do if iconOf(icon) == modules.Test.icon then testIcon = icon end end
 assert(testIcon and testIcon.tooltip == "Open Test settings" and testIcon.enabled)
 for _, state in ipairs({ "Normal", "Pushed", "Highlight", "Disabled" }) do
   local coords = testIcon["Get" .. state .. "Texture"](testIcon).texCoords
@@ -501,9 +481,7 @@ local function membershipChecks()
   return checks
 end
 local function selectSource(selector, key)
-  local options = selector.options()
-  selector.OnMouseDownHook(nil, nil, options)
-  for _, option in ipairs(options) do
+  for _, option in ipairs(selector.entriesOnOpen()) do
     if option.label:find(key, 1, true) then option.onclick(); return end
   end
   error("Missing profile source: " .. key)
@@ -551,7 +529,7 @@ local function checkRowHover(selector, addonLoaded)
   local add = iconAt("Add alternate profile", selector)
   local remove = iconAt("Clear selected profile", selector)
   assert(add.enabled and remove.enabled, "Hovered profile actions have incorrect availability")
-  assert(add.disabled_overlay.texture == nil, "Disabled plus has a rectangular overlay")
+  assert(add.disabledOverlay.texture == nil, "Disabled plus has a rectangular overlay")
   for _, icon in ipairs(visible("iconAction")) do
     if icon.tooltip == "Add alternate profile" or icon.tooltip == "Clear selected profile" or icon.tooltip == "Remove alternate profile" then
       assert(icon.point[5] == selector.point[5] - 2, "Another row's actions appeared")
@@ -578,10 +556,10 @@ click("Next")
 _, pointedAt = tourCallout()
 assert(hasText("Your first save: step 3 of 3") and pointedAt and pointedAt.text == "Save All Profiles",
   "Next did not move the tour on to saving")
--- Only the UI Pack selectors are flat; the profile rows keep the framework's look.
+-- Only the UI Pack selectors are flat; the profile rows keep the classic look.
 local flatArrow = "Interface" .. string.char(92) .. "AddOns" .. string.char(92) .. "WagoUI" .. string.char(92) .. "media" .. string.char(92) .. "calloutArrow"
-assert(packSelector().dropdown.arrowTexture.texture == flatArrow, "The UI Pack selector is not flat")
-assert(profileSelectors()[1].dropdown.arrowTexture.texture ~= flatArrow, "Profile dropdowns lost their classic look")
+assert(packSelector().arrow.texture == flatArrow, "The UI Pack selector is not flat")
+assert(profileSelectors()[1].arrow.texture ~= flatArrow, "Profile dropdowns lost their classic look")
 local id = pack.profileOrder[1]
 assert(pack.profiles[id].sourceKey == "Raid" and pack.profiles[id].variations.default)
 for _, f in ipairs(visible("font")) do
@@ -645,18 +623,15 @@ assert(defaultChip.assigned and not compactChip.assigned, "Toggles do not reflec
 assert(defaultChip.point[5] == firstSelector.point[5] - 3 and defaultChip.point[4] == 524,
   "Variation toggles do not start right of the profile column")
 assert(defaultChip.borderColor[1] == 32 / 255 and defaultChip.borderColor[2] == 93 / 255, "Default chip is not the blue palette")
-assert(compactChip.borderColor[1] == .24 and compactChip.text_overlay.textColor[1] == .6, "Unassigned toggle is not muted")
+assert(compactChip.borderColor[1] == .24 and compactChip.Text.textColor[1] == .6, "Unassigned toggle is not muted")
 assert(not defaultChip.removeButton and not compactChip.tooltip, "Toggles still carry a remove control or tooltip")
 compactChip.parent.parent.mouseOver, compactChip.mouseOver = true, true
 compactChip.scripts.OnUpdate()
 assert(compactChip.borderColor[1] == variationTabs()[3].swatch.color[1], "Unassigned toggle has no hover preview")
 compactChip.parent.parent.mouseOver, compactChip.mouseOver = false, false
 compactChip.scripts.OnUpdate()
-local anchor = compactChip.text_overlay.point
-for _, event in ipairs({ "OnMouseDown", "OnMouseUp" }) do
-  compactChip.scripts[event](compactChip)
-  for index, value in ipairs(anchor) do assert(compactChip.text_overlay.point[index] == value, "Clicking moves chip text") end
-end
+assert(compactChip.Text.point[5] == -2 and compactChip.pushedTextOffset[1] == 0 and compactChip.pushedTextOffset[2] == 0,
+  "Clicking moves chip text")
 compactChip.click()
 assert(#visible("EditBox") == 1, "Assigning a variation opened a dialog")
 assert(pack.profiles[id].variations.default and pack.profiles[id].variations[compactID], "Toggle did not assign")
@@ -707,7 +682,7 @@ assert(#warningIcons() == 0 and button("Save All Profiles"), "Completed row is s
 assert(#pack.profileOrder == 2)
 assert(pack.profiles[pack.profileOrder[2]].variations[raidAlternate])
 local testIconCount = 0
-for _, f in ipairs(visible("addonIcon")) do if f.texture == modules.Test.icon then testIconCount = testIconCount + 1 end end
+for _, f in ipairs(visible("addonIcon")) do if iconOf(f) == modules.Test.icon then testIconCount = testIconCount + 1 end end
 assert(testIconCount == 1, "Alternate row repeats the addon icon")
 local grouped = profileSelectors()
 -- Tooltips use only WagoUI's native frame, never a shared library tooltip.
@@ -792,8 +767,8 @@ compactTab.mouseOver = true
 compactTab.scripts.OnEnter(compactTab)
 assert(compactTab.edit:IsShown() and compactTab.delete:IsShown() and compactTab:GetWidth() == compactWidth,
   "Hovering a tab did not reveal its actions in place")
-assert(compactTab.delete.texture == [[Interface\Buttons\UI-GroupLoot-Pass-Up]]
-  and compactTab.edit.texture == [[Interface\Buttons\UI-OptionsButton]], "Tab actions use the wrong icons")
+assert(iconOf(compactTab.delete) == [[Interface\Buttons\UI-GroupLoot-Pass-Up]]
+  and iconOf(compactTab.edit) == [[Interface\Buttons\UI-OptionsButton]], "Tab actions use the wrong icons")
 assert(compactTab.edit.point[4] < compactTab.delete.point[4], "Edit is not left of delete")
 compactTab.mouseOver = false
 compactTab.scripts.OnLeave(compactTab)
@@ -813,11 +788,9 @@ click("Save")
 assert(form.name:IsShown() and pack.variations[compactID].name == "Compact", "Duplicate name escaped validation")
 form.name:SetText("Compact")
 -- The resolution selector is narrow, so its options use a smaller font that fits "Specific resolution(s)".
-local resolutionRow = new("option", form.resolution.dropdown.dropdownframe)
-resolutionRow.label = new("font", resolutionRow)
-form.resolution.OnUpdateOptionFrame(form.resolution, resolutionRow, form.resolution.options()[2])
-assert(resolutionRow.label.fontSize * 1.5 == 13, "Resolution options keep the font that cuts them off")
-for _, option in ipairs(form.resolution.options()) do
+assert(openMenu(form.resolution)[2].label.fontSize == 13, "Resolution options keep the font that cuts them off")
+form.resolution:Close()
+for _, option in ipairs(form.resolution.entries) do
   if option.label == "Specific resolution(s)" then option.onclick() end
 end
 form = variationForm()
@@ -865,7 +838,7 @@ chipFor(profileSelectors()[1], "Compact").click()
 assert(pack.profiles[id].variations[compactID] and #warningIcons() == 0)
 chipFor(profileSelectors()[1], "Default").click()
 local saveAll = button("Save All Profiles")
-assert(saveAll:GetWidth() == 300 and saveAll:GetHeight() == 50 and saveAll.text_overlay.fontSize == 20)
+assert(saveAll:GetWidth() == 300 and saveAll:GetHeight() == 50 and saveAll.Text.fontSize == 20)
 assert(saveAll.point[4] == (saveAll.parent:GetWidth() - 300) / 2 and saveAll.point[5] == 14,
   "Save All Profiles is not centered at the bottom")
 click("Save All Profiles")
@@ -878,7 +851,13 @@ assert(captureProgress and captureProgress:GetWidth() == 280 and captureProgress
   "Progress bar does not use its old thin dimensions")
 assert(captureBar.barColor[1] == 201 / 255 and captureBar.barColor[2] == 180 / 255 and captureBar.barColor[3] == 0,
   "Progress bar does not use its original gold fill")
-assert(captureProgress.backgroundColor[1] == .4 and captureProgress.blackBorder and captureBar.smoothed,
+local borderLines = 0
+for _, f in ipairs(frames) do
+  if f.kind == "texture" and f.parent == captureProgress and f.color and f.color[1] == 0 and f.color[4] == 1 then
+    borderLines = borderLines + 1
+  end
+end
+assert(captureProgress.backgroundColor[1] == .4 and borderLines == 4 and captureBar.smoothed,
   "Progress bar lost its grey track, black border or smoothing")
 local counterFound = false
 for _, text in ipairs(visible("font")) do
@@ -1135,7 +1114,7 @@ end
 addon.Packs.RemoveProfile(homePack, retired)
 addon:RefreshWorkspace()
 if #installPacks > 1 then
-  assert(centredSelector and #centredSelector.options() == #installPacks, "Full Install has no centred UI Pack selector")
+  assert(centredSelector and #centredSelector.entries == #installPacks, "Full Install has no centred UI Pack selector")
 else
   assert(not centredSelector and hasText(installPacks[1]), "Full Install does not name its only UI Pack")
 end
@@ -1146,8 +1125,8 @@ addon.db.creator.selected = creatorSelected
 addon:RefreshWorkspace()
 centredSelector = nil
 for _, f in ipairs(visible("dropdown")) do if inList(f) then centredSelector = f end end
-assert(centredSelector and #centredSelector.options() == #installPacks + 1, "Several UI Packs get no centred selector")
-for _, option in ipairs(centredSelector.options()) do
+assert(centredSelector and #centredSelector.entries == #installPacks + 1, "Several UI Packs get no centred selector")
+for _, option in ipairs(centredSelector.entries) do
   if option.value == secondPack.id then option.onclick() end
 end
 assert(addon.dbC.selection.packID == secondPack.id, "The centred selector does not switch the UI Pack")
@@ -1262,7 +1241,7 @@ assert(hasText("Outdated - update required"))
 for _, f in ipairs(visible("font")) do
   if f.text == "Test" then assert(f.textColor[1] == .95, "Enabled outdated addon name is not white") end
 end
-for _, selector in ipairs(profileSelectors()) do assert(not selector.enabled, "Outdated addon permits source selection") end
+for _, selector in ipairs(profileSelectors()) do assert(not selector:IsEnabled(), "Outdated addon permits source selection") end
 assert(#pack.profileOrder == 2, "Unavailable addon lost its saved profiles")
 modules.Test.isUpdated, lap.CanEnableAnyAddOn = savedUpdated, savedCanEnable
 addon:RefreshWorkspace()
@@ -1365,7 +1344,7 @@ for _, chip in ipairs(visible("button")) do
     for _, event in ipairs({ "OnEnter", "OnLeave" }) do
       chip.mouseOver, chip.parent.parent.mouseOver = event == "OnEnter", event == "OnEnter"
       chip.scripts.OnUpdate()
-      local foreground, background = luminance(chip.text_overlay.textColor), luminance(chip.backgroundColor)
+      local foreground, background = luminance(chip.Text.textColor), luminance(chip.backgroundColor)
       local ratio = (math.max(foreground, background) + .05) / (math.min(foreground, background) + .05)
       minimumContrast = math.min(minimumContrast, ratio)
       assert(ratio >= 4.5, "Chip text fails minimum contrast")
@@ -1377,11 +1356,11 @@ assert(checked >= 6)
 print(string.format("Variation chip contrast: %.2f:1 minimum across normal/hover states.", minimumContrast))
 local deletePrompt
 function addon:ShowPrompt(_, yes) deletePrompt = yes end
-packSelector().options()[1].delete()
+packSelector().entries[1].delete()
 assert(addon.db.creator.packs[pack.id], "Dropdown deleted without confirmation")
 deletePrompt()
 assert(not addon.db.creator.packs[pack.id])
-for _, f in ipairs(visible("dropdown")) do assert(not f.enabled, "Deleting the last pack left the selector unlocked") end
+for _, f in ipairs(visible("dropdown")) do assert(not f:IsEnabled(), "Deleting the last pack left the selector unlocked") end
 -- Rebuild the workspace with only persisted database values, as after /reload.
 local function reopenWorkspace()
   addon.frames.mainFrame:Hide()
@@ -1401,7 +1380,6 @@ addon.db.workspaceMode = "unknown"
 reopenWorkspace()
 assert(addon.db.workspaceMode == "install", "Invalid stored mode must fall back to user mode")
 UIParent, UISpecialFrames = new("UIParent"), {}
-function LWF:ScaleFrameByUIParentScale() end
 addon.db.appHandoff = "pending"
 addon:ShowAppHandoff()
 assert(hasText("Continue in the Wago App"), "Wago App handoff is not shown")

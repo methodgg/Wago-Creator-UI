@@ -1,7 +1,6 @@
 -- The install view: a guided flow (variation, review, install, done) and an expert list of the same profiles.
 local addon = select(2, ...)
 local LAP = LibStub("LibAddonProfiles")
-local LWF = LibStub("LibWagoFramework")
 local Packs = addon.Packs
 local UI = addon.UI
 local ui = UI.view
@@ -11,6 +10,7 @@ local confirm, modal, modalList = UI.confirm, UI.modal, UI.modalList
 local resolutionText = UI.resolutionText
 local layoutName = UI.layoutName
 local ctaButton = UI.ctaButton
+local dockWeakAuras = UI.dockWeakAuras
 local function render() UI.render() end
 
 local WHITE = [[Interface\Buttons\WHITE8X8]]
@@ -190,9 +190,7 @@ end
 -- Opens one WeakAuras group in WeakAuras' own import window, docked beside WagoUI.
 local function importInWeakAuras(pack, p, onDone)
   addon:ImportProfiles(pack, { p }, function(imported)
-    if WeakAurasOptions and WeakAurasOptions:IsShown() then
-      LWF:StartSplitView(addon.frames.mainFrame, WeakAurasOptions, false)
-    end
+    dockWeakAuras(false, 10)
     if onDone then onDone(imported) end
     render()
   end, { onRecord = function(record, ok) if ui.run then ui.run.results[record.id] = ok end end })
@@ -684,8 +682,8 @@ local function variationChips(pack, s)
     local name = pack.variations[id].name
     local chip = button(ui.tabs, name, 0, 0, 132, function() s.variationID, s.variationPicked = id, true; render() end,
       nil, 28, 13, "installVariation")
-    chip.text_overlay:SetText(name)
-    local width = math.max(100, math.min(right, chip.text_overlay:GetStringWidth() + 32))
+    chip.Text:SetText(name)
+    local width = math.max(100, math.min(right, chip.Text:GetStringWidth() + 32))
     if x + width > right and x > 0 then x, y = 0, y + 34 end
     chip:ClearAllPoints()
     chip:SetPoint("TOPLEFT", ui.tabs, "TOPLEFT", x, -(y + 2))
@@ -694,7 +692,7 @@ local function variationChips(pack, s)
     local active = id == s.variationID
     -- The selected tab is solid Wago red; a translucent tint turns muddy on the dark background.
     chip:SetBackdropColor(unpack(active and { RED[1], RED[2], RED[3], 1 } or { .1, .1, .1, 1 }))
-    chip.text_overlay:SetTextColor(unpack(active and { 1, 1, 1, 1 } or { .7, .7, .7, 1 }))
+    chip.Text:SetTextColor(unpack(active and { 1, 1, 1, 1 } or { .7, .7, .7, 1 }))
     x = x + width + 6
   end
   local top = 134 + y + 30 + 8

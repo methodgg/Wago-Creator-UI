@@ -3,14 +3,12 @@ local addonName = ...
 ---@class WagoUI
 local addon = select(2, ...)
 local L = addon.L
-local DF = _G["DetailsFramework"]
-local LWF = LibStub("LibWagoFramework")
 
 local copyPrompt = L["copyInstruction"]
 
 function addon:CreateCopyHelper()
   addon.copyHelper = CreateFrame("Frame", addonName.."CopyHelper", UIParent)
-  LWF:ScaleFrameByUIParentScale(addon.copyHelper, 0.5333333333333)
+  addon.Controls.ScaleToScreen(addon.copyHelper)
   addon.copyHelper:SetFrameStrata("TOOLTIP")
   addon.copyHelper:SetFrameLevel(200)
   addon.copyHelper:SetHeight(100)
@@ -29,7 +27,7 @@ function addon:CreateCopyHelper()
   addon.copyHelper.text:SetTextColor(1, 1, 0)
 
   addon.copyHelper.fadeOutFrame = CreateFrame("Frame", nil, UIParent)
-  LWF:ScaleFrameByUIParentScale(addon.copyHelper.fadeOutFrame, 0.5333333333333)
+  addon.Controls.ScaleToScreen(addon.copyHelper.fadeOutFrame)
   addon.copyHelper.fadeOutFrame:SetFrameStrata("TOOLTIP")
   addon.copyHelper.fadeOutFrame:SetFrameLevel(200)
   addon.copyHelper.fadeOutFrame:SetHeight(100)

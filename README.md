@@ -14,6 +14,7 @@ Development checks, from the repository root with Lua 5.1:
     lua tests/cooldown.lua
     lua tests/import_wrappers.lua
     lua tests/addon_availability.lua
+    lua tests/no_ui_framework.lua
 
 These are model, integration-contract and headless widget checks. Validate the actual layout and addon imports in WoW before release.
 
