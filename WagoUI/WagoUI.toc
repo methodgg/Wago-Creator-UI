@@ -1,4 +1,4 @@
-## Interface: 120100, 50504, 20506, 11509
+## Interface: 120105, 120100, 50504, 20506, 11509
 # WOW_INTERFACE_TARGETS: standard-test, standard, mists, tbc, vanilla
 ## Title: Wago UI Pack Installer
 ## Group: WagoAppCompanion
