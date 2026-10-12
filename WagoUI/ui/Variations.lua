@@ -136,7 +136,8 @@ local function variationEditor(pack, id)
     local top = 56
     -- Each resolution after the first adds a row; the add button needs one more line.
     local extra = state.any and 0 or (#state.sizes - 1) * 42 + (#state.sizes < Packs.MAX_RESOLUTIONS and 36 or 0)
-    local f = modal(v and "Edit variation" or "New variation", 460, 342 + top + extra)
+    -- The modal's error line sits between the description and the buttons.
+    local f = modal(v and "Edit variation" or "New variation", 460, 362 + top + extra)
     label(f, "Variations let you offer different versions of your UI, such as a healer layout or a different "
       .. "resolution.\nAfter creating the variation, select which profiles should belong to it.",
       24, 58, 412, 13, { .7, .7, .7 }):SetWordWrap(true)
@@ -201,12 +202,12 @@ local function variationEditor(pack, id)
       closeModal(); render()
     end
     if v and id ~= "default" then
-      dangerButton(f, "Delete", 24, top + 286 + extra, 110, function()
+      dangerButton(f, "Delete", 24, top + 306 + extra, 110, function()
         confirmVariationDelete(pack, id, function() variationEditor(pack, id) end)
       end)
     end
-    button(f, "Cancel", 216, top + 286 + extra, 100, closeModal)
-    button(f, v and "Save" or "Create", 328, top + 286 + extra, 108, save)
+    button(f, "Cancel", 216, top + 306 + extra, 100, closeModal)
+    button(f, v and "Save" or "Create", 328, top + 306 + extra, 108, save)
     title:SetScript("OnEnterPressed", save)
     title:SetScript("OnEscapePressed", closeModal)
     -- Tab walks the fields top to bottom (Shift+Tab backwards), wrapping around.
