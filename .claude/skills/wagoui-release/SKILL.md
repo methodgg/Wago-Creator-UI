@@ -1,6 +1,6 @@
 ---
 name: wagoui-release
-description: Perform the WagoUI versioned release workflow when asked to cut a release, publish a new WagoUI version, bump addon versions and changelogs, create installer and creator tags, push release artifacts, or verify the GitHub releases after publishing.
+description: Perform the single-package WagoUI versioned release workflow when asked to publish or release WagoUI.
 ---
 
 # WagoUI Release
