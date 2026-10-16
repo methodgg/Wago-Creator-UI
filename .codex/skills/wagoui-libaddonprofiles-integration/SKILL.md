@@ -17,9 +17,9 @@ Use only these implementation references when deciding how the integration shoul
 
 1. `WagoUI_Libraries/LibAddonProfiles/ImplementationGuide.lua`
 2. `WagoUI_Libraries/LibAddonProfiles/modules/BuffReminders.lua`
-3. `WagoUI_Libraries/LibAddonProfiles/modules/Ayije_CDM.lua`
+3. `WagoUI_Libraries/LibAddonProfiles/modules/EXBoss.lua`
 4. The installed source of the target addon
-5. The installed source of `BuffReminders` and `Ayije_CDM` if you need to see how their addon-side APIs are implemented
+5. The installed source of `BuffReminders` and `EXBoss` if you need to see how their addon-side APIs are implemented
 6. `WagoUI_Libraries/LibAddonProfiles/load.xml`
 7. For ignored comparison keys only: `WagoUI_Libraries/LibAddonProfiles/modules/Details.lua` and `WagoUI_Libraries/LibAddonProfiles/modules/Plater.lua`
 
@@ -86,7 +86,7 @@ Do not copy older addon-specific logic from unrelated LibAddonProfiles modules.
 
 ## Build The Module
 
-Create `WagoUI_Libraries/LibAddonProfiles/modules/<AddonName>.lua` in the same style and field order as `BuffReminders.lua` and `Ayije_CDM.lua`.
+Create `WagoUI_Libraries/LibAddonProfiles/modules/<AddonName>.lua` in the same style and field order as `BuffReminders.lua` and `EXBoss.lua`.
 
 Use these rules:
 
@@ -180,7 +180,7 @@ WagoUI discovers supported integrations through `LAP:GetAllModules()` and sorts 
 
 Add the target addon's verified public API global to `.luarc.json` under `diagnostics.globals` so Lua diagnostics recognize the wrapper calls.
 
-Use the exact global table from the installed addon source, such as `EXBossWagoAPI`, `BuffRemindersAPI`, or `Ayije_CDM_API`. Do not add guessed aliases or internal locals.
+Use the exact global table from the installed addon source, such as `EXBossWagoAPI` or `BuffRemindersAPI`. Do not add guessed aliases or internal locals.
 
 Preserve the existing `.luarc.json` shape and append only when the global is missing.
 
@@ -201,6 +201,6 @@ Confirm all of the following:
 Use these files as the primary examples for future runs:
 
 1. Repo module: `WagoUI_Libraries/LibAddonProfiles/modules/BuffReminders.lua`
-2. Repo module: `WagoUI_Libraries/LibAddonProfiles/modules/Ayije_CDM.lua`
+2. Repo module: `WagoUI_Libraries/LibAddonProfiles/modules/EXBoss.lua`
 3. Installed addon API: `BuffReminders\Display\ImportExport.lua`
-4. Installed addon API: `Ayije_CDM\Config\WagoUI.lua`
+4. Installed addon API: the `EXBoss` file that defines `EXBossWagoAPI`

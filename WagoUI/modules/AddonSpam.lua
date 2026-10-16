@@ -14,7 +14,6 @@ local framesToHide = {
   "DetailsNewsWindow",
   "StreamOverlayWelcomeWindow",
   "ElvUIInstallFrame",
-  "CellChangelogsFrame",
   "FeatureWindow", --MDungeonTeleports
 }
 
@@ -35,25 +34,6 @@ local function hideAddOnPopups()
       SplashFrame.BottomCloseButton:Click()
     end
   end
-  if C_AddOns.IsAddOnLoaded("OmniCD") then
-    if OmniCDDB and OmniCDDB.global then
-      OmniCDDB.global.disableElvMsg = true
-    end
-  end
-
-  if CellAnchorFrame and CellAnchorFrame.confirmPopup then
-    CellAnchorFrame.confirmPopup:Hide()
-    CellAnchorFrame.confirmPopup.Show = function()
-    end
-  end
-
-  if ShadowUF and ShadowUF.db.profile then
-    if not ShadowUF.db.profile.locked then
-      ShadowUF.db.profile.locked = true
-      ShadowUF.modules.movers:Update()
-    end
-  end
-
   local Details = _G["_detalhes"]
   if Details and Details.is_first_run then
     for _, frameName in ipairs(detailsFrames) do

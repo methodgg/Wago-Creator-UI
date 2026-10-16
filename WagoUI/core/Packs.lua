@@ -240,7 +240,7 @@ function Packs.Validate(pack)
       assert(p.id == id, "Profile ID mismatch.")
       name(p.moduleName); name(p.name); name(p.sourceKey)
       assert(p.kind == "profile" or p.kind == "snapshot" or p.kind == "group" or p.kind == "cdm", "Invalid profile kind.")
-      local grouped = p.moduleName == "WeakAuras" or p.moduleName == "Echo Raid Tools"
+      local grouped = p.moduleName == "WeakAuras"
       assert((p.kind == "group") == grouped, "Invalid group integration.")
       assert((p.kind == "cdm") == (p.moduleName == "Blizzard Cooldown Manager"), "Invalid layout integration.")
       membership(pack, p.variations, false)

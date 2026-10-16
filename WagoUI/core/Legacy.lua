@@ -11,7 +11,7 @@ local RESOLUTIONS = {
   { key = "1440", name = "1440p", width = 2560, height = 1440 },
   { key = "2160", name = "4K", width = 3840, height = 2160 },
 }
-local GROUPED = { WeakAuras = true, ["Echo Raid Tools"] = true }
+local GROUPED = { WeakAuras = true }
 local CDM = "Blizzard Cooldown Manager"
 
 local function valid(value)

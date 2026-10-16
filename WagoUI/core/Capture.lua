@@ -5,19 +5,14 @@ local CDM = "Blizzard Cooldown Manager"
 
 -- Keep the creator's established order within loaded, disabled and missing addons.
 local creatorOrder = {
-  "Blizzard Edit Mode", "Blizzard Cooldown Manager", "ElvUI", "ElvUI Private Profile",
-  "ElvUI Account Settings", "ElvUI Aura Filters", "EllesmereUI",
-  "Details", "Plater", "Kui Nameplates", "BigWigs", "BigWigs Boss Options", "Bartender4",
-  "Cell", "Cell Unit Frames", "Unhalted Unit Frames", "BetterCooldownManager", "Grid2",
-  "ShadowedUnitFrames", "WeakAuras", "Echo Raid Tools", "Method Raid Tools", "EXBoss",
-  "BliZzi Party Tools", "OmniCC", "NameplateSCT", "SexyMap", "TipTac Reborn", "BugSack",
-  "WarpDeplete", "Quartz", "OmniCD", "OmniCD Spell Editor", "BlizzHUDTweaks", "OmniBar",
-  "HidingBar", "NameplateAuras", "MinimapStats", "MPlusTimer", "TargetedSpells",
-  "Advanced Focus Cast Bar", "AzortharionUI", "BetterBlizzFrames", "BetterBlizzPlates",
-  "sArenaReloaded", "SenseiClassResourceBar", "CooldownManager", "Cooldown Manager Centered",
-  "Enhance QoL", "Enhance QoL Unit Frames", "Enhance QoL Resource Bars", "DandersFrames",
-  "Prat3", "Midnight Simple Unit Frames", "Skyriding Falcon", "BuffReminders",
-  "CooldownCursorManager", "Ayije_CDM", "atrocityEssentials", "NorskenUI",
+  "Blizzard Edit Mode", "Blizzard Cooldown Manager", "ElvUI", "ElvUI Private Profile", "ElvUI Account Settings",
+  "ElvUI Aura Filters", "EllesmereUI", "Details", "Plater", "BigWigs", "BigWigs Boss Options", "Bartender4",
+  "Unhalted Unit Frames", "Grid2", "WeakAuras", "Method Raid Tools", "EXBoss",
+  "BliZzi Party Tools", "SexyMap", "BugSack", "WarpDeplete", "BlizzHUDTweaks", "HidingBar", "MinimapStats",
+  "MPlusTimer", "TargetedSpells", "Advanced Focus Cast Bar", "AzortharionUI", "BetterBlizzFrames",
+  "BetterBlizzPlates", "sArenaReloaded", "SenseiClassResourceBar", "CooldownManager", "Cooldown Manager Centered",
+  "Enhance QoL", "Enhance QoL Unit Frames", "Enhance QoL Resource Bars", "DandersFrames", "Prat3",
+  "Midnight Simple Unit Frames", "Skyriding Falcon", "BuffReminders", "atrocityEssentials", "NorskenUI",
 }
 local creatorRank = {}
 for index, name in ipairs(creatorOrder) do creatorRank[name] = index end
@@ -25,7 +20,7 @@ for index, name in ipairs(creatorOrder) do creatorRank[name] = index end
 function addon:CreatorAddons()
   local result = {}
   for name, lap in pairs(LAP:GetAllModules()) do
-    if lap.getProfileKeys or name == "WeakAuras" or name == "Echo Raid Tools" then
+    if lap.getProfileKeys or name == "WeakAuras" then
       local loaded = lap:isLoaded()
       local initialize = not loaded and lap:needsInitialization()
       local canEnable = not loaded and LAP:CanEnableAnyAddOn(lap.addonNames)
@@ -175,10 +170,6 @@ function addon:ProfileSources(moduleName)
     return result, "Enable or update this addon first."
   elseif moduleName == "WeakAuras" then
     for key in pairs(WeakAurasSaved.displays) do table.insert(result, { key = key, label = key, kind = "group" }) end
-  elseif moduleName == "Echo Raid Tools" then
-    for _, group in pairs(EchoRaidToolsDB.Cooldowns.groups) do
-      table.insert(result, { key = group.name, label = group.name, kind = "group" })
-    end
   elseif lap.getProfileKeys then
     for key in pairs(lap:getProfileKeys()) do
       table.insert(result, { key = key, label = key, kind = lap.preventRename and "snapshot" or "profile" })
