@@ -11,7 +11,7 @@ local m = {
   additionalWagoIds = {
     ["BugGrabber"] = "7x61oyG1",
   },
-  oldestSupported = "v12.0.13",
+  oldestSupported = "v12.1.7",
   addonNames = { "BugSack", "!BugGrabber" },
   icon = C_AddOns.GetAddOnMetadata("BugSack", "IconTexture"),
   slash = "/bugsack",
