@@ -10,7 +10,7 @@ local confirm, modal, modalList = UI.confirm, UI.modal, UI.modalList
 local resolutionText = UI.resolutionText
 local layoutName = UI.layoutName
 local ctaButton = UI.ctaButton
-local dockWeakAuras = UI.dockWeakAuras
+local dockAuras = UI.dockAuras
 local function render() UI.render() end
 
 local WHITE = [[Interface\Buttons\WHITE8X8]]
@@ -154,12 +154,22 @@ local function finishInstall(s)
   s.openProfilesNext = true
 end
 
--- WeakAuras asks for confirmation in its own window, so its groups are imported one at a time.
-local function needsConfirmation(p) return p.moduleName == "WeakAuras" end
+-- Aura addons ask for confirmation in their own window, so their groups are imported one at a time.
+local function needsConfirmation(p)
+  local lap = LAP:GetModule(p.moduleName)
+  return lap ~= nil and lap.importInteractive ~= nil
+end
 
+-- A manual import is pending until it is imported, and "open" while its addon's window waits for the player.
 local function manualPending(run)
   for id in pairs(run.manual) do
-    if run.results[id] == nil then return true end
+    if run.results[id] ~= true then return true end
+  end
+end
+
+local function manualOpen(run)
+  for id in pairs(run.manual) do
+    if run.results[id] == "open" then return true end
   end
 end
 
@@ -187,13 +197,19 @@ local function startInstall(pack, records)
   })
 end
 
--- Opens one WeakAuras group in WeakAuras' own import window, docked beside WagoUI.
-local function importInWeakAuras(pack, p, onDone)
-  addon:ImportProfiles(pack, { p }, function(imported)
-    dockWeakAuras(false, 10)
-    if onDone then onDone(imported) end
+-- Opens one aura group in its addon's own import window, docked beside WagoUI. onDone runs once it is imported there.
+local function importInAddon(pack, p, onDone)
+  addon:ImportProfiles(pack, { p }, function(_, failed)
+    if #failed == 0 then dockAuras(p.moduleName, false, 10) end
     render()
-  end, { onRecord = function(record, ok) if ui.run then ui.run.results[record.id] = ok end end })
+  end, {
+    onRecord = function(record, opened) if ui.run then ui.run.results[record.id] = opened and "open" or false end end,
+    onDecision = function(record, confirmed)
+      if ui.run then ui.run.results[record.id] = confirmed end
+      if confirmed and onDone then onDone() end
+      render()
+    end,
+  })
 end
 
 local CARD_WIDTH, CARD_HEIGHT, CARD_GAP = 296, 140, 15
@@ -588,7 +604,7 @@ local function installing(body, pack, s)
   local failed, done, current = {}, 0, nil
   for _, p in ipairs(records) do
     local result = run.results[p.id]
-    if result ~= nil then done = done + 1 end
+    if result == true or result == false and not run.manual[p.id] then done = done + 1 end
     if result == false and not run.manual[p.id] then table.insert(failed, p) end
     -- The first batch record without a result is the one being imported right now.
     if running and not current and result == nil and not run.manual[p.id] then current = p end
@@ -598,7 +614,7 @@ local function installing(body, pack, s)
   if run and not running and not run.started then title, subtitle = "Waiting for confirmation…", nil
   elseif run and run.finished and #failed > 0 then title, subtitle = "Some things couldn't be installed", "You can try those again."
   elseif run and run.finished and manual then
-    title, subtitle = "Almost done: your WeakAuras", "Import them one by one. Each opens in WeakAuras, where you confirm it."
+    title, subtitle = "Almost done: your auras", "Import them one by one. Each opens in its addon, where you confirm it."
   elseif run and run.finished then title, subtitle = "Everything is installed", "Click Finish to wrap up."
   end
   heading(body, title, subtitle, 48)
@@ -623,15 +639,16 @@ local function installing(body, pack, s)
     addonIcon(body, p.moduleName, 14, y + 7, 24)
     label(body, p.moduleName, 50, y + 11, 240, 15)
     label(body, profileName(p), 300, y + 12, 380, 14, { .8, .8, .8 })
-    if run.manual[p.id] and result == nil then
-      -- Waits for the batch so WeakAuras' window never competes with other imports.
-      local open = button(body, "Import in WeakAuras", 700, y + 4, 210, function()
-        importInWeakAuras(pack, p, function(imported) run.imported = run.imported + imported end)
+    if run.manual[p.id] and (result == nil or result == false) then
+      -- Waits for the batch so the addon's window never competes with other imports. A declined group can be retried.
+      local open = button(body, "Import in " .. p.moduleName, 700, y + 4, 210, function()
+        importInAddon(pack, p, function() run.imported = run.imported + 1 end)
       end, nil, 30, 13, "manualImport")
-      open:SetEnabled(run.finished and not running)
+      open:SetEnabled(run.finished and not running and not manualOpen(run))
     else
       local text, color = "Waiting", GREY
-      if result == true then text, color = icon(CHECK, 13) .. (run.manual[p.id] and " Opened in WeakAuras" or " Installed"), LIGHT
+      if result == "open" then text, color = "Confirm in " .. p.moduleName, AMBER
+      elseif result == true then text, color = icon(CHECK, 13) .. " Installed", LIGHT
       elseif result == false then text, color = icon(CROSS, 13) .. " Failed", FAILED
       elseif p == current then text, color = "Installing…", { .95, .95, .95 } end
       label(body, text, 700, y + 12, 210, 13, color)
@@ -641,9 +658,35 @@ local function installing(body, pack, s)
   body:SetHeight(y + 10)
   if not running then back(function() ui.run = nil; s.step = "review"; render() end) end
   if run and run.finished and #failed > 0 then
-    primary("Try again (" .. #failed .. ")", function() startInstall(pack, failed) end)
+    primary("Try again (" .. #failed .. ")", function()
+      -- Aura groups not imported yet stay in the checklist.
+      local retry = {}
+      for _, p in ipairs(records) do
+        local result = run.results[p.id]
+        if run.manual[p.id] and result ~= true or not run.manual[p.id] and result == false then table.insert(retry, p) end
+      end
+      startInstall(pack, retry)
+    end)
   elseif run and run.finished then
-    primary("Finish >>", function() finishInstall(s); render() end)
+    primary("Finish >>", function()
+      local function finish() finishInstall(s); render() end
+      -- Aura groups are imported one by one, so some may still be waiting.
+      local waiting, addons, seen = 0, {}, {}
+      for _, p in ipairs(records) do
+        if run.manual[p.id] and run.results[p.id] ~= true then
+          waiting = waiting + 1
+          if not seen[p.moduleName] then seen[p.moduleName] = true; table.insert(addons, p.moduleName) end
+        end
+      end
+      if waiting == 0 then finish(); return end
+      confirm({
+        title = "Not imported yet",
+        message = "You haven't imported your " .. table.concat(addons, " and ") .. " yet.",
+        details = waiting .. (waiting == 1 and " group is" or " groups are") .. " still waiting. If you finish now, you can "
+          .. "import " .. (waiting == 1 and "it" or "them") .. " later from Individual Profiles.",
+        cancelText = "Go back", confirmText = "Finish anyway", onConfirm = finish,
+      })
+    end)
   end
 end
 
@@ -729,7 +772,7 @@ local function expertList(body, pack, s)
   local query = (ui.searchText or ""):lower()
   variationChips(pack, s)
   local profiles = addon:InstallProfiles(pack, s.variationID)
-  -- Ordered as before the rework: loaded addons alphabetically, then disabled ones, then WeakAuras by name, and
+  -- Ordered as before the rework: loaded addons alphabetically, then disabled ones, then aura groups by name, and
   -- Cooldown Manager layouts for other classes last.
   local statuses, ranks, otherClass = {}, {}, {}
   local tag = CooldownViewerUtil and CooldownViewerUtil.GetCurrentClassAndSpecTag()
@@ -737,7 +780,7 @@ local function expertList(body, pack, s)
     statuses[p] = addon:ProfileStatus(p)
     local lap = LAP:GetModule(p.moduleName)
     local rank = lap and (lap:isLoaded() or lap:needsInitialization()) and 1 or 0
-    if p.moduleName == "WeakAuras" then rank = rank - 100 end
+    if p.kind == "group" then rank = rank - 100 end
     otherClass[p] = p.kind == "cdm" and (not tag or math.floor(tag / 10) ~= math.floor(p.classAndSpecTag / 10))
     if otherClass[p] then rank = rank - 110 end
     ranks[p] = rank
@@ -801,7 +844,7 @@ local function expertList(body, pack, s)
     else
       local action = state == "new" and "Import" or state == "update" and "Update" or "Re-import"
       local b = button(body, action, 776, y + 6, 124, function()
-        if needsConfirmation(p) then importInWeakAuras(pack, p); return end
+        if needsConfirmation(p) then importInAddon(pack, p); return end
         -- Success shows on the row itself; a failure is explained in a popup, as the UI Packs view has no status line.
         addon:ImportProfiles(pack, { p }, function(_, failed)
           if #failed > 0 then

@@ -173,7 +173,7 @@ local function exportOptions(pack, moduleName)
       y = y + 36
     end
   end
-  -- Blocked WeakAuras are chosen in the WeakAuras manager.
+  -- Blocked auras are chosen in the aura manager.
   content:SetHeight(math.max(1, y))
   button(f, "Save", 424, 476, 150, function()
     pack.exportOptions = pack.exportOptions or {}

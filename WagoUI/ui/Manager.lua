@@ -1,4 +1,4 @@
--- Two-list managers (Cooldown Manager, WeakAuras): rows move between the lists by click or drag.
+-- Two-list managers (Cooldown Manager, aura addons): rows move between the lists by click or drag.
 local addon = select(2, ...)
 local UI = addon.UI
 local ui = UI.view

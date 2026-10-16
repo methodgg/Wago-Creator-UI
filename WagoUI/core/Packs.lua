@@ -20,6 +20,8 @@ end
 
 local MAX_RESOLUTIONS = 10
 Packs.MAX_RESOLUTIONS = MAX_RESOLUTIONS
+-- Aura addons ship groups instead of profiles. Part of the pack format, so it holds on clients without these addons.
+local AURA_ADDONS = { WeakAuras = true, ForeverAuras = true }
 
 -- A variation lists the screens it was designed for; none means Any resolution.
 local function resolutions(list)
@@ -240,8 +242,7 @@ function Packs.Validate(pack)
       assert(p.id == id, "Profile ID mismatch.")
       name(p.moduleName); name(p.name); name(p.sourceKey)
       assert(p.kind == "profile" or p.kind == "snapshot" or p.kind == "group" or p.kind == "cdm", "Invalid profile kind.")
-      local grouped = p.moduleName == "WeakAuras"
-      assert((p.kind == "group") == grouped, "Invalid group integration.")
+      assert((p.kind == "group") == (AURA_ADDONS[p.moduleName] == true), "Invalid group integration.")
       assert((p.kind == "cdm") == (p.moduleName == "Blizzard Cooldown Manager"), "Invalid layout integration.")
       membership(pack, p.variations, false)
       assert(p.data == nil or (type(p.data) == "string" and #p.data > 0), "Invalid profile payload.")

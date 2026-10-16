@@ -13,7 +13,7 @@ local variationTabs, variationToggle = UI.variationTabs, UI.variationToggle
 local additionalAddons, exportOptions, saveCapture = UI.additionalAddons, UI.exportOptions, UI.saveCapture
 local wagoAddons = UI.wagoAddons
 local CDM, cooldownManager, includedLayouts = UI.CDM, UI.cooldownManager, UI.includedLayouts
-local includedAuras, weakAurasManager = UI.includedAuras, UI.weakAurasManager
+local includedAuras, aurasManager = UI.includedAuras, UI.aurasManager
 local ctaButton, startSetup, tourTarget = UI.ctaButton, UI.startSetup, UI.tourTarget
 local function render() UI.render() end
 
@@ -233,11 +233,11 @@ local function creator(pack)
     if info.status == "Not installed" then hasNotInstalled = true end
     local moduleName, ready = info.name, info.status == "Ready"
     -- Cooldown Manager layouts are picked in their own manager and ship with every variation: one manage row.
-    local cdm, auras = moduleName == CDM, moduleName == "WeakAuras"
+    local cdm, auras = moduleName == CDM, LAP:GetModule(moduleName).getAuras ~= nil
     local rows = (cdm or auras) and { { manage = true } } or creatorRows(pack, moduleName)
-    -- WeakAuras are picked in their manager too, but each one keeps a row for its variations.
+    -- Auras are picked in their manager too, but each one keeps a row for its variations.
     if auras then
-      for _, p in ipairs(includedAuras(pack)) do table.insert(rows, { profileID = p.id, aura = true }) end
+      for _, p in ipairs(includedAuras(pack, moduleName)) do table.insert(rows, { profileID = p.id, aura = true }) end
     end
     local layouts = cdm and includedLayouts(pack) or {}
     local managed = cdm and #layouts or #rows - 1
@@ -351,8 +351,8 @@ local function creator(pack)
         end
         if row.manage then
           local manage = button(body, managed > 0 and ("Manage (" .. managed .. ")") or "Manage", PROFILE_X, y + 6,
-            PROFILE_WIDTH, function() if cdm then cooldownManager(pack) else weakAurasManager(pack) end end,
-            cdm and "Choose Cooldown Manager profiles to include" or "Choose WeakAuras to include", 32)
+            PROFILE_WIDTH, function() if cdm then cooldownManager(pack) else aurasManager(pack, moduleName) end end,
+            cdm and "Choose Cooldown Manager profiles to include" or ("Choose " .. moduleName .. " to include"), 32)
           manage:SetEnabled(ready and not locked and not addon.state.busy)
         elseif row.aura then
           label(body, p.name, PROFILE_X + 16, y + 15, PROFILE_WIDTH - 16, 14)
@@ -460,7 +460,7 @@ local function creator(pack)
       -- One shared addon cell/background; branches connect its indented profiles.
       rowBackground(body, groupStart, y - groupStart - 1, ready and .18 or .06)
       if lastBranch then profileConnector(body, PROFILE_X + 8, groupStart + 38, 1, lastBranch - groupStart - 38 + 1) end
-      if lap.exportOptions or moduleName == "WeakAuras" then
+      if lap.exportOptions then
         local icon = body.pools.addonIcon[body.used.addonIcon]
         icon:SetTooltip("Left-click: addon settings\nRight-click: export options")
         icon:SetEnabled(ready and not addon.state.busy)

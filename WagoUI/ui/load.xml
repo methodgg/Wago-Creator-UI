@@ -7,7 +7,7 @@
   <Script file="Dialogs.lua"/>
   <Script file="Manager.lua"/>
   <Script file="CooldownManager.lua"/>
-  <Script file="WeakAuras.lua"/>
+  <Script file="Auras.lua"/>
   <Script file="Welcome.lua"/>
   <Script file="Creator.lua"/>
   <Script file="Installer.lua"/>

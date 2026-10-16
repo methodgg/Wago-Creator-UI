@@ -4,6 +4,7 @@
     "diagnostics.globals": [
         "ReloadUI",
         "WOW_PROJECT_ID",
+        "ForeverAurasAPI",
         "tContains",
         "SplashFrame",
         "UISpecialFrames",

@@ -7,7 +7,7 @@ local CDM = "Blizzard Cooldown Manager"
 local creatorOrder = {
   "Blizzard Edit Mode", "Blizzard Cooldown Manager", "ElvUI", "ElvUI Private Profile", "ElvUI Account Settings",
   "ElvUI Aura Filters", "EllesmereUI", "Details", "Plater", "BigWigs", "BigWigs Boss Options", "Bartender4",
-  "Grid2", "WeakAuras", "Method Raid Tools", "EXBoss",
+  "Grid2", "WeakAuras", "ForeverAuras", "Method Raid Tools", "EXBoss",
   "BliZzi Party Tools", "SexyMap", "BugSack", "WarpDeplete", "BlizzHUDTweaks", "HidingBar", "MinimapStats",
   "MPlusTimer", "TargetedSpells", "Advanced Focus Cast Bar", "AzortharionUI", "BetterBlizzFrames",
   "BetterBlizzPlates", "sArenaReloaded", "SenseiClassResourceBar", "CooldownManager", "Cooldown Manager Centered",
@@ -20,7 +20,7 @@ for index, name in ipairs(creatorOrder) do creatorRank[name] = index end
 function addon:CreatorAddons()
   local result = {}
   for name, lap in pairs(LAP:GetAllModules()) do
-    if lap.getProfileKeys or name == "WeakAuras" then
+    if lap.getProfileKeys or lap.getAuras then
       local loaded = lap:isLoaded()
       local initialize = not loaded and lap:needsInitialization()
       local canEnable = not loaded and LAP:CanEnableAnyAddOn(lap.addonNames)
@@ -168,8 +168,8 @@ function addon:ProfileSources(moduleName)
     end
   elseif not lap:isLoaded() or not lap:isUpdated() then
     return result, "Enable or update this addon first."
-  elseif moduleName == "WeakAuras" then
-    for key in pairs(WeakAurasSaved.displays) do table.insert(result, { key = key, label = key, kind = "group" }) end
+  elseif lap.getAuras then
+    for key in pairs(lap:getAuras()) do table.insert(result, { key = key, label = key, kind = "group" }) end
   elseif lap.getProfileKeys then
     for key in pairs(lap:getProfileKeys()) do
       table.insert(result, { key = key, label = key, kind = lap.preventRename and "snapshot" or "profile" })
@@ -199,18 +199,14 @@ local function exportRecord(pack, profile)
   if not lap:isLoaded() or not lap:isUpdated() then return nil, "Addon unavailable." end
   if lap.setExportOptions then lap:setExportOptions(pack.exportOptions and pack.exportOptions[profile.moduleName] or {}) end
   if profile.kind == "group" then
-    if profile.moduleName == "WeakAuras" then
-      if not WeakAuras.GetData(profile.sourceKey) then return nil, "Source aura missing." end
-      local selected = { [profile.sourceKey] = { export = true } }
-      for id in pairs(pack.blockedAuras or {}) do
-        if id ~= profile.sourceKey then selected[id] = { blocked = true } end
-      end
-      local groups = lap:exportProfile(selected)
-      profile.collectedWagoIds = CopyTable(lap:getCollectedWagoIds())
-      return groups and groups[profile.sourceKey]
+    local blocked = {}
+    for id in pairs(pack.blockedAuras or {}) do
+      if id ~= profile.sourceKey then blocked[id] = true end
     end
-    local groups = lap:exportProfile({ [profile.sourceKey] = true })
-    return groups and groups[profile.sourceKey], "Source group missing."
+    local data = lap:exportGroup(profile.sourceKey, blocked)
+    if not data then return nil, "Source aura missing." end
+    profile.collectedWagoIds = lap.getCollectedWagoIds and CopyTable(lap:getCollectedWagoIds()) or nil
+    return data
   end
   local keys = lap.getProfileKeys and lap:getProfileKeys()
   if not keys or not keys[profile.sourceKey] then return nil, "Source profile missing." end
@@ -226,7 +222,7 @@ local function enabledAfterReload(lap)
 end
 
 -- Why a record's source cannot be saved right now, using the capture's own checks without exporting anything.
--- profileKeys caches each addon's profile list across records.
+-- profileKeys caches each addon's profiles or auras across records.
 function addon:CaptureProblem(p, profileKeys)
   local lap = LAP:GetModule(p.moduleName)
   if not lap then return p.moduleName .. " is not supported." end
@@ -247,11 +243,10 @@ function addon:CaptureProblem(p, profileKeys)
     return p.moduleName .. " is not installed. Install it or remove this profile."
   end
   if not lap:isUpdated() then return p.moduleName .. " needs an update." end
-  if p.moduleName == "WeakAuras" then
-    if not (WeakAuras and WeakAuras.GetData(p.sourceKey)) then return "This WeakAura no longer exists. Pick another or remove it." end
-  elseif p.kind ~= "group" and lap.getProfileKeys then
+  local sources = lap.getAuras or p.kind ~= "group" and lap.getProfileKeys
+  if sources then
     profileKeys = profileKeys or {}
-    profileKeys[p.moduleName] = profileKeys[p.moduleName] or lap:getProfileKeys() or {}
+    profileKeys[p.moduleName] = profileKeys[p.moduleName] or sources(lap) or {}
     if not profileKeys[p.moduleName][p.sourceKey] then
       return p.name .. " no longer exists in " .. p.moduleName .. ". Pick another or remove it."
     end

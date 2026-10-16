@@ -154,6 +154,7 @@ end
 
 -- Optional hooks: onRecord(profile, succeeded) reports each import as it finishes; onCancel runs when the
 -- import does not start (refused, or a confirmation prompt was cancelled).
+-- onDecision(profile, confirmed) reports what the player chose in an aura addon's own import window.
 function addon:ImportProfiles(pack, records, callback, hooks)
   hooks = hooks or {}
   local function cancel(problem)
@@ -210,15 +211,22 @@ function addon:ImportProfiles(pack, records, callback, hooks)
         local lap = LAP:GetModule(p.moduleName)
         if self:ProfileStatus(p) ~= "Ready" then error(p.name .. ": addon is no longer ready.") end
         local compatible = not lap.isProfileStringCompatible or lap:isProfileStringCompatible(p.data)
+        -- Aura addons open their own import window; the record counts once the player confirms it there.
+        local interactive = lap.importInteractive ~= nil
         local accepted = false
-        if compatible then accepted = lap:importProfile(p.data, p.sourceKey, true) end
+        if compatible and interactive then
+          accepted = lap:importInteractive(p.data, function(confirmed)
+            if confirmed then self:RecordImport(pack, p, p.sourceKey) end
+            if hooks.onDecision then hooks.onDecision(p, confirmed) end
+          end)
+        elseif compatible then accepted = lap:importProfile(p.data, p.sourceKey, true) end
         if hooks.onRecord then hooks.onRecord(p, accepted ~= false) end
         if accepted == false then
           table.insert(failed, p.moduleName .. ": " .. p.name)
           -- Integrations that say why they refused are explained once, in a popup.
           local reason = lap.importFailureReason
           if reason and not seen[reason] then seen[reason] = true; table.insert(reasons, { p.moduleName, reason }) end
-        else
+        elseif not interactive then
           self:RecordImport(pack, p, p.sourceKey)
           imported = imported + 1
           if lap.conflictingAddons then LAP:DisableConflictingAddons(lap.conflictingAddons, checked) end

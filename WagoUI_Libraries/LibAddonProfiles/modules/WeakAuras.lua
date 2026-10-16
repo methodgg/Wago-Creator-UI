@@ -164,6 +164,16 @@ end
 
 local collectedWagoIds = {}
 
+-- WeakAuras reports a declined import only from its import window, not when its whole options window closes.
+-- Hiding the options for combat is not a decline: WeakAuras reopens them with the import window once combat ends.
+local pendingImport
+local closeHooked
+local function finishImport(accepted)
+  local callback = pendingImport
+  pendingImport = nil
+  if callback then xpcall(callback, geterrorhandler(), accepted and true or false) end
+end
+
 local function purgeWago(data)
   if data.wagoID then
     if not collectedWagoIds[data.wagoID] then
@@ -209,6 +219,42 @@ local m = {
   closeConfig = function(self)
     WeakAurasOptions:Hide()
   end,
+  getConfigFrame = function(self)
+    return WeakAurasOptions
+  end,
+  getAuras = function(self)
+    local auras = {}
+    for id, data in pairs(WeakAurasSaved.displays) do
+      auras[id] = { parent = data.parent, children = data.controlledChildren, icon = data.groupIcon or data.displayIcon }
+    end
+    return auras
+  end,
+  importInteractive = function(self, profileString, callback)
+    self.importFailureReason = nil
+    local opened, reason = false, "WeakAuras refused the import."
+    local data = decodeWeakAuraString(profileString)
+    if InCombatLockdown() then reason = "WeakAuras cannot import in combat."
+    elseif pendingImport then reason = "Another WeakAuras import is still open. Finish or close it first."
+    elseif not data then reason = "This is not a WeakAuras import string."
+    else
+      local ok, refused, problem = xpcall(WeakAuras.Import, geterrorhandler(), data, nil, finishImport)
+      if problem then reason = "WeakAuras refused the import: " .. problem end
+      opened = ok and refused ~= false and not problem and WeakAurasOptions and WeakAurasOptions:IsShown() and true or false
+    end
+    if not opened then
+      self.importFailureReason = reason
+      return false, reason
+    end
+    pendingImport = callback or nop
+    if not closeHooked then
+      closeHooked = true
+      WeakAurasOptions:HookScript("OnHide", function()
+        local inCombat = InCombatLockdown() or UnitAffectingCombat("player")
+        if not inCombat and not WeakAuras.IsImporting() then finishImport(false) end
+      end)
+    end
+    return true
+  end,
   isDuplicate = function(self, profileKey)
     return false
   end,
@@ -226,7 +272,6 @@ local m = {
   end,
   exportProfile = function(self, profileKey)
     if type(profileKey) ~= "table" then return end
-    collectedWagoIds = {}
     local displayIds = {}
     local blockedIds = {}
     for id, data in pairs(profileKey) do
@@ -236,13 +281,15 @@ local m = {
         blockedIds[id] = true
       end
     end
-    local exportStrings = {}
+    local exportStrings, wagoIds = {}, {}
     for id in pairs(displayIds) do
       local exportString = self:exportGroup(id, blockedIds)
       if exportString then
         exportStrings[id] = exportString
       end
+      for wagoID, label in pairs(collectedWagoIds) do wagoIds[wagoID] = label end
     end
+    collectedWagoIds = wagoIds
     return exportStrings
   end,
   getCollectedWagoIds = function(self)
@@ -257,8 +304,10 @@ local m = {
     end
   end,
   exportGroup = function(self, profileKey, blockedIds)
+    collectedWagoIds = {}
     local id = profileKey
     local original = WeakAuras.GetData(id)
+    if not original then return nil end
     local data = private:DeepCopyAsync(original)
 
     if (data) then
@@ -303,19 +352,27 @@ local m = {
           end
         end
       end
-      -- remove blocked data and remove blocked from controlled children
-      if transmit.c then
-        for k, child in pairs(transmit.c) do
-          if blockedIds and blockedIds[child.id] then
-            tremove(transmit.c, k)
-          elseif child.controlledChildren then
-            for i, controlledChild in pairs(child.controlledChildren) do
-              if blockedIds and blockedIds[controlledChild] then
-                tremove(child.controlledChildren, i)
-              end
-            end
+      -- Blocked auras are left out with everything inside them; children follow their group in transmit.c.
+      if transmit.c and blockedIds then
+        local excluded, kept = {}, {}
+        for _, child in ipairs(transmit.c) do
+          if blockedIds[child.id] or (child.parent and excluded[child.parent]) then
+            excluded[child.id] = true
+          else
+            table.insert(kept, child)
           end
         end
+        transmit.c = kept
+        local function dropExcluded(groupData)
+          if not groupData.controlledChildren then return end
+          local remaining = {}
+          for _, childId in ipairs(groupData.controlledChildren) do
+            if not excluded[childId] then table.insert(remaining, childId) end
+          end
+          groupData.controlledChildren = remaining
+        end
+        dropExcluded(transmit.d)
+        for _, child in ipairs(kept) do dropExcluded(child) end
       end
       return TableToString(transmit)
     else
