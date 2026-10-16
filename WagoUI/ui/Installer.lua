@@ -59,6 +59,23 @@ local function addonIcon(parent, moduleName, x, y, size)
   return texture
 end
 
+-- The same icon as a button that opens the addon's settings, like the creator's addon icons.
+local function addonSettingsIcon(parent, moduleName, x, y, size)
+  local lap = LAP:GetModule(moduleName)
+  local icon = widget(parent, "installIconButton", function() return addon.Controls.IconButton(parent, size) end)
+  icon:SetPoint("TOPLEFT", parent, "TOPLEFT", x, -y)
+  icon:SetSize(size, size)
+  icon:SetIcon(lap and lap.icon and lap.icon ~= "" and lap.icon or 134400)
+  for _, region in ipairs({ icon:IconRegions() }) do
+    region:SetTexCoord(1 / 12, 11 / 12, 1 / 12, 11 / 12)
+  end
+  local canOpen = lap and lap.openConfig and lap:isLoaded()
+  icon:SetEnabled(not addon.state.busy and not not canOpen)
+  icon:SetTooltip(canOpen and ("Open " .. moduleName .. " settings") or nil)
+  icon.onClick = function() if canOpen then lap:openConfig() end end
+  return icon
+end
+
 local function profileName(p)
   return p.kind == "cdm" and layoutName(p.name, p.classAndSpecTag) or p.name
 end
@@ -824,7 +841,7 @@ local function expertList(body, pack, s)
   local function row(p)
     local status = statuses[p]
     rowBackground(body, y, 42, .06)
-    addonIcon(body, p.moduleName, 14, y + 9, 24)
+    addonSettingsIcon(body, p.moduleName, 14, y + 9, 24)
     label(body, p.moduleName, 50, y + 13, 230, 15)
     label(body, profileName(p), 290, y + 14, 260, 14, { .8, .8, .8 })
     label(body, p.lastUpdatedAt and date("%b %d", p.lastUpdatedAt) or "", 560, y + 14, 80, 13, GREY)
