@@ -21,7 +21,6 @@
 	<Script file ="modules\WarpDeplete.lua"/>
 	<Script file ="modules\BlizzHUDTweaks.lua"/>
 	<Script file ="modules\HidingBar.lua"/>
-	<Script file ="modules\UnhaltedUnitFrames.lua"/>
 	<Script file ="modules\MPlusTimer.lua"/>
 	<Script file ="modules\MinimapStats.lua"/>
 	<Script file ="modules\NorskenUI.lua"/>

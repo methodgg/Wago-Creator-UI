@@ -7,7 +7,7 @@ local CDM = "Blizzard Cooldown Manager"
 local creatorOrder = {
   "Blizzard Edit Mode", "Blizzard Cooldown Manager", "ElvUI", "ElvUI Private Profile", "ElvUI Account Settings",
   "ElvUI Aura Filters", "EllesmereUI", "Details", "Plater", "BigWigs", "BigWigs Boss Options", "Bartender4",
-  "Unhalted Unit Frames", "Grid2", "WeakAuras", "Method Raid Tools", "EXBoss",
+  "Grid2", "WeakAuras", "Method Raid Tools", "EXBoss",
   "BliZzi Party Tools", "SexyMap", "BugSack", "WarpDeplete", "BlizzHUDTweaks", "HidingBar", "MinimapStats",
   "MPlusTimer", "TargetedSpells", "Advanced Focus Cast Bar", "AzortharionUI", "BetterBlizzFrames",
   "BetterBlizzPlates", "sArenaReloaded", "SenseiClassResourceBar", "CooldownManager", "Cooldown Manager Centered",
