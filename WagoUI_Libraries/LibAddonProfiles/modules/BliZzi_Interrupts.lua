@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "BliZzi Party Tools",
   wagoId = "BKpgeB6E",
+  flavors = { "retail" },
   oldestSupported = "4.1.12",
   addonNames = { "BliZzi_Interrupts" },
   conflictingAddons = {},

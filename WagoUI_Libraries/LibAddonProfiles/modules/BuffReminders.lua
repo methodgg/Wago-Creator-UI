@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "BuffReminders",
   wagoId = "qGYZZjNg",
+  flavors = { "retail" },
   oldestSupported = "v6.3.2",
   addonNames = { "BuffReminders" },
   conflictingAddons = {},

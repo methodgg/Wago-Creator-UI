@@ -22,6 +22,7 @@ end
 local m = {
   moduleName = "BigWigs",
   wagoId = "5NRegwG3",
+  flavors = { "retail", "forever", "classic", "bc", "mop" },
   oldestSupported = "v419.1",
   addonNames = { "BigWigs", "BigWigs_Core", "BigWigs_Plugins", "BigWigs_Options" },
   conflictingAddons = { "DBM-Core" },

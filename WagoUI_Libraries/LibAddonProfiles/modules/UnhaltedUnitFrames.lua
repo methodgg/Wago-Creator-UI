@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Unhalted Unit Frames",
   wagoId = "96do35NO",
+  flavors = { "retail" },
   oldestSupported = "V12.1.0",
   addonNames = { "UnhaltedUnitFrames" },
   conflictingAddons = { "BetterBlizzFrames", "MidnightSimpleUnitFrames", "ShadowedUnitFrames", "ShadowedUF_Options", "PitBull4" },

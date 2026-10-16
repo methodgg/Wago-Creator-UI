@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "BlizzHUDTweaks",
   wagoId = "rkGrWlNy",
+  flavors = { "retail", "forever" },
   oldestSupported = "2.16.0",
   addonNames = { "BlizzHUDTweaks" },
   icon = C_AddOns.GetAddOnMetadata("BlizzHUDTweaks", "IconTexture"),

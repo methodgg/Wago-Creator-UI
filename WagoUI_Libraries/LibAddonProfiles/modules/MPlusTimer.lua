@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "MPlusTimer",
   wagoId = "BKpqWZGE",
+  flavors = { "retail" },
   oldestSupported = "1.0.42",
   addonNames = { "MPlusTimer" },
   conflictingAddons = {},

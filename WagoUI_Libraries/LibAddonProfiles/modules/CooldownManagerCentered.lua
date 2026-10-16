@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Cooldown Manager Centered",
   wagoId = "b6mvbYKP",
+  flavors = { "retail", "forever" },
   oldestSupported = "5.2.17",
   addonNames = { "CooldownManagerCentered" },
   conflictingAddons = {},

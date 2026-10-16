@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Enhance QoL Unit Frames",
   wagoId = "aN0Ykv6j",
+  flavors = { "retail", "forever", "bc" },
   oldestSupported = "11.9.1",
   addonNames = { "EnhanceQoL" },
   conflictingAddons = {},

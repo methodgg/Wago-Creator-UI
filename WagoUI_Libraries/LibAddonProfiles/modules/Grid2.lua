@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Grid2",
   wagoId = "vEGPyeN1",
+  flavors = { "retail", "forever", "classic", "bc", "mop" },
   oldestSupported = "4.0.2",
   addonNames = { "Grid2", "Grid2Options", "Grid2LDB", "Grid2RaidDebuffs", "Grid2RaidDebuffsOptions" },
   conflictingAddons = { "VuhDo", "VuhDoOptions", "Cell" },

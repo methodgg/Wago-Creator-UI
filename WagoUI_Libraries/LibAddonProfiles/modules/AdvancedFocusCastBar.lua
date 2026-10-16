@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Advanced Focus Cast Bar",
   wagoId = "96d2DPGO",
+  flavors = { "retail" },
   oldestSupported = "1.0.20",
   addonNames = { "AdvancedFocusCastBar" },
   conflictingAddons = {},

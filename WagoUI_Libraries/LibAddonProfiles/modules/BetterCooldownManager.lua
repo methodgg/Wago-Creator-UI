@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Better Cooldown Manager",
   wagoId = "ANz030K4",
+  flavors = { "retail" },
   oldestSupported = "V12.0.32",
   addonNames = { "BetterCooldownManager" },
   conflictingAddons = {},

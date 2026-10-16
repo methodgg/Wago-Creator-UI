@@ -32,6 +32,7 @@ end
 local m = {
   moduleName = "NameplateAuras",
   wagoId = "lQNl536e",
+  flavors = { "retail", "bc", "mop" },
   oldestSupported = "110205.2-release",
   addonNames = { "NameplateAuras" },
   icon = C_AddOns.GetAddOnMetadata("NameplateAuras", "IconTexture"),

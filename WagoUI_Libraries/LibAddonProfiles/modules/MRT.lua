@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Method Raid Tools",
   wagoId = "5bGoJnK0",
+  flavors = { "retail", "classic", "bc", "mop" },
   oldestSupported = "5315",
   addonNames = { "MRT" },
   conflictingAddons = {},

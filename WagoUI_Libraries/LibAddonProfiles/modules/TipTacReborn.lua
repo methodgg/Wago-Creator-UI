@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "TipTac Reborn",
   wagoId = "none",
+  flavors = { "retail", "classic", "bc", "mop" },
   oldestSupported = "v26.05.03-release",
   addonNames = { "TipTac", "TipTacItemRef", "TipTacOptions", "TipTacTalents" },
   icon = C_AddOns.GetAddOnMetadata("TipTac", "IconTexture"),

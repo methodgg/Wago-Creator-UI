@@ -26,6 +26,7 @@ end
 local m = {
   moduleName = "Echo Raid Tools",
   wagoId = "none",
+  flavors = { "retail" },
   oldestSupported = "1.5.8",
   addonNames = { "EchoRaidTools" },
   icon = C_AddOns.GetAddOnMetadata("EchoRaidTools", "IconTexture"),

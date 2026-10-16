@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Plater",
   wagoId = "kRNLep6o",
+  flavors = { "retail", "forever", "classic", "bc", "mop" },
   oldestSupported = "Plater-v648-Retail",
   addonNames = { "Plater" },
   conflictingAddons = { "Kui_Nameplates", "Kui_Nameplates_Core", "Kui_Nameplates_Core_Config" },

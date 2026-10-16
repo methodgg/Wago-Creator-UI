@@ -9,6 +9,7 @@ local optionsFrame
 local m = {
   moduleName = "MinimapStats",
   wagoId = "qGYM7vGg",
+  flavors = { "retail" },
   oldestSupported = "V12.0.18",
   addonNames = { "MinimapStats" },
   conflictingAddons = {},

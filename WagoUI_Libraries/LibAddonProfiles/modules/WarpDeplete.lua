@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "WarpDeplete",
   wagoId = "5bGoOqG0",
+  flavors = { "retail" },
   oldestSupported = "5.4.2",
   addonNames = { "WarpDeplete" },
   icon = C_AddOns.GetAddOnMetadata("WarpDeplete", "IconTexture"),

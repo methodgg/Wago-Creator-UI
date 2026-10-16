@@ -9,6 +9,7 @@ local optionsFrame
 local m = {
   moduleName = "Targeted Spells",
   wagoId = "vNAe38No",
+  flavors = { "retail", "forever" },
   oldestSupported = "4.0.1",
   addonNames = { "TargetedSpells" },
   conflictingAddons = {},

@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Bartender4",
   wagoId = "v63oVn6b",
+  flavors = { "retail", "forever", "classic", "bc", "mop" },
   oldestSupported = "4.17.8",
   addonNames = { "Bartender4" },
   conflictingAddons = { "Dominos", "ElvUI", "ElvUI_Libraries", "ElvUI_Options" },

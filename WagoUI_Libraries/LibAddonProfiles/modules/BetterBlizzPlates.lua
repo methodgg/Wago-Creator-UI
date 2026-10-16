@@ -9,6 +9,7 @@ local optionsFrame
 local m = {
   moduleName = "BetterBlizzPlates",
   wagoId = "b6mb47KP",
+  flavors = { "retail", "forever", "classic", "bc", "mop" },
   oldestSupported = "v2.1.0c",
   addonNames = { "BetterBlizzPlates" },
   conflictingAddons = {},

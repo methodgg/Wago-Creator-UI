@@ -7,6 +7,7 @@ local EXPORT_PREFIX = "!E2!"
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "ElvUI Aura Filters",
+  flavors = { "retail", "forever", "classic", "bc", "mop" },
   oldestSupported = "v15.19",
   addonNames = { "ElvUI", "ElvUI_Libraries", "ElvUI_Options" },
   icon = C_AddOns.GetAddOnMetadata("ElvUI", "IconTexture"),

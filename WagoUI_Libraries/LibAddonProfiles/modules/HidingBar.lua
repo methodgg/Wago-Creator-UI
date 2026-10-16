@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "HidingBar",
   wagoId = "LvNAJE6o",
+  flavors = { "retail", "forever", "classic", "bc", "mop" },
   oldestSupported = "v12.0.13",
   addonNames = { "HidingBar", "HidingBar_Options" },
   icon = C_AddOns.GetAddOnMetadata("HidingBar", "IconTexture"),

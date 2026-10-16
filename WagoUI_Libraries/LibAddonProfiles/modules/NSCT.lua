@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "NameplateSCT",
   wagoId = "rN4VDxKD",
+  flavors = { "retail", "classic", "bc", "mop" },
   oldestSupported = "1.54",
   addonNames = { "NameplateSCT" },
   icon = C_AddOns.GetAddOnMetadata("NameplateSCT", "IconTexture"),

@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Prat-3.0",
   wagoId = "RNL9ae6o",
+  flavors = { "retail", "forever", "classic", "bc", "mop" },
   oldestSupported = "3.9.104",
   addonNames = { "Prat-3.0" },
   conflictingAddons = { "Chattynator" },

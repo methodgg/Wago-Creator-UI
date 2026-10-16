@@ -9,6 +9,7 @@ local GLOBAL_SETTINGS_NAME = "FalconGlobalSettings"
 local m = {
   moduleName = "Skyriding Falcon",
   wagoId = "v63oJB6b",
+  flavors = { "retail" },
   oldestSupported = "0.8.8",
   addonNames = { "Falcon" },
   conflictingAddons = {},

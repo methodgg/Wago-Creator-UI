@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Cell Unit Frames",
   wagoId = "ZKxqRdGk",
+  flavors = { "retail" },
   oldestSupported = "v1.4.70",
   addonNames = { "Cell_UnitFrames" },
   conflictingAddons = { "ShadowedUnitFrames", "ShadowedUF_Options" },

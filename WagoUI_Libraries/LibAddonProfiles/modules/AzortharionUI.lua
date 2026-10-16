@@ -9,6 +9,7 @@ local optionsFrame
 local m = {
   moduleName = "AzortharionUI",
   wagoId = "QNlzqDKe",
+  flavors = { "retail" },
   oldestSupported = "8.3.0",
   addonNames = { "AzortharionUI" },
   conflictingAddons = {},

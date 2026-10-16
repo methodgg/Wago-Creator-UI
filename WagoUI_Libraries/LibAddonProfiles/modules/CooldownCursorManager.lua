@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Cooldown Cursor Manager",
   wagoId = "96d2elGO",
+  flavors = { "retail" },
   oldestSupported = "15.0.14",
   addonNames = { "CooldownCursorManager" },
   conflictingAddons = {},

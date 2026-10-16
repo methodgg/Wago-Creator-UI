@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Sensei Class Resource Bar",
   wagoId = "ANzk0V64",
+  flavors = { "retail" },
   oldestSupported = "1.5.24",
   addonNames = { "SenseiClassResourceBar" },
   conflictingAddons = {},

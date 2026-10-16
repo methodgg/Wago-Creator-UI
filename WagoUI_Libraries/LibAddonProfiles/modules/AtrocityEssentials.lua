@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "atrocityEssentials",
   wagoId = "rNkyJ3Ka",
+  flavors = { "retail" },
   oldestSupported = "v4.0.203",
   addonNames = { "atrocityEssentials" },
   conflictingAddons = {},

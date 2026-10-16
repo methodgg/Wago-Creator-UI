@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "EXBoss",
   wagoId = "vNAgrRKo",
+  flavors = { "retail" },
   oldestSupported = "v26.7.13.2130",
   addonNames = { "EXBoss", "ExwindCore", "EXBossData", "EXBOSS-Locale", "EXBOSS-LocaleBase", "EXBOSS-EXWIND", "EXBOSS-ENG" },
   conflictingAddons = {},

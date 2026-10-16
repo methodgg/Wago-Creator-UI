@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "BugSack",
   wagoId = "rkGrrgGy",
+  flavors = { "retail", "forever", "classic", "bc", "mop" },
   additionalWagoIds = {
     ["BugGrabber"] = "7x61oyG1",
   },

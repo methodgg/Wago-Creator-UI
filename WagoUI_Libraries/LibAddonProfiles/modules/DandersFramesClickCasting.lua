@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "DandersFrames Click Castings",
   wagoId = "RNL9B46o",
+  flavors = { "retail", "forever" },
   oldestSupported = "v4.9.0",
   addonNames = { "DandersFrames" },
   conflictingAddons = {},

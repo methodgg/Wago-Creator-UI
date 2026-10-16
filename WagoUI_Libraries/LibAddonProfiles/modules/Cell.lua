@@ -28,6 +28,7 @@ end
 local m = {
   moduleName = "Cell",
   wagoId = "qv63LLKb",
+  flavors = { "retail", "classic", "bc", "mop" },
   oldestSupported = "r274-release",
   addonNames = { "Cell" },
   conflictingAddons = { "VuhDo", "VuhDoOptions", "Grid2" },

@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "OmniCD",
   wagoId = "E6gLXAK1",
+  flavors = { "retail", "classic", "bc", "mop" },
   oldestSupported = "v2.8.34",
   addonNames = { "OmniCD" },
   icon = C_AddOns.GetAddOnMetadata("OmniCD", "IconTexture"),
