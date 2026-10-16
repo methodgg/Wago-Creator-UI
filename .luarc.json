@@ -3,6 +3,8 @@
     "workspace.ignoreDir": [".github", ".vscode", "**/libs"],
     "diagnostics.globals": [
         "ReloadUI",
+        "WOW_PROJECT_ID",
+        "tContains",
         "SplashFrame",
         "UISpecialFrames",
         "SlashCmdList",

@@ -95,11 +95,20 @@ local function confirm(options)
   if not options.okOnly then
     ctaButton(f, options.cancelText or addon.L["Cancel"], 24, buttons, 150, 36, closeModal, "neutral", 15)
   end
-  ctaButton(f, options.confirmText or addon.L["Okay"], 196, buttons, 220, 36, function()
+  local onConfirm = options.onConfirm
+  local confirmAction = function()
     f.onClose = nil
     closeModal()
-    if options.onConfirm then options.onConfirm() end
-  end, "primary", 15)
+    if onConfirm then onConfirm() end
+  end
+  if addon.Controls.IsReload(onConfirm) then
+    confirmAction = addon.Controls.Reload(function()
+      if onConfirm.prepare and onConfirm.prepare() == false then return false end
+      f.onClose = nil
+      closeModal()
+    end)
+  end
+  ctaButton(f, options.confirmText or addon.L["Okay"], 196, buttons, 220, 36, confirmAction, "primary", 15)
   f.onClose = options.onCancel
   return f
 end

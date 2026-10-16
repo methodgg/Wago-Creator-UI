@@ -31,11 +31,10 @@ local commands = {
     description = L["Enable debug mode"],
     func = function(args)
       addon:ShowFrame()
-      addon:ShowPrompt("Toggle Debug and reload?", function()
+      addon:ShowPrompt("Toggle Debug and reload?", addon.Controls.Reload(function()
         addon.db.debug = not addon.db.debug
         addon.db.autoStart = addon.db.debug
-        ReloadUI()
-      end)
+      end))
     end
   }
 }

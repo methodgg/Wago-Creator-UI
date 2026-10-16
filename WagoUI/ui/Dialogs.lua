@@ -73,14 +73,13 @@ local function saveCapture(pack, changes, issues)
   end
   f.error:ClearAllPoints()
   f.error:SetPoint("TOPLEFT", f, "TOPLEFT", 24, -46)
-  local function save()
-    if addon.state.busy then return end
-    if safely(function() addon:SaveCapturedPack(pack, notes:GetText()) end) then
-      closeModal()
-      notice("Saved")
-      ReloadUI()
-    end
-  end
+  local save = addon.Controls.Reload(function()
+    if addon.state.busy then return false end
+    local saved = safely(function() addon:SaveCapturedPack(pack, notes:GetText()) end)
+    if not saved then return false end
+    closeModal()
+    notice("Saved")
+  end)
   button(f, "Save and Reload", 200, 504, 200, save, "Write SavedVariables for the Wago App", 40, 16, "saveReload")
     :SetBackdropColor(0, .8, 0, 1)
 end

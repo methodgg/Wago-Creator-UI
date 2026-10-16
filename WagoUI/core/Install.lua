@@ -185,7 +185,7 @@ function addon:ImportProfiles(pack, records, callback, hooks)
     end
   end
   if enable then
-    self:ShowPrompt("Enable required addons and reload?", function()
+    self:ShowPrompt("Enable required addons and reload?", self.Controls.Reload(function()
       local ids = {}
       for _, p in ipairs(records) do
         local lap = LAP:GetModule(p.moduleName)
@@ -195,8 +195,7 @@ function addon:ImportProfiles(pack, records, callback, hooks)
       -- The installer resumes these imports after the reload.
       self.dbC.selection.pendingInstall = { packID = pack.id, ids = ids }
       self.dbC.selection.step = "install"
-      ReloadUI()
-    end, function() cancel() end)
+    end), function() cancel() end)
     return
   end
   local function run()
@@ -319,11 +318,10 @@ function addon:ApplyAlt(character, callback)
     self:ToggleReloadIndicator(self.state.needReload)
     self:RefreshWorkspace()
     if #pending > 0 then
-      self:ShowPrompt("Enable remaining addons and reload?", function()
+      self:ShowPrompt("Enable remaining addons and reload?", self.Controls.Reload(function()
         self.dbC.pendingAlt = character
         for _, lap in ipairs(pending) do LAP:EnableAddOns(lap.addonNames) end
-        ReloadUI()
-      end)
+      end))
     else self.dbC.pendingAlt = nil end
     callback(failed)
   end, "ApplyAlt")

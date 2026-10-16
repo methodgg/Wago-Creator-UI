@@ -1,7 +1,3 @@
-if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
-  return
-end
-
 local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
 local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
@@ -142,12 +138,12 @@ local function TraverseAllChildren(data)
 end
 
 -- All Children, excludes self
-function PTraverseAllChildren(data)
+local function PTraverseAllChildren(data)
   return coroutine.wrap(TraverseAllChildren), data
 end
 
 -- All groups, excludes self
-function PTraverseSubGroups(data)
+local function PTraverseSubGroups(data)
   return coroutine.wrap(TraverseSubGroups), data
 end
 
@@ -157,7 +153,7 @@ local configForLS = {
 }
 ---@param inTable table
 ---@return string
-function TableToString(inTable)
+local function TableToString(inTable)
   local LibDeflate = LibStub:GetLibrary("LibDeflateAsync")
   local serialized = private:LibSerializeSerializeAsyncEx(configForLS, inTable)
   local compressed = LibDeflate:CompressDeflate(serialized, configForDeflate)
@@ -187,6 +183,7 @@ local m = {
   moduleName = "WeakAuras",
   wagoId = "VBNBxKx5",
   oldestSupported = "5.21.1",
+  flavors = { "classic", "bc", "wotlk", "cata", "mop" },
   addonNames = { "WeakAuras", "WeakAurasArchive", "WeakAurasModelPaths", "WeakAurasOptions", "WeakAurasTemplates" },
   icon = C_AddOns.GetAddOnMetadata("WeakAuras", "IconTexture"),
   slash = "/wa",

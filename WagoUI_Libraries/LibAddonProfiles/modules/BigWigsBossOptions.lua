@@ -14,6 +14,7 @@ local m = {
   moduleName = "BigWigs Boss Options",
   wagoId = bigWigsModule.wagoId,
   oldestSupported = bigWigsModule.oldestSupported,
+  flavors = bigWigsModule.flavors,
   addonNames = bigWigsModule.addonNames,
   conflictingAddons = bigWigsModule.conflictingAddons,
   icon = bigWigsModule.icon,

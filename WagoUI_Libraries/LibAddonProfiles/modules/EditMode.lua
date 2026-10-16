@@ -1,7 +1,3 @@
-if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
-  return
-end
-
 local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
 local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
@@ -51,6 +47,7 @@ end
 local m = {
   moduleName = "Blizzard Edit Mode",
   wagoId = "baseline",
+  flavors = { "retail", "forever" },
   icon = 135724,
   slash = "/editmode",
   needReloadOnImport = true,

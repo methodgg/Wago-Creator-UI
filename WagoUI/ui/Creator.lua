@@ -323,14 +323,18 @@ local function creator(pack)
           addonRow(body, moduleName, y, lap:isLoaded() and { .95, .95, .95 } or { .5, .5, .5 }, status, nil, true)
           if info.status == "Addon disabled" or info.status == "Enabled after reload" or info.status == "Needs setup" then
             -- Keep the old row click action without rendering a styled status button.
-            local hit = widget(body, "statusAction", function() return CreateFrame("Button", nil, body) end)
+            local hit = widget(body, "statusAction", function()
+              local b = CreateFrame("Button", nil, body)
+              Controls.ArmReload(b)
+              return b
+            end)
             hit:SetPoint("TOPLEFT", body, "TOPLEFT", 4, -y)
             hit:SetSize(PROFILE_X - 12, height)
             hit:SetEnabled(not addon.state.busy)
+            hit.onClick = info.status == "Enabled after reload" and Controls.Reload() or nil
             hit:SetScript("OnClick", function()
               if info.status == "Addon disabled" then addon:EnableCreatorAddon(moduleName)
-              elseif info.status == "Enabled after reload" then ReloadUI()
-              else addon:EnsureIntegration(moduleName); render() end
+              elseif info.status == "Needs setup" then addon:EnsureIntegration(moduleName); render() end
             end)
           end
         else

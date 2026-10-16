@@ -27,7 +27,7 @@ end
 
 function addon.ShowAddonResetPrompt()
   addon:ShowFrame()
-  addon:ShowPrompt("Reset?", addon.ResetOptions)
+  addon:ShowPrompt("Reset?", addon.Controls.Reload(addon.ResetOptions))
 end
 
 function addon:ToggleFrame()

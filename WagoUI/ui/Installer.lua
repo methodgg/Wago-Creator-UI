@@ -664,7 +664,7 @@ local function finished(body, pack, s)
   local detail = addon.state.needReload and "Reload your UI to see your new interface." or "Your new interface is ready."
   label(body, detail, 0, 224, width, 15, { .75, .75, .75 }):SetJustifyH("CENTER")
   if addon.state.needReload then
-    ctaButton(body, "Reload UI now", (width - 240) / 2, 268, 240, 44, ReloadUI, "primary", 17)
+    ctaButton(body, "Reload UI now", (width - 240) / 2, 268, 240, 44, addon.Controls.Reload(), "primary", 17)
   else
     ctaButton(body, "Close", (width - 240) / 2, 268, 240, 44, function() addon:HideFrame() end, "neutral", 17)
   end
@@ -710,11 +710,10 @@ local function enabledAfterReload(moduleName)
 end
 
 -- After the reload WagoUI opens again on Individual Profiles.
-local function reloadIntoProfiles()
+local reloadIntoProfiles = addon.Controls.Reload(function()
   local s = addon.dbC.selection
   s.openProfilesNext, s.reopenAfterReload = true, true
-  ReloadUI()
-end
+end)
 
 local function enableAddon(moduleName)
   addon:EnableCreatorAddon(moduleName)

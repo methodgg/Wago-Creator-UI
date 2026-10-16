@@ -111,12 +111,11 @@ function addon:StorageState()
   return "missing"
 end
 
--- It is not load on demand, so it only loads with the next reload. Only the Enable and Reload buttons call this.
+-- It is not load on demand, so it only loads with the next reload, which the Enable and Reload buttons run after this.
 function addon:EnableStorage()
   C_AddOns.EnableAddOn(STORAGE)
   -- WagoUI opens again after the reload, now with the installed UI Packs.
   self.dbC.selection.reopenAfterReload = true
-  ReloadUI()
 end
 
 function addon:GetPack(id)
@@ -347,9 +346,7 @@ function addon:CapturePack(pack, onlyProfileID, callback, progress)
     local saved = self.db.creator.saved[pack.id]
     if not saved or saved.revision ~= captured.revision then table.insert(changes, "Pack settings") end
     captured.gameVersion = select(4, GetBuildInfo())
-    local version = captured.gameVersion
-    captured.gameFlavor = version >= 120000 and "retail" or version >= 50500 and "mop"
-      or version >= 40400 and "cata" or version >= 20505 and "bc" or "classic"
+    captured.gameFlavor = LAP:GetGameFlavor()
     captured.createdBy = self:CharacterKey()
     captured.includedAddons = {}
     captured.collectedWagoIds = {}

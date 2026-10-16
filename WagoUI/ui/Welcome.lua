@@ -72,8 +72,8 @@ local function welcome(body, hasPacks)
     -- Installed packs exist but cannot load yet; this is the way to them.
     local warning = label(install, "Your installed UI Packs are turned off.", 24, 206, width - 48, 14, { 1, .65, .3 })
     warning:SetJustifyH("CENTER")
-    local enable = ctaButton(install, "Enable and Reload", 24, 238, width - 48, 48, function() addon:EnableStorage() end,
-      "primary", 20)
+    local enable = ctaButton(install, "Enable and Reload", 24, 238, width - 48, 48,
+      addon.Controls.Reload(function() addon:EnableStorage() end), "primary", 20)
     enable:SetTooltip("The Wago App keeps installed UI Packs in the Wago UI Pack Storage AddOn, which is turned off.")
   elseif hasPacks then
     ctaButton(install, "Install UI Pack", 24, 238, width - 48, 48, function()

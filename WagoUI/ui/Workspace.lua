@@ -316,8 +316,8 @@ function addon:CreateWorkspace(frame)
   banner.text:SetText("Your installed UI Packs are turned off. The Wago App keeps them in the Wago UI Pack Storage AddOn, "
     .. "which is disabled.")
   banner.text:SetWordWrap(true)
-  local enable = ctaButton(banner, "Enable and Reload", 918 - 12 - 170, 6, 170, 32, function() addon:EnableStorage() end,
-    "primary", 14)
+  local enable = ctaButton(banner, "Enable and Reload", 918 - 12 - 170, 6, 170, 32,
+    Controls.Reload(function() addon:EnableStorage() end), "primary", 14)
   enable:SetTooltip("Turns on the Wago UI Pack Storage AddOn and reloads your UI.")
   banner:Hide()
   ui.storageBanner = banner

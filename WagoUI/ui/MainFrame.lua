@@ -83,7 +83,7 @@ function addon:CreateMainFrame()
   reloadIndicator:SetTooltip(L["IMPORT_RELOAD_WARNING1"])
   reloadIndicator:SetFrameStrata("DIALOG")
   reloadIndicator:Hide()
-  reloadIndicator.onClick = function() ReloadUI() end
+  reloadIndicator.onClick = Controls.Reload()
 
   function addon:ToggleReloadIndicator(show, text)
     if show then
@@ -140,7 +140,7 @@ function addon:CreateMainFrame()
         return
       end
       if addon.state.needReload and not addon.state.besideCooldownManager then
-        promptFunc(L["IMPORT_RELOAD_WARNING2"], ReloadUI, cancelFunc, L["Reload UI"], L["Cancel"])
+        promptFunc(L["IMPORT_RELOAD_WARNING2"], Controls.Reload(), cancelFunc, L["Reload UI"], L["Cancel"])
       end
     end
   )

@@ -88,10 +88,10 @@ function cooldownManager(pack)
   label(f, "Your profiles", 24, 104, 344, 16)
   local includedHeading = label(f, "", 392, 104, 344, 16)
   local search = input(f, "", 24, 128, 344)
-  local available = managerList(f, "availableLayouts", 24, 170, 344, 300)
-  local included = managerList(f, "includedLayouts", 392, 128, 344, 342)
+  local available = managerList(f, "availableLayouts", 24, 170, 344, 280)
+  local included = managerList(f, "includedLayouts", 392, 128, 344, 322)
   dragGhost({ available, included })
-  label(f, "Log into a character once to see its profiles here.", 24, 478, 344, 12, { .55, .55, .55 })
+  label(f, "Log into a character once to see its profiles here.", 24, 458, 344, 12, { .55, .55, .55 })
 
   local draw
   local function include(source)
@@ -154,7 +154,7 @@ function cooldownManager(pack)
   end
   search:SetScript("OnTextChanged", function(self) query = self:GetText():lower(); draw() end)
   -- Frozen layouts keep their last export, so tweaking a spec later does not change a published pack.
-  check(f, "Update Cooldown Manager profiles when saving", not pack.cdmExportsFrozen, 24, 512,
+  check(f, "Update Cooldown Manager profiles when saving", not pack.cdmExportsFrozen, 24, 482,
     function(value) pack.cdmExportsFrozen = not value or nil end)
   button(f, "Open Cooldown Manager", 412, 552, 184, function() openBlizzardSettings(pack) end,
     "Edit your profiles in Blizzard's Cooldown Manager. WagoUI comes back when you close it.")

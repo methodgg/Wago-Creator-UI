@@ -31,7 +31,6 @@ function addon.ResetOptions()
   addon.db.appHandoff = nil
   -- The creator tour starts over, even for someone who saved a UI Pack before and would otherwise skip it.
   addon.db.creatorTour.active = 1
-  ReloadUI()
 end
 
 local function shouldAutoStart()

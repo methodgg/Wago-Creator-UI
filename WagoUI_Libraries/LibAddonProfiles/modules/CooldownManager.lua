@@ -1,7 +1,3 @@
-if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
-  return
-end
-
 local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
 local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
@@ -39,6 +35,7 @@ end
 local m = {
   moduleName = "Blizzard Cooldown Manager",
   wagoId = "baseline",
+  flavors = { "retail", "forever" },
   icon = 135724,
   slash = "/editmode",
   needReloadOnImport = true,
@@ -52,7 +49,7 @@ local m = {
     local format = _G.COOLDOWN_VIEWER_CLASS_AND_SPEC_FORMAT or "%s - %s"
     for classID = 1, GetNumClasses() do
       local className = GetClassInfo(classID)
-      for specIndex = 1, className and GetNumSpecializationsForClassID(classID) or 0 do
+      for specIndex = 1, className and C_SpecializationInfo.GetNumSpecializationsForClassID(classID) or 0 do
         local _, specName = GetSpecializationInfoForClassID(classID, specIndex)
         if specName and profileKey == format:format(className, specName) then return true end
       end

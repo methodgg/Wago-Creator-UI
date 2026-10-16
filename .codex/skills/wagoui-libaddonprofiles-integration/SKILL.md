@@ -94,10 +94,11 @@ Use these rules:
 2. Set `wagoId` from `## X-Wago-ID` when present. Find the id online on wago addons if not present.
 3. Set `oldestSupported` to the currently installed addon version unless the user or repo gives hard evidence for an older supported minimum.
 4. Set `addonNames` to the real required addon folders, usually only the main addon.
-5. Set `icon` with `C_AddOns.GetAddOnMetadata("<MainAddon>", "IconTexture")`.
-6. Set `slash` from a proven slash command if you can find one quickly in the addon source. If not, use `"?"`.
-7. Set profile and reload flags from actual addon behavior. Do not guess.
-8. Keep `testImport` empty unless the target addon genuinely needs custom import validation.
+5. Set `flavors` only when the integration must be limited to some game flavors, using the `GameFlavor` names in `definitions.lua` (e.g. `flavors = { "forever" }`). Omit it to make the module available on every flavor. Never guard a module file with `WOW_PROJECT_ID` checks: the file runs on every flavor before modules outside `flavors` are dropped, so call flavor-specific APIs only inside functions. A sub-module built from another module copies that module's `flavors`.
+6. Set `icon` with `C_AddOns.GetAddOnMetadata("<MainAddon>", "IconTexture")`.
+7. Set `slash` from a proven slash command if you can find one quickly in the addon source. If not, use `"?"`.
+8. Set profile and reload flags from actual addon behavior. Do not guess.
+9. Keep `testImport` empty unless the target addon genuinely needs custom import validation.
 
 For profile comparison:
 

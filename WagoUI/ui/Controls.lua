@@ -80,10 +80,69 @@ function Tooltip:GetTooltip() return self.tooltip end
 function Tooltip:ShowTooltip() addon.ShowWidgetTooltip(self) end
 function Tooltip:HideTooltip() addon.HideWidgetTooltip(self) end
 
+-- WoW Forever lets only Blizzard's code reload the UI, so a control whose onClick is a Reload gets covered by one
+-- secure button that runs /reload. prepare runs first and cancels the reload by returning false.
+local Reload = {}
+function Controls.Reload(prepare) return setmetatable({ prepare = prepare }, Reload) end
+function Controls.IsReload(value) return getmetatable(value) == Reload end
+
+-- The cover lives outside WagoUI's frames: a secure child would keep WagoUI from hiding in combat. It takes clicks
+-- but not mouse motion, so the control beneath keeps its hover look and tooltip.
+local cover
+local function uncover()
+  if cover and not cover.clicking and not InCombatLockdown() then
+    cover:Hide()
+    cover.target = nil
+  end
+end
+
+local function newCover()
+  local f = CreateFrame("Button", nil, UIParent, "SecureActionButtonTemplate")
+  f:SetFrameStrata("TOOLTIP")
+  f:RegisterForClicks("LeftButtonUp")
+  f:SetMouseMotionEnabled(false)
+  f:SetAttribute("useOnKeyDown", false)
+  f:SetAttribute("type", "macro")
+  f:SetAttribute("macrotext", "/reload")
+  f:SetScript("PreClick", function(self)
+    self.clicking = true
+    local action = self.target and self.target.onClick
+    local ok, result = false, false
+    if Controls.IsReload(action) then ok, result = xpcall(action.prepare or nop, geterrorhandler()) end
+    if not ok or result == false then self:SetAttribute("type", nil) end
+  end)
+  f:SetScript("PostClick", function(self)
+    self.clicking = nil
+    self:SetAttribute("type", "macro")
+    if not (self.target and self.target:IsVisible()) then uncover() end
+  end)
+  f:RegisterEvent("PLAYER_REGEN_DISABLED")
+  f:SetScript("OnEvent", uncover)
+  f:Hide()
+  return f
+end
+
+local function coverIfReload(self)
+  if InCombatLockdown() or not Controls.IsReload(self.onClick) or not self:IsEnabled() then return end
+  cover = cover or newCover()
+  local scale = self:GetEffectiveScale() / UIParent:GetEffectiveScale()
+  cover:ClearAllPoints()
+  cover:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", self:GetLeft() * scale, self:GetBottom() * scale)
+  cover:SetSize(self:GetWidth() * scale, self:GetHeight() * scale)
+  cover.target = self
+  cover:Show()
+end
+
+function Controls.ArmReload(f)
+  f:HookScript("OnEnter", coverIfReload)
+  f:HookScript("OnLeave", uncover)
+  f:HookScript("OnHide", uncover)
+end
+
 -- Buttons answer left and right clicks through onClick and onRightClick.
 local function click(self, mouseButton)
   local callback = mouseButton == "RightButton" and self.onRightClick or self.onClick
-  if callback then callback(self, mouseButton) end
+  if type(callback) == "function" then callback(self, mouseButton) end
 end
 
 -- Disabled buttons dim under a dark overlay.
@@ -132,6 +191,7 @@ function Controls.Button(parent, width, height, text, fontSize)
     self:SetBackdropBorderColor(0, 0, 0, 1)
     self:HideTooltip()
   end)
+  Controls.ArmReload(f)
   return f
 end
 
@@ -161,6 +221,7 @@ function Controls.IconButton(parent, size, texture)
   if texture then f:SetIcon(texture) end
   f:SetScript("OnEnter", f.ShowTooltip)
   f:SetScript("OnLeave", f.HideTooltip)
+  Controls.ArmReload(f)
   return f
 end
 

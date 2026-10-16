@@ -1,5 +1,5 @@
-## Interface: 120105, 120100, 50504, 20506, 11509
-# WOW_INTERFACE_TARGETS: standard-test, standard, mists, tbc, vanilla
+## Interface: 120107, 120105, 50504, 20506, 16001, 11509, 11508
+# WOW_INTERFACE_TARGETS: standard-test, standard, mists-test, mists, tbc-test, tbc, forever-test, vanilla-test, vanilla
 ## Title: WagoUI
 ## Group: WagoAppCompanion
 ## IconTexture: Interface\AddOns\WagoUI\media\logoSmall.png
