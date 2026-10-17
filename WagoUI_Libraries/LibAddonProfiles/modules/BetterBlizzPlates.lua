@@ -9,7 +9,8 @@ local optionsFrame
 local m = {
   moduleName = "BetterBlizzPlates",
   wagoId = "b6mb47KP",
-  oldestSupported = "v2.1.0c",
+  flavors = { "retail", "forever", "classic", "bc", "mop" },
+  oldestSupported = "v2.2.1",
   addonNames = { "BetterBlizzPlates" },
   conflictingAddons = {},
   icon = 135724,
@@ -54,9 +55,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      BBP.ImportProfile(profileString)
+    local ok, accepted = xpcall(function()
+      return BBP.ImportProfile(profileString)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     local export

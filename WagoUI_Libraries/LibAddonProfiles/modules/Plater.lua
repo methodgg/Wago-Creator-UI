@@ -7,7 +7,8 @@ if (not private) then return end
 local m = {
   moduleName = "Plater",
   wagoId = "kRNLep6o",
-  oldestSupported = "Plater-v648-Retail",
+  flavors = { "retail", "forever", "classic", "bc", "mop" },
+  oldestSupported = "Plater-v661-Retail",
   addonNames = { "Plater" },
   conflictingAddons = { "Kui_Nameplates", "Kui_Nameplates_Core", "Kui_Nameplates_Core_Config" },
   icon = C_AddOns.GetAddOnMetadata("Plater", "IconTexture"),
@@ -16,6 +17,8 @@ local m = {
   needProfileKey = true,
   preventRename = false,
   willOverrideProfile = true,
+  -- Pre-filled name in Plater's import dialog.
+  commonProfileNames = { "MyNewProfile" },
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)
@@ -80,9 +83,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      PlaterAPI:ImportProfile(profileString, profileKey)
+    local ok, accepted = xpcall(function()
+      return PlaterAPI:ImportProfile(profileString, profileKey)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end

@@ -7,7 +7,8 @@ if (not private) then return end
 local m = {
   moduleName = "Midnight Simple Unit Frames",
   wagoId = "XKq9aoKy",
-  oldestSupported = "6.01",
+  flavors = { "retail", "forever", "classic", "bc", "mop" },
+  oldestSupported = "6.502",
   addonNames = { "MidnightSimpleUnitFrames" },
   conflictingAddons = { "BetterBlizzFrames", "UnhaltedUF", "ShadowedUnitFrames", "ShadowedUF_Options", "PitBull4" },
   icon = C_AddOns.GetAddOnMetadata("MidnightSimpleUnitFrames", "IconTexture"),
@@ -56,12 +57,13 @@ local m = {
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
     local success
-    xpcall(function()
+    local ok = xpcall(function()
       success = MSUF_ImportExternal(profileString, profileKey)
     end, geterrorhandler())
     if success then
       self:setProfile(profileKey)
     end
+    return ok and not not success
   end,
   exportProfile = function(self, profileKey)
     local export, _

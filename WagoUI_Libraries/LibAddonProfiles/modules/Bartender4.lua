@@ -7,7 +7,8 @@ if (not private) then return end
 local m = {
   moduleName = "Bartender4",
   wagoId = "v63oVn6b",
-  oldestSupported = "4.17.8",
+  flavors = { "retail", "forever", "classic", "bc", "mop" },
+  oldestSupported = "4.18.3.1",
   addonNames = { "Bartender4" },
   conflictingAddons = { "Dominos", "ElvUI", "ElvUI_Libraries", "ElvUI_Options" },
   icon = C_AddOns.GetAddOnMetadata("Bartender4", "IconTexture"),

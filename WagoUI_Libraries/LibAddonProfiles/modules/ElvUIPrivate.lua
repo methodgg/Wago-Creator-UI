@@ -7,6 +7,7 @@ local EXPORT_PREFIX = "!E2!"
 ---@type LibAddonProfilesModule
 local m = {
   moduleName = "ElvUI Private Profile",
+  flavors = { "retail", "forever", "classic", "bc", "mop" },
   oldestSupported = "v15.19",
   addonNames = { "ElvUI", "ElvUI_Libraries", "ElvUI_Options" },
   icon = C_AddOns.GetAddOnMetadata("ElvUI", "IconTexture"),
@@ -15,6 +16,8 @@ local m = {
   needProfileKey = false,
   preventRename = false,
   willOverrideProfile = false,
+  -- Private profiles are per character by design and cannot be renamed in ElvUI.
+  skipProfileNameCheck = true,
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)
@@ -95,7 +98,7 @@ local m = {
       if not data then return end
       data = E:FilterTableFromBlacklist(data, D.blacklistedKeys.private) --Remove unwanted options from import
     end, geterrorhandler())
-    if not success or not data then return end
+    if not success or not data then return false end
     ElvPrivateDB.profileKeys[E.mynameRealm] = profileKey
     ElvPrivateDB.profiles[profileKey] = data
   end,

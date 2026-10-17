@@ -105,3 +105,37 @@ function YourAddonAPI:CloseConfig()
   -- NOTE: This function should close the configuration interface of your AddOn if it has one.
   YourAddonConfigPanel:Hide()
 end
+
+--AURA ADDONS
+--AddOns that share auras instead of profiles (e.g. ForeverAuras) appear in WagoUI's aura manager: creators include whole
+--groups, and players import each group in your own import window, where they confirm it. Instead of the profile functions
+--above, implement these next to OpenConfig and CloseConfig. ForeverAuras' API.lua is a complete example.
+
+---@return table<string, {parent: string?, children: string[]?, icon: number|string|nil}> --every aura by id
+function YourAddonAPI:GetAuras()
+  -- NOTE: parent is the id of the group the aura is in, children the ids of the auras directly inside a group.
+end
+
+---@param id string --the aura to export, with everything inside it
+---@param excludedIds table<string, boolean>|nil --auras to leave out, along with everything inside them
+---@return string|nil --the import string your own import window accepts, or nil if the aura does not exist
+function YourAddonAPI:ExportAura(id, excludedIds)
+end
+
+---@param importString string
+---@return table|nil --the decoded import string, used to detect changes between versions of a group
+function YourAddonAPI:DecodeAuraString(importString)
+end
+
+---@param importString string
+---@param callback fun(accepted: boolean, id: string|nil)|nil
+---@return boolean opened, string|nil reason
+function YourAddonAPI:ImportAura(importString, callback)
+  -- NOTE: Open your import window for the string and return true, or return false and a reason if it cannot open.
+  -- NOTE: Call callback exactly once with the player's decision: true once the import finishes, false when they close the
+  --       import window or your options, or another import replaces it. Allow one open import at a time.
+end
+
+---@return Frame|nil --your options window, which WagoUI places beside its own while players import
+function YourAddonAPI:GetConfigFrame()
+end

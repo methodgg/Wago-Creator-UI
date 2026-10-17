@@ -1,7 +1,20 @@
 ---@class LAPLoadingNamespace
 local loadingAddonNamespace = select(2, ...)
 local MAJOR = "LibAddonProfiles"
-local MINOR = 19
+local MINOR = 23
+
+-- Keyed by WOW_PROJECT_ID, which PTR and beta clients share with their live flavor. The names match Wago's game types.
+-- Numeric keys because the WOW_PROJECT_* constants of other flavors are not defined on every client.
+---@type table<number, GameFlavor>
+local GAME_FLAVORS = {
+  [1] = "retail",
+  [2] = "classic",
+  [5] = "bc",
+  [11] = "wotlk",
+  [14] = "cata",
+  [18] = "forever",
+  [19] = "mop",
+}
 
 ---@class LibAddonProfiles
 local LibAddonProfiles = LibStub:NewLibrary(MAJOR, MINOR)
@@ -11,8 +24,10 @@ if LibAddonProfiles then
 
   ---@class LibAddonProfilesPrivate : table
   ---@field modules table<string, LibAddonProfilesModule>
+  ---@field gameFlavor GameFlavor | nil
   local LibAddonProfilesInternal = {
-    modules = {}
+    modules = {},
+    gameFlavor = GAME_FLAVORS[WOW_PROJECT_ID],
   }
 
   function loadingAddonNamespace:GetLibAddonProfilesInternal()
@@ -28,6 +43,12 @@ if LibAddonProfiles then
   ---@return table<string, LibAddonProfilesModule>
   function LibAddonProfiles:GetAllModules()
     return LibAddonProfilesInternal.modules
+  end
+
+  ---The flavor of the running client, nil for clients WagoUI does not know (e.g. Plunderstorm).
+  ---@return GameFlavor | nil
+  function LibAddonProfiles:GetGameFlavor()
+    return LibAddonProfilesInternal.gameFlavor
   end
 
   ---@param profileKey string
@@ -61,11 +82,20 @@ if LibAddonProfiles then
   end
 
   ---Disables a list of AddOns.
-  ---If the Addon is in introImportState and has field checked set to true, it will not be disabled
+  ---If the Addon is in selectedModules and has field checked set to true, it will not be disabled
   ---@param addonNames table<number, string>
-  ---@param introImportState table<string, IntroImportState>
-  function LibAddonProfiles:DisableConflictingAddons(addonNames, introImportState)
-    return LibAddonProfilesInternal:DisableConflictingAddons(addonNames, introImportState)
+  ---@param selectedModules table<string, {checked: boolean}>
+  function LibAddonProfiles:DisableConflictingAddons(addonNames, selectedModules)
+    return LibAddonProfilesInternal:DisableConflictingAddons(addonNames, selectedModules)
+  end
+
+  ---Why exporting a profile under this name is a bad idea, or nil when the name is fine.
+  ---Flags names most players already have, which installing would replace, and names taken from the creator's character.
+  ---@param moduleName string
+  ---@param profileKey string
+  ---@return string | nil warning
+  function LibAddonProfiles:GetProfileNameWarning(moduleName, profileKey)
+    return LibAddonProfilesInternal:GetProfileNameWarning(moduleName, profileKey)
   end
 
   ---@param ... any

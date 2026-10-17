@@ -7,10 +7,11 @@ if (not private) then return end
 local m = {
   moduleName = "WarpDeplete",
   wagoId = "5bGoOqG0",
-  oldestSupported = "5.4.2",
+  flavors = { "retail" },
+  oldestSupported = "5.4.4",
   addonNames = { "WarpDeplete" },
   icon = C_AddOns.GetAddOnMetadata("WarpDeplete", "IconTexture"),
-  slash = "/exampleslash",
+  slash = "/wdp",
   needReloadOnImport = false,
   needProfileKey = true,
   preventRename = false,

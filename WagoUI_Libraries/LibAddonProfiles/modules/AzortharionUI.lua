@@ -9,6 +9,7 @@ local optionsFrame
 local m = {
   moduleName = "AzortharionUI",
   wagoId = "QNlzqDKe",
+  flavors = { "retail" },
   oldestSupported = "8.3.0",
   addonNames = { "AzortharionUI" },
   conflictingAddons = {},
@@ -18,6 +19,8 @@ local m = {
   needProfileKey = false,
   preventRename = true,
   willOverrideProfile = true,
+  -- Imports always go to AzortharionUI's own "AzorUI" profile.
+  skipProfileNameCheck = true,
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)
@@ -60,9 +63,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      AUIG:Import(profileString, profileKey)
+    local ok, accepted = xpcall(function()
+      return AUIG:Import(profileString, profileKey)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end

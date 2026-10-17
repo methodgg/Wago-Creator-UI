@@ -7,7 +7,8 @@ if (not private) then return end
 local m = {
   moduleName = "Prat-3.0",
   wagoId = "RNL9ae6o",
-  oldestSupported = "3.9.104",
+  flavors = { "retail", "forever", "classic", "bc", "mop" },
+  oldestSupported = "3.9.113",
   addonNames = { "Prat-3.0" },
   conflictingAddons = { "Chattynator" },
   icon = C_AddOns.GetAddOnMetadata("Prat-3.0", "IconTexture"),
@@ -54,9 +55,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      Prat:ImportProfile(profileString, profileKey)
+    local ok, accepted = xpcall(function()
+      return Prat:ImportProfile(profileString, profileKey)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end

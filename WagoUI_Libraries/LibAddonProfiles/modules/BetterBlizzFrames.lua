@@ -9,7 +9,8 @@ local optionsFrame
 local m = {
   moduleName = "BetterBlizzFrames",
   wagoId = "qGZR02Gd",
-  oldestSupported = "v2.0.1d",
+  flavors = { "retail", "forever", "classic", "bc", "mop" },
+  oldestSupported = "v2.1.8",
   addonNames = { "BetterBlizzFrames" },
   conflictingAddons = { "UnhaltedUF", "MidnightSimpleUnitFrames", "ShadowedUnitFrames", "ShadowedUF_Options", "PitBull4" },
   icon = 135724,
@@ -54,9 +55,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      BBF.ImportProfile(profileString)
+    local ok, accepted = xpcall(function()
+      return BBF.ImportProfile(profileString)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     local export

@@ -7,7 +7,8 @@ if (not private) then return end
 local m = {
   moduleName = "Cooldown Manager Centered",
   wagoId = "b6mvbYKP",
-  oldestSupported = "5.2.17",
+  flavors = { "retail", "forever" },
+  oldestSupported = "5.9.0",
   addonNames = { "CooldownManagerCentered" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("CooldownManagerCentered", "IconTexture"),
@@ -54,9 +55,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      CooldownManagerCentered:ImportProfileFromString(profileString, profileKey)
+    local ok, accepted = xpcall(function()
+      return CooldownManagerCentered:ImportProfileFromString(profileString, profileKey)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end
