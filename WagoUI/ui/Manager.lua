@@ -1,4 +1,5 @@
--- Two-list managers (Cooldown Manager, aura addons): rows move between the lists by click or drag.
+-- Two-list managers (Cooldown Manager, aura addons, Mythic Dungeon Tools routes): rows move between the lists by click
+-- or drag.
 local addon = select(2, ...)
 local UI = addon.UI
 local ui = UI.view
@@ -51,7 +52,8 @@ local function managerList(f, kind, x, y, width, height)
 end
 
 -- A row: clicking it (or dropping it on dropTarget) runs onActivate. The hover icon on the right shows what that
--- does; an optional second icon left of it runs its own action.
+-- does; an optional second icon left of it runs its own action. chevron ("open" or "closed") marks a section heading,
+-- and noDrag keeps a row from being dragged.
 local function managerRow(list, y, row)
   local f = widget(list.content, "managerRow", function()
     local b = CreateFrame("Button", nil, list.content, "BackdropTemplate")
@@ -63,6 +65,10 @@ local function managerRow(list, y, row)
     b.text:SetFont(addon.FONT, 13, "")
     b.text:SetJustifyH("LEFT")
     b.text:SetWordWrap(false)
+    -- Sections that collapse show WagoUI's chevron on the right: down while open, right while closed.
+    b.chevron = b:CreateTexture(nil, "OVERLAY")
+    b.chevron:SetTexture([[Interface\AddOns\WagoUI\media\calloutArrow]])
+    b.chevron:SetVertexColor(.7, .7, .7, 1)
     b.action = b:CreateTexture(nil, "OVERLAY")
     b.action:SetSize(16, 16)
     b.action:SetPoint("RIGHT", b, "RIGHT", -10, 0)
@@ -86,7 +92,7 @@ local function managerRow(list, y, row)
     b.second:SetScript("OnClick", function() if not addon.state.busy and b.secondAction then b.secondAction() end end)
     b:RegisterForDrag("LeftButton")
     b:SetScript("OnDragStart", function(self)
-      if addon.state.busy then return end
+      if addon.state.busy or self.noDrag then return end
       local ghost = ui.managerGhost
       ghost.text:SetText(self.text:GetText())
       ghost:SetSize(self:GetWidth(), self:GetHeight())
@@ -115,10 +121,21 @@ local function managerRow(list, y, row)
   f.text:SetText(row.text)
   f.text:SetTextColor(unpack(row.color or { 1, 1, 1 }))
   f.action:SetTexture(row.actionTexture)
+  -- The arrow texture points up: flipped it points down, turned a quarter it points right.
+  f.chevron:SetShown(row.chevron ~= nil)
+  if row.chevron == "open" then
+    f.chevron:SetTexCoord(0, 1, 1, 0)
+    f.chevron:SetSize(12, 6)
+  elseif row.chevron == "closed" then
+    f.chevron:SetTexCoord(0, 1, 1, 1, 0, 0, 1, 0)
+    f.chevron:SetSize(6, 12)
+  end
+  f.chevron:ClearAllPoints()
+  f.chevron:SetPoint("CENTER", f, "RIGHT", -16, 0)
   f.tooltip = row.tooltip
   if row.secondAtlas then f.second.texture:SetAtlas(row.secondAtlas) else f.second.texture:SetTexture(row.secondTexture) end
   f.secondAction, f.secondTooltip = row.secondAction, row.secondTooltip
-  f.onActivate, f.dropTarget = row.onActivate, row.dropTarget
+  f.onActivate, f.dropTarget, f.noDrag = row.onActivate, row.dropTarget, row.noDrag
   f:SetEnabled(not addon.state.busy)
   f:paint()
   return f

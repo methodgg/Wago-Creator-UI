@@ -4,6 +4,7 @@
 	<Script file ="CompressionUtils.lua"/>
 	<Script file ="modules\WeakAuras.lua"/>
 	<Script file ="modules\ForeverAuras.lua"/>
+	<Script file ="modules\MythicDungeonTools.lua"/>
 	<Script file ="modules\Details.lua"/>
 	<Script file ="modules\Plater.lua"/>
 	<Script file ="modules\Bartender4.lua"/>

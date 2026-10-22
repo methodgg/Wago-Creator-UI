@@ -5,6 +5,14 @@
 ---@field parent string | nil The id of the group the aura is in.
 ---@field children string[] | nil The ids of the auras directly inside a group.
 ---@field icon number | string | nil
+---@field label string | nil Shown instead of the id, for groups whose ids are not readable (Mythic Dungeon Tools routes).
+---@field category string | nil Groups with a category are listed under it (a route's dungeon).
+---@field categoryIcon number | string | nil The category's icon (a dungeon's icon).
+---@field order number | nil Position within the list; the addon's own order instead of alphabetical.
+---@field name string | nil The group's own name, without its category (a route's name).
+---@field author string | nil Who made the group (a route's author).
+---@field authorClass string | nil The author's class file name, such as "MAGE", for coloring the author.
+---@field currentSeason boolean | nil False for routes outside the season selected in Mythic Dungeon Tools; pickers list only the rest.
 
 ---@class RefreshHook : table
 ---@field tableFunc fun() : table The target table that we want to hook functions on
@@ -46,8 +54,10 @@
 ---@field exportOptions table<any, any> | nil A table of options that can be used to customize the export. The options are used in the exportProfile function.
 ---@field setExportOptions? fun(self: LibAddonProfilesModule, options: table) : nil  Set the export options. The options are used in the exportProfile function.
 ---@field exportGroup? fun(self: LibAddonProfilesModule, profileKey: string, blockedIds: table<string> | nil) : string | nil For modules that have a group of export strings, export a single export string of that group. (e.g. WeakAuras)
----@field getAuras? fun(self: LibAddonProfilesModule) : table<string, AuraInfo> Aura addons (WeakAuras, ForeverAuras): every aura by id. Its presence makes the module's records groups that are picked in the aura manager.
+---@field getAuras? fun(self: LibAddonProfilesModule) : table<string, AuraInfo> Group addons (WeakAuras, ForeverAuras, Mythic Dungeon Tools): every group by id. Its presence makes the module's records groups that are picked in a manager.
 ---@field importInteractive? fun(self: LibAddonProfilesModule, importString: string, callback: fun(accepted: boolean) | nil) : boolean, string | nil Opens the addon's own import window. callback runs once with the player's decision, or never if they reload. Returns false and a reason when no window opened.
+---@field importInteractiveGroups? fun(self: LibAddonProfilesModule, importStrings: string[], callback: fun(importedKeys: table<string, boolean>) | nil) : boolean, string | nil Opens one import window for several groups. callback runs once with the keys (group ids) the player imported. Returns false and a reason when no window opened.
+---@field getGroupLabel? fun(self: LibAddonProfilesModule, profileKey: string) : string | nil The current label of a group whose label can change (a renamed route); saving refreshes the record's name with it.
 ---@field getConfigFrame? fun(self: LibAddonProfilesModule) : Frame | nil The addon's options window, which WagoUI docks beside its own.
 ---@field areProfileStringsEqual fun(self: LibAddonProfilesModule, profileStringA: string | nil, profileStringB: string | nil , tableA : table | nil, tableB : table | nil) : areEqual: boolean, changedEntries: table | nil, removedEntries: table | nil Deep compare two profile strings or two tables.
 ---@field refreshHookList table<number, RefreshHook> | nil Defines what functions should be hooked when wanting to monitor additions / deletions of profiles and changes to the currently active profile key.

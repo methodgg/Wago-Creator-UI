@@ -13,7 +13,7 @@ local variationTabs, variationToggle = UI.variationTabs, UI.variationToggle
 local additionalAddons, exportOptions, saveCapture = UI.additionalAddons, UI.exportOptions, UI.saveCapture
 local wagoAddons = UI.wagoAddons
 local CDM, cooldownManager, includedLayouts = UI.CDM, UI.cooldownManager, UI.includedLayouts
-local includedAuras, aurasManager = UI.includedAuras, UI.aurasManager
+local includedAuras, aurasManager, MDT, routesManager = UI.includedAuras, UI.aurasManager, UI.MDT, UI.routesManager
 local ctaButton, startSetup, tourTarget = UI.ctaButton, UI.startSetup, UI.tourTarget
 local function render() UI.render() end
 
@@ -235,7 +235,8 @@ local function creator(pack)
     -- Cooldown Manager layouts are picked in their own manager and ship with every variation: one manage row.
     local cdm, auras = moduleName == CDM, LAP:GetModule(moduleName).getAuras ~= nil
     local rows = (cdm or auras) and { { manage = true } } or creatorRows(pack, moduleName)
-    -- Auras are picked in their manager too, but each one keeps a row for its variations.
+    -- Auras and routes are picked in their manager too, but each one keeps a row: auras for their variations, routes to
+    -- show they ship with every variation.
     if auras then
       for _, p in ipairs(includedAuras(pack, moduleName)) do table.insert(rows, { profileID = p.id, aura = true }) end
     end
@@ -276,7 +277,10 @@ local function creator(pack)
           render()
         end
         local chipX, chipY, firstChip = VARIATIONS_X, y + 9, nil
-        for _, id in ipairs(row.manage and {} or pack.variationOrder) do
+        -- Routes ship with every variation, so they offer no chips.
+        local everyVariation = p and Packs.InEveryVariation(p)
+        if everyVariation then label(body, "All variations", VARIATIONS_X, y + 16, VARIATIONS_RIGHT - VARIATIONS_X, 13, { .55, .55, .55 }) end
+        for _, id in ipairs((row.manage or everyVariation) and {} or pack.variationOrder) do
           -- A variation tab shows only what is assigned; "All" offers every toggle.
           if tags[id] or not filter then
             local chip, width = variationToggle(body, pack.variations[id].name, id, tags[id],
@@ -350,9 +354,15 @@ local function creator(pack)
           render()
         end
         if row.manage then
+          local routes = moduleName == MDT
           local manage = button(body, managed > 0 and ("Manage (" .. managed .. ")") or "Manage", PROFILE_X, y + 6,
-            PROFILE_WIDTH, function() if cdm then cooldownManager(pack) else aurasManager(pack, moduleName) end end,
-            cdm and "Choose Cooldown Manager profiles to include" or ("Choose " .. moduleName .. " to include"), 32)
+            PROFILE_WIDTH, function()
+              if cdm then cooldownManager(pack)
+              elseif routes then routesManager(pack, moduleName)
+              else aurasManager(pack, moduleName) end
+            end,
+            cdm and "Choose Cooldown Manager profiles to include" or routes and "Choose routes to include"
+              or ("Choose " .. moduleName .. " to include"), 32)
           manage:SetEnabled(ready and not locked and not addon.state.busy)
         elseif row.aura then
           label(body, p.name, PROFILE_X + 16, y + 15, PROFILE_WIDTH - 16, 14)

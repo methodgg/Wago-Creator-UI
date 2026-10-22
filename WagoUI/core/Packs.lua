@@ -20,8 +20,9 @@ end
 
 local MAX_RESOLUTIONS = 10
 Packs.MAX_RESOLUTIONS = MAX_RESOLUTIONS
--- Aura addons ship groups instead of profiles. Part of the pack format, so it holds on clients without these addons.
-local AURA_ADDONS = { WeakAuras = true, ForeverAuras = true }
+-- These addons ship groups (auras, routes) instead of profiles. Part of the pack format, so it holds on clients
+-- without these addons.
+local GROUP_ADDONS = { WeakAuras = true, ForeverAuras = true, ["Mythic Dungeon Tools"] = true }
 
 -- A variation lists the screens it was designed for; none means Any resolution.
 local function resolutions(list)
@@ -46,7 +47,13 @@ local function resolutions(list)
   return #result > 0 and result or nil
 end
 
--- Cooldown Manager layouts are class-specific and ship with every variation.
+-- Cooldown Manager layouts are class-specific and Mythic Dungeon Tools routes do not depend on the UI, so both ship with
+-- every variation and are never assigned to one.
+local function inEveryVariation(profile)
+  return profile.kind == "cdm" or profile.moduleName == "Mythic Dungeon Tools"
+end
+Packs.InEveryVariation = inEveryVariation
+
 local function everyVariation(pack)
   local tags = {}
   for _, id in ipairs(pack.variationOrder) do tags[id] = true end
@@ -95,7 +102,7 @@ function Packs.SaveVariation(pack, id, label, sizes, description)
   pack.variations[id] = { name = label, resolutions = sizes, description = description or "" }
   if isNew then
     for _, profile in pairs(pack.profiles) do
-      if profile.kind == "cdm" then profile.variations[id] = true end
+      if inEveryVariation(profile) then profile.variations[id] = true end
     end
   end
   touch(pack)
@@ -130,7 +137,7 @@ function Packs.AddProfile(pack, moduleName, sourceKey, label, tags, kind, source
     end
   end
   -- Alternates may start without variations; the creator assigns them on the row.
-  if kind == "cdm" then tags = everyVariation(pack) end
+  if inEveryVariation({ kind = kind, moduleName = moduleName }) then tags = everyVariation(pack) end
   tags = membership(pack, tags or (first and { default = true }), tags == nil)
   local id = nextID(pack, "p")
   pack.profiles[id] = {
@@ -144,6 +151,7 @@ end
 
 function Packs.SetMembership(pack, id, tags)
   assert(pack.profiles[id], "Unknown profile.")
+  if inEveryVariation(pack.profiles[id]) then return end
   pack.profiles[id].variations = membership(pack, tags, false)
   touch(pack)
 end
@@ -179,7 +187,7 @@ function Packs.RemoveProfile(pack, id)
   touch(pack)
 end
 
--- Brings older drafts up to date: single resolutions become lists, and layouts join every variation.
+-- Brings older drafts up to date: single resolutions become lists, and layouts and routes join every variation.
 function Packs.Upgrade(pack)
   if type(pack) ~= "table" or type(pack.variations) ~= "table" then return end
   for _, v in pairs(pack.variations) do
@@ -188,7 +196,7 @@ function Packs.Upgrade(pack)
     end
   end
   for _, profile in pairs(type(pack.profiles) == "table" and pack.profiles or {}) do
-    if type(profile) == "table" and profile.kind == "cdm" and type(pack.variationOrder) == "table" then
+    if type(profile) == "table" and inEveryVariation(profile) and type(pack.variationOrder) == "table" then
       profile.variations = everyVariation(pack)
     end
   end
@@ -242,7 +250,7 @@ function Packs.Validate(pack)
       assert(p.id == id, "Profile ID mismatch.")
       name(p.moduleName); name(p.name); name(p.sourceKey)
       assert(p.kind == "profile" or p.kind == "snapshot" or p.kind == "group" or p.kind == "cdm", "Invalid profile kind.")
-      assert((p.kind == "group") == (AURA_ADDONS[p.moduleName] == true), "Invalid group integration.")
+      assert((p.kind == "group") == (GROUP_ADDONS[p.moduleName] == true), "Invalid group integration.")
       assert((p.kind == "cdm") == (p.moduleName == "Blizzard Cooldown Manager"), "Invalid layout integration.")
       membership(pack, p.variations, false)
       assert(p.data == nil or (type(p.data) == "string" and #p.data > 0), "Invalid profile payload.")

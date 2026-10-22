@@ -171,10 +171,24 @@ local function finishInstall(s)
   s.openProfilesNext = true
 end
 
--- Aura addons ask for confirmation in their own window, so their groups are imported one at a time.
+-- Group addons ask for confirmation in their own window. Aura groups are imported one at a time.
 local function needsConfirmation(p)
   local lap = LAP:GetModule(p.moduleName)
   return lap ~= nil and lap.importInteractive ~= nil
+end
+
+-- Mythic Dungeon Tools lists every waiting route in one import window, where the player picks which to keep.
+local function importsTogether(p)
+  local lap = LAP:GetModule(p.moduleName)
+  return lap ~= nil and lap.importInteractiveGroups ~= nil
+end
+
+-- What the waiting groups are called, for messages about them: routes only when every one is a route.
+local function groupNoun(records, count)
+  local routes = #records > 0
+  for _, p in ipairs(records) do routes = routes and importsTogether(p) end
+  if routes then return count == 1 and "route" or "routes" end
+  return count == 1 and "group" or "groups"
 end
 
 -- A manual import is pending until it is imported, and "open" while its addon's window waits for the player.
@@ -214,10 +228,11 @@ local function startInstall(pack, records)
   })
 end
 
--- Opens one aura group in its addon's own import window, docked beside WagoUI. onDone runs once it is imported there.
-local function importInAddon(pack, p, onDone)
-  addon:ImportProfiles(pack, { p }, function(_, failed)
-    if #failed == 0 then dockAuras(p.moduleName, false, 10) end
+-- Opens groups in their addon's own import window, docked beside WagoUI when the addon allows it: one aura group, or
+-- every route for Mythic Dungeon Tools. onDone runs for each one imported there.
+local function importInAddon(pack, records, onDone)
+  addon:ImportProfiles(pack, records, function(_, failed)
+    if #failed == 0 then dockAuras(records[1].moduleName, false, 10) end
     render()
   end, {
     onRecord = function(record, opened) if ui.run then ui.run.results[record.id] = opened and "open" or false end end,
@@ -627,11 +642,31 @@ local function installing(body, pack, s)
     if running and not current and result == nil and not run.manual[p.id] then current = p end
   end
   local manual = run and manualPending(run)
+  -- Routes still waiting, by addon: the first row imports all of them in one window.
+  local together, waitingRecords = {}, {}
+  for _, p in ipairs(records) do
+    local result = run.results[p.id]
+    if run.manual[p.id] and result ~= true then table.insert(waitingRecords, p) end
+    if run.manual[p.id] and (result == nil or result == false) then
+      if importsTogether(p) then
+        together[p.moduleName] = together[p.moduleName] or {}
+        table.insert(together[p.moduleName], p)
+      end
+    end
+  end
   local title, subtitle = "Installing your UI…", "This only takes a moment."
   if run and not running and not run.started then title, subtitle = "Waiting for confirmation…", nil
   elseif run and run.finished and #failed > 0 then title, subtitle = "Some things couldn't be installed", "You can try those again."
   elseif run and run.finished and manual then
-    title, subtitle = "Almost done: your auras", "Import them one by one. Each opens in its addon, where you confirm it."
+    local routes = 0
+    for _, p in ipairs(waitingRecords) do if importsTogether(p) then routes = routes + 1 end end
+    if routes == #waitingRecords then
+      title, subtitle = "Almost done: your routes", "Import them in Mythic Dungeon Tools, where you choose which to keep."
+    elseif routes == 0 then
+      title, subtitle = "Almost done: your auras", "Import them one by one. Each opens in its addon, where you confirm it."
+    else
+      title, subtitle = "Almost done: your auras and routes", "Import them in their addons, where you confirm them."
+    end
   elseif run and run.finished then title, subtitle = "Everything is installed", "Click Finish to wrap up."
   end
   heading(body, title, subtitle, 48)
@@ -656,11 +691,17 @@ local function installing(body, pack, s)
     addonIcon(body, p.moduleName, 14, y + 7, 24)
     label(body, p.moduleName, 50, y + 11, 240, 15)
     label(body, profileName(p), 300, y + 12, 380, 14, { .8, .8, .8 })
-    if run.manual[p.id] and (result == nil or result == false) then
+    local group = together[p.moduleName]
+    if group and group[1] ~= p and run.manual[p.id] and (result == nil or result == false) then
+      label(body, "Opens with the first route", 700, y + 12, 210, 13, GREY)
+    elseif run.manual[p.id] and (result == nil or result == false) then
       -- Waits for the batch so the addon's window never competes with other imports. A declined group can be retried.
-      local open = button(body, "Import in " .. p.moduleName, 700, y + 4, 210, function()
-        importInAddon(pack, p, function() run.imported = run.imported + 1 end)
-      end, nil, 30, 13, "manualImport")
+      local several = group and #group > 1
+      local open = button(body, several and ("Import all (" .. #group .. ")") or ("Import in " .. p.moduleName), 700, y + 4,
+        210, function()
+        importInAddon(pack, group or { p }, function() run.imported = run.imported + 1 end)
+      end, several and ("Opens " .. p.moduleName .. " with every waiting route. You choose which to keep there.") or nil,
+        30, 13, "manualImport")
       open:SetEnabled(run.finished and not running and not manualOpen(run))
     else
       local text, color = "Waiting", GREY
@@ -676,7 +717,7 @@ local function installing(body, pack, s)
   if not running then back(function() ui.run = nil; s.step = "review"; render() end) end
   if run and run.finished and #failed > 0 then
     primary("Try again (" .. #failed .. ")", function()
-      -- Aura groups not imported yet stay in the checklist.
+      -- Groups not imported yet stay in the checklist.
       local retry = {}
       for _, p in ipairs(records) do
         local result = run.results[p.id]
@@ -687,11 +728,12 @@ local function installing(body, pack, s)
   elseif run and run.finished then
     primary("Finish >>", function()
       local function finish() finishInstall(s); render() end
-      -- Aura groups are imported one by one, so some may still be waiting.
-      local waiting, addons, seen = 0, {}, {}
+      -- Groups are imported in their addons, so some may still be waiting.
+      local waiting, addons, seen, pending = 0, {}, {}, {}
       for _, p in ipairs(records) do
         if run.manual[p.id] and run.results[p.id] ~= true then
           waiting = waiting + 1
+          table.insert(pending, p)
           if not seen[p.moduleName] then seen[p.moduleName] = true; table.insert(addons, p.moduleName) end
         end
       end
@@ -699,7 +741,8 @@ local function installing(body, pack, s)
       confirm({
         title = "Not imported yet",
         message = "You haven't imported your " .. table.concat(addons, " and ") .. " yet.",
-        details = waiting .. (waiting == 1 and " group is" or " groups are") .. " still waiting. If you finish now, you can "
+        details = waiting .. " " .. groupNoun(pending, waiting) .. (waiting == 1 and " is" or " are")
+          .. " still waiting. If you finish now, you can "
           .. "import " .. (waiting == 1 and "it" or "them") .. " later from Individual Profiles.",
         cancelText = "Go back", confirmText = "Finish anyway", onConfirm = finish,
       })
@@ -861,7 +904,7 @@ local function expertList(body, pack, s)
     else
       local action = state == "new" and "Import" or state == "update" and "Update" or "Re-import"
       local b = button(body, action, 776, y + 6, 124, function()
-        if needsConfirmation(p) then importInAddon(pack, p); return end
+        if needsConfirmation(p) then importInAddon(pack, { p }); return end
         -- Success shows on the row itself; a failure is explained in a popup, as the UI Packs view has no status line.
         addon:ImportProfiles(pack, { p }, function(_, failed)
           if #failed > 0 then
@@ -878,6 +921,15 @@ local function expertList(body, pack, s)
   end
   for _, group in ipairs(sections) do
     if #group.rows > 0 then
+      -- Routes can all be imported at once; Mythic Dungeon Tools then lists them to pick from.
+      -- Only once the addon is on; until then each row offers to turn it on.
+      local ready = #group.rows > 1 and importsTogether(group.rows[1])
+      for _, p in ipairs(group.rows) do ready = ready and statuses[p] == "Ready" and not enabledAfterReload(p.moduleName) end
+      if ready then
+        local rows = group.rows
+        button(body, "Import all (" .. #rows .. ")", body:GetWidth() - 128, math.max(0, y - 2), 124, function() importInAddon(pack, rows) end,
+          "Opens " .. group.title .. " with every route listed. You choose which to keep there.", 24, 12, "expertImportAll")
+      end
       y = sectionTitle(body, group.title, y)
       if group.title == "Cooldown Manager" then
         label(body, "Only layouts for your class can be installed on this character.", 0, y - 4, body:GetWidth(), 12, GREY)

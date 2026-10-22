@@ -7,7 +7,7 @@ local CDM = "Blizzard Cooldown Manager"
 local creatorOrder = {
   "Blizzard Edit Mode", "Blizzard Cooldown Manager", "ElvUI", "ElvUI Private Profile", "ElvUI Account Settings",
   "ElvUI Aura Filters", "EllesmereUI", "Details", "Plater", "BigWigs", "BigWigs Boss Options", "Bartender4",
-  "Grid2", "WeakAuras", "ForeverAuras", "Method Raid Tools", "EXBoss",
+  "Grid2", "WeakAuras", "ForeverAuras", "Mythic Dungeon Tools", "Method Raid Tools", "EXBoss",
   "BliZzi Party Tools", "SexyMap", "BugSack", "WarpDeplete", "BlizzHUDTweaks", "HidingBar", "MinimapStats",
   "MPlusTimer", "TargetedSpells", "Advanced Focus Cast Bar", "AzortharionUI", "BetterBlizzFrames",
   "BetterBlizzPlates", "sArenaReloaded", "SenseiClassResourceBar", "CooldownManager", "Cooldown Manager Centered",
@@ -169,7 +169,7 @@ function addon:ProfileSources(moduleName)
   elseif not lap:isLoaded() or not lap:isUpdated() then
     return result, "Enable or update this addon first."
   elseif lap.getAuras then
-    for key in pairs(lap:getAuras()) do table.insert(result, { key = key, label = key, kind = "group" }) end
+    for key, info in pairs(lap:getAuras()) do table.insert(result, { key = key, label = info.label or key, kind = "group" }) end
   elseif lap.getProfileKeys then
     for key in pairs(lap:getProfileKeys()) do
       table.insert(result, { key = key, label = key, kind = lap.preventRename and "snapshot" or "profile" })
@@ -204,7 +204,9 @@ local function exportRecord(pack, profile)
       if id ~= profile.sourceKey then blocked[id] = true end
     end
     local data = lap:exportGroup(profile.sourceKey, blocked)
-    if not data then return nil, "Source aura missing." end
+    if not data then return nil, "Source missing." end
+    -- Routes can be renamed in their addon; the record follows.
+    if lap.getGroupLabel then profile.name = lap:getGroupLabel(profile.sourceKey) or profile.name end
     profile.collectedWagoIds = lap.getCollectedWagoIds and CopyTable(lap:getCollectedWagoIds()) or nil
     return data
   end

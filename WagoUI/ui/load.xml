@@ -8,6 +8,7 @@
   <Script file="Manager.lua"/>
   <Script file="CooldownManager.lua"/>
   <Script file="Auras.lua"/>
+  <Script file="Routes.lua"/>
   <Script file="Welcome.lua"/>
   <Script file="Creator.lua"/>
   <Script file="Installer.lua"/>
