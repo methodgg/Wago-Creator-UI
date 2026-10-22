@@ -7,7 +7,8 @@ if (not private) then return end
 local m = {
   moduleName = "BliZzi Party Tools",
   wagoId = "BKpgeB6E",
-  oldestSupported = "4.1.12",
+  flavors = { "retail" },
+  oldestSupported = "4.2.3",
   addonNames = { "BliZzi_Interrupts" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("BliZzi_Interrupts", "IconTexture"),
@@ -68,9 +69,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      BliZziPartyToolsAPI:ImportProfile(profileString, profileKey)
+    local ok, accepted = xpcall(function()
+      return BliZziPartyToolsAPI:ImportProfile(profileString, profileKey)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end

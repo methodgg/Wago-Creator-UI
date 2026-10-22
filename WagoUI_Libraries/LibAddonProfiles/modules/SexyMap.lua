@@ -7,7 +7,8 @@ if (not private) then return end
 local m = {
   moduleName = "SexyMap",
   wagoId = "e56no0K9",
-  oldestSupported = "v12.0.10",
+  flavors = { "retail", "classic", "bc", "mop" },
+  oldestSupported = "v12.1.2",
   addonNames = { "SexyMap" },
   icon = C_AddOns.GetAddOnMetadata("SexyMap", "IconTexture"),
   slash = "/sexymap",
@@ -15,6 +16,8 @@ local m = {
   needProfileKey = false,
   preventRename = true,
   willOverrideProfile = true,
+  -- Settings are stored under the character name and cannot be renamed.
+  skipProfileNameCheck = true,
   nonNativeProfileString = true,
   needSpecialInterface = false,
   isLoaded = function(self)

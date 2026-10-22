@@ -8,6 +8,7 @@ local EXPORT_PREFIX = "!E2!"
 local m = {
   moduleName = "ElvUI",
   wagoId = "tukui--2",
+  flavors = { "retail", "forever", "classic", "bc", "mop" },
   oldestSupported = "v15.19",
   addonNames = { "ElvUI", "ElvUI_Libraries", "ElvUI_Options" },
   conflictingAddons = { "Bartender4", "ShadowedUnitFrames", "ShadowedUF_Options", "PitBull4" },
@@ -81,15 +82,16 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
+    local ok, accepted = xpcall(function()
       local E = ElvUI[1]
       local D = E:GetModule("Distributor")
       local decodedType, _, decodedData = D:Decode(profileString)
-      if not decodedType or not decodedData then return end
+      if not decodedType or not decodedData then return false end
       -- important to use the supplied profileKey, as the decoded key might be different
       local force = true
-      D:SetImportedProfile(decodedType, profileKey, decodedData, force)
+      return D:SetImportedProfile(decodedType, profileKey, decodedData, force)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end

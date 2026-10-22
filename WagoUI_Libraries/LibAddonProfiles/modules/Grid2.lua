@@ -7,7 +7,8 @@ if (not private) then return end
 local m = {
   moduleName = "Grid2",
   wagoId = "vEGPyeN1",
-  oldestSupported = "4.0.2",
+  flavors = { "retail", "forever", "classic", "bc", "mop" },
+  oldestSupported = "4.1.7",
   addonNames = { "Grid2", "Grid2Options", "Grid2LDB", "Grid2RaidDebuffs", "Grid2RaidDebuffsOptions" },
   conflictingAddons = { "VuhDo", "VuhDoOptions", "Cell" },
   icon = C_AddOns.GetAddOnMetadata("Grid2", "IconTexture"),
@@ -81,9 +82,10 @@ local m = {
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
     if type(profileKey) ~= "string" then return end
-    xpcall(function()
-      Grid2ProfileAPI:ImportProfile(profileString, profileKey)
+    local ok, accepted = xpcall(function()
+      return Grid2ProfileAPI:ImportProfile(profileString, profileKey)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end

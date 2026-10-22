@@ -7,7 +7,8 @@ if (not private) then return end
 local m = {
   moduleName = "DandersFrames",
   wagoId = "RNL9B46o",
-  oldestSupported = "v4.9.0",
+  flavors = { "retail", "forever" },
+  oldestSupported = "v5.4.0",
   addonNames = { "DandersFrames" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("DandersFrames", "IconTexture"),
@@ -53,9 +54,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      DandersFrames_Import(profileString, profileKey)
+    local ok, accepted = xpcall(function()
+      return DandersFrames_Import(profileString, profileKey)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end

@@ -1,7 +1,3 @@
-if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
-  return
-end
-
 local _, loadingAddonNamespace = ...
 ---@type LibAddonProfilesPrivate
 local private = loadingAddonNamespace.GetLibAddonProfilesInternal and loadingAddonNamespace:GetLibAddonProfilesInternal()
@@ -51,12 +47,15 @@ end
 local m = {
   moduleName = "Blizzard Edit Mode",
   wagoId = "baseline",
+  flavors = { "retail", "forever" },
   icon = 135724,
   slash = "/editmode",
   needReloadOnImport = true,
   needProfileKey = true,
   preventRename = false,
   willOverrideProfile = true,
+  -- Every player has the two preset layouts, named in their client's language.
+  commonProfileNames = { LAYOUT_STYLE_MODERN or "Modern", LAYOUT_STYLE_CLASSIC or "Classic", "Modern", "Classic" },
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)
@@ -141,7 +140,7 @@ local m = {
     if profileKeys[profileKey] then
       local success = removeProfile(profileKey) --need to remove old profile with same name first for updating to work and not be confusing
       if not success then
-        return
+        return false
       end
     end
     if areGlobalLayoutsFull() then
@@ -150,14 +149,14 @@ local m = {
       EditModeManagerFrame:SelectLayout(3)
       local success = removeProfile(self:getCurrentProfileKey())
       if not success then
-        return
+        return false
       end
     end
 
     local newLayoutInfo = C_EditMode.ConvertStringToLayoutInfo(profileString)
-    local success = pcall(EditModeManagerFrame.ImportLayout, EditModeManagerFrame, newLayoutInfo, 1, profileKey)
-    if not success then
-      return
+    local success, accepted = pcall(EditModeManagerFrame.ImportLayout, EditModeManagerFrame, newLayoutInfo, 1, profileKey)
+    if not success or accepted == false then
+      return false
     end
     EditModeManagerFrame.CloseButton:Click()
     -- ignore taint warning

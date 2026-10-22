@@ -9,7 +9,8 @@ local optionsFrame
 local m = {
   moduleName = "MinimapStats",
   wagoId = "qGYM7vGg",
-  oldestSupported = "V12.0.18",
+  flavors = { "retail" },
+  oldestSupported = "V12.0.20",
   addonNames = { "MinimapStats" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("MinimapStats", "IconTexture"),
@@ -70,9 +71,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      MSG:ImportSavedVariables(profileString)
+    local ok, accepted = xpcall(function()
+      return MSG:ImportSavedVariables(profileString)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     local export

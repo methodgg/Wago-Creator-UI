@@ -17,9 +17,9 @@ Use only these implementation references when deciding how the integration shoul
 
 1. `WagoUI_Libraries/LibAddonProfiles/ImplementationGuide.lua`
 2. `WagoUI_Libraries/LibAddonProfiles/modules/BuffReminders.lua`
-3. `WagoUI_Libraries/LibAddonProfiles/modules/Ayije_CDM.lua`
+3. `WagoUI_Libraries/LibAddonProfiles/modules/EXBoss.lua`
 4. The installed source of the target addon
-5. The installed source of `BuffReminders` and `Ayije_CDM` if you need to see how their addon-side APIs are implemented
+5. The installed source of `BuffReminders` and `EXBoss` if you need to see how their addon-side APIs are implemented
 6. `WagoUI_Libraries/LibAddonProfiles/load.xml`
 7. For ignored comparison keys only: `WagoUI_Libraries/LibAddonProfiles/modules/Details.lua` and `WagoUI_Libraries/LibAddonProfiles/modules/Plater.lua`
 
@@ -86,7 +86,7 @@ Do not copy older addon-specific logic from unrelated LibAddonProfiles modules.
 
 ## Build The Module
 
-Create `WagoUI_Libraries/LibAddonProfiles/modules/<AddonName>.lua` in the same style and field order as `BuffReminders.lua` and `Ayije_CDM.lua`.
+Create `WagoUI_Libraries/LibAddonProfiles/modules/<AddonName>.lua` in the same style and field order as `BuffReminders.lua` and `EXBoss.lua`.
 
 Use these rules:
 
@@ -94,10 +94,11 @@ Use these rules:
 2. Set `wagoId` from `## X-Wago-ID` when present. Find the id online on wago addons if not present.
 3. Set `oldestSupported` to the currently installed addon version unless the user or repo gives hard evidence for an older supported minimum.
 4. Set `addonNames` to the real required addon folders, usually only the main addon.
-5. Set `icon` with `C_AddOns.GetAddOnMetadata("<MainAddon>", "IconTexture")`.
-6. Set `slash` from a proven slash command if you can find one quickly in the addon source. If not, use `"?"`.
-7. Set profile and reload flags from actual addon behavior. Do not guess.
-8. Keep `testImport` empty unless the target addon genuinely needs custom import validation.
+5. Set `flavors` only when the integration must be limited to some game flavors, using the `GameFlavor` names in `definitions.lua` (e.g. `flavors = { "forever" }`). Omit it to make the module available on every flavor. Never guard a module file with `WOW_PROJECT_ID` checks: the file runs on every flavor before modules outside `flavors` are dropped, so call flavor-specific APIs only inside functions. A sub-module built from another module copies that module's `flavors`.
+6. Set `icon` with `C_AddOns.GetAddOnMetadata("<MainAddon>", "IconTexture")`.
+7. Set `slash` from a proven slash command if you can find one quickly in the addon source. If not, use `"?"`.
+8. Set profile and reload flags from actual addon behavior. Do not guess.
+9. Keep `testImport` empty unless the target addon genuinely needs custom import validation.
 
 For profile comparison:
 
@@ -173,13 +174,13 @@ Add the new script entry to `WagoUI_Libraries/LibAddonProfiles/load.xml` so the 
 
 Keep the new entry near the other recent module entries unless the surrounding ordering gives a better obvious fit.
 
-Also add the module name to the `defaultSortOrder` list in `WagoUI_Creator/modules/generic.lua` so the creator UI can place the addon correctly in the generic module list.
+WagoUI discovers supported integrations through `LAP:GetAllModules()` and sorts their names in the integrated creator. No separate creator registration or sort list is needed.
 
 ## Update Lua Diagnostics Globals
 
 Add the target addon's verified public API global to `.luarc.json` under `diagnostics.globals` so Lua diagnostics recognize the wrapper calls.
 
-Use the exact global table from the installed addon source, such as `EXBossWagoAPI`, `BuffRemindersAPI`, or `Ayije_CDM_API`. Do not add guessed aliases or internal locals.
+Use the exact global table from the installed addon source, such as `EXBossWagoAPI` or `BuffRemindersAPI`. Do not add guessed aliases or internal locals.
 
 Preserve the existing `.luarc.json` shape and append only when the global is missing.
 
@@ -191,7 +192,7 @@ Confirm all of the following:
 2. Every real addon API call is wrapped in `xpcall`.
 3. No invented addon globals or methods appear in the module.
 4. `load.xml` includes the new module.
-5. `WagoUI_Creator/modules/generic.lua` includes the module name in `defaultSortOrder`.
+5. The integrated creator discovers the module through `LAP:GetAllModules()`.
 6. `.luarc.json` includes the verified addon API global used by the module.
 7. The module fields come from real addon metadata or real source findings.
 
@@ -200,7 +201,6 @@ Confirm all of the following:
 Use these files as the primary examples for future runs:
 
 1. Repo module: `WagoUI_Libraries/LibAddonProfiles/modules/BuffReminders.lua`
-2. Repo module: `WagoUI_Libraries/LibAddonProfiles/modules/Ayije_CDM.lua`
+2. Repo module: `WagoUI_Libraries/LibAddonProfiles/modules/EXBoss.lua`
 3. Installed addon API: `BuffReminders\Display\ImportExport.lua`
-4. Installed addon API: `Ayije_CDM\Config\WagoUI.lua`
-5. Installed addon API example with full guide coverage: `NaowhQOL\Data\SettingsIO.lua`
+4. Installed addon API: the `EXBoss` file that defines `EXBossWagoAPI`

@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "Method Raid Tools",
   wagoId = "5bGoJnK0",
+  flavors = { "retail", "classic", "bc", "mop" },
   oldestSupported = "5315",
   addonNames = { "MRT" },
   conflictingAddons = {},
@@ -68,9 +69,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      MRT_API:ImportProfile(profileString, profileKey)
+    local ok, accepted = xpcall(function()
+      return MRT_API:ImportProfile(profileString, profileKey)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end

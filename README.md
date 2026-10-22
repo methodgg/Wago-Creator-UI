@@ -1,5 +1,11 @@
 # WagoUI
 
+WagoUI includes Install and Create workspaces. Packs contain independent profile records tagged into one or more variations; resolution is optional variation metadata.
+
+Local drafts live in WagoUIDB.creator.packs. Explicitly saved captures live in WagoUIDB.creator.saved; reload writes them to disk for the companion app. WagoUI does not read or migrate the old creator database.
+
+The Wago App reads saved packs and delivers installed packs following the [schema-v2 transport contract](docs/wagoui-redesign/transport.md). UI Packs published by the previous creator are converted to schema 2 when WagoUI loads them; a pack that can't be converted is left out.
+
 ## Add-on authors
 
 If you want your add-on to be supported in Wago and Wago UI packs, start by submitting it through the Wago add-on request form:

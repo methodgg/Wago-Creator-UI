@@ -7,7 +7,8 @@ if (not private) then return end
 local m = {
   moduleName = "Sensei Class Resource Bar",
   wagoId = "ANzk0V64",
-  oldestSupported = "1.5.24",
+  flavors = { "retail" },
+  oldestSupported = "1.5.25",
   addonNames = { "SenseiClassResourceBar" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("SenseiClassResourceBar", "IconTexture"),
@@ -16,6 +17,8 @@ local m = {
   needProfileKey = false,
   preventRename = true,
   willOverrideProfile = true,
+  -- Imports go to the active Edit Mode layout.
+  skipProfileNameCheck = true,
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)
@@ -56,9 +59,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      SCRB.importProfileFromString(profileString)
+    local ok, accepted = xpcall(function()
+      return SCRB.importProfileFromString(profileString)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     local export
