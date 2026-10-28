@@ -7,6 +7,7 @@ if (not private) then return end
 local m = {
   moduleName = "EXBoss",
   wagoId = "vNAgrRKo",
+  flavors = { "retail" },
   oldestSupported = "v26.7.13.2130",
   addonNames = { "EXBoss", "ExwindCore", "EXBossData", "EXBOSS-Locale", "EXBOSS-LocaleBase", "EXBOSS-EXWIND", "EXBOSS-ENG" },
   conflictingAddons = {},
@@ -16,6 +17,8 @@ local m = {
   needProfileKey = false,
   preventRename = true,
   willOverrideProfile = true,
+  -- Imports never replace an existing configuration.
+  skipProfileNameCheck = true,
   nonNativeProfileString = false,
   needSpecialInterface = false,
   isLoaded = function(self)
@@ -70,9 +73,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      EXBossWagoAPI:ImportProfile(profileString, "Global")
+    local ok, accepted = xpcall(function()
+      return EXBossWagoAPI:ImportProfile(profileString, "Global")
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end

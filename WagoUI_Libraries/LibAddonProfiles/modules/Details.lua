@@ -7,7 +7,8 @@ if (not private) then return end
 local m = {
   moduleName = "Details",
   wagoId = "qv63A7Gb",
-  oldestSupported = "#Details.20260731.15263.172",
+  flavors = { "retail", "forever", "classic", "bc", "mop" },
+  oldestSupported = "#Details.20261015.15339.172",
   addonNames = { "Details" },
   icon = C_AddOns.GetAddOnMetadata("Details", "IconTexture"),
   slash = "/details config",
@@ -76,9 +77,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      DetailsAPI:ImportProfile(profileString, profileKey)
+    local ok, accepted = xpcall(function()
+      return DetailsAPI:ImportProfile(profileString, profileKey)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end

@@ -7,10 +7,11 @@ if (not private) then return end
 local m = {
   moduleName = "BugSack",
   wagoId = "rkGrrgGy",
+  flavors = { "retail", "forever", "classic", "bc", "mop" },
   additionalWagoIds = {
     ["BugGrabber"] = "7x61oyG1",
   },
-  oldestSupported = "v12.0.13",
+  oldestSupported = "v12.1.7",
   addonNames = { "BugSack", "!BugGrabber" },
   icon = C_AddOns.GetAddOnMetadata("BugSack", "IconTexture"),
   slash = "/bugsack",

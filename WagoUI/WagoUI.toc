@@ -1,13 +1,13 @@
-## Interface: 120107, 120105, 50504, 20506, 11509
-# WOW_INTERFACE_TARGETS: standard-test, standard, mists, tbc, vanilla
-## Title: Wago UI Pack Installer
+## Interface: 120107, 120105, 50504, 20506, 16001, 11509, 11508
+# WOW_INTERFACE_TARGETS: standard-test, standard, mists-test, mists, tbc-test, tbc, forever-test, vanilla-test, vanilla
+## Title: WagoUI
 ## Group: WagoAppCompanion
 ## IconTexture: Interface\AddOns\WagoUI\media\logoSmall.png
 ## Author: The Wago Team
 ## Version: 1.9.2
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
-## OptionalDeps: WagoUI_Creator, WagoUI_Storage
+## OptionalDeps: WagoUI_Storage
 ## SavedVariables: WagoUIDB
 ## SavedVariablesPerCharacter: WagoUICDB
 ## X-Wago-ID: O67jdaN3

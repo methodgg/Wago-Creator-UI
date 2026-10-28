@@ -9,7 +9,8 @@ local optionsFrame
 local m = {
   moduleName = "Targeted Spells",
   wagoId = "vNAe38No",
-  oldestSupported = "4.0.1",
+  flavors = { "retail", "forever" },
+  oldestSupported = "4.0.5",
   addonNames = { "TargetedSpells" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("TargetedSpells", "IconTexture"),
@@ -57,9 +58,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      TargetedSpellsAPI.Import(profileString)
+    local ok, accepted = xpcall(function()
+      return TargetedSpellsAPI.Import(profileString)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     local export

@@ -7,7 +7,8 @@ if (not private) then return end
 local m = {
   moduleName = "atrocityEssentials",
   wagoId = "rNkyJ3Ka",
-  oldestSupported = "v4.0.203",
+  flavors = { "retail" },
+  oldestSupported = "v4.0.786",
   addonNames = { "atrocityEssentials" },
   conflictingAddons = {},
   icon = C_AddOns.GetAddOnMetadata("atrocityEssentials", "IconTexture"),
@@ -67,9 +68,10 @@ local m = {
   end,
   importProfile = function(self, profileString, profileKey, fromIntro)
     if not profileString then return end
-    xpcall(function()
-      atrocityEssentialsAPI:ImportProfile(profileString, profileKey)
+    local ok, accepted = xpcall(function()
+      return atrocityEssentialsAPI:ImportProfile(profileString, profileKey)
     end, geterrorhandler())
+    return ok and accepted ~= false
   end,
   exportProfile = function(self, profileKey)
     if not profileKey then return end
