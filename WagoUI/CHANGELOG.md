@@ -1,6 +1,6 @@
-# 2.0.0-alpha1 (2026-10-28)
+# 2.0.0 (2026-11-04)
 
-Alpha test of the new WagoUI. The Creator is now part of WagoUI, and UI Packs use a new format built around variations.
+The Creator is now part of WagoUI, and UI Packs use a new format built around variations.
 
 - Merge WagoUI Creator into WagoUI: use /wago to install UI Packs and /wagoc to create them
 - Replace fixed resolutions with variations: named profile sets that can each target several resolutions
