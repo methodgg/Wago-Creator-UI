@@ -9,6 +9,12 @@ local function name(value)
   return value
 end
 
+-- An addon's own id for a profile or aura, kept exactly: ids may start or end with spaces.
+local function sourceID(value)
+  name(value)
+  return value
+end
+
 local function touch(pack)
   pack.revision = pack.revision + 1
 end
@@ -125,7 +131,7 @@ function Packs.RemoveVariation(pack, id)
 end
 
 function Packs.AddProfile(pack, moduleName, sourceKey, label, tags, kind, sourceCharacter, classAndSpecTag)
-  moduleName, sourceKey, label = name(moduleName), name(sourceKey), name(label)
+  moduleName, sourceKey, label = name(moduleName), sourceID(sourceKey), name(label)
   kind = kind or "profile"
   assert(kind == "profile" or kind == "group" or kind == "snapshot" or kind == "cdm", "Invalid profile kind.")
   local first = true
@@ -158,14 +164,14 @@ end
 
 function Packs.SetSource(pack, id, source)
   local profile = assert(pack.profiles[id], "Unknown profile.")
-  local key = name(source.key)
+  local key = sourceID(source.key)
   for otherID, other in pairs(pack.profiles) do
     assert(otherID == id or other.moduleName ~= profile.moduleName or source.kind == "snapshot"
       or other.sourceKey ~= key or other.sourceCharacter ~= source.character,
       "Profile already added. Edit its variations instead.")
   end
   if profile.sourceKey == key and profile.sourceCharacter == source.character and profile.kind == source.kind then return end
-  profile.sourceKey, profile.name, profile.kind = key, key, source.kind
+  profile.sourceKey, profile.name, profile.kind = key, name(key), source.kind
   profile.sourceCharacter, profile.classAndSpecTag = source.character, source.classAndSpecTag
   profile.data, profile.lastUpdatedAt, profile.lastSavedAt, profile.collectedWagoIds = nil, nil, nil, nil
   profile.keepCapture = nil
