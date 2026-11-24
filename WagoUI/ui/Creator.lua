@@ -184,6 +184,9 @@ local function creator(pack)
     end
   end
   local hasNotInstalled, listed, unassigned, profilesListed = false, false, {}, false
+  -- Addons with records ship in the pack, so they stay listed even when not installed.
+  local recorded = {}
+  for _, p in pairs(pack.profiles) do recorded[p.moduleName] = true end
   -- Pack-wide extras are not tied to a variation, so previews leave them out.
   local extrasPending = not filter and found("Additional Addons")
   local function additionalRow()
@@ -230,7 +233,8 @@ local function creator(pack)
   for _, info in ipairs(infos) do
     -- Sits below the last loaded addon, ahead of disabled and missing ones.
     if extrasPending and info.group ~= 1 then additionalRow() end
-    if info.status == "Not installed" then hasNotInstalled = true end
+    local collapsible = info.status == "Not installed" and not recorded[info.name]
+    if collapsible then hasNotInstalled = true end
     local moduleName, ready = info.name, info.status == "Ready"
     -- Cooldown Manager layouts are picked in their own manager and ship with every variation: one manage row.
     local cdm, auras = moduleName == CDM, LAP:GetModule(moduleName).getAuras ~= nil
@@ -259,7 +263,7 @@ local function creator(pack)
       shown = match and (not filter or #layouts > 0) and { 1 } or {}
     end
     -- Previews list everything the variation installs, so missing addons are never collapsed there.
-    if #shown > 0 and (info.status ~= "Not installed" or ui.showNotInstalled or query ~= "" or filter) then
+    if #shown > 0 and (not collapsible or ui.showNotInstalled or query ~= "" or filter) then
       listed, profilesListed = true, true
       local lap = LAP:GetModule(moduleName)
       local groupStart, lastBranch = y, nil
@@ -431,11 +435,12 @@ local function creator(pack)
             table.insert(actions, add)
             if p and index == 1 and ready then tourTarget("alternate", add, true) end
           end
-          -- A problem row always offers its ways out, even while its addon is unavailable.
+          -- A record always offers its way out, even while its addon is unavailable.
+          local unavailable = p and not loaded
           local remove = rowAction(body, [[Interface\Buttons\UI-GroupLoot-Pass-Up]], 870, y,
-            (row.aura or problem and not loaded) and "Remove from this UI Pack"
+            (row.aura or unavailable) and "Remove from this UI Pack"
             or index == 1 and "Clear selected profile" or "Remove alternate profile", clear)
-          remove.always = (problem or kept) and true or false
+          remove.always = (problem or kept or unavailable) and true or false
           table.insert(actions, remove)
           if p and p.data and (problem or p.keepCapture) then
             local keep = rowAction(body, nil, 806, y, p.keepCapture and "Stop keeping the last capture"
