@@ -118,7 +118,6 @@ function private:DeepCompareAsync(tbl1, tbl2, ignoredKeys, debug)
               vdt(value1, "value1")
               vdt(value2, "value2")
             end
-            return true
           else
             if debug then
               vdt(key1.." is not equal in tbl2")
