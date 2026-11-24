@@ -1,3 +1,4 @@
-# 2.0.1 (2026-11-17)
+# 2.0.2 (2026-11-24)
 
-- Fix UI Pack creators being unable to save auras or profiles whose names start or end with a space
+- Fix UI Pack creators being unable to see or remove profiles of AddOns that are not installed, which kept those AddOns in the pack's included AddOns list
+- Fix every WeakAuras group showing as changed after a WeakAuras update or game patch
