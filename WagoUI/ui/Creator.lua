@@ -233,9 +233,9 @@ local function creator(pack)
   for _, info in ipairs(infos) do
     -- Sits below the last loaded addon, ahead of disabled and missing ones.
     if extrasPending and info.group ~= 1 then additionalRow() end
-    local collapsible = info.status == "Not installed" and not recorded[info.name]
-    if collapsible then hasNotInstalled = true end
     local moduleName, ready = info.name, info.status == "Ready"
+    local collapsible = info.status == "Not installed" and not recorded[moduleName]
+    if collapsible then hasNotInstalled = true end
     -- Cooldown Manager layouts are picked in their own manager and ship with every variation: one manage row.
     local cdm, auras = moduleName == CDM, LAP:GetModule(moduleName).getAuras ~= nil
     local rows = (cdm or auras) and { { manage = true } } or creatorRows(pack, moduleName)
