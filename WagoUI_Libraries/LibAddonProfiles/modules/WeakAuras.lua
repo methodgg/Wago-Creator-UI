@@ -162,6 +162,18 @@ local function TableToString(inTable)
   return encoded
 end
 
+-- An export stamps the running WeakAuras version and game build, so every WeakAuras update or game patch would
+-- change every aura. WeakAuras warns on import only when the major build differs, so that part still counts.
+local function withoutClientStamps(transmit)
+  transmit.s = nil
+  local function keepMajorBuild(aura)
+    if aura.tocversion then aura.tocversion = math.floor(aura.tocversion / 10000) end
+  end
+  keepMajorBuild(transmit.d)
+  for _, child in ipairs(transmit.c or {}) do keepMajorBuild(child) end
+  return transmit
+end
+
 local collectedWagoIds = {}
 
 -- WeakAuras reports a declined import only from its import window, not when its whole options window closes.
@@ -412,7 +424,7 @@ local m = {
       local dataA = decodeWeakAuraString(tableA[groupIdx])
       local dataB = decodeWeakAuraString(tableB[groupIdx])
       if dataA and dataB then
-        if not private:DeepCompareAsync(dataA, dataB) then
+        if not private:DeepCompareAsync(withoutClientStamps(dataA), withoutClientStamps(dataB)) then
           allEqual = false
           changedEntries[groupIdx] = true
         end
